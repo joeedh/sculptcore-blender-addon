@@ -79,22 +79,41 @@ $env:PATH = "C:\dev\blender\sculptcore-blender-addon\engine\build\python;$env:PA
 `engine.py`'s `init()` refuses an ABI-mismatched DLL; on any load failure the
 addon reports it to the system console (Window → Toggle System Console).
 
-## The build/install helper (`tools/`) — PLANNED, not yet wired
+## The build/install helper (`tools/build-blender-dist.mjs`)
 
-The intended one-command chain (`tools/build-blender-dist.*`):
+One command assembles a runnable Blender with the sculpt mode bundled and
+**enabled by default**:
 
-1. Build the Blender fork (`custom-object-modes`) and `cmake --install` it into
-   a portable `dist/` tree.
-2. Build the engine DLL (`node make.mjs build python` in `engine/`).
-3. Vendor `sculptcore_addon/` + the `sculptcore` package + DLLs into
-   `dist/<version>/scripts/addons/sculptcore_addon/`.
-4. Run `dist/.../blender --background --python` to enable the addon and save a
-   portable `dist/<version>/config/userpref.blend`, so the addon is **enabled
-   by default** in the resulting install. (The fork stays sculptcore-agnostic;
-   the userpref is a build product, never committed.)
+```
+node tools/build-blender-dist.mjs [--build-dir DIR] [--dist DIR] [--config CFG]
+                                  [--skip-blender] [--skip-engine] [--run]
+```
 
-Until this lands, iterate with the env-var flow above pointed at a Blender
-fork build.
+The chain (`node tools/build-blender-dist.mjs --help` for the full option list):
+
+1. Build the Blender fork's `install` target (its Windows `bin/` tree is a
+   portable Blender). Skipped with `--skip-blender`. The build tree is
+   autodetected as `../build_*_<config>` beside the fork (`../main`), or passed
+   with `--build-dir`.
+2. Pick the install folder: a clean mirror at `--dist DIR`, or the build's
+   `bin/` in place (default, fast for dev).
+3. Copy `sculptcore_addon/` into `<install>/<ver>/scripts/addons/` (fresh;
+   `lib/` excluded).
+4. Vendor the engine runtime into the addon's `lib/` via the engine's own
+   `node make.mjs bundle <lib> ` (builds the DLL too; `--skip-engine` restages
+   existing outputs only).
+5. Run Blender headless (`--background --factory-startup --python
+   tools/enable_addon.py`, with `BLENDER_USER_CONFIG` pointed at
+   `<install>/<ver>/config`) to enable the addon and save
+   `config/userpref.blend`. Portable Blender reads that config when launched
+   from the install folder, so the mode is on at startup.
+
+The fork stays sculptcore-agnostic; the userpref and vendored `lib/` are build
+products, never committed. For tight engine iteration without a full restage,
+use the env-var flow above pointed at a Blender fork build.
+
+Prerequisites for step 4 are the engine's own (Node + CMake + toolchain; see
+`engine/CLAUDE.md`). The script has no npm dependencies.
 
 ## Working conventions for Claude (this repo)
 
