@@ -31,7 +31,11 @@ MIX_MULTIPLY = 1
 # Verified per-dab via the parity harness (test_brush_parity).
 _MAP = {
     'DRAW': ("DRAW", {}),
-    'DRAW_SHARP': ("SHARP", {}),
+    # Vanilla Draw Sharp is a plain normal-offset draw with falloff factors
+    # from original coordinates (do_draw_sharp_brush) — no pinch. pinch is
+    # reset explicitly because the session Brush is shared across strokes and
+    # a prior PINCH stroke would otherwise leak its value into SHARP.
+    'DRAW_SHARP': ("SHARP", {"pinch": 0.0}),
     'INFLATE': ("INFLATE", {}),
     # Clay + plane family: map the plane offset; the default plane side (+1)
     # produces sensible output at a convex surface (a -1 scrape side finds
@@ -69,6 +73,19 @@ _MAP = {
 # Brush types that dab at the stroke anchor with a cursor-delta (grabTo)
 # instead of at the moving cursor.
 GRAB_CLASS = {'GRAB', 'ELASTIC_DEFORM'}
+
+# Types whose vanilla brush adds its offset EVERY dab regardless of the
+# Accumulate toggle (do_draw_sharp_brush has no accumulate branch; its
+# "sharp" stability comes from orig-coordinate falloff factors, not from
+# capping displacement). The engine's nonAccum instead freezes the stroke at
+# single-dab depth — near-invisible for a subtle brush — so the operator
+# forces per-dab accumulation for these.
+FORCE_ACCUMULATE = {'DRAW_SHARP'}
+
+# Per-type strength compensation folded into every dab. The engine SHARP
+# kernel displaces by strength * radius * 0.5; vanilla's draw-sharp offset is
+# normal * radius * strength (no 0.5), so double the strength to match.
+STRENGTH_SCALE = {'DRAW_SHARP': 2.0}
 
 # Brush types that paint face sets — the operator assigns a fresh `activeGroup`
 # id (max existing + 1) at stroke start.

@@ -475,8 +475,12 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         if sc_brush.reproject_uvs:
             self.session.uv_dirty = True
         # "Adjust Strength for Spacing": constant for the stroke, folded into
-        # every dab's strength write.
+        # every dab's strength write — together with any per-type strength
+        # compensation (kernel-scale parity, see mapping.STRENGTH_SCALE).
         self._overlap = mapping.overlap_attenuation(self.brush)
+        if not kernel_toggle:
+            self._overlap *= mapping.STRENGTH_SCALE.get(
+                self.brush.sculpt_brush_type, 1.0)
         self._anchor = None
         self._anchor_normal = None
         self._drag_origin = None
@@ -565,7 +569,9 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         accumulate = (self.mode in {'SMOOTH', 'MASK'}
                       or self._grab_class
                       or not self.brush.sculpt_capabilities.has_accumulate
-                      or self.brush.use_accumulate)
+                      or self.brush.use_accumulate
+                      or (not kernel_toggle and
+                          self.brush.sculpt_brush_type in mapping.FORCE_ACCUMULATE))
         stroke_begin(self.session, has_dyntopo=self._dyntopo is not None,
                      accumulate=accumulate)
         context.window_manager.modal_handler_add(self)
