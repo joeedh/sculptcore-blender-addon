@@ -84,13 +84,15 @@ function parseArgs(argv) {
 function log(msg) { console.log(`\x1b[36m[dist]\x1b[0m ${msg}`) }
 function fail(msg) { console.error(`\x1b[31m[dist] error:\x1b[0m ${msg}`); process.exit(1) }
 
-function run(cmd, args, cwd, extraEnv) {
+function run(cmd, args, cwd, extraEnv, shell = false) {
   log(`$ ${cmd} ${args.join(' ')}${cwd ? `   (in ${cwd})` : ''}`)
   const res = spawnSync(cmd, args, {
     cwd,
     stdio: 'inherit',
     env: extraEnv ? { ...process.env, ...extraEnv } : process.env,
-    // node/cmake/robocopy are resolved from PATH; no shell needed.
+    // node/cmake/robocopy resolve from PATH directly; package managers such as
+    // pnpm are .cmd shims on Windows and need a shell to be found (shell=true).
+    shell,
   })
   if (res.error) fail(`failed to launch ${cmd}: ${res.error.message}`)
   return res.status ?? 0
@@ -134,6 +136,35 @@ function blenderVersionDir(installDir) {
   const dir = path.join(installDir, ver)
   if (!fs.existsSync(path.join(dir, 'scripts'))) fail(`no ${ver}/scripts under ${installDir}`)
   return ver
+}
+
+// One-time engine setup that a fresh clone lacks: nested submodules, the pnpm
+// workspace, and the wgpu-native prebuilt. Each check is a no-op once satisfied,
+// so the steady-state cost is a few fs.existsSync calls. Everything here is the
+// engine's own; we drive it through the engine's tooling, never reimplement it.
+function ensureEngineReady() {
+  // Submodules (imgui.cpp is the canonical missing-source symptom; litestl holds
+  // the pnpm workspace member @litestl/typescript-runtime).
+  if (!fs.existsSync(path.join(ENGINE, 'extern', 'imgui', 'imgui.cpp'))) {
+    log('engine submodules missing — git submodule update --init…')
+    if (run('git', ['submodule', 'update', '--init'], ENGINE) !== 0) {
+      fail('engine submodule checkout failed')
+    }
+  }
+  // pnpm workspace (make.mjs itself imports node deps; node_modules must exist).
+  if (!fs.existsSync(path.join(ENGINE, 'node_modules'))) {
+    log('engine node_modules missing — pnpm install…')
+    if (run('pnpm', ['install'], ENGINE, undefined, process.platform === 'win32') !== 0) {
+      fail('engine pnpm install failed')
+    }
+  }
+  // wgpu-native prebuilt (not checked in; the engine has its own fetch target).
+  if (!fs.existsSync(path.join(ENGINE, 'extern', 'wgpu_native', 'include', 'webgpu', 'webgpu.h'))) {
+    log('wgpu-native prebuilt missing — node make.mjs fetch-wgpu-native…')
+    if (run('node', ['make.mjs', 'fetch-wgpu-native'], ENGINE) !== 0) {
+      fail('wgpu-native fetch failed')
+    }
+  }
 }
 
 // Autodetect ../build_*_<config> beside the fork, preferring clang, newest.
@@ -206,6 +237,7 @@ async function main() {
 
   // 4. Vendor the engine runtime into the addon's lib/ (builds the DLL too,
   //    unless --skip-engine). `bundle <dir>` stages into <dir>/sculptcore.
+  ensureEngineReady()
   const libDest = path.join(addonDst, 'lib')
   ensureDir(libDest)
   const bundleArgs = ['make.mjs', 'bundle', libDest]
