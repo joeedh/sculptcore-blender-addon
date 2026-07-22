@@ -262,9 +262,12 @@ def apply_grab_dab(session, brush_type, anchor, cursor, normal, radius, accum_ad
     gf = brush.grabFrom.vec
     gt = brush.grabTo.vec
     drag = 0.0
+    # The kernels consume grabTo as the cumulative drag *delta* (the grab
+    # write-back re-bases each vert as orig + grabTo * falloff), not as the
+    # absolute cursor point.
     for i in range(3):
         gf[i] = anchor[i]
-        gt[i] = cursor[i]
+        gt[i] = cursor[i] - anchor[i]
         drag += (cursor[i] - anchor[i]) ** 2
     drag = drag ** 0.5
 
@@ -476,6 +479,7 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         self._overlap = mapping.overlap_attenuation(self.brush)
         self._anchor = None
         self._anchor_normal = None
+        self._drag_origin = None
         # Dab spacing along the stroke path (engine StrokeSpacer semantics:
         # interval = world radius x spacing fraction). Grab-class ignores it.
         self._spacer = StrokeSpacer()
@@ -581,21 +585,32 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         invert = event.ctrl or self.mode == 'INVERT'
 
         if self._grab_class:
-            hit = _ray_from_event(context, event, self.session)
-            if hit is None:
-                return
-            position, normal, _face = hit
-            world_radius = _world_radius(context, self.brush, position)
-            mapping.apply_dab_state(self.brush, unified, self.session.brush_obj,
-                                    world_radius=world_radius, invert=invert, strength_scale=self._overlap)
             if self._anchor is None:
-                # Anchor the region at the stroke-start surface point.
+                # Anchor the region at the stroke-start surface point. Only the
+                # anchoring dab needs the surface; misses just retry next move.
+                hit = _ray_from_event(context, event, self.session)
+                if hit is None:
+                    return
+                position, normal, _face = hit
                 self._anchor = position
                 self._anchor_normal = normal
-                self._anchor_radius = world_radius
-            # Project the current mouse onto the plane through the anchor to
-            # get the drag target in object space.
-            cursor = _cursor_on_anchor_plane(context, event, self._anchor)
+                self._anchor_radius = _world_radius(context, self.brush, position)
+                # Drag reference: the mouse ray's plane projection at pen-down,
+                # NOT the anchor itself — castRay's reconstructed hit sits off
+                # the mouse ray, so anchor-relative deltas would start nonzero.
+                self._drag_origin = _cursor_on_anchor_plane(context, event, self._anchor)
+            # No re-raycast after anchoring: the drag must keep working when
+            # the cursor leaves the surface (vanilla grab semantics), and the
+            # region/radius stay pinned to the stroke start regardless.
+            mapping.apply_dab_state(self.brush, unified, self.session.brush_obj,
+                                    world_radius=self._anchor_radius, invert=invert,
+                                    strength_scale=self._overlap)
+            # Drag target = anchor + mouse motion on the view-facing plane
+            # through the anchor (both endpoints are projections of the mouse
+            # ray, so the first dab's delta is exactly zero).
+            plane_point = _cursor_on_anchor_plane(context, event, self._anchor)
+            cursor = tuple(self._anchor[i] + plane_point[i] - self._drag_origin[i]
+                           for i in range(3))
             apply_grab_dab(self.session, self.kernel, self._anchor, cursor,
                            self._anchor_normal, self._anchor_radius)
             # Symmetry: reflect the anchor, cursor and normal directly (no
