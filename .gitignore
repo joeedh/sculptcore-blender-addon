@@ -1,0 +1,14 @@
+# Vendored engine runtime staged by the build (ctypes package + native DLLs).
+# This is a build product mirrored in from engine/; never committed.
+/sculptcore_addon/lib/
+
+# Python bytecode.
+__pycache__/
+*.pyc
+
+# Blender install tree produced by the build helper.
+/dist/
+
+# Editor/OS noise.
+.vscode/
+.DS_Store
