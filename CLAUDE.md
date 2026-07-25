@@ -39,6 +39,8 @@ sculptcore_addon/        The addon package Blender loads (bl_info; registers the
   convert.py             Mesh <-> engine conversion (enter/exit/flush/refresh).
   stroke.py, ops.py ...  Stroke operator, brush mapping, gestures, undo, UI, keymap.
   lib/                   Vendored engine runtime (ctypes pkg + DLLs). Build product; gitignored.
+brushes/                 Addon-authored .sbrush kernels compiled into the DLL at build
+                         time (engine "extra kernel dirs"); see brushes/README.md.
 engine/                  SculptCore engine (git submodule). Builds sculptcore_capi.dll.
 tools/                   Build/install helper (build-blender-dist.*) — see below.
 claudeMemory/            Claude's plans, research, and validated reference notes for THIS repo.

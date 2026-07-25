@@ -53,6 +53,12 @@ _MAP = {
     # height unmarked — claudeMemory/tests/bsmooth_boundary_test.py).
     'SMOOTH': ("BSMOOTH", {}),
     'PINCH': ("PINCH", {"pinch": lambda b: b.strength}),
+    # Nudge runs an addon-carried extra kernel (brushes/nudge.sbrush), compiled
+    # into the DLL at build time; a stale vendored DLL without it makes
+    # kernel_enum return None and the stroke cancel cleanly. projection is a
+    # shared Brush member (also written by the plane family), so reset it
+    # explicitly — same pattern as SHARP's pinch reset above.
+    'NUDGE': ("NUDGE", {"projection": 1.0}),
     'MASK': ("MASK", {}),
     # Vertex paint: brushColor synced from the Blender brush color (see
     # apply_brush); writes the `color` float4 vertex attr.
@@ -273,11 +279,13 @@ def is_supported(bl_brush):
 
 def kernel_enum(mgr, bl_brush):
     """The SculptBrushes enum value for a Blender brush, or None when the
-    brush type is not supported for sculpting yet."""
+    brush type is not supported for sculpting yet — or when the loaded DLL
+    lacks the kernel (a stale vendored build without an extra kernel)."""
     entry = _MAP.get(bl_brush.sculpt_brush_type)
     if entry is None:
         return None
-    return int(mgr.get("sculptcore::brush::SculptBrushes").items[entry[0]])
+    value = mgr.get("sculptcore::brush::SculptBrushes").items.get(entry[0])
+    return None if value is None else int(value)
 
 
 def apply_brush_settings(bl_brush, unified, sc_brush, *, paint=None):

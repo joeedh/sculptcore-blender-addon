@@ -80,7 +80,14 @@ def _walk_manifests():
     try:
         items = mgr.get("sculptcore::brush::SculptBrushes").items
         for kernel_name in sorted(set(mapping.KERNEL_BY_TYPE.values())):
-            count = executor.queryUniformManifest(int(items[kernel_name]))
+            enum_value = items.get(kernel_name)
+            if enum_value is None:
+                # A stale DLL without this kernel (e.g. an extra kernel not
+                # compiled in) must not take down every generated prop.
+                print("SculptCore: kernel {!r} missing from engine enum; "
+                      "skipping its props".format(kernel_name))
+                continue
+            count = executor.queryUniformManifest(int(enum_value))
             entries = []
             for i in range(count):
                 entry = executor.queriedUniformEntry(i)
@@ -117,14 +124,17 @@ def register():
         return
 
     annotations = {}
+    # name -> True once a *ranged* declaration registered it: a shared name can
+    # appear in several kernels' manifests (projection: bsmooth, nudge...), and
+    # a rangeless first sighting must not lock out a later @range declaration.
     union = {}
     for kernel_name, entries in sorted(manifests.items()):
         names = []
         for name, default, has_range, range_min, range_max in entries:
             names.append(name)
-            if name in union:
+            if name in union and (union[name] or not has_range):
                 continue
-            union[name] = True
+            union[name] = has_range
             kwargs = {"name": name, "default": default}
             if has_range:
                 kwargs["min"] = range_min

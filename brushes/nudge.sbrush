@@ -1,0 +1,34 @@
+// SPDX-FileCopyrightText: 2026 Blender Authors
+//
+// SPDX-License-Identifier: GPL-2.0-or-later
+
+// Nudge — drag geometry tangentially along the stroke direction. The stroke
+// tangent is projected into the surface tangent plane (`projection` blends
+// between raw stroke direction and the fully projected one) and each vert is
+// pushed along it by falloff * strength.
+//
+// `projection` reuses an existing Brush member (extras cannot introduce new
+// uniforms — see brushes/README.md); the plane family also writes it, so the
+// addon's mapping resets it per-stroke.
+
+@brush("nudge")
+brush Nudge {
+  ctx float3 surfaceNo;
+  ctx float3 strokeDir;
+  uniform float radius;
+  uniform float projection = 1.0 @static @range(0.0, 1.0);
+
+  vertex void apply(inout Vertex v) {
+    float s = strength(v.co) * (1.0 - v.mask);
+    s *= sampleBrushTex(v.co, surfaceNo);
+    if (s == 0.0) {
+      continue;
+    }
+    float3 t = strokeDir - surfaceNo * (dot(strokeDir, surfaceNo) * projection);
+    float l = length(t);
+    if (l < 1e-6) {
+      continue;
+    }
+    v.co += (t / l) * (s * radius * 0.5);
+  }
+}

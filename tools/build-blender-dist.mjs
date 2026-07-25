@@ -245,6 +245,22 @@ async function main() {
   ensureDir(libDest)
   const bundleArgs = ['make.mjs', 'bundle', libDest]
   if (opts.skipEngine) bundleArgs.push('--no-build')
+  // Repo-carried extra sbrush kernels (<repo>/brushes/*.sbrush) compile into
+  // the DLL alongside the built-ins — build-time sources, deliberately outside
+  // sculptcore_addon/ (which is copied verbatim into installs).
+  const brushesDir = path.join(REPO, 'brushes')
+  const hasExtraKernels =
+    fs.existsSync(brushesDir) && fs.readdirSync(brushesDir).some((f) => f.endsWith('.sbrush'))
+  if (hasExtraKernels) {
+    bundleArgs.push('--kernels-extra', brushesDir)
+    if (opts.skipEngine) {
+      log('note: brushes/ has extra kernels but --skip-engine is set; the restaged DLL may lack them')
+    }
+  } else {
+    // Explicitly none — clears a previously configured extras dir instead of
+    // silently keeping it in the engine's build cache.
+    bundleArgs.push('--kernels-extra=')
+  }
   log(`vendoring engine runtime${opts.skipEngine ? ' (restage only)' : ' (build + stage)'}…`)
   const bundleStatus = run('node', bundleArgs, ENGINE)
   if (bundleStatus !== 0) fail(`engine bundle failed (code ${bundleStatus})`)
