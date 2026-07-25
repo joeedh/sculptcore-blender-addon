@@ -11,7 +11,7 @@
  *      Windows `bin/` tree *is* a portable Blender.
  *   2. Optionally mirror that tree into a clean `--dist <dir>` (else stage
  *      in place in the build's `bin/`).
- *   3. Copy the addon package into `<install>/<ver>/scripts/addons/`.
+ *   3. Copy the addon package into `<install>/<ver>/scripts/addons_core/`.
  *   4. Vendor the engine runtime (ctypes package + DLLs) into the addon's
  *      `lib/` via the engine's own `make.mjs bundle` (builds the DLL too).
  *   5. Run Blender headless to enable the addon and save a portable
@@ -230,7 +230,10 @@ async function main() {
   log(`blender version dir: ${ver}`)
 
   // 3. Stage the addon package (fresh; lib/ is filled by the engine bundle).
-  const addonDst = path.join(installDir, ver, 'scripts', 'addons', ADDON_MODULE)
+  //    Blender 5.x only scans the versioned system path `scripts/addons_core`
+  //    (addon_utils.paths()); the legacy `scripts/addons` is no longer searched,
+  //    so an addon staged there fails to enable ("No module named ...").
+  const addonDst = path.join(installDir, ver, 'scripts', 'addons_core', ADDON_MODULE)
   log(`staging addon -> ${addonDst}`)
   fs.rmSync(addonDst, { recursive: true, force: true })
   copyTree(ADDON_SRC, addonDst, new Set(['lib', '__pycache__', '.mypy_cache']))

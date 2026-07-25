@@ -97,8 +97,9 @@ The chain (`node tools/build-blender-dist.mjs --help` for the full option list):
    with `--build-dir`.
 2. Pick the install folder: a clean mirror at `--dist DIR`, or the build's
    `bin/` in place (default, fast for dev).
-3. Copy `sculptcore_addon/` into `<install>/<ver>/scripts/addons/` (fresh;
-   `lib/` excluded).
+3. Copy `sculptcore_addon/` into `<install>/<ver>/scripts/addons_core/` (fresh;
+   `lib/` excluded). Blender 5.x only scans `scripts/addons_core` in an install
+   tree, not the legacy `scripts/addons`.
 4. Vendor the engine runtime into the addon's `lib/` via the engine's own
    `node make.mjs bundle <lib> ` (builds the DLL too; `--skip-engine` restages
    existing outputs only).
