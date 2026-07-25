@@ -12,11 +12,16 @@ build machinery, "Extra kernel dirs" in `documentation/brush_compute.md`.
 
 Rules that matter when adding a kernel here:
 
-- **Uniforms must be existing engine `Brush` members** (`engine/source/brush/
-  brush.h`). `uniform` / non-builtin `ctx` fields lower to `ctx.brush.<name>`;
-  an unknown name fails the C++ compile of the generated header. New tunables
-  need an engine-side member first. Builtin `ctx` names (`surfaceNo`,
-  `strokeDir`, `mousePos`, ...) come from the executor's `CommandCtx`.
+- **Uniforms are member-backed or store-backed.** Names listed in
+  `Brush::builtinPropNames` (`engine/source/brush/brush.h`) lower to the
+  engine member `ctx.brush.<name>` — sharing whatever else writes that member.
+  Any *other scalar float* uniform automatically gets its own slot in the
+  `Brush.namedFloats` store (per-build slot, DSL default seeded, written by
+  the addon via `setNamedFloat`) — so a kernel can own a new float tunable
+  without touching the engine (`nudgeProjection` here is one). Non-float
+  uniforms still need an engine-side member. Builtin `ctx` names
+  (`surfaceNo`, `strokeDir`, `mousePos`, ...) come from the executor's
+  `CommandCtx`.
 - **Names must not collide with built-ins or each other**: file stem,
   `@brush("name")`, and the uppercased enum item (case-insensitive) are each
   checked by the registry step, which fails the build with a message.

@@ -3,20 +3,20 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 // Nudge — drag geometry tangentially along the stroke direction. The stroke
-// tangent is projected into the surface tangent plane (`projection` blends
-// between raw stroke direction and the fully projected one) and each vert is
-// pushed along it by falloff * strength.
+// tangent is projected into the surface tangent plane (`nudgeProjection`
+// blends between raw stroke direction and the fully projected one) and each
+// vert is pushed along it by falloff * strength.
 //
-// `projection` reuses an existing Brush member (extras cannot introduce new
-// uniforms — see brushes/README.md); the plane family also writes it, so the
-// addon's mapping resets it per-stroke.
+// `nudgeProjection` is not a Brush member: it lives in the name-keyed
+// namedFloats store (engine "wave-2" extras support), so this kernel owns its
+// tunable outright — no shared-member reset dance. See brushes/README.md.
 
 @brush("nudge")
 brush Nudge {
   ctx float3 surfaceNo;
   ctx float3 strokeDir;
   uniform float radius;
-  uniform float projection = 1.0 @static @range(0.0, 1.0);
+  uniform float nudgeProjection = 1.0 @static @range(0.0, 1.0);
 
   vertex void apply(inout Vertex v) {
     float s = strength(v.co) * (1.0 - v.mask);
@@ -24,7 +24,7 @@ brush Nudge {
     if (s == 0.0) {
       continue;
     }
-    float3 t = strokeDir - surfaceNo * (dot(strokeDir, surfaceNo) * projection);
+    float3 t = strokeDir - surfaceNo * (dot(strokeDir, surfaceNo) * nudgeProjection);
     float l = length(t);
     if (l < 1e-6) {
       continue;

@@ -55,10 +55,10 @@ _MAP = {
     'PINCH': ("PINCH", {"pinch": lambda b: b.strength}),
     # Nudge runs an addon-carried extra kernel (brushes/nudge.sbrush), compiled
     # into the DLL at build time; a stale vendored DLL without it makes
-    # kernel_enum return None and the stroke cancel cleanly. projection is a
-    # shared Brush member (also written by the plane family), so reset it
-    # explicitly — same pattern as SHARP's pinch reset above.
-    'NUDGE': ("NUDGE", {"projection": 1.0}),
+    # kernel_enum return None and the stroke cancel cleanly. Its tunable
+    # (nudgeProjection) is a namedFloats store uniform written by
+    # engine_props.apply, so no per-stroke field reset is needed here.
+    'NUDGE': ("NUDGE", {}),
     'MASK': ("MASK", {}),
     # Vertex paint: brushColor synced from the Blender brush color (see
     # apply_brush); writes the `color` float4 vertex attr.

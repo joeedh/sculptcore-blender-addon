@@ -29,6 +29,10 @@ _MAPPED = {"strength", "radius", "spacing", "planeoff", "autosmooth", "pinch", "
 _group_cls = None
 # Engine kernel name -> tuple of generated prop names in its manifest.
 _kernel_props = {}
+# Prop name -> Brush.namedFloats slot for store-backed uniforms (extra-kernel
+# uniforms with no Brush member; written via setNamedFloat, not setattr).
+# Slots are per-build — always taken from the loaded DLL's manifest.
+_store_slots = {}
 
 
 def props_for_type(sculpt_brush_type):
@@ -49,7 +53,11 @@ def apply(bl_brush, sc_brush):
     if group is None:
         return
     for name in names:
-        setattr(sc_brush, name, getattr(group, name))
+        slot = _store_slots.get(name, -1)
+        if slot >= 0:
+            sc_brush.setNamedFloat(slot, getattr(group, name))
+        else:
+            setattr(sc_brush, name, getattr(group, name))
 
 
 def _walk_manifests():
@@ -94,15 +102,23 @@ def _walk_manifests():
                 if entry is None or not entry.isFloat:
                     continue
                 name = read_litestl_string(entry.name.ptr)
-                if name in _MAPPED or not hasattr(brush, name):
+                # storeSlot >= 0: an extra-kernel uniform living in the
+                # Brush.namedFloats store (no member). getattr(entry, ...)
+                # tolerates a pre-wave-2 DLL without the field.
+                slot = int(getattr(entry, "storeSlot", -1))
+                if name in _MAPPED or (slot < 0 and not hasattr(brush, name)):
                     continue
-                # Default from the engine brush FIELD, not the DSL `def`: the
+                # Default from the live engine BRUSH, not the DSL `def`: the
                 # plain dab path reads fields, and their authored defaults are
                 # the current behavior (e.g. planeSide is +1 as a field but 0
                 # in the DSL — a generated 0 would break the plane family).
-                entries.append((name, float(getattr(brush, name)),
+                # Store slots were just default-seeded by the manifest query's
+                # command creation, so the same read works for them.
+                default = (brush.getNamedFloat(slot) if slot >= 0
+                           else float(getattr(brush, name)))
+                entries.append((name, default,
                                 bool(entry.hasRange),
-                                float(entry.rangeMin), float(entry.rangeMax)))
+                                float(entry.rangeMin), float(entry.rangeMax), slot))
             if entries:
                 manifests[kernel_name] = entries
     finally:
@@ -130,8 +146,10 @@ def register():
     union = {}
     for kernel_name, entries in sorted(manifests.items()):
         names = []
-        for name, default, has_range, range_min, range_max in entries:
+        for name, default, has_range, range_min, range_max, store_slot in entries:
             names.append(name)
+            if store_slot >= 0:
+                _store_slots[name] = store_slot
             if name in union and (union[name] or not has_range):
                 continue
             union[name] = has_range
@@ -155,6 +173,7 @@ def register():
 def unregister():
     global _group_cls
     _kernel_props.clear()
+    _store_slots.clear()
     if _group_cls is None:
         return
     if hasattr(bpy.types.Brush, "sculptcore"):
