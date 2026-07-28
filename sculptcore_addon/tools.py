@@ -44,6 +44,8 @@ class SculptCoreBrushTool(bpy.types.WorkSpaceTool):
         # vanilla drops it there too), so it is gated on the editor type.
         from bl_ui.properties_paint_common import BrushAssetShelf, UnifiedPaintPanel
 
+        from . import mapping
+
         paint = context.tool_settings.sculpt
         brush = paint.brush
         BrushAssetShelf.draw_popup_selector(layout, context, brush)
@@ -53,24 +55,35 @@ class SculptCoreBrushTool(bpy.types.WorkSpaceTool):
         ups = paint.unified_paint_settings
         in_properties = context.area is not None and context.area.type == 'PROPERTIES'
 
+        # Which brushes get pen-pressure toggles at all: exactly the ones whose
+        # strokes consume pressure, i.e. everything mapping.is_grab_class rejects
+        # (see stroke.invoke, which builds the response LUTs and registers the
+        # engine dynamics under that same test). Vanilla's own capability flags
+        # are a different set — BKE's is_grab_tool also covers snake hook, pose,
+        # thumb and rotate, whose SculptCore kernels do scale by strength — so
+        # they are not used here; vanilla_panels applies the same rule to the
+        # sidebar's Brush Settings panel.
+        has_pressure = not mapping.is_grab_class(brush)
+        strength_prop, size_prop = mapping.pressure_prop_names(brush)
+        size_pressure_name = size_prop if has_pressure else None
         size = "size"
         size_owner = ups if ups.use_unified_size else brush
         if size_owner.use_locked_size == 'SCENE':
             size = "unprojected_size"
         size_row = UnifiedPaintPanel.prop_unified(
             layout, context, brush, size,
-            pressure_name="use_pressure_size",
+            pressure_name=size_pressure_name,
             unified_name="use_unified_size",
             text="Size", slider=True, header=True,
         )
-        if in_properties:
+        if size_pressure_name and in_properties:
             UnifiedPaintPanel.prop_custom_pressure(
                 layout, context, size_row, brush,
-                pressure_name="use_pressure_size",
+                pressure_name=size_pressure_name,
                 curve_visibility_name="show_size_curve",
                 custom_curve_name="curve_size",
             )
-        pressure_name = "use_pressure_strength" if capabilities.has_strength_pressure else None
+        pressure_name = strength_prop if has_pressure else None
         strength_row = UnifiedPaintPanel.prop_unified(
             layout, context, brush, "strength",
             pressure_name=pressure_name,

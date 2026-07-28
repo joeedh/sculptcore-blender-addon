@@ -29,6 +29,11 @@ class Session:
         # orig-stamp against it; must be nonzero — gen 0 collides with the
         # fresh orig-gen default and crashes).
         "stroke_gen",
+        # Per-stroke high-water mark for the node-filter radius, reset in
+        # stroke_begin. A from-orig grab only writes verts inside the filter, so
+        # a region that shrinks (drag reversal) would leave the verts it dropped
+        # at their last displaced value — a stale ring. See brush_policy.
+        "filter_high_water",
         # Bound engine wrappers built lazily on the first stroke and reused:
         # the Mesh view, and the per-session Brush + CommandExecutor.
         "mesh_obj",
@@ -90,6 +95,7 @@ class Session:
         self.topo_stamp = engine.capi().lib.Mesh_topoStamp(mesh_ptr)
         self.generation = 0
         self.stroke_gen = 0
+        self.filter_high_water = 0.0
         self.mesh_obj = None
         self.brush_obj = None
         self.executor = None

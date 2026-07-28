@@ -87,6 +87,75 @@ def _draw_texture(self, context):
     brush_texture_settings(col, brush, True)
 
 
+# Rows whose pen-pressure toggle (and response-curve expander) this panel
+# restores, keyed by the property vanilla passes to prop_unified:
+# (index into mapping.pressure_prop_names, curve_visibility_name,
+# custom_curve_name). `unprojected_size` is the same Size row with scene-locked
+# size.
+_PRESSURE_ROWS = {
+    "strength": (0, "show_strength_curve", "curve_strength"),
+    "size": (1, "show_size_curve", "curve_size"),
+    "unprojected_size": (1, "show_size_curve", "curve_size"),
+}
+
+
+def _draw_brush_settings(self, context):
+    # Vanilla VIEW3D_PT_tools_brush_settings.draw, with the pen-pressure toggles
+    # and their response-curve expanders forced onto the Size and Strength rows
+    # for every brush whose stroke actually consumes pressure — everything
+    # mapping.is_grab_class rejects (see tools.draw_settings, which gates the tool
+    # header on the same rule). Vanilla's brush_settings() gates both on
+    # Brush.sculpt_capabilities.has_size_pressure / has_strength_pressure,
+    # read-only C RNA that is False for BKE's whole is_grab_tool set — snake
+    # hook, pose, thumb and rotate included, whose SculptCore kernels do scale
+    # by strength. Substituting the argument for the duration of this draw is
+    # the smallest intervention; vendoring brush_settings() would clone ~200
+    # lines of vanilla UI that then drift out of sync.
+    from bl_ui.properties_paint_common import UnifiedPaintPanel, brush_settings
+
+    from . import mapping
+
+    layout = self.layout
+    layout.use_property_split = True
+    layout.use_property_decorate = False  # No animation.
+
+    settings = self.paint_settings_from_active_tool(context)
+    brush = settings.brush
+    if mapping.is_grab_class(brush):
+        brush_settings(layout.column(), context, brush, popover=self.is_popover)
+        return
+
+    original = UnifiedPaintPanel.prop_unified
+    pressure_props = mapping.pressure_prop_names(brush)
+
+    def prop_unified(layout, context, brush, prop_name, *args, **kwargs):
+        row_spec = (_PRESSURE_ROWS.get(prop_name)
+                    if kwargs.get("pressure_name") is None else None)
+        names = (None if row_spec is None
+                 else (pressure_props[row_spec[0]],) + row_spec[1:])
+        if names is not None:
+            kwargs["pressure_name"] = names[0]
+        row = original(layout, context, brush, prop_name, *args, **kwargs)
+        if names is not None and not self.is_popover:
+            # The response-curve expander sits behind the same capability gate,
+            # so vanilla skips its own call for this row — add it here (same
+            # layout and row vanilla would have used) to match every other
+            # brush's rows. Popovers get no expander, as in vanilla.
+            UnifiedPaintPanel.prop_custom_pressure(
+                layout, context, row, brush,
+                pressure_name=names[0],
+                curve_visibility_name=names[1],
+                custom_curve_name=names[2],
+            )
+        return row
+
+    UnifiedPaintPanel.prop_unified = staticmethod(prop_unified)
+    try:
+        brush_settings(layout.column(), context, brush, popover=self.is_popover)
+    finally:
+        UnifiedPaintPanel.prop_unified = staticmethod(original)
+
+
 def _poll_color(cls, context):
     """Color panels only for color-capable brushes (engine COLOR kernel)."""
     return (_poll(cls, context)
@@ -96,6 +165,7 @@ def _poll_color(cls, context):
 # Per-clone attribute overrides (applied after the vanilla dict copy and the
 # default poll, so an entry here wins).
 _OVERRIDES = {
+    "SCULPTCORE_PT_tools_brush_settings": {"draw": _draw_brush_settings},
     "SCULPTCORE_PT_tools_brush_texture": {"draw": _draw_texture},
     "SCULPTCORE_PT_tools_brush_color": {"poll": classmethod(_poll_color)},
     "SCULPTCORE_PT_tools_brush_swatches": {"poll": classmethod(_poll_color)},

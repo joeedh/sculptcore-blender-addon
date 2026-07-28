@@ -66,19 +66,52 @@ _MAP = {
     # Face sets: paint the `group` face attr; the stroke operator assigns a
     # fresh active group id per stroke (see FACE_SET_TYPES).
     'DRAW_FACE_SETS': ("POLYGROUP", {}),
-    # Snake hook drags per dab at the cursor — the standard path works.
-    'SNAKE_HOOK': ("SNAKEHOOK", {}),
+    # Snake hook dabs along the stroke, but its kernel is driven by the grab
+    # ctx vectors (`@incremental`, see is_snake_hook); the stroke operator sets
+    # them per dab image and advances the dab center with the extruded tip.
+    # Blender's pinch
+    # control (crease_pinch_factor, labelled "Magnify" for this brush) is 0..1
+    # with 0.5 neutral and pinching below it; the kernel takes the engine's
+    # 0-means-off convention, so remap here — 2 * (0.5 - factor), positive
+    # pinching in, negative inflating. Written on every snake-hook stroke, so
+    # the shared `pinch` member cannot leak in from a prior PINCH stroke.
+    'SNAKE_HOOK': ("SNAKEHOOK", {"pinch": lambda b: 2.0 * (0.5 - b.crease_pinch_factor)}),
     # Grab dabs at a fixed anchor and reads the cumulative cursor delta
     # (grabTo/grabFrom); the stroke operator drives it via the grab-class path.
     'GRAB': ("GRAB", {}),
     # Elastic deform = a Kelvinlet soft-body grab (same grabFrom/grabTo state,
     # engine mu/nu defaults ~ soft rubber).
     'ELASTIC_DEFORM': ("KELVINLET", {}),
+    # Thumb is Grab with the drag flattened into the surface, so it smears
+    # sideways instead of pulling out — same kernel, different vector (see
+    # TANGENT_DRAG).
+    'THUMB': ("GRAB", {}),
 }
 
-# Brush types that dab at the stroke anchor with a cursor-delta (grabTo)
-# instead of at the moving cursor.
-GRAB_CLASS = {'GRAB', 'ELASTIC_DEFORM'}
+# Brush types whose cursor drag is projected into the tangent plane of the
+# stroke's sculpt normal before the GRAB kernel sees it, and scaled by strength
+# — vanilla's do_thumb_brush (`cross(cross(n, delta), n) * bstrength`; Grab
+# itself drags by the raw delta and ignores strength). This is not engine
+# policy: the kernel is the same anchored from-orig grab either way and only
+# the vector the host hands it differs, so it belongs in a host table next to
+# _MAP rather than in a kernel annotation.
+TANGENT_DRAG = {'THUMB'}
+
+
+def drag_offset(bl_brush, delta, normal, strength):
+    """The object-space drag to hand the GRAB kernel for one grab dab, given the
+    raw cursor delta. Identity outside TANGENT_DRAG."""
+    if bl_brush.sculpt_brush_type not in TANGENT_DRAG:
+        return delta
+
+    import mathutils
+
+    n = mathutils.Vector(normal)
+    if n.length_squared == 0.0:
+        return delta
+    n.normalize()
+    d = mathutils.Vector(delta)
+    return tuple(n.cross(d).cross(n) * strength)
 
 # Types whose vanilla brush adds its offset EVERY dab regardless of the
 # Accumulate toggle (do_draw_sharp_brush has no accumulate branch; its
@@ -105,8 +138,58 @@ UNSUPPORTED = {
 }
 
 
+def _policy(bl_brush):
+    """The engine-declared policy for the kernel this Blender brush maps to.
+    Which brush type maps to which kernel is a host decision (the table above);
+    how that kernel wants to be driven is not — it is queried, never listed
+    here, so a kernel's annotations can change without a host edit."""
+    from . import brush_policy, engine
+
+    if bl_brush is None:
+        return brush_policy.for_kernel(None)
+    return brush_policy.for_kernel(kernel_enum(engine.manager(), bl_brush))
+
+
 def is_grab_class(bl_brush):
-    return bl_brush is not None and bl_brush.sculpt_brush_type in GRAB_CLASS
+    """Anchored, from-orig grab (`@grabmode`): the dab stays at the stroke's
+    anchor and the deform follows the cumulative cursor delta, rather than
+    dabbing along the stroke at the moving cursor."""
+    return _policy(bl_brush).grab_mode_capable
+
+
+def is_snake_hook(bl_brush):
+    """Path-style grab (`@incremental`): the kernel reads the grab ctx vectors
+    — grabFrom is the dab center, grabTo the step since the previous dab, and
+    it gathers toward grabFrom + grabTo — but keeps dabbing along the stroke, so
+    it takes the normal (spacer / preview) path rather than the anchored one.
+    Left unset, both vectors default to the origin and the kernel contracts
+    geometry toward the object origin instead of hooking. The spacer path also
+    walks the dab center out with the extruded tip rather than raycasting each
+    sample — see stroke._snake_hook_advance."""
+    return _policy(bl_brush).incremental
+
+
+def pressure_prop_names(bl_brush):
+    """The ``(strength, size)`` pen-pressure toggle property names to draw and
+    read for ``bl_brush`` — Blender's own where they mean something there, this
+    addon's shadow toggles (props._PRESSURE_PROPS) where they do not.
+
+    Vanilla gates each row on ``sculpt_capabilities.has_*_pressure``, so on a
+    brush where that reads False its ``use_pressure_*`` is never drawn and never
+    consulted; whatever the shipped asset happens to store is noise (the Snake
+    Hook asset stores strength pressure on). This mode drives those brushes with
+    pressure all the same, so it substitutes toggles it owns — same rows, same
+    response curves, but a default it controls: off, which is what vanilla
+    effectively does. Brushes vanilla does support keep their own flags, so
+    nothing an artist already set changes.
+    """
+    caps = bl_brush.sculpt_capabilities
+    return (
+        "use_pressure_strength" if caps.has_strength_pressure
+        else "sculptcore_use_pressure_strength",
+        "use_pressure_size" if caps.has_size_pressure
+        else "sculptcore_use_pressure_size",
+    )
 
 
 # SculptCore FalloffKind / FalloffShape enum values (brush.h).
@@ -332,8 +415,19 @@ def overlap_attenuation(bl_brush):
     (#paint_stroke_integrate_overlap): normalize the strength by the
     worst-case sum of overlapping falloff dabs along the stroke line,
     sampled at 10 phase offsets. 1.0 when the flag is off or spacing has no
-    overlap (>= 100%)."""
+    overlap (>= 100%).
+
+    Never applied to the drag brushes (is_grab_class / is_snake_hook): vanilla
+    reads their strength straight off the brush (`brush_strength`'s
+    `root_alpha * feather` for GRAB and SNAKE_HOOK, no `overlap` term), and the
+    compensation would be wrong anyway — it cancels the repeated *additive*
+    dabs of an offset brush, whereas a drag brush's dabs each carry their own
+    step, summing to the cursor's total drag no matter how many there are.
+    Attenuating it just leaves the hook short of the cursor by 1/peak (a 5x
+    shortfall at the Snake Hook asset's 10% spacing)."""
     if not (bl_brush.use_space_attenuation and bl_brush.spacing < 100):
+        return 1.0
+    if is_grab_class(bl_brush) or is_snake_hook(bl_brush):
         return 1.0
     fn = _PRESET_FALLOFF.get(bl_brush.curve_distance_falloff_preset)
     if fn is None:  # CUSTOM: strength(p) = curve(1 - p), matching BKE.
