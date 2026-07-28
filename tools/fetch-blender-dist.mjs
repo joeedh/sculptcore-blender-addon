@@ -31,6 +31,21 @@
  * host OS is not among the requested platforms, enabling is skipped with a
  * warning.
  *
+ * Permissions (why the Linux/macOS output is a .tar): GitHub's artifact zip
+ * carries no Unix mode bits and no symlinks, so the fork's build.yml packs
+ * those platforms' install trees into an uncompressed `blender-install.tar`
+ * where both survive as entry metadata.  This tool must then get the addon
+ * *into* that tree without unpacking it onto the host filesystem — on Windows
+ * that round trip would drop the metadata again, leaving a `blender` binary
+ * that will not launch.  So for a non-host platform it never extracts: it
+ * stages the addon in a scratch dir and `tar -rf`-appends it, which leaves
+ * every pre-existing entry byte-for-byte intact.  The deliverable is the .tar;
+ * extract it on the target OS.  (Appended files are stored 0666/0777 from
+ * NTFS, which a normal non-root `tar xf` masks down to 0644/0755 — they are
+ * addon data, none of it needs the exec bit.)  The host platform is still
+ * extracted to a real tree, because baking the userpref means running Blender.
+ * A Windows install artifact is a plain tree, having no metadata to lose.
+ *
  * Requires the GitHub CLI (`gh`) on PATH and authenticated (`gh auth status`).
  * No npm dependencies — plain Node.
  *
@@ -239,6 +254,27 @@ function findVersionDir(root, { soft = false } = {}) {
   fail(`could not locate a Blender <version>/scripts dir under ${root}`)
 }
 
+// The tar to drive. On Windows, PATH commonly leads with msys/git-bash GNU tar,
+// which reads `C:\...` as a remote host spec ("Cannot connect to C") — so go
+// straight to the system bsdtar, which handles drive letters and supports the
+// append (-r) this tool depends on.
+function tarExe() {
+  if (process.platform !== 'win32') return 'tar'
+  return path.join(process.env.SystemRoot || 'C:\\Windows', 'System32', 'tar.exe')
+}
+
+// The version dir (e.g. `5.3`, or `Blender.app/Contents/Resources/5.3` on
+// macOS) as a forward-slash path relative to the archive root, read from the
+// entry listing so the tree never has to be extracted.
+function findVersionDirInTar(tarPath) {
+  const { stdout } = capture(tarExe(), ['-tf', tarPath])
+  for (const line of stdout.split('\n')) {
+    const m = /^(.*?\d+\.\d+)\/scripts\//.exec(line.trim().replace(/^\.\//, ''))
+    if (m) return m[1]
+  }
+  fail(`could not locate a Blender <version>/scripts entry in ${tarPath}`)
+}
+
 // Locate an already-baked userpref.blend from a previously-staged host bundle,
 // so non-host platforms can be fetched in a separate invocation and still get
 // enabled by default.
@@ -376,6 +412,58 @@ async function main() {
       fs.rmSync(outDir, { recursive: true, force: true })
       downloadArtifact({ slug: forkSlug, runId: blenderRun, name: `blender-install-${osToken}`, destDir: outDir })
 
+      // 2. Linux/macOS artifacts are a single uncompressed tar (it is the only
+      //    way mode bits and symlinks survive GitHub's artifact zip); Windows
+      //    and pre-tar runs are a plain tree. On the host we extract either
+      //    way, since baking the userpref needs a runnable Blender and the host
+      //    OS applies the archived metadata correctly on the way out.
+      const tarPath = path.join(outDir, 'blender-install.tar')
+      const wasTar = fs.existsSync(tarPath)
+      let isTar = wasTar
+      if (isTar && p === hostOs) {
+        log(`extracting install tar (host platform)…`)
+        if (run(tarExe(), ['-xf', tarPath, '-C', outDir]) !== 0) fail(`extracting ${tarPath} failed`)
+        fs.rmSync(tarPath)
+        isTar = false
+      }
+
+      // 2b. Non-host tar: stage the addon in scratch and append it, so nothing
+      //     already in the archive is rewritten. See the header note.
+      if (isTar) {
+        const relVer = findVersionDirInTar(tarPath)
+        const stage = path.join(tmpRoot, `stage-${p}`)
+        fs.rmSync(stage, { recursive: true, force: true })
+        const addonDst = path.join(stage, ...relVer.split('/'), 'scripts', 'addons_core', ADDON_MODULE)
+        log(`staging addon -> ${relVer}/scripts/addons_core/${ADDON_MODULE} (in ${tarPath})`)
+        copyTree(ADDON_SRC, addonDst, new Set(['lib', '__pycache__', '.mypy_cache']))
+        log(`vendoring engine runtime (${p} libs + local ctypes package)…`)
+        vendorRuntime(addonDst, libsDl, p)
+
+        const members = [`./${relVer}/scripts/addons_core/${ADDON_MODULE}`]
+        let enabled = 'skipped'
+        if (opts.enable) {
+          const src = bakedUserpref && fs.existsSync(bakedUserpref)
+            ? bakedUserpref
+            : findHostUserpref(opts.out, hostOs)
+          if (src) {
+            const cfg = path.join(stage, ...relVer.split('/'), 'config')
+            ensureDir(cfg)
+            fs.copyFileSync(src, path.join(cfg, 'userpref.blend'))
+            members.push(`./${relVer}/config`)
+            enabled = 'copied from host'
+          } else {
+            warn(`no host userpref to copy into ${p}; addon staged but not enabled by default ` +
+              `(build the host platform too, or run Blender once and enable it manually)`)
+          }
+        }
+        if (run(tarExe(), ['-rf', tarPath, '-C', stage, ...members]) !== 0) {
+          fail(`appending the addon to ${tarPath} failed`)
+        }
+        log(`extract on the target OS to get a launchable tree: tar -xf blender-install.tar`)
+        summary.push({ p, outDir: tarPath, enabled })
+        continue
+      }
+
       // 3. Stage the addon (fresh; lib/ filled next). Blender 5.x only scans the
       //    versioned system path `scripts/addons_core` (addon_utils.paths()); the
       //    legacy `scripts/addons` is no longer searched in an install tree.
@@ -390,7 +478,9 @@ async function main() {
       vendorRuntime(addonDst, libsDl, p)
 
       // 4b. Restore the executable bit lost by the artifact zip (non-Windows).
-      if (p !== 'windows') fixExecutableBits(outDir, verDir, p)
+      //     Only for a pre-tar tree artifact — a tar we extracted above already
+      //     carried the real modes, and this is the host OS, so they applied.
+      if (p !== 'windows' && !wasTar) fixExecutableBits(outDir, verDir, p)
 
       // 5. Enable-by-default: bake on host, copy to others.
       const configDir = path.join(verDir, 'config')
