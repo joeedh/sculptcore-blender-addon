@@ -18,6 +18,7 @@
  *   node tools/record-release.mjs --repo DIR --tag TAG --sums DIR
  *                                 [--source-sha SHA] [--blender-branch B]
  *                                 [--config CFG] [--prerelease true|false]
+ *   node tools/record-release.mjs --repo DIR --reindex
  *
  *   --repo DIR          Checkout of the builds repo to write into.
  *   --tag TAG           Release tag (also the release's asset prefix).
@@ -27,6 +28,9 @@
  *   --blender-branch B  Fork branch the Blender build came from.
  *   --config CFG        Engine build config the libs were compiled with.
  *   --prerelease B      Whether the release is marked as a pre-release.
+ *   --reindex           Only regenerate RELEASES.md from the manifests already on
+ *                       disk; record no new release. For repairing the index after
+ *                       its format or ordering changes.
  */
 
 import fs from 'node:fs'
@@ -44,7 +48,10 @@ const PLATFORMS = [
 function fail(msg) { console.error(`[record-release] error: ${msg}`); process.exit(1) }
 
 function parseArgs(argv) {
-  const opts = { repo: null, tag: null, sums: null, sourceSha: '', blenderBranch: '', config: '', prerelease: 'false' }
+  const opts = {
+    repo: null, tag: null, sums: null, sourceSha: '', blenderBranch: '', config: '',
+    prerelease: 'false', reindex: false,
+  }
   for (let i = 0; i < argv.length; i++) {
     const next = () => argv[++i]
     switch (argv[i]) {
@@ -55,10 +62,12 @@ function parseArgs(argv) {
       case '--blender-branch': opts.blenderBranch = next(); break
       case '--config': opts.config = next(); break
       case '--prerelease': opts.prerelease = next(); break
+      case '--reindex': opts.reindex = true; break
       default: fail(`unknown option: ${argv[i]}`)
     }
   }
-  if (!opts.repo || !opts.tag || !opts.sums) fail('--repo, --tag and --sums are required')
+  if (!opts.repo) fail('--repo is required')
+  if (!opts.reindex && (!opts.tag || !opts.sums)) fail('--tag and --sums are required (or pass --reindex)')
   return opts
 }
 
@@ -90,13 +99,25 @@ function releaseUrl(tag) {
   return `https://github.com/${BUILDS_REPO}/releases/tag/${encodeURIComponent(tag)}`
 }
 
-// Rebuild RELEASES.md from every manifest on disk, newest date first.
+// What a manifest sorts by: its full `created_at` timestamp, falling back to the
+// bare `date` for manifests written before that field existed. Ordering on the
+// date alone put several builds of the same day in tag order, which is the sha
+// suffix — alphabetical noise that buried the newest build under its siblings.
+// A date-only key compares less than any timestamp of that day, so the older
+// (untimestamped) manifests correctly sink below same-day timestamped ones.
+function sortKey(m) { return m.created_at || m.date || '' }
+
+// Rebuild RELEASES.md from every manifest on disk, newest first.
 function writeIndex(repo) {
   const dir = path.join(repo, 'releases')
   const manifests = fs.readdirSync(dir)
     .filter((f) => f.endsWith('.json'))
     .map((f) => JSON.parse(fs.readFileSync(path.join(dir, f), 'utf-8')))
-    .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : a.tag < b.tag ? 1 : -1))
+    .sort((a, b) => {
+      const ka = sortKey(a), kb = sortKey(b)
+      if (ka !== kb) return ka < kb ? 1 : -1
+      return a.tag < b.tag ? 1 : -1
+    })
 
   const out = []
   out.push('# Releases')
@@ -132,10 +153,19 @@ function main() {
   const opts = parseArgs(process.argv.slice(2))
   if (!fs.existsSync(path.join(opts.repo, '.git'))) fail(`${opts.repo} is not a git checkout`)
 
+  if (opts.reindex) {
+    writeIndex(opts.repo)
+    console.log('[record-release] regenerated RELEASES.md')
+    return
+  }
+
+  const now = new Date().toISOString().replace(/\.\d+Z$/, 'Z')
   const assets = readChecksums(opts.sums)
   const manifest = {
     tag: opts.tag,
-    date: new Date().toISOString().slice(0, 10),
+    date: now.slice(0, 10),
+    // Full timestamp: several builds a day is normal, and the index orders on this.
+    created_at: now,
     prerelease: opts.prerelease === 'true',
     source_repo: 'joeedh/sculptcore-blender-addon',
     source_sha: opts.sourceSha,
