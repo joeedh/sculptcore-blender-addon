@@ -42,7 +42,10 @@ sculptcore_addon/        The addon package Blender loads (bl_info; registers the
 brushes/                 Addon-authored .sbrush kernels compiled into the DLL at build
                          time (engine "extra kernel dirs"); see brushes/README.md.
 engine/                  SculptCore engine (git submodule). Builds sculptcore_capi.dll.
-tools/                   Build/install helper (build-blender-dist.*) — see below.
+tools/                   build-blender-dist.mjs  build Blender locally, stage the addon (below).
+                         fetch-blender-dist.mjs  the same, from CI artifacts instead of a build.
+                         verify_addon.py         headless "did it come up enabled?" check.
+                         record-release.mjs      builds-repo manifest + RELEASES.md index.
 .github/workflows/       Packaging CI (build-packages.yml) — see below.
 claudeMemory/            Claude's plans, research, and validated reference notes for THIS repo.
 ```
@@ -146,7 +149,21 @@ The shippable, downloadable builds. Manual dispatch only. One matrix job per
 target OS (ubuntu / macos-arm64 / windows), and each job **is** the target OS,
 so `tools/fetch-blender-dist.mjs` takes its host path — extract, stage, mark
 always-enabled, and verify by actually running Blender — and the final
-tar.gz/zip is packed natively, preserving exec bits and symlinks. Per job:
+tar.gz/zip is packed natively, preserving exec bits and symlinks.
+
+**It is the second of two workflows.** The fork's own `build.yml` (manual
+dispatch on `custom-object-modes`, ~2.5 h) builds all three platforms and uploads
+`blender-install-<OS>`; on Linux/macOS that is a single *uncompressed* tar,
+because the artifact store re-zips everything and a zip carries no exec bits or
+symlinks. Run it first whenever the fork moved, then dispatch packaging with
+`blender_run` set to that run id — left blank it takes the latest successful run
+on `blender_branch`, which may predate the fork change being packaged. A fork
+build without the `.always_enable` support fails packaging at the verify step
+rather than shipping a Blender whose sculpt mode never turns on. The other
+dispatch inputs are `config` (engine build config), `tag` (default
+`build-<UTC date>-<short sha>`) and `prerelease`.
+
+Per job:
 
 1. Build the engine libs here, with `node make.mjs bundle ci-staging
    --kernels-extra ../brushes`. This is why packaging can't live in the engine
@@ -158,9 +175,12 @@ tar.gz/zip is packed natively, preserving exec bits and symlinks. Per job:
    artifact — a cold deps cache dominates this job's runtime, so the combo is
    worth keeping. Nothing is pushed from the runner: feed the artifact to the
    engine's `tools/publish-deps-from-package.mjs --commit --push` to land it in
-   `joeedh/sculptcore-deps`. Combos are keyed
+   `joeedh/sculptcore-deps` (the libs go through git-LFS, so publish from a
+   machine that has it). Combos are keyed
    `{platform}/clang-<major>-<arch>/{config}` and only hit on a matching
-   toolchain.
+   toolchain — a runner image that bumps clang's major version misses and
+   re-exports. Worth doing promptly: a warm cache is the difference between a
+   ~2 h job and a ~7 min one.
 2. `fetch-blender-dist.mjs --blender-repo joeedh/blender --engine-libs enginelibs`
    — the two CI-only flags. `--engine-libs` also bypasses the ABI pin, which is
    safe here because the libs were just built from the same submodule commit
@@ -177,13 +197,24 @@ tar.gz/zip is packed natively, preserving exec bits and symlinks. Per job:
    ad-hoc `codesign`, since editing load commands voids the signature. Windows
    needs nothing: PE resolves DLLs by name from the loader directory. None of
    this shows up on a dev box, where the recorded build paths exist.
-3. Upload straight into a draft release on `joeedh/sculptblender-builds`
+3. Pack, having first renamed `dist/<os>` to the package name, so the archive
+   holds a single top-level `sculptblender-<tag>-<platform>/` directory —
+   extracting one must not scatter ~1.5 GB across the user's current directory.
+4. Upload straight into a draft release on `joeedh/sculptblender-builds`
    (created by the `prepare` job, un-drafted by `finalize`), so a ~1.5 GB
    package crosses the wire once instead of twice through the artifact store.
 
 `finalize` also runs `tools/record-release.mjs` against a clone of the builds
 repo: binaries stay release assets, and git gets only `releases/<tag>.json` plus
-a regenerated `RELEASES.md`.
+a regenerated `RELEASES.md`. The index orders on each manifest's `created_at`
+timestamp — several builds land on one day, and ordering by date alone fell
+through to the tag's sha suffix, i.e. alphabetical noise. `--reindex`
+regenerates `RELEASES.md` from the manifests already on disk, which is how the
+published index gets repaired without waiting for the next build.
+
+The builds repo's `Readme.MD` is the user-facing install doc (nothing regenerates
+it) — it describes the archive layout, the always-enabled add-on and the global
+config, so a change to any of those means editing it by hand.
 
 Needs the repo secret **`BUILDS_TOKEN`** — a PAT with `actions:read` on
 `joeedh/blender` (the default `GITHUB_TOKEN` is repo-scoped and cannot download
