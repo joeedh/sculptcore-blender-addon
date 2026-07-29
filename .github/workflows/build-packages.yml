@@ -57,9 +57,9 @@ on:
         required: false
         default: ''
       prerelease:
-        description: 'Mark the release as a pre-release'
+        description: 'Mark as a pre-release (GitHub then excludes it from /releases/latest)'
         required: false
-        default: true
+        default: false
         type: boolean
 
 concurrency:
@@ -274,25 +274,34 @@ jobs:
       # (`fetch-blender-dist.mjs` writes the tree as `dist/<os>`, so it is just
       # renamed): extracting one lands ~1.5 GB in its own folder rather than all
       # over whatever directory the user happened to be in.
+      #
+      # The directory inside the archive carries the tag; the archive FILE does
+      # not. GitHub's only stable-download mechanism is
+      # `/releases/latest/download/<asset name>`, which matches the asset by
+      # exact name — so a name with the tag in it can never be linked to.
+      # Keeping the tag on the inner directory still means two builds extracted
+      # side by side do not collide, and the tag stays visible after unpacking.
       - name: Package (Linux/macOS)
         id: pkg_unix
         if: runner.os != 'Windows'
         run: |
           root="sculptblender-${{ needs.prepare.outputs.tag }}-${{ matrix.asset }}"
+          asset="sculptblender-${{ matrix.asset }}"
           mv "dist/$(ls dist)" "dist/$root"
-          tar -czf "$root.tar.gz" -C dist "$root"
-          echo "name=$root.tar.gz" >> "$GITHUB_OUTPUT"
+          tar -czf "$asset.tar.gz" -C dist "$root"
+          echo "name=$asset.tar.gz" >> "$GITHUB_OUTPUT"
 
       - name: Package (Windows)
         id: pkg_win
         if: runner.os == 'Windows'
         run: |
           root="sculptblender-${{ needs.prepare.outputs.tag }}-${{ matrix.asset }}"
+          asset="sculptblender-${{ matrix.asset }}"
           mv "dist/$(ls dist)" "dist/$root"
           # 7z ships on the Windows runner and is far faster than Compress-Archive
           # on a ~1.5 GB tree.
-          (cd dist && 7z a -tzip -mx=5 "$GITHUB_WORKSPACE/$root.zip" "$root" >/dev/null)
-          echo "name=$root.zip" >> "$GITHUB_OUTPUT"
+          (cd dist && 7z a -tzip -mx=5 "$GITHUB_WORKSPACE/$asset.zip" "$root" >/dev/null)
+          echo "name=$asset.zip" >> "$GITHUB_OUTPUT"
 
       - name: Checksum
         id: sum
@@ -356,6 +365,14 @@ jobs:
             echo
             echo "Built from [sculptcore-blender-addon@\`${GITHUB_SHA:0:7}\`](https://github.com/${{ github.repository }}/commit/${{ github.sha }}),"
             echo "engine libs compiled with this repo's \`brushes/\` kernels (\`${{ inputs.config }}\`)."
+            echo
+            # Asset names carry no tag precisely so these URLs can exist; they
+            # follow whatever the newest non-pre-release build is.
+            echo "**Always-latest downloads** (these follow the newest build, not this one):"
+            echo
+            for a in linux-x64.tar.gz macos-arm64.tar.gz windows-x64.zip; do
+              echo "- \`$a\` — https://github.com/joeedh/sculptblender-builds/releases/latest/download/sculptblender-$a"
+            done
           } > "$notes"
           gh release edit "$TAG" -R joeedh/sculptblender-builds \
             --draft=false \

@@ -38,11 +38,14 @@ import path from 'node:path'
 
 const BUILDS_REPO = 'joeedh/sculptblender-builds'
 
-// Asset-name suffix -> how the index describes the platform.
+// Asset-name suffix -> how the index describes the platform.  `asset` is the
+// tag-free name the packaging workflow uploads under, which is what makes an
+// always-latest URL addressable; releases predating that rename carry the tag
+// in the name instead, hence the check in writeIndex().
 const PLATFORMS = [
-  { key: 'linux-x64', label: 'Linux x64', note: '.tar.gz — extract and run ./blender' },
-  { key: 'macos-arm64', label: 'macOS arm64', note: '.tar.gz — extract and run Blender.app' },
-  { key: 'windows-x64', label: 'Windows x64', note: '.zip — extract and run blender.exe' },
+  { key: 'linux-x64', asset: 'sculptblender-linux-x64.tar.gz', label: 'Linux x64', note: '.tar.gz — extract and run ./blender' },
+  { key: 'macos-arm64', asset: 'sculptblender-macos-arm64.tar.gz', label: 'macOS arm64', note: '.tar.gz — extract and run Blender.app' },
+  { key: 'windows-x64', asset: 'sculptblender-windows-x64.zip', label: 'Windows x64', note: '.zip — extract and run blender.exe' },
 ]
 
 function fail(msg) { console.error(`[record-release] error: ${msg}`); process.exit(1) }
@@ -99,6 +102,12 @@ function releaseUrl(tag) {
   return `https://github.com/${BUILDS_REPO}/releases/tag/${encodeURIComponent(tag)}`
 }
 
+// GitHub's one stable-download mechanism: it redirects to the asset of that
+// exact name on the newest published non-pre-release release.
+function latestUrl(name) {
+  return `https://github.com/${BUILDS_REPO}/releases/latest/download/${encodeURIComponent(name)}`
+}
+
 // What a manifest sorts by: its full `created_at` timestamp, falling back to the
 // bare `date` for manifests written before that field existed. Ordering on the
 // date alone put several builds of the same day in tag order, which is the sha
@@ -129,6 +138,26 @@ function writeIndex(repo) {
   if (!manifests.length) {
     out.push('_No releases yet._')
   }
+
+  // Both halves of the always-latest contract have to hold or the links 404:
+  // the newest release GitHub calls "latest" must not be a pre-release, and it
+  // must carry assets under the tag-free names. Only advertise the links when a
+  // manifest on disk actually satisfies both — a dead download link on the
+  // front page is worse than no link.
+  const stable = manifests.find((m) => !m.prerelease
+    && PLATFORMS.every((p) => (m.assets || []).some((a) => a.name === p.asset)))
+  if (stable) {
+    out.push('## Latest build')
+    out.push('')
+    out.push('These links always download the newest non-pre-release build — currently '
+      + `[\`${stable.tag}\`](${releaseUrl(stable.tag)}). They are stable: bookmark or script them.`)
+    out.push('')
+    out.push('| platform | download |')
+    out.push('| --- | --- |')
+    for (const p of PLATFORMS) out.push(`| ${p.label} | [${p.asset}](${latestUrl(p.asset)}) |`)
+    out.push('')
+  }
+
   for (const m of manifests) {
     out.push(`## [${m.tag}](${releaseUrl(m.tag)})${m.prerelease ? ' — pre-release' : ''}`)
     out.push('')

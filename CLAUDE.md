@@ -216,6 +216,15 @@ Per job:
 3. Pack, having first renamed `dist/<os>` to the package name, so the archive
    holds a single top-level `sculptblender-<tag>-<platform>/` directory —
    extracting one must not scatter ~1.5 GB across the user's current directory.
+
+   The archive **file**, unlike that directory, carries no tag:
+   `sculptblender-<platform>.(tar.gz|zip)`. GitHub's only stable-download URL is
+   `/releases/latest/download/<asset name>`, which matches by exact name, so a
+   tagged file name can never be linked to; the tag stays on the inner
+   directory, where it still keeps two extracted builds from colliding and
+   remains visible after unpacking. The same rule is why `prerelease` defaults
+   to **false** — GitHub's "latest" skips pre-releases entirely, and while every
+   release was one, `/releases/latest` 302'd to the plain releases list.
 4. Upload straight into a draft release on `joeedh/sculptblender-builds`
    (created by the `prepare` job, un-drafted by `finalize`), so a ~1.5 GB
    package crosses the wire once instead of twice through the artifact store.
@@ -227,6 +236,12 @@ timestamp — several builds land on one day, and ordering by date alone fell
 through to the tag's sha suffix, i.e. alphabetical noise. `--reindex`
 regenerates `RELEASES.md` from the manifests already on disk, which is how the
 published index gets repaired without waiting for the next build.
+
+`RELEASES.md` leads with a **Latest build** table of `/releases/latest/download/`
+links, but only when a manifest on disk actually satisfies both halves of that
+contract — not a pre-release, and carrying assets under the tag-free names.
+Releases predating the rename fail the second test, so the section stays absent
+rather than publishing links that 404.
 
 ## Package smoke test (`.github/workflows/smoke-test-packages.yml`)
 
