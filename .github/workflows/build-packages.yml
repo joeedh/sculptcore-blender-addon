@@ -154,7 +154,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            clang ninja-build cmake git-lfs libomp-dev \
+            clang ninja-build cmake git-lfs libomp-dev patchelf \
             libx11-6 libxi6 libxxf86vm1 libxcursor1 libxrandr2 libxinerama1 \
             libxkbcommon0 libegl1 libgl1 libglu1-mesa libsm6 libice6
           git lfs install

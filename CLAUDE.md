@@ -108,9 +108,16 @@ The chain (`node tools/build-blender-dist.mjs --help` for the full option list):
    existing outputs only).
 5. Run Blender headless (`--background --factory-startup --python
    tools/enable_addon.py`, with `BLENDER_USER_CONFIG` pointed at
-   `<install>/<ver>/config`) to enable the addon and save
-   `config/userpref.blend`. Portable Blender reads that config when launched
-   from the install folder, so the mode is on at startup.
+   `<install>/portable/config`) to enable the addon and save
+   `userpref.blend` there, so the mode is on at startup.
+
+   The path is load-bearing: Blender 5.x only treats an install as portable when
+   a directory **literally named `portable`** sits beside the executable
+   (`get_path_user_ex()` in `appdir.cc`), and user resources then resolve under
+   `<base>/portable/<folder>`. A userpref under `<ver>/config` is silently
+   ignored in favour of the OS user dir (`%APPDATA%`, `~/.config/blender`), and
+   the addon comes up disabled on a fresh machine. On macOS the base is rewritten
+   to `<exedir>/../Resources`, i.e. `Blender.app/Contents/Resources/portable/`.
 
 The fork stays sculptcore-agnostic; the userpref and vendored `lib/` are build
 products, never committed. For tight engine iteration without a full restage,
@@ -135,6 +142,18 @@ natively, preserving exec bits and symlinks. Per job:
    — the two CI-only flags. `--engine-libs` also bypasses the ABI pin, which is
    safe here because the libs were just built from the same submodule commit
    whose ctypes package gets vendored.
+
+   Vendoring also **relinks the engine libs** (`fixLibLinkage()`). The prebuilt
+   `wgpu_native` has no SONAME, so on Linux `libsculptcore_capi.so` records the
+   build machine's *absolute path* to it as `DT_NEEDED` — unresolvable anywhere
+   else, no matter that the lib is colocated. `patchelf` (hence its apt entry)
+   sets a SONAME, rewrites the `NEEDED`, and sets `$ORIGIN` as the rpath. macOS
+   is the same bug in milder form — the install name is already `@rpath`-relative
+   but the only `LC_RPATH` is the runner's `extern/wgpu_native/lib` — fixed with
+   `install_name_tool` (`-delete_rpath` / `-add_rpath @loader_path`) plus an
+   ad-hoc `codesign`, since editing load commands voids the signature. Windows
+   needs nothing: PE resolves DLLs by name from the loader directory. None of
+   this shows up on a dev box, where the recorded build paths exist.
 3. Upload straight into a draft release on `joeedh/sculptblender-builds`
    (created by the `prepare` job, un-drafted by `finalize`), so a ~1.5 GB
    package crosses the wire once instead of twice through the artifact store.

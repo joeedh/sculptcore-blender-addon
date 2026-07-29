@@ -15,7 +15,7 @@
  *   4. Vendor the engine runtime (ctypes package + DLLs) into the addon's
  *      `lib/` via the engine's own `make.mjs bundle` (builds the DLL too).
  *   5. Run Blender headless to enable the addon and save a portable
- *      `<install>/<ver>/config/userpref.blend`, so it is on by default.
+ *      `<install>/portable/config/userpref.blend`, so it is on by default.
  *
  * No npm dependencies — plain Node.  Windows-first (the engine and fork are
  * developed on Windows); the copy step uses robocopy there, `cp -a` elsewhere.
@@ -265,8 +265,11 @@ async function main() {
   const bundleStatus = run('node', bundleArgs, ENGINE)
   if (bundleStatus !== 0) fail(`engine bundle failed (code ${bundleStatus})`)
 
-  // 5. Enable by default: save a portable userpref.blend in <install>/<ver>/config.
-  const configDir = path.join(installDir, ver, 'config')
+  // 5. Enable by default: save a portable userpref.blend in <install>/portable/config.
+  //    Blender 5.x only treats an install as portable when a directory literally
+  //    named `portable` sits beside the executable (appdir.cc get_path_user_ex);
+  //    a userpref under <ver>/config is silently ignored in favour of %APPDATA%.
+  const configDir = path.join(installDir, 'portable', 'config')
   ensureDir(configDir)
   log(`generating enabled-by-default userpref -> ${path.join(configDir, 'userpref.blend')}`)
   const enableStatus = run(

@@ -29,7 +29,7 @@
  * userpref once on the host platform and copies it into every other platform's
  * bundle (userpref.blend is app config and ports across platforms).  If the
  * host OS is not among the requested platforms, enabling is skipped with a
- * warning.
+ * warning.  It lands in `<install>/portable/config/` — see portableConfigDir().
  *
  * Permissions (why the Linux/macOS output is a .tar): GitHub's artifact zip
  * carries no Unix mode bits and no symlinks, so the fork's build.yml packs
@@ -292,10 +292,28 @@ function findVersionDirInTar(tarPath) {
 // enabled by default.
 function findHostUserpref(outRoot, hostOs) {
   if (!hostOs) return null
-  const verDir = findVersionDir(path.join(outRoot, hostOs), { soft: true })
-  if (!verDir) return null
-  const up = path.join(verDir, 'config', 'userpref.blend')
+  const up = path.join(portableConfigDir(path.join(outRoot, hostOs), hostOs), 'userpref.blend')
   return fs.existsSync(up) ? up : null
+}
+
+// Where a *portable* Blender 5.x looks for its user config.
+//
+// appdir.cc's get_path_user_ex() only treats an install as portable when a
+// directory literally named `portable` sits beside the executable — user
+// resources then resolve under `<base>/portable/config`.  Anything baked into
+// `<ver>/config` is ignored and Blender falls back to the OS user directory
+// (%APPDATA%, ~/.config/blender, ~/Library/Application Support/Blender), so the
+// addon would not be enabled on a fresh machine.  On macOS `path_base` is
+// rewritten to `<exedir>/../Resources`, hence the app-bundle path below.
+function portableConfigDir(root, osToken) {
+  return osToken === 'macos'
+    ? path.join(root, 'Blender.app', 'Contents', 'Resources', 'portable', 'config')
+    : path.join(root, 'portable', 'config')
+}
+
+// Same path, as a tar-member path relative to the archive root.
+function portableConfigMember(osToken) {
+  return osToken === 'macos' ? 'Blender.app/Contents/Resources/portable' : 'portable'
 }
 
 // Copy the ctypes package + fetched libs into <addon>/lib/sculptcore.
@@ -318,6 +336,122 @@ function vendorRuntime(addonDir, libsDir, osToken) {
   const [capi] = libNamesFor(osToken)
   if (!found.has(capi)) fail(`engine libs artifact for ${osToken} is missing ${capi} (looked in ${libsDir})`)
   for (const n of wanted) if (!found.has(n)) warn(`engine lib ${n} not in artifact; not staged`)
+  fixLibLinkage(dest, osToken)
+}
+
+// Make the engine library self-contained: vendor every non-system dependency it
+// records and rewrite the reference to point beside the loader.
+//
+// The engine links against two libraries that live outside the standard search
+// path — the prebuilt wgpu_native (in the engine's extern/ tree) and the
+// toolchain's libomp — and the recorded references reach them by *build machine
+// path*, so they resolve on the builder and nowhere else:
+//
+//   Linux  DT_NEEDED [/home/runner/.../extern/wgpu_native/lib/libwgpu_native.so]
+//          DT_NEEDED [libomp.so.5] + RUNPATH [...:/usr/lib/llvm-18/lib]
+//   macOS  LC_LOAD_DYLIB @rpath/libwgpu_native.dylib + LC_RPATH [/Users/runner/...]
+//          LC_LOAD_DYLIB /opt/homebrew/opt/libomp/lib/libomp.dylib
+//
+// (wgpu_native has no SONAME/plain install name, which is why the absolute path
+// gets baked in rather than a bare name.)  Colocating the libs is not enough —
+// an absolute NEEDED, or a bare name only the build RUNPATH can satisfy, still
+// points outside the package.  So copy each such dependency in and rewrite the
+// reference to a bare name + $ORIGIN / @loader_path.
+//
+// Only possible where the tools exist (patchelf on Linux, install_name_tool on
+// macOS); on any other host we cannot rewrite and say so.
+function fixLibLinkage(dest, osToken) {
+  if (osToken === 'windows') return  // PE resolves DLLs by name from the loader dir.
+  const [capiName] = libNamesFor(osToken)
+  const capi = path.join(dest, capiName)
+  if (osToken === 'linux') relinkElf(capi, dest, capiName)
+  else relinkMachO(capi, dest, capiName)
+}
+
+function relinkElf(capi, dest, capiName) {
+  if (!hasTool('patchelf')) {
+    warn(`patchelf not available; cannot rewrite ${capiName}'s linkage — the packaged engine ` +
+      `will fail to load unless the build machine's paths exist on the target`)
+    return
+  }
+  // The build RUNPATH doubles as the search list for the deps we must vendor;
+  // it is dropped at the end, so read it before rewriting anything.
+  const searchDirs = capture('patchelf', ['--print-rpath', capi], { allowFail: true })
+    .stdout.split(':').map((s) => s.trim()).filter(Boolean)
+  const needed = capture('patchelf', ['--print-needed', capi], { allowFail: true })
+    .stdout.split('\n').map((s) => s.trim()).filter(Boolean)
+
+  for (const n of needed) {
+    const base = path.posix.basename(n)
+    const isAbs = n !== base
+    const dst = path.join(dest, base)
+    if (!fs.existsSync(dst)) {
+      // Not vendored yet. Absolute: take it verbatim. Bare name: only our
+      // problem if the *build* RUNPATH is what satisfied it — anything the
+      // system loader finds on its own (libc, libstdc++, …) has no entry there.
+      const src = isAbs && fs.existsSync(n)
+        ? n
+        : searchDirs.map((d) => path.join(d, base)).find((f) => fs.existsSync(f))
+      if (!src) {
+        if (isAbs) warn(`${capiName} needs ${n}, which is not on this machine; cannot vendor it`)
+        continue
+      }
+      fs.copyFileSync(src, dst)
+      fs.chmodSync(dst, 0o755)
+      log(`vendored dependency ${base}`)
+    }
+    run('patchelf', ['--set-soname', base, dst])
+    if (isAbs) run('patchelf', ['--replace-needed', n, base, capi])
+  }
+  run('patchelf', ['--set-rpath', '$ORIGIN', capi])
+  log(`relinked ${capiName} against its own directory ($ORIGIN rpath)`)
+}
+
+function relinkMachO(capi, dest, capiName) {
+  if (!hasTool('install_name_tool')) {
+    warn(`install_name_tool not available; cannot rewrite ${capiName}'s linkage — the packaged ` +
+      `engine will fail to load unless the build machine's paths exist on the target`)
+    return
+  }
+  // `otool -L` lists the load-dylib paths one per line after a header line.
+  const deps = capture('otool', ['-L', capi], { allowFail: true })
+    .stdout.split('\n').slice(1).map((l) => l.trim().split(' ')[0]).filter(Boolean)
+
+  for (const n of deps) {
+    if (!n.startsWith('/')) continue                    // already @rpath/@loader_path-relative
+    if (/^\/(usr\/lib|System)\//.test(n)) continue      // OS libs, present everywhere
+    const base = path.basename(n)
+    const dst = path.join(dest, base)
+    if (!fs.existsSync(dst)) {
+      if (!fs.existsSync(n)) { warn(`${capiName} needs ${n}, which is not on this machine`); continue }
+      fs.copyFileSync(n, dst)
+      fs.chmodSync(dst, 0o755)
+      log(`vendored dependency ${base}`)
+    }
+    run('install_name_tool', ['-id', `@rpath/${base}`, dst])
+    resignAdHoc(dst)
+    run('install_name_tool', ['-change', n, `@rpath/${base}`, capi])
+  }
+  // Drop the build machine's rpaths and look beside ourselves instead.
+  // `otool -l` prints LC_RPATH as three lines; the third is `path <p> (offset N)`.
+  const cmds = capture('otool', ['-l', capi], { allowFail: true }).stdout
+  for (const m of cmds.matchAll(/LC_RPATH[\s\S]{0,120}?\n\s*path (.+?) \(offset \d+\)/g)) {
+    run('install_name_tool', ['-delete_rpath', m[1], capi])
+  }
+  run('install_name_tool', ['-add_rpath', '@loader_path', capi])
+  resignAdHoc(capi)
+  log(`relinked ${capiName} against its own directory (@loader_path rpath)`)
+}
+
+// Editing load commands voids the existing signature, and arm64 refuses to load
+// an invalidly-signed image outright — so re-sign ad-hoc after every rewrite.
+function resignAdHoc(lib) {
+  if (hasTool('codesign')) run('codesign', ['--force', '--sign', '-', lib])
+}
+
+function hasTool(name) {
+  const probe = process.platform === 'win32' ? 'where' : 'which'
+  return capture(probe, [name], { allowFail: true }).status === 0
 }
 
 // Restore the Unix executable bit on a non-Windows bundle's binaries. GitHub
@@ -468,10 +602,10 @@ async function main() {
             ? bakedUserpref
             : findHostUserpref(opts.out, hostOs)
           if (src) {
-            const cfg = path.join(stage, ...relVer.split('/'), 'config')
+            const cfg = portableConfigDir(stage, p)
             ensureDir(cfg)
             fs.copyFileSync(src, path.join(cfg, 'userpref.blend'))
-            members.push(`./${relVer}/config`)
+            members.push(`./${portableConfigMember(p)}`)
             enabled = 'copied from host'
           } else {
             warn(`no host userpref to copy into ${p}; addon staged but not enabled by default ` +
@@ -505,7 +639,7 @@ async function main() {
       if (p !== 'windows' && !wasTar) fixExecutableBits(outDir, verDir, p)
 
       // 5. Enable-by-default: bake on host, copy to others.
-      const configDir = path.join(verDir, 'config')
+      const configDir = portableConfigDir(outDir, p)
       let enabled = 'skipped'
       if (opts.enable) {
         if (p === hostOs) {
