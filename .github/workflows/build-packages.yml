@@ -1,0 +1,355 @@
+# Build the shippable SculptBlender packages: a portable Blender (from the
+# fork's own CI) with the SculptCore sculpt mode bundled and enabled by default.
+#
+# Why this lives here and not in either upstream repo: a package needs *three*
+# things that only this repo can put together —
+#
+#   1. the Blender fork install tree      (joeedh/blender `build.yml` artifacts),
+#   2. the engine native libraries built WITH this repo's `brushes/*.sbrush`
+#      kernels compiled in (`--kernels-extra`), which the engine's own CI cannot
+#      do because it never sees this repo, and
+#   3. the addon package + the pinned submodule's ctypes runtime.
+#
+# Each matrix job is the *target* OS, so `fetch-blender-dist.mjs` takes its
+# host-platform path: it extracts the fork tar into a real tree, stages the
+# addon, and bakes an enabled-by-default `userpref.blend` by actually running
+# Blender. Native packaging then preserves exec bits and symlinks for free.
+#
+# The finished packages are published as assets on a joeedh/sculptblender-builds
+# release — binaries never enter that repo's git history; it carries only the
+# docs and a small per-release manifest. The release is created as a draft up
+# front, each matrix job uploads straight into it (so a ~1.5 GB package crosses
+# the wire once, not twice through the artifact store), and the final job
+# un-drafts it.
+#
+# Requires a repo secret `BUILDS_TOKEN`: a PAT with `actions:read` on
+# joeedh/blender (the default GITHUB_TOKEN is scoped to this repo, so it cannot
+# download the fork's artifacts) and `contents:write` on
+# joeedh/sculptblender-builds.
+name: Build packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      blender_run:
+        description: 'Pin the fork build to this Actions run id (blank = latest successful on the branch)'
+        required: false
+        default: ''
+      blender_branch:
+        description: 'Fork branch to take the Blender build from'
+        required: false
+        default: 'custom-object-modes'
+      config:
+        description: 'Engine build config'
+        required: false
+        default: 'RelWithDebInfo'
+        type: choice
+        options: [RelWithDebInfo, Release]
+      tag:
+        description: 'Release tag (blank = build-<UTC date>-<short sha>)'
+        required: false
+        default: ''
+      prerelease:
+        description: 'Mark the release as a pre-release'
+        required: false
+        default: true
+        type: boolean
+
+concurrency:
+  group: build-packages-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  # Resolve the tag once (the matrix must not each compute its own date) and
+  # open the draft release the packaging jobs upload into.
+  prepare:
+    name: Prepare release
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve release tag
+        id: tag
+        run: |
+          tag='${{ inputs.tag }}'
+          if [ -z "$tag" ]; then
+            tag="build-$(date -u +%Y%m%d)-$(git rev-parse --short=7 HEAD)"
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "release tag: $tag"
+
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ secrets.BUILDS_TOKEN }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          if gh release view "$TAG" -R joeedh/sculptblender-builds >/dev/null 2>&1; then
+            echo "release $TAG already exists; reusing it"
+            exit 0
+          fi
+          gh release create "$TAG" \
+            -R joeedh/sculptblender-builds \
+            --title "SculptBlender $TAG" \
+            --draft \
+            --notes "Build in progress…"
+
+  package:
+    name: ${{ matrix.label }}
+    needs: prepare
+    runs-on: ${{ matrix.runs-on }}
+    # The engine build (incl. a cold OpenBLAS/SuiteSparse deps build) plus a
+    # ~1.6 GB Blender artifact download is a long tail.
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: Linux x64
+            runs-on: ubuntu-latest
+            asset: linux-x64
+          - label: macOS arm64
+            runs-on: macos-latest
+            asset: macos-arm64
+          - label: Windows x64
+            runs-on: windows-latest
+            asset: windows-x64
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout (with engine submodule)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          package_json_file: engine/package.json
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: engine/pnpm-lock.yaml
+
+      - name: Install engine pnpm deps
+        working-directory: engine
+        run: pnpm install --frozen-lockfile
+
+      # --- toolchain: mirrors engine/.github/workflows/native-nightly.yml -----
+      # The extra X/Wayland/GL runtime libs are this workflow's own addition:
+      # unlike the engine CI we *launch* the fetched Blender here (to bake the
+      # userpref), and the binary links them even under --background.
+      - name: Install toolchain (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            clang ninja-build cmake git-lfs libomp-dev \
+            libx11-6 libxi6 libxxf86vm1 libxcursor1 libxrandr2 libxinerama1 \
+            libxkbcommon0 libegl1 libgl1 libglu1-mesa libsm6 libice6
+          git lfs install
+
+      - name: Install toolchain (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install ninja git-lfs libomp || true
+          git lfs install
+          # Lets FindOpenMP locate Homebrew libomp under Apple clang.
+          echo "OpenMP_ROOT=$(brew --prefix libomp)" >> "$GITHUB_ENV"
+
+      - name: Install toolchain (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          choco install ninja -y --no-progress
+          git lfs install
+
+      # The spatial shader codegen needs the pinned naga CLI.
+      - name: Install engine host tools (naga)
+        working-directory: engine
+        run: node make.mjs install-tools
+
+      - name: Write engine local-build-options.mjs
+        working-directory: engine
+        run: |
+          cat > local-build-options.mjs <<EOF
+          export default {
+            CMAKE_BUILD_TYPE: '${{ inputs.config }}',
+            CMAKE_GENERATOR: 'Ninja',
+            // The shipped libs render through source/webgpu -> wgpu-native, so
+            // no Vulkan SDK is needed on the runner.
+            WITH_VULKAN: false,
+          }
+          EOF
+
+      - name: Fetch wgpu-native prebuilt
+        working-directory: engine
+        run: node make.mjs fetch-wgpu-native
+
+      # THE reason this workflow exists: `--kernels-extra ../brushes` compiles
+      # this repo's addon-authored .sbrush kernels (Nudge, ...) into the DLL.
+      # Libs from the engine's own CI lack them, and the addon then reports
+      # "kernel 'NUDGE' missing from engine enum".
+      - name: Build engine libs (with addon brush kernels)
+        working-directory: engine
+        run: node make.mjs bundle ci-staging --kernels-extra ../brushes
+
+      - name: Collect engine libs
+        run: |
+          mkdir -p enginelibs
+          find engine/build/python engine/ci-staging engine/extern/wgpu_native/lib \
+            -type f \
+            \( -name 'sculptcore_capi.dll' -o -name 'libsculptcore_capi.so' \
+            -o -name 'libsculptcore_capi.dylib' \
+            -o -name 'wgpu_native.dll' -o -name 'libwgpu_native.so' \
+            -o -name 'libwgpu_native.dylib' \) \
+            -exec cp -n {} enginelibs/ \; || true
+          ls -la enginelibs
+          # Fail loudly rather than ship a package whose engine never loads.
+          ls enginelibs | grep -q sculptcore_capi
+
+      # --- assemble the package ----------------------------------------------
+      # This runner IS the target OS, so the tool takes its host path: extract
+      # the fork tar, stage the addon, vendor the runtime, run Blender to bake
+      # userpref.blend. --engine-libs skips the engine artifact download (and
+      # with it the ABI pin) because we just built the libs from the very
+      # submodule commit whose ctypes package gets vendored.
+      - name: Assemble Blender + addon
+        env:
+          GH_TOKEN: ${{ secrets.BUILDS_TOKEN }}
+        run: |
+          args=(tools/fetch-blender-dist.mjs
+            --blender-repo joeedh/blender
+            --blender-branch '${{ inputs.blender_branch }}'
+            --engine-libs enginelibs
+            --config '${{ inputs.config }}'
+            --out dist)
+          if [ -n "${{ inputs.blender_run }}" ]; then
+            args+=(--blender-run '${{ inputs.blender_run }}')
+          fi
+          node "${args[@]}"
+
+      # Packaged natively on the target OS, so exec bits and soname symlinks are
+      # captured correctly — the whole reason each matrix job is its own target
+      # OS rather than one runner cross-packaging all three.
+      - name: Package (Linux/macOS)
+        id: pkg_unix
+        if: runner.os != 'Windows'
+        run: |
+          name="sculptblender-${{ needs.prepare.outputs.tag }}-${{ matrix.asset }}.tar.gz"
+          tar -czf "$name" -C "dist/$(ls dist)" .
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+
+      - name: Package (Windows)
+        id: pkg_win
+        if: runner.os == 'Windows'
+        run: |
+          name="sculptblender-${{ needs.prepare.outputs.tag }}-${{ matrix.asset }}.zip"
+          # 7z ships on the Windows runner and is far faster than Compress-Archive
+          # on a ~1.5 GB tree.
+          (cd "dist/$(ls dist)" && 7z a -tzip -mx=5 "$GITHUB_WORKSPACE/$name" . >/dev/null)
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+
+      - name: Checksum
+        id: sum
+        run: |
+          f='${{ steps.pkg_unix.outputs.name }}${{ steps.pkg_win.outputs.name }}'
+          if command -v sha256sum >/dev/null; then sha256sum "$f" > "$f.sha256"
+          else shasum -a 256 "$f" > "$f.sha256"; fi
+          cat "$f.sha256"
+          echo "file=$f" >> "$GITHUB_OUTPUT"
+          ls -l "$f"
+
+      - name: Upload into the draft release
+        env:
+          GH_TOKEN: ${{ secrets.BUILDS_TOKEN }}
+        run: |
+          gh release upload '${{ needs.prepare.outputs.tag }}' \
+            '${{ steps.sum.outputs.file }}' '${{ steps.sum.outputs.file }}.sha256' \
+            -R joeedh/sculptblender-builds --clobber
+
+      # The checksum files are tiny; the builds repo's manifest step needs them,
+      # and they double as a record if the release is later deleted.
+      - name: Upload checksum artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sha256-${{ matrix.asset }}
+          path: ${{ steps.sum.outputs.file }}.sha256
+          if-no-files-found: error
+
+  finalize:
+    name: Publish
+    needs: [prepare, package]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (addon repo, for the doc generator)
+        uses: actions/checkout@v4
+
+      - name: Download checksums
+        uses: actions/download-artifact@v4
+        with:
+          pattern: sha256-*
+          path: sums
+          merge-multiple: true
+
+      - name: Write release notes and un-draft
+        env:
+          GH_TOKEN: ${{ secrets.BUILDS_TOKEN }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+        run: |
+          notes=$(mktemp)
+          {
+            echo "Portable Blender (fork branch \`${{ inputs.blender_branch }}\`) with the"
+            echo "SculptCore sculpt mode bundled and **enabled by default**."
+            echo
+            echo "See the [installation instructions](https://github.com/joeedh/sculptblender-builds/blob/master/Readme.MD#installation)."
+            echo
+            echo "| package | sha256 |"
+            echo "| --- | --- |"
+            for s in sums/*.sha256; do
+              set -- $(cat "$s"); echo "| \`$(basename "$2")\` | \`$1\` |"
+            done
+            echo
+            echo "Built from [sculptcore-blender-addon@\`${GITHUB_SHA:0:7}\`](https://github.com/${{ github.repository }}/commit/${{ github.sha }}),"
+            echo "engine libs compiled with this repo's \`brushes/\` kernels (\`${{ inputs.config }}\`)."
+          } > "$notes"
+          gh release edit "$TAG" -R joeedh/sculptblender-builds \
+            --draft=false \
+            --prerelease=${{ inputs.prerelease }} \
+            --notes-file "$notes"
+
+      # The builds repo tracks each release as a small manifest plus a
+      # regenerated RELEASES.md index. No binaries are committed — they live as
+      # release assets, so the repo stays cheap to clone.
+      - name: Record the release in the builds repo
+        env:
+          GH_TOKEN: ${{ secrets.BUILDS_TOKEN }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+        run: |
+          git clone --depth 50 \
+            "https://x-access-token:${GH_TOKEN}@github.com/joeedh/sculptblender-builds.git" builds
+          cd builds
+          git config user.name 'sculptblender-ci'
+          git config user.email 'sculptblender-ci@users.noreply.github.com'
+          node "$GITHUB_WORKSPACE/tools/record-release.mjs" \
+            --repo . \
+            --tag "$TAG" \
+            --sums "$GITHUB_WORKSPACE/sums" \
+            --source-sha '${{ github.sha }}' \
+            --blender-branch '${{ inputs.blender_branch }}' \
+            --config '${{ inputs.config }}' \
+            --prerelease '${{ inputs.prerelease }}'
+          git add -A
+          if git diff --cached --quiet; then echo 'nothing to commit'; exit 0; fi
+          git commit -m "release: $TAG"
+          git push

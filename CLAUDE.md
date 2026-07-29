@@ -43,6 +43,7 @@ brushes/                 Addon-authored .sbrush kernels compiled into the DLL at
                          time (engine "extra kernel dirs"); see brushes/README.md.
 engine/                  SculptCore engine (git submodule). Builds sculptcore_capi.dll.
 tools/                   Build/install helper (build-blender-dist.*) — see below.
+.github/workflows/       Packaging CI (build-packages.yml) — see below.
 claudeMemory/            Claude's plans, research, and validated reference notes for THIS repo.
 ```
 
@@ -117,6 +118,34 @@ use the env-var flow above pointed at a Blender fork build.
 
 Prerequisites for step 4 are the engine's own (Node + CMake + toolchain; see
 `engine/CLAUDE.md`). The script has no npm dependencies.
+
+## Packaging CI (`.github/workflows/build-packages.yml`)
+
+The shippable, downloadable builds. Manual dispatch only. One matrix job per
+target OS (ubuntu / macos-arm64 / windows), and each job **is** the target OS,
+so `tools/fetch-blender-dist.mjs` takes its host path — extract, stage, bake the
+userpref by actually running Blender — and the final tar.gz/zip is packed
+natively, preserving exec bits and symlinks. Per job:
+
+1. Build the engine libs here, with `node make.mjs bundle ci-staging
+   --kernels-extra ../brushes`. This is why packaging can't live in the engine
+   repo: only this repo has the addon's `.sbrush` kernels, and libs built
+   without them make the addon report `kernel 'NUDGE' missing from engine enum`.
+2. `fetch-blender-dist.mjs --blender-repo joeedh/blender --engine-libs enginelibs`
+   — the two CI-only flags. `--engine-libs` also bypasses the ABI pin, which is
+   safe here because the libs were just built from the same submodule commit
+   whose ctypes package gets vendored.
+3. Upload straight into a draft release on `joeedh/sculptblender-builds`
+   (created by the `prepare` job, un-drafted by `finalize`), so a ~1.5 GB
+   package crosses the wire once instead of twice through the artifact store.
+
+`finalize` also runs `tools/record-release.mjs` against a clone of the builds
+repo: binaries stay release assets, and git gets only `releases/<tag>.json` plus
+a regenerated `RELEASES.md`.
+
+Needs the repo secret **`BUILDS_TOKEN`** — a PAT with `actions:read` on
+`joeedh/blender` (the default `GITHUB_TOKEN` is repo-scoped and cannot download
+the fork's artifacts) and `contents:write` on `joeedh/sculptblender-builds`.
 
 ## Working conventions for Claude (this repo)
 

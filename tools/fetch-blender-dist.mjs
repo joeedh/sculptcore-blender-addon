@@ -67,8 +67,16 @@
  *                       (default: the engine/ submodule HEAD).
  *   --engine-latest     Use the latest successful engine run instead of the
  *                       submodule commit (accepts the ABI-mismatch risk).
+ *   --engine-libs DIR   Use engine shared libraries already on disk instead of
+ *                       downloading them.  Skips all engine run resolution, so
+ *                       the ABI pin does not apply — the caller owns matching
+ *                       the libs to the submodule's ctypes package.  This is
+ *                       what the packaging CI uses: it builds the libs itself
+ *                       (with brushes/ as extra kernel dirs) and points here.
  *   --blender-src DIR   Blender fork checkout, for repo discovery
  *                       (default: ../main, or $BLENDER_SRC).
+ *   --blender-repo SLUG owner/name of the fork, instead of discovering it from
+ *                       a local checkout.  For CI, which has no fork clone.
  *   --no-enable         Skip baking the enabled-by-default userpref.
  *   --keep-tmp          Do not delete the per-run download scratch dir.
  *   -h, --help
@@ -113,7 +121,9 @@ function parseArgs(argv) {
     engineRun: null,
     engineCommit: null,
     engineLatest: false,
+    engineLibs: null,
     blenderSrc: process.env.BLENDER_SRC || path.resolve(REPO, '..', 'main'),
+    blenderRepo: null,
     enable: true,
     keepTmp: false,
   }
@@ -136,7 +146,9 @@ function parseArgs(argv) {
       case '--engine-run': opts.engineRun = next(); break
       case '--engine-commit': opts.engineCommit = next(); break
       case '--engine-latest': opts.engineLatest = true; break
+      case '--engine-libs': opts.engineLibs = path.resolve(next()); break
       case '--blender-src': opts.blenderSrc = path.resolve(next()); break
+      case '--blender-repo': opts.blenderRepo = next(); break
       case '--no-enable': opts.enable = false; break
       case '--keep-tmp': opts.keepTmp = true; break
       case '-h': case '--help': opts.help = true; break
@@ -367,17 +379,20 @@ async function main() {
   if (capture('gh', ['--version'], { allowFail: true }).status !== 0) fail('the GitHub CLI (gh) is not on PATH')
   if (capture('gh', ['auth', 'status'], { allowFail: true }).status !== 0) fail('gh is not authenticated — run: gh auth login')
 
-  // Repo discovery.
-  const forkSlug = githubSlug(opts.blenderSrc, 'the Blender fork')
-  const engineSlug = githubSlug(ENGINE, 'the engine submodule')
-  const engineHead = capture('git', ['-C', ENGINE, 'rev-parse', 'HEAD']).stdout
+  if (opts.engineLibs && !fs.existsSync(opts.engineLibs)) fail(`--engine-libs dir not found: ${opts.engineLibs}`)
 
-  // Resolve the two source runs (shared across platforms).
+  // Repo discovery. --blender-repo skips the fork checkout (CI has none);
+  // --engine-libs skips the engine side entirely, libs being already on disk.
+  const forkSlug = opts.blenderRepo || githubSlug(opts.blenderSrc, 'the Blender fork')
+  const engineSlug = opts.engineLibs ? null : githubSlug(ENGINE, 'the engine submodule')
+  const engineHead = capture('git', ['-C', ENGINE, 'rev-parse', 'HEAD'], { allowFail: true }).stdout
+
+  // Resolve the source run(s). Shared across platforms.
   const blenderRun = resolveRun({
     slug: forkSlug, workflow: 'build.yml', label: 'blender',
     runId: opts.blenderRun, commit: opts.blenderCommit, branch: opts.blenderBranch,
   })
-  const engineRun = resolveRun({
+  const engineRun = opts.engineLibs ? null : resolveRun({
     slug: engineSlug, workflow: 'native-nightly.yml', label: 'engine',
     runId: opts.engineRun,
     commit: opts.engineCommit || (opts.engineLatest ? null : engineHead),
@@ -385,8 +400,12 @@ async function main() {
   })
 
   log(`fork repo    : ${forkSlug}  (build.yml run ${blenderRun})`)
-  log(`engine repo  : ${engineSlug}  (native-nightly.yml run ${engineRun})`)
-  log(`engine commit: ${engineHead.slice(0, 12)}${opts.engineLatest ? ' (submodule; libs from --engine-latest)' : ' (submodule; libs pinned to match)'}`)
+  if (opts.engineLibs) {
+    log(`engine libs  : ${opts.engineLibs}  (prebuilt on disk; no ABI pin enforced)`)
+  } else {
+    log(`engine repo  : ${engineSlug}  (native-nightly.yml run ${engineRun})`)
+  }
+  log(`engine commit: ${engineHead.slice(0, 12) || '(unknown)'}${opts.engineLibs ? ' (submodule; ctypes package source)' : opts.engineLatest ? ' (submodule; libs from --engine-latest)' : ' (submodule; libs pinned to match)'}`)
   log(`platforms    : ${opts.platforms.join(', ')}`)
   log(`config       : ${opts.config}`)
   log(`out          : ${opts.out}`)
@@ -404,8 +423,11 @@ async function main() {
       // 1. Download engine libs (small) to scratch; the Blender install tree
       //    (large — up to ~1.6 GB) extracts straight into the output dir, so we
       //    never copy the whole tree a second time.
-      const libsDl = path.join(tmpRoot, `libs-${p}`)
-      downloadArtifact({ slug: engineSlug, runId: engineRun, name: `sculptcore-libs-${osToken}-${opts.config}`, destDir: libsDl })
+      let libsDl = opts.engineLibs
+      if (!libsDl) {
+        libsDl = path.join(tmpRoot, `libs-${p}`)
+        downloadArtifact({ slug: engineSlug, runId: engineRun, name: `sculptcore-libs-${osToken}-${opts.config}`, destDir: libsDl })
+      }
 
       const outDir = path.join(opts.out, p)
       log(`downloading install tree -> ${outDir}`)
