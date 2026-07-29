@@ -269,23 +269,30 @@ jobs:
       # Packaged natively on the target OS, so exec bits and soname symlinks are
       # captured correctly — the whole reason each matrix job is its own target
       # OS rather than one runner cross-packaging all three.
+      #
+      # Both archives hold a single top-level directory named after the package
+      # (`fetch-blender-dist.mjs` writes the tree as `dist/<os>`, so it is just
+      # renamed): extracting one lands ~1.5 GB in its own folder rather than all
+      # over whatever directory the user happened to be in.
       - name: Package (Linux/macOS)
         id: pkg_unix
         if: runner.os != 'Windows'
         run: |
-          name="sculptblender-${{ needs.prepare.outputs.tag }}-${{ matrix.asset }}.tar.gz"
-          tar -czf "$name" -C "dist/$(ls dist)" .
-          echo "name=$name" >> "$GITHUB_OUTPUT"
+          root="sculptblender-${{ needs.prepare.outputs.tag }}-${{ matrix.asset }}"
+          mv "dist/$(ls dist)" "dist/$root"
+          tar -czf "$root.tar.gz" -C dist "$root"
+          echo "name=$root.tar.gz" >> "$GITHUB_OUTPUT"
 
       - name: Package (Windows)
         id: pkg_win
         if: runner.os == 'Windows'
         run: |
-          name="sculptblender-${{ needs.prepare.outputs.tag }}-${{ matrix.asset }}.zip"
+          root="sculptblender-${{ needs.prepare.outputs.tag }}-${{ matrix.asset }}"
+          mv "dist/$(ls dist)" "dist/$root"
           # 7z ships on the Windows runner and is far faster than Compress-Archive
           # on a ~1.5 GB tree.
-          (cd "dist/$(ls dist)" && 7z a -tzip -mx=5 "$GITHUB_WORKSPACE/$name" . >/dev/null)
-          echo "name=$name" >> "$GITHUB_OUTPUT"
+          (cd dist && 7z a -tzip -mx=5 "$GITHUB_WORKSPACE/$root.zip" "$root" >/dev/null)
+          echo "name=$root.zip" >> "$GITHUB_OUTPUT"
 
       - name: Checksum
         id: sum
