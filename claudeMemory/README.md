@@ -13,6 +13,12 @@ Working notes Claude maintains for this repository. See the top-level
 
 ## Index
 
+- [plans/cpp-stroke-driver-adoption.md](plans/cpp-stroke-driver-adoption.md)
+  — replacing the addon's Python stroke sampler (`StrokeSpacer` + `stroke_math`
+  + per-dab raycasting) with the engine's C++ `BrushStrokeDriver`: phased by
+  stroke method, the Blender→driver view-snapshot conversion (row-vector
+  matrices, y-flip, ortho), what stays host-side, and the castRay fix the same
+  engine commit brings.
 - [research/gpu-brush-evaluation-in-blender.md](research/gpu-brush-evaluation-in-blender.md)
   — how the engine's GPU brush stack could drive strokes under the addon: the
   existing marshal/dispatch seams, engine-owned wgpu vs. compute on Blender's
