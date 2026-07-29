@@ -45,8 +45,10 @@ engine/                  SculptCore engine (git submodule). Builds sculptcore_ca
 tools/                   build-blender-dist.mjs  build Blender locally, stage the addon (below).
                          fetch-blender-dist.mjs  the same, from CI artifacts instead of a build.
                          verify_addon.py         headless "did it come up enabled?" check.
+                         smoke_test_package.py   headless "does its engine load?" check.
                          record-release.mjs      builds-repo manifest + RELEASES.md index.
-.github/workflows/       Packaging CI (build-packages.yml) — see below.
+.github/workflows/       Packaging CI (build-packages.yml) + the package smoke test
+                         (smoke-test-packages.yml) — see below.
 claudeMemory/            Claude's plans, research, and validated reference notes for THIS repo.
 ```
 
@@ -211,6 +213,44 @@ timestamp — several builds land on one day, and ordering by date alone fell
 through to the tag's sha suffix, i.e. alphabetical noise. `--reindex`
 regenerates `RELEASES.md` from the manifests already on disk, which is how the
 published index gets repaired without waiting for the next build.
+
+## Package smoke test (`.github/workflows/smoke-test-packages.yml`)
+
+Packaging verifies the tree it assembles **on the machine that just built the
+engine libraries** — where every build path still exists, every toolchain
+runtime is installed, and nothing has been through a pack/unpack round trip. So
+it structurally cannot catch a mis-linked library, a lost exec bit, or a
+dependency satisfied from the builder. This workflow closes that gap: it takes
+the most recent published release from `joeedh/sculptblender-builds` (or a
+dispatched `tag`), unpacks it on a clean runner of the target OS, and launches
+Blender against `tools/verify_addon.py` (enabled?) and
+`tools/smoke_test_package.py` (does the engine load, and from where?).
+
+Triggered manually, and automatically on a successful **Build packages** run
+(`workflow_run`) — packaging un-drafts the release in its `finalize` job, so by
+then the assets are the "most recent".
+
+**It installs nothing an ordinary user would not already have**, and that
+constraint is the point: a compiler, patchelf, git-lfs or an OpenMP runtime on
+the test machine would let a package that only loads on a build machine pass.
+The one exception is the standard X11/GL runtime any Linux desktop carries
+(Blender links it even under `--background`); a bare CI container has *less*
+than a user's machine, not more. Unpacking uses only OS-provided tools —
+including Windows' own `System32\tar.exe`, since the Git bash on PATH there
+ships GNU tar, which cannot read a zip.
+
+`smoke_test_package.py` asserts provenance, not just success: the `sculptcore`
+ctypes package and every engine shared library the *process actually mapped*
+(read from `/proc/self/maps`, `_dyld_get_image_name`, or `EnumProcessModules`)
+must resolve inside the add-on's vendored `lib/sculptcore/`. A system copy
+quietly satisfying the load fails the job instead of hiding in it. It also
+requires `Brush.sculptcore` to exist (proving the engine was live during the
+add-on's own registration — `engine_props.register()`'s failure path is a
+`print`, not an exception), every kernel in `mapping.KERNEL_BY_TYPE` to be in
+the engine enum (how libs built without `--kernels-extra ../brushes` show up),
+and a one-triangle mesh to round-trip through the c-api. Both scripts are
+launched with `--python-exit-code 1`: without it Blender prints an unhandled
+exception and still exits 0.
 
 The builds repo's `Readme.MD` is the user-facing install doc (nothing regenerates
 it) — it describes the archive layout, the always-enabled add-on and the global

@@ -1,0 +1,231 @@
+# Smoke-test the packages we actually ship: take the most recent release from
+# joeedh/sculptblender-builds, unpack it the way a user would, launch Blender,
+# and check that the SculptCore add-on — above all its native libraries — comes
+# up.
+#
+# `build-packages.yml` already verifies the tree it assembles, but it does so on
+# the machine that just built the engine libraries: every build path still
+# exists, every toolchain runtime is installed, and the archive has not been
+# through a pack/unpack round trip.  That is precisely the environment in which
+# a mis-linked library, a lost exec bit, or a dependency resolved from the
+# builder cannot be seen.  This workflow runs against the published archive on a
+# clean runner instead.
+#
+# **Nothing here may install anything an ordinary user would not already have.**
+# No compiler, no CMake, no patchelf, no git-lfs, no OpenMP runtime, no engine
+# dependency of any kind — installing one would let a package that is only
+# loadable on a build machine pass.  The single exception is the standard X11/GL
+# runtime that ships with every Linux desktop (see the step's own comment); a
+# bare CI container has less than any user's machine, not more.  Extraction uses
+# only tools that ship with the OS (`tar`, including Windows' own bsdtar).
+#
+# The provenance checks live in `tools/smoke_test_package.py`, which asserts
+# that every engine library the process maps resolves inside the add-on's
+# vendored `lib/sculptcore/` — so a system copy silently satisfying the load
+# fails the job rather than hiding in it.
+name: Smoke-test packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to test (blank = most recent release, drafts excluded)'
+        required: false
+        default: ''
+      builds_repo:
+        description: 'Repository holding the release assets'
+        required: false
+        default: 'joeedh/sculptblender-builds'
+  # Packaging un-drafts the release in its `finalize` job, so by the time this
+  # fires the assets are published and resolvable as "most recent".
+  workflow_run:
+    workflows: ['Build packages']
+    types: [completed]
+
+concurrency:
+  group: smoke-test-packages-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: ${{ matrix.label }}
+    # A cancelled or failed packaging run has nothing worth testing.
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ${{ matrix.runs-on }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: Linux x64
+            runs-on: ubuntu-latest
+            asset: linux-x64
+            ext: tar.gz
+          - label: macOS arm64
+            runs-on: macos-latest
+            asset: macos-arm64
+            ext: tar.gz
+          - label: Windows x64
+            runs-on: windows-latest
+            asset: windows-x64
+            ext: zip
+
+    defaults:
+      run:
+        shell: bash
+
+    env:
+      # The add-on repo's own token can read another *public* repo's releases;
+      # BUILDS_TOKEN is only needed if the builds repo is private.
+      GH_TOKEN: ${{ secrets.BUILDS_TOKEN || github.token }}
+      BUILDS_REPO: ${{ inputs.builds_repo || 'joeedh/sculptblender-builds' }}
+
+    steps:
+      # The scripts only; the engine submodule is deliberately left out — the
+      # runtime under test must come from the archive, never from this checkout.
+      - name: Checkout (scripts only, no submodules)
+        uses: actions/checkout@v4
+
+      - name: Resolve the release to test
+        id: rel
+        run: |
+          tag='${{ inputs.tag }}'
+          if [ -z "$tag" ]; then
+            tag=$(gh release list -R "$BUILDS_REPO" --exclude-drafts --limit 1 \
+                    --json tagName --jq '.[0].tagName')
+          fi
+          if [ -z "$tag" ]; then
+            echo "::error::no published release found in $BUILDS_REPO"
+            exit 1
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "testing release $tag from $BUILDS_REPO"
+
+      - name: Download the package
+        run: |
+          gh release download '${{ steps.rel.outputs.tag }}' -R "$BUILDS_REPO" \
+            -p "*-${{ matrix.asset }}.${{ matrix.ext }}" \
+            -p "*-${{ matrix.asset }}.${{ matrix.ext }}.sha256" \
+            -D dl
+          ls -l dl
+
+      # A truncated download would otherwise surface as an inscrutable extract
+      # or load failure. sha256sum ships with the Git-for-Windows bash too.
+      - name: Verify the checksum
+        working-directory: dl
+        run: |
+          sum=$(ls *.sha256)
+          if command -v sha256sum >/dev/null; then sha256sum -c "$sum"
+          else shasum -a 256 -c "$sum"; fi
+
+      # Unpacked with what the OS itself provides: GNU tar on Linux/macOS, and
+      # on Windows the bsdtar at System32\tar.exe that ships with Windows 10+
+      # (the bash on PATH there is Git's, whose GNU tar cannot read a zip).
+      # The destination is short on Windows on purpose: a ~50-character package
+      # name plus Blender's own deep tree runs into MAX_PATH under the default
+      # D:\a\<repo>\<repo> workspace.
+      - name: Extract
+        id: extract
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then dest='/c/scpkg'; else dest="$RUNNER_TEMP/scpkg"; fi
+          mkdir -p "$dest"
+          archive=$(ls dl/*.${{ matrix.ext }})
+          echo "extracting $archive -> $dest"
+          if [ "${{ matrix.ext }}" = "zip" ]; then
+            /c/Windows/System32/tar.exe -xf "$archive" -C "$dest"
+          else
+            tar -xzf "$archive" -C "$dest"
+          fi
+          # Every archive holds exactly one top-level directory (the packaging
+          # job renames the tree to the package name before packing).
+          root=$(ls -d "$dest"/*/ | head -1)
+          root=${root%/}
+          echo "root=$root" >> "$GITHUB_OUTPUT"
+          echo "package root: $root"
+          ls "$root"
+
+      # Runtime libraries only, and only ones any Linux desktop already carries
+      # (X11/Xrandr/EGL/GL/libSM — Blender links them even under --background).
+      # Deliberately NOT installed: anything the *engine* needs. A package that
+      # only loads because the runner happens to have an OpenMP runtime or the
+      # builder's library paths is a broken package, and the smoke test's job is
+      # to say so.
+      - name: Install desktop runtime libraries (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libx11-6 libxi6 libxxf86vm1 libxcursor1 libxrandr2 libxinerama1 \
+            libxkbcommon0 libegl1 libgl1 libglu1-mesa libsm6 libice6
+
+      - name: Locate the Blender executable
+        id: exe
+        run: |
+          root='${{ steps.extract.outputs.root }}'
+          case "$RUNNER_OS" in
+            Windows) exe="$root/blender.exe" ;;
+            macOS)   exe="$root/Blender.app/Contents/MacOS/Blender" ;;
+            *)       exe="$root/blender" ;;
+          esac
+          if [ ! -f "$exe" ]; then
+            echo "::error::no Blender executable at $exe"
+            find "$root" -maxdepth 2 -name 'blender*' -o -maxdepth 2 -name 'Blender*' || true
+            exit 1
+          fi
+          # An archive that lost the exec bit is a packaging bug, not something
+          # to paper over with chmod: report it rather than fixing it.
+          if [ "$RUNNER_OS" != "Windows" ] && [ ! -x "$exe" ]; then
+            echo "::error::$exe is not executable — the archive did not preserve the exec bit"
+            exit 1
+          fi
+          echo "exe=$exe" >> "$GITHUB_OUTPUT"
+          "$exe" --version | head -3
+
+      # Diagnostics only (never fails the job): if the load below breaks, the
+      # unresolved dependency is already in the log. ldd is part of glibc and
+      # otool of the macOS command line tools; neither is installed here.
+      - name: Report the engine library's linkage
+        continue-on-error: true
+        run: |
+          root='${{ steps.extract.outputs.root }}'
+          lib=$(find "$root" -name 'libsculptcore_capi.*' -o -name 'sculptcore_capi.dll' | head -1)
+          echo "engine library: $lib"
+          case "$RUNNER_OS" in
+            Linux) ldd "$lib" || true ;;
+            macOS) otool -L "$lib" || true; otool -l "$lib" | grep -A2 LC_RPATH || true ;;
+            *) ls -l "$(dirname "$lib")" ;;
+          esac
+
+      # Half one: the add-on is enabled by the package's own `.always_enable`
+      # marker, with no user preferences involved.
+      #
+      # Both scripts end in `sys.exit(1)` on failure, which Blender turns into
+      # its own exit code. `--python-exit-code 1` (parsed in order, so it must
+      # precede `--python`) covers the rest: without it an exception that never
+      # reaches their own handler — a syntax error, a failed import — would be
+      # printed and then silently ignored, and the job would pass.
+      - name: Verify the add-on is enabled
+        run: |
+          '${{ steps.exe.outputs.exe }}' --background --factory-startup \
+            --python-exit-code 1 --python tools/verify_addon.py
+
+      # Half two: the native engine loads from inside the package, carries the
+      # add-on's brush kernels, and executes.
+      - name: Smoke-test the engine
+        run: |
+          '${{ steps.exe.outputs.exe }}' --background --factory-startup \
+            --python-exit-code 1 --python tools/smoke_test_package.py
+
+      - name: Summary
+        if: always()
+        run: |
+          pkg=$(ls dl/*.${{ matrix.ext }} 2>/dev/null | head -1)
+          {
+            echo "### ${{ matrix.label }} — \`${{ steps.rel.outputs.tag }}\`"
+            echo
+            echo "- package: \`$(basename "${pkg:-(not downloaded)}")\`"
+            echo "- result: ${{ job.status }}"
+          } >> "$GITHUB_STEP_SUMMARY"
