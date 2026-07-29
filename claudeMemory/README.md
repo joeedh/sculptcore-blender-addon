@@ -19,6 +19,12 @@ Working notes Claude maintains for this repository. See the top-level
   stroke method, the Blender→driver view-snapshot conversion (row-vector
   matrices, y-flip, ortho), what stays host-side, and the castRay fix the same
   engine commit brings.
+- [plans/vertex-group-weights-attribute.md](plans/vertex-group-weights-attribute.md)
+  — giving the engine ownership of Blender vertex-group weights as a sparse
+  `AttrType::WEIGHTS` column (32-bit index into an interned, refcounted,
+  thread-safe pool) with a `AttrMerge::CUSTOM` interpolator, plus the fork's
+  bulk CSR accessor and the `convert.py` bridge. Fixes the `clear_geometry()`
+  weight loss on the dyntopo flush path.
 - [research/gpu-brush-evaluation-in-blender.md](research/gpu-brush-evaluation-in-blender.md)
   — how the engine's GPU brush stack could drive strokes under the addon: the
   existing marshal/dispatch seams, engine-owned wgpu vs. compute on Blender's
