@@ -200,9 +200,15 @@ jobs:
       # this repo's addon-authored .sbrush kernels (Nudge, ...) into the DLL.
       # Libs from the engine's own CI lack them, and the addon then reports
       # "kernel 'NUDGE' missing from engine enum".
+      #
+      # `--publish-deps-to` additionally stages any *freshly compiled* native
+      # deps combo (OpenBLAS + SuiteSparse/CHOLMOD) into staged-deps/. A cold
+      # cache here means a from-source build of both, which dominates this job's
+      # runtime; exporting the result lets it be added to sculptcore-deps so the
+      # next run is a cache hit. On a hit, staged-deps/ is empty.
       - name: Build engine libs (with addon brush kernels)
         working-directory: engine
-        run: node make.mjs bundle ci-staging --kernels-extra ../brushes
+        run: node make.mjs bundle ci-staging --kernels-extra ../brushes --publish-deps-to staged-deps
 
       - name: Collect engine libs
         run: |
@@ -217,6 +223,20 @@ jobs:
           ls -la enginelibs
           # Fail loudly rather than ship a package whose engine never loads.
           ls enginelibs | grep -q sculptcore_capi
+
+      # Empty (and skipped) when the deps combo was a cache hit. Download this
+      # and feed it to the engine's `tools/publish-deps-from-package.mjs
+      # --commit --push` to add the combo to joeedh/sculptcore-deps — publishing
+      # stays an off-farm, credentialed step, so nothing is pushed from here.
+      # A combo is only reusable on a machine whose key
+      # ({platform}/clang-<major>-<arch>/{config}) matches this runner's.
+      - name: Upload freshly-built native deps
+        uses: actions/upload-artifact@v4
+        with:
+          name: deps-${{ matrix.label }}-${{ inputs.config }}
+          path: engine/staged-deps/**
+          if-no-files-found: ignore
+          retention-days: 30
 
       # --- assemble the package ----------------------------------------------
       # This runner IS the target OS, so the tool takes its host path: extract

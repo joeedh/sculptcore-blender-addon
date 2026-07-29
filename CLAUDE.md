@@ -138,6 +138,15 @@ natively, preserving exec bits and symlinks. Per job:
    --kernels-extra ../brushes`. This is why packaging can't live in the engine
    repo: only this repo has the addon's `.sbrush` kernels, and libs built
    without them make the addon report `kernel 'NUDGE' missing from engine enum`.
+
+   `--publish-deps-to staged-deps` also exports any *freshly compiled* native
+   deps combo (OpenBLAS + SuiteSparse/CHOLMOD) as a `deps-<label>-<config>`
+   artifact — a cold deps cache dominates this job's runtime, so the combo is
+   worth keeping. Nothing is pushed from the runner: feed the artifact to the
+   engine's `tools/publish-deps-from-package.mjs --commit --push` to land it in
+   `joeedh/sculptcore-deps`. Combos are keyed
+   `{platform}/clang-<major>-<arch>/{config}` and only hit on a matching
+   toolchain.
 2. `fetch-blender-dist.mjs --blender-repo joeedh/blender --engine-libs enginelibs`
    — the two CI-only flags. `--engine-libs` also bypasses the ABI pin, which is
    safe here because the libs were just built from the same submodule commit
