@@ -12,8 +12,15 @@
 #
 # Each matrix job is the *target* OS, so `fetch-blender-dist.mjs` takes its
 # host-platform path: it extracts the fork tar into a real tree, stages the
-# addon, and bakes an enabled-by-default `userpref.blend` by actually running
-# Blender. Native packaging then preserves exec bits and symlinks for free.
+# addon, marks it always-enabled, and then verifies that by actually running
+# Blender. Native packaging preserves exec bits and symlinks for free.
+#
+# The packages carry no user config of their own — the addon is enabled by a
+# `.always_enable` marker the fork's addon_utils reads at startup, so a package
+# uses (and leaves alone) whatever global Blender config the user already has.
+# That marker support must be present in the fork build this job downloads;
+# without it the verify step fails the job rather than shipping a package whose
+# sculpt mode is off.
 #
 # The finished packages are published as assets on a joeedh/sculptblender-builds
 # release — binaries never enter that repo's git history; it carries only the
@@ -147,8 +154,8 @@ jobs:
 
       # --- toolchain: mirrors engine/.github/workflows/native-nightly.yml -----
       # The extra X/Wayland/GL runtime libs are this workflow's own addition:
-      # unlike the engine CI we *launch* the fetched Blender here (to bake the
-      # userpref), and the binary links them even under --background.
+      # unlike the engine CI we *launch* the fetched Blender here (to verify the
+      # addon comes up enabled), and the binary links them even under --background.
       - name: Install toolchain (Linux)
         if: runner.os == 'Linux'
         run: |
@@ -240,8 +247,8 @@ jobs:
 
       # --- assemble the package ----------------------------------------------
       # This runner IS the target OS, so the tool takes its host path: extract
-      # the fork tar, stage the addon, vendor the runtime, run Blender to bake
-      # userpref.blend. --engine-libs skips the engine artifact download (and
+      # the fork tar, stage the addon, vendor the runtime, mark it always-enabled
+      # and run Blender to verify. --engine-libs skips the engine download (and
       # with it the ABI pin) because we just built the libs from the very
       # submodule commit whose ctypes package gets vendored.
       - name: Assemble Blender + addon

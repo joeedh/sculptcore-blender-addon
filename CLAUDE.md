@@ -106,22 +106,36 @@ The chain (`node tools/build-blender-dist.mjs --help` for the full option list):
 4. Vendor the engine runtime into the addon's `lib/` via the engine's own
    `node make.mjs bundle <lib> ` (builds the DLL too; `--skip-engine` restages
    existing outputs only).
-5. Run Blender headless (`--background --factory-startup --python
-   tools/enable_addon.py`, with `BLENDER_USER_CONFIG` pointed at
-   `<install>/portable/config`) to enable the addon and save
-   `userpref.blend` there, so the mode is on at startup.
+5. Write `<install>/<ver>/scripts/addons_core/.always_enable` (one module name
+   per line) so the mode is on at startup, then verify it headlessly
+   (`--background --factory-startup --python tools/verify_addon.py`).
 
-   The path is load-bearing: Blender 5.x only treats an install as portable when
-   a directory **literally named `portable`** sits beside the executable
-   (`get_path_user_ex()` in `appdir.cc`), and user resources then resolve under
-   `<base>/portable/<folder>`. A userpref under `<ver>/config` is silently
-   ignored in favour of the OS user dir (`%APPDATA%`, `~/.config/blender`), and
-   the addon comes up disabled on a fresh machine. On macOS the base is rewritten
-   to `<exedir>/../Resources`, i.e. `Blender.app/Contents/Resources/portable/`.
+   **Enabled-by-default without owning the user config.** The fork's
+   `scripts/modules/addon_utils.py` reads `.always_enable` from each add-on
+   directory in `_initialize_once()` and folds those names into
+   `_addons_hidden_core`, which is enabled with `default_set=False` (never
+   written to `preferences.addons`, so no `userpref.blend` is touched) and
+   `persistent=True` (`check()` then reports it as enabled-by-default, so
+   `reset_all()` will not unload it on a preferences reload). Timing matters:
+   this runs in `load_scripts_extensions()`, *outside* the `RestrictBlend` block
+   that `scripts/startup` modules register under — the addon's
+   `keymap.register()` needs a live `bpy.context.window_manager`. Being
+   hidden-core also means the addon does not appear in the Add-ons list and is
+   exempt from per-workspace add-on filtering. It is enabled under
+   `--factory-startup` too, which is what makes the verify pass meaningful.
 
-The fork stays sculptcore-agnostic; the userpref and vendored `lib/` are build
-products, never committed. For tight engine iteration without a full restage,
-use the env-var flow above pointed at a Blender fork build.
+   The install therefore ships **no user config**: it reads and writes the
+   machine's global Blender config like any other install. Do not create a
+   directory named `portable` beside the executable — Blender 5.x treats that
+   alone as the portable marker (`get_path_user_ex()` in `appdir.cc`) and
+   redirects *all* user resources under `<base>/portable/<folder>`, which is
+   exactly what this no longer wants. `build-blender-dist.mjs` deletes a stale
+   one left by earlier revisions when staging in place.
+
+The fork's side of this is engine-agnostic (it names no add-on); the
+`.always_enable` marker and the vendored `lib/` are build products, never
+committed. For tight engine iteration without a full restage, use the env-var
+flow above pointed at a Blender fork build.
 
 Prerequisites for step 4 are the engine's own (Node + CMake + toolchain; see
 `engine/CLAUDE.md`). The script has no npm dependencies.
@@ -130,9 +144,9 @@ Prerequisites for step 4 are the engine's own (Node + CMake + toolchain; see
 
 The shippable, downloadable builds. Manual dispatch only. One matrix job per
 target OS (ubuntu / macos-arm64 / windows), and each job **is** the target OS,
-so `tools/fetch-blender-dist.mjs` takes its host path — extract, stage, bake the
-userpref by actually running Blender — and the final tar.gz/zip is packed
-natively, preserving exec bits and symlinks. Per job:
+so `tools/fetch-blender-dist.mjs` takes its host path — extract, stage, mark
+always-enabled, and verify by actually running Blender — and the final
+tar.gz/zip is packed natively, preserving exec bits and symlinks. Per job:
 
 1. Build the engine libs here, with `node make.mjs bundle ci-staging
    --kernels-extra ../brushes`. This is why packaging can't live in the engine

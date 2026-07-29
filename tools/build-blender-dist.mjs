@@ -14,8 +14,10 @@
  *   3. Copy the addon package into `<install>/<ver>/scripts/addons_core/`.
  *   4. Vendor the engine runtime (ctypes package + DLLs) into the addon's
  *      `lib/` via the engine's own `make.mjs bundle` (builds the DLL too).
- *   5. Run Blender headless to enable the addon and save a portable
- *      `<install>/portable/config/userpref.blend`, so it is on by default.
+ *   5. Write `<install>/<ver>/scripts/addons_core/.always_enable`, which the
+ *      fork's addon_utils reads at startup, and verify it headlessly.  The
+ *      install has no user config of its own: it uses the machine's global
+ *      Blender config, which this leaves untouched.
  *
  * No npm dependencies — plain Node.  Windows-first (the engine and fork are
  * developed on Windows); the copy step uses robocopy there, `cp -a` elsewhere.
@@ -44,7 +46,7 @@ const TOOLS = path.dirname(fileURLToPath(import.meta.url))
 const REPO = path.resolve(TOOLS, '..')
 const ENGINE = path.join(REPO, 'engine')
 const ADDON_SRC = path.join(REPO, 'sculptcore_addon')
-const ENABLE_PY = path.join(TOOLS, 'enable_addon.py')
+const VERIFY_PY = path.join(TOOLS, 'verify_addon.py')
 const ADDON_MODULE = 'sculptcore_addon'
 const EXE = process.platform === 'win32' ? 'blender.exe' : 'blender'
 
@@ -99,6 +101,46 @@ function run(cmd, args, cwd, extraEnv, shell = false) {
 }
 
 function ensureDir(d) { fs.mkdirSync(d, { recursive: true }) }
+
+// Mark the addon as always-enabled for this install.
+//
+// The fork's addon_utils reads `.always_enable` from each add-on directory at
+// startup and enables the modules it lists the way it enables its own hidden
+// core add-ons: `default_set=False` (never written to the preferences) and
+// `persistent=True` (a preferences reload does not unload it). So the install
+// is sculpt-mode-by-default while reading and writing the user's *global*
+// config like any other Blender — no portable config, no baked userpref.
+function writeAlwaysEnable(addonsCoreDir, module) {
+  const marker = path.join(addonsCoreDir, '.always_enable')
+  fs.writeFileSync(marker, `# Add-ons this install always enables (Blender fork: addon_utils).\n${module}\n`)
+  return marker
+}
+
+// Remove a `portable/` directory left by an older revision of this script.
+//
+// Blender 5.x treats an install as portable when a directory literally named
+// `portable` sits beside the executable (appdir.cc get_path_user_ex), and then
+// resolves *every* user resource under it — config, scripts, extensions,
+// datafiles. A leftover one therefore silently keeps this install away from the
+// global config, which is the whole point of the `.always_enable` marker. It is
+// a build product of this script (an enabled-by-default userpref, plus whatever
+// Blender wrote beside it), so it goes wholesale — logged, not silently.
+function removeStalePortableDir(installDir) {
+  const portable = path.join(installDir, 'portable')
+  if (!fs.existsSync(portable)) return
+  const listed = []
+  const walk = (dir) => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const p = path.join(dir, e.name)
+      if (e.isDirectory()) walk(p)
+      else listed.push(path.relative(portable, p))
+    }
+  }
+  walk(portable)
+  log(`removing stale portable config dir ${portable} (${listed.join(', ') || 'empty'})`)
+  log('  this install now uses the machine-wide Blender config')
+  fs.rmSync(portable, { recursive: true, force: true })
+}
 
 // Recursively copy src -> dst, skipping directory names in `skip`.
 function copyTree(src, dst, skip = new Set()) {
@@ -265,20 +307,20 @@ async function main() {
   const bundleStatus = run('node', bundleArgs, ENGINE)
   if (bundleStatus !== 0) fail(`engine bundle failed (code ${bundleStatus})`)
 
-  // 5. Enable by default: save a portable userpref.blend in <install>/portable/config.
-  //    Blender 5.x only treats an install as portable when a directory literally
-  //    named `portable` sits beside the executable (appdir.cc get_path_user_ex);
-  //    a userpref under <ver>/config is silently ignored in favour of %APPDATA%.
-  const configDir = path.join(installDir, 'portable', 'config')
-  ensureDir(configDir)
-  log(`generating enabled-by-default userpref -> ${path.join(configDir, 'userpref.blend')}`)
-  const enableStatus = run(
+  // 5. Enable by default, without owning the user config: drop the marker the
+  //    fork's addon_utils reads at startup, then prove it headlessly.
+  //    --factory-startup means the check owes nothing to any userpref.
+  removeStalePortableDir(installDir)
+  const marker = writeAlwaysEnable(path.dirname(addonDst), ADDON_MODULE)
+  log(`marking always-enabled -> ${marker}`)
+  const verifyStatus = run(
     path.join(installDir, EXE),
-    ['--background', '--factory-startup', '--python', ENABLE_PY],
-    undefined,
-    { BLENDER_USER_CONFIG: configDir },
+    ['--background', '--factory-startup', '--python', VERIFY_PY],
   )
-  if (enableStatus !== 0) fail(`enabling the addon failed (code ${enableStatus})`)
+  if (verifyStatus !== 0) {
+    fail('the addon did not come up enabled — is this a fork build with the ' +
+      '.always_enable support in scripts/modules/addon_utils.py?')
+  }
 
   log(`\x1b[32mdone.\x1b[0m install ready at: ${installDir}`)
   log(`launch: "${path.join(installDir, EXE)}"`)

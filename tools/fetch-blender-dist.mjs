@@ -15,7 +15,7 @@
  *
  * then reuses the same bundle steps: copy the addon, vendor the engine runtime
  * (the *local* ctypes package from the pinned submodule + the *fetched* libs),
- * and bake an enabled-by-default userpref.
+ * and mark the addon always-enabled.
  *
  * Version coordination (ABI): the ctypes `sculptcore` package is taken from the
  * `engine/` submodule at its checked-out commit, so the engine libs MUST come
@@ -25,11 +25,12 @@
  * --engine-run / --engine-commit / --engine-latest.  The fork build has no such
  * constraint, so it defaults to the latest successful run.
  *
- * The enable step needs a runnable Blender of the *host* OS, so it bakes the
- * userpref once on the host platform and copies it into every other platform's
- * bundle (userpref.blend is app config and ports across platforms).  If the
- * host OS is not among the requested platforms, enabling is skipped with a
- * warning.  It lands in `<install>/portable/config/` — see portableConfigDir().
+ * Enabling by default is a file, not a state: `.always_enable` next to the
+ * staged addon, which the fork's addon_utils reads at startup (see
+ * writeAlwaysEnable()).  It is written the same way for every platform, needs
+ * no runnable Blender, and leaves the user's global config alone — the bundles
+ * deliberately carry no user config of their own.  Only the *verification* pass
+ * needs to run Blender, so it happens on the host platform alone.
  *
  * Permissions (why the Linux/macOS output is a .tar): GitHub's artifact zip
  * carries no Unix mode bits and no symlinks, so the fork's build.yml packs
@@ -43,7 +44,7 @@
  * extract it on the target OS.  (Appended files are stored 0666/0777 from
  * NTFS, which a normal non-root `tar xf` masks down to 0644/0755 — they are
  * addon data, none of it needs the exec bit.)  The host platform is still
- * extracted to a real tree, because baking the userpref means running Blender.
+ * extracted to a real tree, so the bundle can be launched — and verified.
  * A Windows install artifact is a plain tree, having no metadata to lose.
  *
  * Requires the GitHub CLI (`gh`) on PATH and authenticated (`gh auth status`).
@@ -77,7 +78,8 @@
  *                       (default: ../main, or $BLENDER_SRC).
  *   --blender-repo SLUG owner/name of the fork, instead of discovering it from
  *                       a local checkout.  For CI, which has no fork clone.
- *   --no-enable         Skip baking the enabled-by-default userpref.
+ *   --no-enable         Do not mark the addon always-enabled (it is then staged
+ *                       but off until the user enables it in Preferences).
  *   --keep-tmp          Do not delete the per-run download scratch dir.
  *   -h, --help
  */
@@ -92,7 +94,7 @@ const TOOLS = path.dirname(fileURLToPath(import.meta.url))
 const REPO = path.resolve(TOOLS, '..')
 const ENGINE = path.join(REPO, 'engine')
 const ADDON_SRC = path.join(REPO, 'sculptcore_addon')
-const ENABLE_PY = path.join(TOOLS, 'enable_addon.py')
+const VERIFY_PY = path.join(TOOLS, 'verify_addon.py')
 const ADDON_MODULE = 'sculptcore_addon'
 const PKG_ROOT = path.join(ENGINE, 'python', 'sculptcore')
 
@@ -161,7 +163,7 @@ function parseArgs(argv) {
     if (!host) fail(`unsupported host platform ${process.platform}; pass --platform`)
     opts.platforms = [host]
   }
-  // De-dupe, host first (so its baked userpref is available for the others).
+  // De-dupe, host first (the one platform whose bundle can be verified here).
   opts.platforms = [...new Set(opts.platforms)]
   const host = NODE_PLATFORM_TO_OS[process.platform]
   opts.platforms.sort((a, b) => (a === host ? -1 : b === host ? 1 : 0))
@@ -287,33 +289,20 @@ function findVersionDirInTar(tarPath) {
   fail(`could not locate a Blender <version>/scripts entry in ${tarPath}`)
 }
 
-// Locate an already-baked userpref.blend from a previously-staged host bundle,
-// so non-host platforms can be fetched in a separate invocation and still get
-// enabled by default.
-function findHostUserpref(outRoot, hostOs) {
-  if (!hostOs) return null
-  const up = path.join(portableConfigDir(path.join(outRoot, hostOs), hostOs), 'userpref.blend')
-  return fs.existsSync(up) ? up : null
-}
-
-// Where a *portable* Blender 5.x looks for its user config.
+// Mark the addon as always-enabled for a bundle, by writing `.always_enable`
+// into the add-on directory the addon itself was staged into.
 //
-// appdir.cc's get_path_user_ex() only treats an install as portable when a
-// directory literally named `portable` sits beside the executable — user
-// resources then resolve under `<base>/portable/config`.  Anything baked into
-// `<ver>/config` is ignored and Blender falls back to the OS user directory
-// (%APPDATA%, ~/.config/blender, ~/Library/Application Support/Blender), so the
-// addon would not be enabled on a fresh machine.  On macOS `path_base` is
-// rewritten to `<exedir>/../Resources`, hence the app-bundle path below.
-function portableConfigDir(root, osToken) {
-  return osToken === 'macos'
-    ? path.join(root, 'Blender.app', 'Contents', 'Resources', 'portable', 'config')
-    : path.join(root, 'portable', 'config')
-}
-
-// Same path, as a tar-member path relative to the archive root.
-function portableConfigMember(osToken) {
-  return osToken === 'macos' ? 'Blender.app/Contents/Resources/portable' : 'portable'
+// The fork's addon_utils reads that file at startup and enables the modules it
+// lists the way it enables its own hidden core add-ons: `default_set=False` (so
+// nothing is written to the preferences) and `persistent=True` (so a
+// preferences reload does not unload it).  The package therefore ships no user
+// config at all — it reads and writes the machine's global Blender config, like
+// any other install.  (The previous approach shipped a portable
+// `userpref.blend`, which meant the package owned *every* user resource.)
+function writeAlwaysEnable(addonsCoreDir, module) {
+  const marker = path.join(addonsCoreDir, '.always_enable')
+  fs.writeFileSync(marker, `# Add-ons this install always enables (Blender fork: addon_utils).\n${module}\n`)
+  return marker
 }
 
 // Copy the ctypes package + fetched libs into <addon>/lib/sculptcore.
@@ -545,7 +534,6 @@ async function main() {
   log(`out          : ${opts.out}`)
 
   const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'scdist-'))
-  let bakedUserpref = null
   const hostOs = NODE_PLATFORM_TO_OS[process.platform]
   const summary = []
 
@@ -571,8 +559,8 @@ async function main() {
       // 2. Linux/macOS artifacts are a single uncompressed tar (it is the only
       //    way mode bits and symlinks survive GitHub's artifact zip); Windows
       //    and pre-tar runs are a plain tree. On the host we extract either
-      //    way, since baking the userpref needs a runnable Blender and the host
-      //    OS applies the archived metadata correctly on the way out.
+      //    way — the result is a launchable tree (which is what the verify pass
+      //    needs) and the host OS applies the archived metadata correctly.
       const tarPath = path.join(outDir, 'blender-install.tar')
       const wasTar = fs.existsSync(tarPath)
       let isTar = wasTar
@@ -595,22 +583,13 @@ async function main() {
         log(`vendoring engine runtime (${p} libs + local ctypes package)…`)
         vendorRuntime(addonDst, libsDl, p)
 
-        const members = [`./${relVer}/scripts/addons_core/${ADDON_MODULE}`]
+        const addonsCore = `${relVer}/scripts/addons_core`
+        const members = [`./${addonsCore}/${ADDON_MODULE}`]
         let enabled = 'skipped'
         if (opts.enable) {
-          const src = bakedUserpref && fs.existsSync(bakedUserpref)
-            ? bakedUserpref
-            : findHostUserpref(opts.out, hostOs)
-          if (src) {
-            const cfg = portableConfigDir(stage, p)
-            ensureDir(cfg)
-            fs.copyFileSync(src, path.join(cfg, 'userpref.blend'))
-            members.push(`./${portableConfigMember(p)}`)
-            enabled = 'copied from host'
-          } else {
-            warn(`no host userpref to copy into ${p}; addon staged but not enabled by default ` +
-              `(build the host platform too, or run Blender once and enable it manually)`)
-          }
+          writeAlwaysEnable(path.dirname(addonDst), ADDON_MODULE)
+          members.push(`./${addonsCore}/.always_enable`)
+          enabled = 'marked'
         }
         if (run(tarExe(), ['-rf', tarPath, '-C', stage, ...members]) !== 0) {
           fail(`appending the addon to ${tarPath} failed`)
@@ -638,34 +617,27 @@ async function main() {
       //     carried the real modes, and this is the host OS, so they applied.
       if (p !== 'windows' && !wasTar) fixExecutableBits(outDir, verDir, p)
 
-      // 5. Enable-by-default: bake on host, copy to others.
-      const configDir = portableConfigDir(outDir, p)
+      // 5. Enable-by-default: the marker file, then (host only) prove it by
+      //    launching the bundle. --factory-startup makes the check independent
+      //    of whatever is in this machine's global Blender config.
       let enabled = 'skipped'
       if (opts.enable) {
+        const marker = writeAlwaysEnable(path.dirname(addonDst), ADDON_MODULE)
+        log(`marking always-enabled -> ${marker}`)
+        enabled = 'marked'
         if (p === hostOs) {
-          ensureDir(configDir)
           // macOS names the bundle executable `Blender`, not `blender`.
           const exes = process.platform === 'win32' ? ['blender.exe']
             : process.platform === 'darwin' ? ['Blender', 'blender'] : ['blender']
           const direct = exes.map((e) => path.join(outDir, e)).find((f) => fs.existsSync(f))
           const exePath = direct || findExe(outDir, exes)
-          log(`baking enabled-by-default userpref via ${exePath}`)
-          const status = run(exePath, ['--background', '--factory-startup', '--python', ENABLE_PY], { BLENDER_USER_CONFIG: configDir })
-          if (status !== 0) fail(`enabling the addon failed (code ${status})`)
-          bakedUserpref = path.join(configDir, 'userpref.blend')
-          enabled = 'baked'
-        } else {
-          const src = bakedUserpref && fs.existsSync(bakedUserpref)
-            ? bakedUserpref
-            : findHostUserpref(opts.out, hostOs)
-          if (src) {
-            ensureDir(configDir)
-            fs.copyFileSync(src, path.join(configDir, 'userpref.blend'))
-            enabled = 'copied from host'
-          } else {
-            warn(`no host userpref to copy into ${p}; addon staged but not enabled by default ` +
-              `(build the host platform too, or run Blender once and enable it manually)`)
+          log(`verifying enabled-by-default via ${exePath}`)
+          const status = run(exePath, ['--background', '--factory-startup', '--python', VERIFY_PY])
+          if (status !== 0) {
+            fail('the addon did not come up enabled — does this fork build carry the ' +
+              '.always_enable support in scripts/modules/addon_utils.py?')
           }
+          enabled = 'marked + verified'
         }
       }
       summary.push({ p, outDir, enabled })
@@ -676,7 +648,7 @@ async function main() {
   }
 
   log(`\x1b[32mdone.\x1b[0m`)
-  for (const s of summary) log(`  ${s.p}: ${s.outDir}  (userpref: ${s.enabled})`)
+  for (const s of summary) log(`  ${s.p}: ${s.outDir}  (enabled by default: ${s.enabled})`)
 }
 
 // Locate a Blender binary within an install tree, trying each candidate name
