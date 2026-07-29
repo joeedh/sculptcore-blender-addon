@@ -99,31 +99,76 @@ we never hand out `get_data<int>()` for it and `detail::type_dispatch`
   would remap it against the vert/edge/face tables. Never `NOINTERP` (that
   bypasses the merge handler, `attr_interp.h:240`). `AttrUse::DEFORM_WEIGHTS`
   added as the semantic tag.
-- Make the sites that cannot handle it refuse *explicitly*, not silently:
-  - `source/spatial/spatial_gpu.cc`, `source/spatial/c-api/external_draw.cc`,
-    `source/mesh/gpu/mesh_drawbatch.cc` — skip in `setRequestedAttrs`. A weight
-    overlay, if ever wanted, is a `DERIVED` FLOAT column for the active group;
-    that is deliberately out of scope here.
-  - `source/brush/compiler/emit_cpp.cc` and the rest of `sbrushc` — reject an
-    `attr` declaration of this type at **compile time**, not at runtime.
-  - `source/debug/state_dump.cc` — pretty-print the resolved run, not the index.
+- Make the sites that cannot handle it refuse *explicitly*, not silently.
+  **Landed** — but the survey found only one site that needed new code, because
+  most of the paths already refuse everything they don't recognize:
+  - `source/mesh/c-api/mesh_c_api.cc` — **the one real hole, and it is fixed.**
+    `Mesh_writeAttr` is the generic "seed every user layer" entry the addon
+    calls per layer; on a WEIGHTS column it would have stored caller-supplied
+    pool indices with no reference taken, so the pool would free runs the column
+    still names. `Mesh_readAttr` would have exported indices that mean nothing
+    outside the mesh. Both now return 0 for WEIGHTS; E6's `sc_mesh_weights_*`
+    is the only way in or out. `Mesh::addAttr` is deliberately *not* refused —
+    a WEIGHTS column with no group names is inert (every element is slot 0).
+  - `SpatialTree::fill_leaf_attr` (`spatial_gpu.cc:201`) already gathers only
+    the float family and default-fills anything else, `external_draw.cc` names
+    its two `srcType`s literally, and `mesh_drawbatch.cc` never enumerates
+    types — so the GPU path refuses WEIGHTS with no change. A weight overlay,
+    if ever wanted, is a `DERIVED` FLOAT column for the active group; still out
+    of scope.
+  - `sbrushc` needs no reject: `emit_cpp.cc:905-923` maps only the DSL's own
+    types (float, vec2/3/4, int, bool), so an `attr` declaration *cannot name*
+    this type. Structural, not enforced — worth re-checking if the DSL ever
+    grows a type-passthrough.
+  - `source/debug/state_dump.cc` ends its attr-fingerprint switches in
+    `default: continue`, so WEIGHTS is skipped and no golden churns. Printing
+    the resolved run belongs with E7's `assert_weights` verb, not here.
+- `mesh_serialize.cc`'s `scalarSize()` already returns 4 by default, which is
+  right for a 32-bit slot index.
 
 ### E1 — the pool
 
-New: `source/mesh/deform_pool.{h,cc}`.
+New: `source/mesh/deform_pool.{h,cc}`. **Landed**, with the storage layout
+settled differently than sketched here:
 
-- SoA storage: parallel `Vector<int> group_id` / `Vector<float> weight`, plus a
-  slot table of `(start, count, refcount)`. Slot 0 is the canonical empty run,
-  never freed, so an unset vertex is index 0 rather than a sentinel.
-- Size-class free lists (runs are almost always ≤ 4 entries), power-of-two
-  rounded, for O(1) alloc/free and bounded fragmentation.
-- Sharded intern table + atomic refcounts + dead lists + `sweep()` as above.
-- `Vector<string> group_names` on the pool: a slot's `group_id` indexes it, and
+- Storage is an **AoS arena of `DeformWeight {int group; float weight;}`** per
+  shard, not the parallel `Vector<int>`/`Vector<float>` pair. A run is read as a
+  contiguous span and hashed as one byte range; splitting it across two arenas
+  would double the indexing and buy nothing, since a run is 8–32 bytes and is
+  always touched whole.
+- A slot is `(start, count, refs, hash, next_hash)`; slot 0 is the canonical
+  empty run, immortal, so an unset vertex is index 0 rather than a sentinel.
+- **No size-class free lists.** Reclamation is `sweep()` compacting each dirty
+  shard's arena in slot order — which is O(live) with no fragmentation at all,
+  where size classes would have been O(1) with some. Slot *table* entries are
+  reused (a swept slot becomes an empty reusable row); only arena offsets move,
+  so local slot indices are stable and columns never learn about a sweep.
+- Concurrency: 64 shards keyed by `slot_index & 63`, one `std::mutex` each,
+  every read and write under it. Refcounts are plain `uint32_t`, not atomics —
+  `util::Vector` reallocates, so a lock-free read is unsafe anyway, and
+  `std::atomic` is not movable so it cannot live in a `Vector` element. The
+  header documents the upgrade path (chunked never-reallocating storage +
+  atomic refcounts) for when a shard lock shows up in a profile.
+- Releasing to zero does **not** free: the slot stays interned on the shard's
+  dead list, and `intern()` of an equal run resurrects it in place. Both
+  transitions hold the same shard lock, which is what closes the
+  resurrection race.
+- `copyRun()` returns a copy into the caller's buffer, never a span — interning
+  may reallocate a shard arena, so no pointer into one may outlive the call.
+- `Vector<string> group_names` on the pool: a slot's `group` indexes it, and
   it is ordered to match Blender's `mesh->vertex_group_names` so the mapping is
   identity while the lists agree. Reconciliation by name is the addon's job.
-- Debug-build **refcount audit**: walk every mesh column and every meshlog
-  column, tally references, compare against the pool. This is the test that
-  catches a missed funnel.
+- **Refcount audit** (`auditRefcounts(roots)`): recompute every refcount from a
+  caller-supplied list of every reference held, report the count that disagree.
+  This is the test that catches a missed funnel; E2/E3 supply the roots by
+  walking the mesh and meshlog columns.
+- `tests/test_deform_attr.cc` covers canonicalization (unsorted / duplicated /
+  zero-padded spellings all intern to one slot), the immortal empty slot,
+  undersized `copyRun`, refcount lifetime and resurrection, sweep leaving slot
+  indices intact and the intern table still deduping, the audit failing when a
+  root is missing, pool copy/assign preserving indices, and two threaded
+  stresses (8-way concurrent intern of overlapping runs, and intern racing
+  release-to-zero on the same run).
 
 ### E2 — attribute integration
 
