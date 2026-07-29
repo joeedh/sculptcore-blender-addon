@@ -510,10 +510,11 @@ async function main() {
       if (opts.enable) {
         if (p === hostOs) {
           ensureDir(configDir)
-          const exe = process.platform === 'win32' ? 'blender.exe' : 'blender'
-          const exePath = fs.existsSync(path.join(outDir, exe))
-            ? path.join(outDir, exe)
-            : findExe(outDir, exe)
+          // macOS names the bundle executable `Blender`, not `blender`.
+          const exes = process.platform === 'win32' ? ['blender.exe']
+            : process.platform === 'darwin' ? ['Blender', 'blender'] : ['blender']
+          const direct = exes.map((e) => path.join(outDir, e)).find((f) => fs.existsSync(f))
+          const exePath = direct || findExe(outDir, exes)
           log(`baking enabled-by-default userpref via ${exePath}`)
           const status = run(exePath, ['--background', '--factory-startup', '--python', ENABLE_PY], { BLENDER_USER_CONFIG: configDir })
           if (status !== 0) fail(`enabling the addon failed (code ${status})`)
@@ -544,8 +545,10 @@ async function main() {
   for (const s of summary) log(`  ${s.p}: ${s.outDir}  (userpref: ${s.enabled})`)
 }
 
-// Locate a Blender binary within an install tree (macOS: inside Blender.app).
-function findExe(root, exe) {
+// Locate a Blender binary within an install tree, trying each candidate name
+// (macOS keeps it at Blender.app/Contents/MacOS/Blender — capital B).
+function findExe(root, exes) {
+  const wanted = new Set(exes)
   const stack = [root]
   while (stack.length) {
     const dir = stack.pop()
@@ -553,11 +556,11 @@ function findExe(root, exe) {
     try { entries = fs.readdirSync(dir, { withFileTypes: true }) } catch { continue }
     for (const e of entries) {
       const p = path.join(dir, e.name)
-      if (e.isFile() && e.name === exe) return p
+      if (e.isFile() && wanted.has(e.name)) return p
       if (e.isDirectory()) stack.push(p)
     }
   }
-  fail(`no ${exe} found under ${root}`)
+  fail(`no ${exes.join(' or ')} found under ${root}`)
 }
 
 main().catch((e) => fail(e?.stack || String(e)))
