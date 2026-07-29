@@ -4,7 +4,7 @@ A full sculpt mode for Blender, built on the [SculptCore](https://github.com/joe
 engine and shipped as an addon. It registers a first-class object mode with a
 real enter/exit lifecycle, wrapped undo, and an external draw path.
 
-(You can find builds here.)[https://github.com/joeedh/sculptblender-builds/releases]
+[You can find builds here.](https://github.com/joeedh/sculptblender-builds/releases)
 
 ## Requirements
 
