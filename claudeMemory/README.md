@@ -13,4 +13,7 @@ Working notes Claude maintains for this repository. See the top-level
 
 ## Index
 
-_(empty — add pointers here as notes are written)_
+- [research/gpu-brush-evaluation-in-blender.md](research/gpu-brush-evaluation-in-blender.md)
+  — how the engine's GPU brush stack could drive strokes under the addon: the
+  existing marshal/dispatch seams, engine-owned wgpu vs. compute on Blender's
+  device, and what per-dab work can and cannot be deferred to stroke end.
