@@ -42,6 +42,8 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { vendorWindowsDeps } from './lib/windows-deps.mjs'
+
 const TOOLS = path.dirname(fileURLToPath(import.meta.url))
 const REPO = path.resolve(TOOLS, '..')
 const ENGINE = path.join(REPO, 'engine')
@@ -84,6 +86,7 @@ function parseArgs(argv) {
 // --- helpers ---------------------------------------------------------------
 
 function log(msg) { console.log(`\x1b[36m[dist]\x1b[0m ${msg}`) }
+function warn(msg) { console.error(`\x1b[33m[dist] warn:\x1b[0m ${msg}`) }
 function fail(msg) { console.error(`\x1b[31m[dist] error:\x1b[0m ${msg}`); process.exit(1) }
 
 function run(cmd, args, cwd, extraEnv, shell = false) {
@@ -306,6 +309,15 @@ async function main() {
   log(`vendoring engine runtime${opts.skipEngine ? ' (restage only)' : ' (build + stage)'}…`)
   const bundleStatus = run('node', bundleArgs, ENGINE)
   if (bundleStatus !== 0) fail(`engine bundle failed (code ${bundleStatus})`)
+
+  // 4b. Copy in the toolchain DLLs the engine imports (clang's OpenMP runtime),
+  //     which System32 would otherwise satisfy here and nowhere else. A dev
+  //     install is the thing sculpting actually gets tested in, so it should be
+  //     as self-contained as a shipped package — see lib/windows-deps.mjs.
+  if (process.platform === 'win32') {
+    const { missing } = vendorWindowsDeps(path.join(libDest, 'sculptcore'), { log, warn })
+    if (missing.length) warn(`unresolved engine dependencies: ${missing.join(', ')}`)
+  }
 
   // 5. Enable by default, without owning the user config: drop the marker the
   //    fork's addon_utils reads at startup, then prove it headlessly.

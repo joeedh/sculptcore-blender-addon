@@ -196,9 +196,23 @@ Per job:
    is the same bug in milder form — the install name is already `@rpath`-relative
    but the only `LC_RPATH` is the runner's `extern/wgpu_native/lib` — fixed with
    `install_name_tool` (`-delete_rpath` / `-add_rpath @loader_path`) plus an
-   ad-hoc `codesign`, since editing load commands voids the signature. Windows
-   needs nothing: PE resolves DLLs by name from the loader directory. None of
-   this shows up on a dev box, where the recorded build paths exist.
+   ad-hoc `codesign`, since editing load commands voids the signature.
+
+   Windows needs no *relinking* — PE resolves imports by bare name, and ctypes
+   loads the capi with `LOAD_WITH_ALTERED_SEARCH_PATH`, so the DLL's own
+   directory wins over System32 — but it does need the dependencies to be
+   present. The engine is a clang build and imports `libomp140.x86_64.dll`,
+   which ships with Visual Studio / LLVM and *not* with the VC++
+   redistributable, so it resolved out of System32 on the builder and was
+   missing from every package until `tools/lib/windows-deps.mjs` landed: it
+   parses the PE import table (no `dumpbin` on a runner), copies in every
+   non-system import — following the copies, which have imports of their own —
+   and fails the build if one cannot be found. `build-blender-dist.mjs` runs it
+   too, so a dev install is as self-contained as a package.
+
+   None of this shows up on a dev box, where the recorded build paths and the
+   toolchain runtimes exist — which is what the package smoke test (below) is
+   for.
 3. Pack, having first renamed `dist/<os>` to the package name, so the archive
    holds a single top-level `sculptblender-<tag>-<platform>/` directory —
    extracting one must not scatter ~1.5 GB across the user's current directory.

@@ -90,6 +90,8 @@ import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { vendorWindowsDeps } from './lib/windows-deps.mjs'
+
 const TOOLS = path.dirname(fileURLToPath(import.meta.url))
 const REPO = path.resolve(TOOLS, '..')
 const ENGINE = path.join(REPO, 'engine')
@@ -325,11 +327,23 @@ function vendorRuntime(addonDir, libsDir, osToken) {
   const [capi] = libNamesFor(osToken)
   if (!found.has(capi)) fail(`engine libs artifact for ${osToken} is missing ${capi} (looked in ${libsDir})`)
   for (const n of wanted) if (!found.has(n)) warn(`engine lib ${n} not in artifact; not staged`)
-  fixLibLinkage(dest, osToken)
+  // The libs dir doubles as a search path for dependencies to vendor: whatever
+  // the build staged next to the engine libraries is the copy they were built
+  // against.
+  fixLibLinkage(dest, osToken, libsDir)
 }
 
 // Make the engine library self-contained: vendor every non-system dependency it
 // records and rewrite the reference to point beside the loader.
+//
+// Windows is the same class of bug in its mildest form: the loader resolves
+// imports by bare name and searches the loading DLL's own directory first (the
+// ctypes load uses LOAD_WITH_ALTERED_SEARCH_PATH), so nothing needs rewriting —
+// but the engine is a clang build and imports `libomp140.x86_64.dll`, which
+// ships with Visual Studio / LLVM and *not* with the VC++ redistributable. On
+// the builder it resolves out of System32 and the package looks fine; on a user
+// machine without a toolchain the engine fails to load. So the import table is
+// read and every non-system dependency copied in — see lib/windows-deps.mjs.
 //
 // The engine links against two libraries that live outside the standard search
 // path — the prebuilt wgpu_native (in the engine's extern/ tree) and the
@@ -349,8 +363,23 @@ function vendorRuntime(addonDir, libsDir, osToken) {
 //
 // Only possible where the tools exist (patchelf on Linux, install_name_tool on
 // macOS); on any other host we cannot rewrite and say so.
-function fixLibLinkage(dest, osToken) {
-  if (osToken === 'windows') return  // PE resolves DLLs by name from the loader dir.
+function fixLibLinkage(dest, osToken, libsDir) {
+  if (osToken === 'windows') {
+    // Reading a PE import table needs no tools, but *resolving* a dependency
+    // does need the machine that has it — staging a Windows bundle from Linux
+    // or macOS cannot vendor anything.
+    if (process.platform !== 'win32') {
+      warn('cannot vendor the Windows engine dependencies from this host; package on a ' +
+        'Windows runner, or the bundle will need libomp140.x86_64.dll already installed')
+      return
+    }
+    const { missing } = vendorWindowsDeps(dest, { log, warn, searchDirs: libsDir ? [libsDir] : [] })
+    if (missing.length) {
+      fail(`missing Windows engine dependencies: ${missing.join(', ')} — the package would ` +
+        `only load on a machine that already has them`)
+    }
+    return
+  }
   const [capiName] = libNamesFor(osToken)
   const capi = path.join(dest, capiName)
   if (osToken === 'linux') relinkElf(capi, dest, capiName)
