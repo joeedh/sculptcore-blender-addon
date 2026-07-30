@@ -20,9 +20,12 @@ This addon is one of three coupled repositories:
   checkout, e.g. `C:\dev\blender\main`). Carries only the engine-agnostic core
   changes that make Python-registered custom object modes possible:
   `OB_MODE_CUSTOM`, the `bpy.types.ObjectModeType` RNA type, custom-mode undo,
-  the external draw provider hooks, and the multires reshape API. It knows
-  nothing about SculptCore. A stock Blender without these changes cannot load
-  this addon's mode.
+  the external draw provider hooks, the multires reshape API, and
+  `Mesh.vertex_group_data_get`/`_set` (bulk CSR read/write of the whole
+  `MDeformVert` table — the addon's vertex-group bridge would otherwise be a
+  Python loop over every vertex and influence). It knows nothing about
+  SculptCore. A stock Blender without these changes cannot load this addon's
+  mode.
 - **This repo** (`sculptcore-blender-addon`) — the addon Python
   (`sculptcore_addon/`) plus the engine as a submodule (`engine/`) and the
   build tooling that ties them to a Blender build.

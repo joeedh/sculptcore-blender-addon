@@ -558,27 +558,51 @@ reads as all-zero offsets rather than erroring.
 
 ### A1 — bridge it in `convert.py`
 
+**Landed** — `_load_vertex_groups` / `_flush_vertex_groups` in
 `sculptcore_addon/convert.py`.
 
 - Vertex groups are invisible to `mesh.attributes`, so this is a dedicated path
-  alongside `_load_bridged_attrs` (line 503) and `_flush_bridged_attrs`, not a
-  new entry in `_ATTR_TYPE_MAP` (line 473).
-- **Enter**: read names from `object.vertex_groups`, weights via F1's
-  `vertex_group_data_get` into `array.array` buffers, hand both to E6's c-api.
-- **Exit / flush**: the reverse. On the topology-rebuild path
-  (`_flush_topology_rebuild`, line 634), `clear_geometry()` at line 658 wipes
-  the group names too, so restore them with `object.vertex_groups.new(name=...)`
-  in engine order *before* writing weights back.
-- Do the transfer on enter/exit only. If profiling shows the fast flush path
-  (line 871) needs it per-flush, that is a follow-up, not part of this plan.
+  alongside `_load_bridged_attrs` / `_flush_bridged_attrs`, not a new entry in
+  `_ATTR_TYPE_MAP`.
+- **Enter**: names from `object.vertex_groups`, weights via F1's
+  `vertex_group_data_get`, both handed to E6's c-api — names first, since a
+  weight's group index means a position in that table.
+- **Restore**: on the topology-rebuild branch of `flush` only. `clear_geometry`
+  wipes the group names along with the weights, so the names are recreated with
+  `object.vertex_groups.new(name=...)` before the weights are written — and they
+  are read back **from the engine**, not from whatever the object still holds,
+  because the engine's table is the one its indices refer to. The restore hangs
+  off `flush` rather than `_flush_topology_rebuild` because it needs the Object,
+  which the rebuild does not take.
+- The fast flush path deliberately does nothing: only vertices appearing or
+  disappearing can change weights, and that is a topology change by definition.
+- Two degenerate cases are handled rather than assumed away. Groups declared but
+  nothing weighted leaves the engine with **no weights layer** (not one made of
+  empty runs), and the restore still brings the names back. A Blender predating
+  F1 is detected with `hasattr` and the bridge silently skips, instead of an
+  `AttributeError` aborting mode entry.
+
+Verified headlessly, on top of the fake-stamp round trip (names, per-vertex runs
+and `VertexGroup.weight()` all agreeing before and after a rebuild), by a **real
+dyntopo dab**: a 81-vertex grid remeshes to 1058, a group weighted 1.0
+everywhere comes back 1.0 on all 1058 — so no new vertex lost or diluted its
+influences — and a half-mesh group grows 36 → 579 while staying partial and
+in range. That is the custom interpolator observed end to end, through the pool,
+the c-api, and both bulk accessors.
 
 ### A2 — docs and memory
 
-- Update the addon `CLAUDE.md` if the bridge grows a user-visible caveat.
-- Add a memory recording that weights are engine-owned and why the fork gained
-  a bulk accessor; link `[[sculptcore-delta-undo]]`.
+**Landed.** The addon `CLAUDE.md` now lists `Mesh.vertex_group_data_get`/`_set`
+among the fork's core changes, since a Blender without them cannot bridge
+weights. The memory records the three-repo shape of the feature, why the fork
+changed at all, and the CSR/live-order contract.
 
 ## Ordering and gates
+
+**All phases landed** (E0–E7, F1, A1, A2). The open work is the two items E7
+records: the concurrency test under TSan (needs a Linux/macOS
+`-fsanitize=thread` build), and split/collapse round trips beyond the
+single-split `testMergeAcrossSplit` case.
 
 ```
 E0 ─ E1 ─ E2 ─ E3 ─ E4 ─┬─ E5 ─┐

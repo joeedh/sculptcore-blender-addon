@@ -146,6 +146,7 @@ def enter(ob):
     # Seed the remaining user attribute layers so they ride the engine through
     # dyntopo + undo and can be rebuilt after a topology change.
     _load_bridged_attrs(ob.data, mesh_ptr, session)
+    _load_vertex_groups(ob, mesh_ptr)
 
     # Register the tree for external-provider viewport draw, keyed by the
     # object's session_uid (the key Blender's draw path passes). Switch it to the
@@ -580,6 +581,73 @@ def _flush_bridged_attrs(session, mesh):
                 desc["name"], str(error)))
 
 
+# Vertex groups
+#
+# Vertex groups are not Blender attributes — the weights live in MDeformVert,
+# which `mesh.attributes` cannot see — so they get their own path rather than an
+# _ATTR_TYPE_MAP entry. Both sides speak the same CSR layout: `offsets` holds
+# vert_count + 1 entries in vertex order, slicing parallel group-index / weight
+# arrays. A group index names a position in the *name table*, so the names are
+# written before the weights, and read back from the engine rather than from
+# whatever the object still has: the engine's table is the one its indices mean.
+
+
+def _load_vertex_groups(ob, mesh_ptr):
+    """Seed the object's vertex groups (names, then weights) into the engine, so
+    dyntopo interpolates them onto new geometry and the meshlog reverts them on
+    undo. No-op for an object with no groups, or against a Blender that predates
+    the fork's bulk accessor."""
+    import numpy as np
+
+    groups = ob.vertex_groups
+    if not len(groups) or not hasattr(ob.data, "vertex_group_data_get"):
+        return
+
+    lib = engine.capi().lib
+    names = b"".join(vg.name.encode("utf-8") + b"\0" for vg in groups)
+    lib.sc_mesh_weight_groups_set(mesh_ptr, names, len(groups))
+
+    offsets, group_indices, weights = ob.data.vertex_group_data_get()
+    if not group_indices:
+        # Groups declared but nothing weighted: leave the engine without a
+        # weights layer at all rather than one made of empty runs.
+        return
+    lib.sc_mesh_weights_set(mesh_ptr,
+                            np.asarray(offsets, dtype=np.int32),
+                            np.asarray(group_indices, dtype=np.int32),
+                            np.asarray(weights, dtype=np.float32))
+
+
+def _flush_vertex_groups(ob, session):
+    """Restore the object's vertex groups from the engine after a topology
+    rebuild — `clear_geometry` drops the group names along with the weights, and
+    the weights cannot be written until the names they index exist again."""
+    import ctypes
+
+    import numpy as np
+
+    lib = engine.capi().lib
+    count = lib.sc_mesh_weight_group_count(session.mesh_ptr)
+    if count <= 0 or not hasattr(ob.data, "vertex_group_data_set"):
+        return
+
+    need = lib.sc_mesh_weight_groups_get(session.mesh_ptr, None, 0)
+    buf = ctypes.create_string_buffer(need)
+    lib.sc_mesh_weight_groups_get(session.mesh_ptr, buf, need)
+    ob.vertex_groups.clear()
+    for name in buf.raw[:need].split(b"\0")[:count]:
+        ob.vertex_groups.new(name=name.decode("utf-8"))
+
+    mesh = ob.data
+    total = lib.sc_mesh_weights_element_count(session.mesh_ptr)
+    offsets = np.empty(len(mesh.vertices) + 1, dtype=np.int32)
+    group_indices = np.empty(total, dtype=np.int32)
+    weights = np.empty(total, dtype=np.float32)
+    if not lib.sc_mesh_weights_get(session.mesh_ptr, offsets, group_indices, weights):
+        return
+    mesh.vertex_group_data_set(offsets.tolist(), group_indices.tolist(), weights.tolist())
+
+
 def _load_mask(mesh, mesh_ptr, verts_num):
     """Seed the engine mask column from the Blender `.sculpt_mask` attribute
     (float, point). No-op when the mesh carries no mask."""
@@ -870,6 +938,10 @@ def flush(ob):
     # mismatch catches that case so undo/redo also take the rebuild path.
     if session.topology_changed() or _mesh_vert_num(session.mesh_ptr) != len(mesh.vertices):
         _flush_topology_rebuild(session, mesh)
+        # Vertex groups need the object, which the rebuild does not take. The
+        # fast path leaves them alone: only new or removed vertices can change
+        # them, and that is a topology change by definition.
+        _flush_vertex_groups(ob, session)
     else:
         _flush_positions_fast(session, mesh)
 
