@@ -43,23 +43,46 @@ Working notes Claude maintains for this repository. See the top-level
   sample → subdivided vertex, why the exchange is in absolute positions, and the
   KD-tree nearest-neighbour pairing this replaced — the cause of the "grid
   borders snap to zero at level ≥ 3" bug.
+- [plans/multires-parametric-frame.md](plans/multires-parametric-frame.md)
+  — the implementation plan for the design below: four phases, all in the engine
+  submodule (`source/subdiv/multires.cc`), each independently shippable.
+  **Phase 1 landed 2026-07-30** (frame computation + gates, no behaviour
+  change); its outcome section carries the A/B that reproduces the defect — the
+  provider tangent *reverses* (dot −0.999962) on a nudged cube cage where the
+  parametric one holds at 0.999970. Records what re-validation against engine
+  `7979406` corrected in the design's scope — a third frame-population site in
+  `materialize()`, the canonical-owning-grid table that already exists as
+  `levelVertGridCoordsOut`, a whole temp level mesh that disappears from
+  `ensureChain`, and the capture-refusal that closes the mixed-frame-space
+  window the design's suggested order left open.
+- [design/multires-parametric-frame.md](design/multires-parametric-frame.md)
+  — **Phase 1 implemented; the production path is unchanged.** The live
+  multires design: derive the tangent frame from the grid's own `(u,v)` lattice
+  instead of the curvature cross field, which removes the discrete detail-flip
+  outright (a symmetry image, measured at a full 180° reversal) because a
+  lattice makes no choice among symmetric alternatives. Covers why the frame
+  need only be deterministic, ambiguity-free and rotating-with-the-surface (not
+  geometrically meaningful), the canonical-owning-grid rule that keeps border
+  replicas bit-identical without averaging tangents, what it deliberately leaves
+  alone
+  (storage, cage, undo, the seam, the file format — the engine store is
+  session-scoped, so there is no compatibility question), and what it does *not*
+  fix (the lever arm survives; conditioning moves to parametrization skew).
+  ~150–250 lines in one file. The frame-stability gate it asks for now exists
+  and is what measured the reversal.
 - [design/multires-object-space-cascade.md](design/multires-object-space-cascade.md)
-  — **design only, nothing implemented.** Moving multires displacement from
-  tangent-frame to object-space storage with an automatic downward cascade into
-  the coarser levels and the cage: why the tangent frame is a lever arm that
-  amplifies frame error by `|d|` (and why the cross field's ±90° ambiguity is the
-  sharp edge, not float drift), the decided target model, the
-  translate-but-don't-rotate flaw in object space and the delta-rotation fix, the
-  bake-ordering trap that would silently undo the whole cascade, and the six
-  open questions — chiefly whether the downward fit makes cage state
-  path-dependent. Carries an engine-side scope breakdown (~600–900 lines under
-  `source/subdiv/`; the masked CG solver is the one delicate piece) with a
-  seven-phase order and the v1 descope. Fresh-context audited 2026-07-30: the
-  export-conditioning payoff **did not survive** (Blender measures MDisps against
-  the base cage, so redistributing among levels changes it by zero — only cage
-  motion helps), and the audit also turned up a missing cage undo channel, a
-  version gate that accepts the old format, and the delta rotation's
-  path-dependence. Corrections are folded in and flagged in place.
+  — **SUPERSEDED, rejected 2026-07-30, never implemented.** Postmortem of the
+  above's predecessor: object-space storage plus an automatic downward cascade
+  into the coarse levels and the cage. Killed by adversarial pressure testing on
+  four independent counts — the delta rotation is wrong by up to the full
+  rotation angle and its correct form needs a frame anyway; greedy per-level
+  least squares is a deconvolution that *relocates* displacement and rings the
+  cage; the meshlog undo path structurally cannot carry a cage stroke; and the
+  prescribed bake reorder cannot be built on Blender's reshape API. Keeps the
+  diagnosis (which was right and is carried forward), a **do not re-propose**
+  list, and the results the test settled positively — the unmasked cascade is
+  provably path-independent, `cond(AᵀA) = 8`, and influence decays 0.4465 per
+  coarse vertex.
 - [research/gpu-brush-evaluation-in-blender.md](research/gpu-brush-evaluation-in-blender.md)
   — how the engine's GPU brush stack could drive strokes under the addon: the
   existing marshal/dispatch seams, engine-owned wgpu vs. compute on Blender's

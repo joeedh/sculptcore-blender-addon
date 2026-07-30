@@ -1,471 +1,303 @@
 # Multires: object-space displacement with an automatic downward cascade
 
-**Status: design only. Nothing here is implemented.** Decisions recorded from a
-design discussion on 2026-07-30; the "Decided" items are the repo owner's calls,
-the "Open" items are not settled. Everything under *What exists today* is
-validated against the tree at that date and cited. Fresh-context audited
-2026-07-30; the corrections are folded in, and the one claim that did not survive
-is recorded under *What this does to the export* so it does not get re-proposed.
-
-The short version: the current store keeps each level's displacement in a
-tangent frame and lands an entire edit in one level, which guarantees large
-per-level displacement — the worst case for tangent-frame conditioning. The
-target model edits each level's vertices directly, cascades downward into the
-coarser levels **and the cage** by construction, keeps finer levels as
-object-space displacement, and converts to tangent space exactly once, at the
-Blender seam.
-
-The payoff is **engine-internal**: no absolute tangent frame on the composition
-path means no lever arm and no cross-field ambiguity, whatever the residual
-happens to be. The export improves only to the extent the *cage* moves — see
-*What this does to the export* for why redistributing among levels does nothing
-for Blender's side.
-
-## What exists today (validated)
-
-**Storage is hierarchical and frame-relative.** `GridsStore` keeps a per-level
-array per channel, indexed `elem(level, channel, grid, u, v)` (`grids.h`), with
-`addLevel()` / `dropTopLevel()` growing and shrinking the stack. Channel 0 is
-the float3 "disp", expressed in the level's tangent frame. Positions compose
-coarse→fine: `base_L = stencil_L(pos_{L-1})`, `pos_L = base_L + frame·disp_L`
-(`multires.h:9-12`), walked by `ensureChain` (`multires.cc:264`).
-
-**The frame is genuinely orthonormal**, which matters for what follows.
-`frames.cc:332-343` is a final orthonormalization pass: every tangent is
-projected ⊥ its smoothed normal and normalized, with a deterministic fallback
-for degenerate verts. So `(t, b = n×t, n)` is orthonormal and the encode
-(`multires.cc:502-505`, `d = (dp·t, dp·b, dp·n)`) and decode
-(`multires.cc:252-257`, `p = base + t·D₀ + b·D₁ + n·D₂`) are an exact orthogonal
-pair up to float rounding. The provider is also transcendental-free by design
-(`frames.cc:117-122`, only `+ - * / sqrt`) so identical bases give bit-identical
-frames across backends.
-
-**Drift is bounded today by not re-encoding.** `writeback` masks to changed
-verts and skips verts bit-identical to the materialized baseline, so untouched
-regions are never re-encoded. Gated: `test_multires.cc:317-320` asserts an
-edit-free writeback leaves the store byte-identical; edited verts and
-`downRefit`'s fine-surface preservation are gated at 1e-5.
-
-**All edit energy lands in one level.** `storeDispFromPositions`
-(`multires.cc:451`) writes the whole displacement into the active level's
-channel — every frequency together. `setActiveLevel` (`multires.cc:1253`) is
-writeback-then-materialize.
-
-**The downward direction is a separate, partial, unwired pass.** `downRefit`
-(`multires.h:92`) least-squares-fits level−1 to the level-`L` surface and
-re-expresses `L` against the new base. It **requires `level >= 2`** —
-`downRefit(1)` returns 0 (`test_multires.cc:562`), so the cage can never absorb
-anything. It is exported as `Multires_downRefit` (`subdiv_c_api.cc:78`) and
-**nothing in the addon calls it**.
-
-**The Blender seam speaks absolute positions, top level only.** `export_bake`
-(`multires.py:182`) reads the engine's top-level positions and calls
-`ob.multires_reshape_from_vert_positions`. Blender's side is flat by
-construction: `MDisps` is one `float (*disps)[3]` of `totdisp` samples per loop
-(`DNA_meshdata_types.h:215`), a single top-level grid, with lower-level edits
-handled by propagation — "propagated up from this level to top.level"
-(`multires_reshape.hh:58`).
-
-**And Blender's tangent basis is a different animal from ours.** It comes from
-limit-surface derivatives `dPdu`/`dPdv`
-(`multires_reshape_util.cc:535-553`) — *parametric*, not orthonormal, and with no
-cross field anywhere in it, so it never had the ±90° ambiguity described below.
-Its conditioning is governed by parametrization skew, which nothing in this
-design touches. Critically, the displacement it stores is measured against the
-**base mesh's** limit surface: `D = pos - P` with `P` sampled from the base cage
-(`multires_reshape_util.cc:730-750`). That single line is why the export claim
-had to be walked back.
-
-## The instability mechanism
-
-`pos = base + R(base)·d`, so `∂pos/∂(frame rotation) ≈ |d|`. **The frame is a
-lever arm.** Every source of frame perturbation is amplified by the displacement
-magnitude:
-
-- a coarse edit moving the base, which recomputes the finer level's frames;
-- normal smoothing (`frames.cc:242-265`);
-- the cross field's ±90° ambiguity. The tangent is a 4-RoSy representative;
-  `FRAME_TANGENT_ATTR` is NOINTERP precisely because averaging two cross
-  directions can cancel (`frames.h:31-32`), and the diffusion rotates each
-  neighbour to the nearest 90° image (`frames.cc:294-330`).
-
-The third is the sharp one. Frames are recomputed from geometry alone, so
-nothing pins a level's frame *choice* across rematerializations. If a frame
-lands on a different 90° image than it had before, unchanged stored disp decodes
-**rotated by 90°** — not 1e-7 accumulating over a thousand strokes, but a
-visible detail flip in one step, near features and field singularities.
-
-Both problems scale with `|d|`, and the current design guarantees `|d|` is large:
-sculpt a broad shape at level 4 and all of that low-frequency content sits in
-level 4's disp with the coarse levels flat.
-
-That gives two independent fixes, and the design uses both — but they are not
-equally strong. **Removing the absolute frame from the composition path removes
-the ±90° flip outright**, at any `|d|`; shrinking the per-level residual only
-scales the remaining continuous error down. So the frame change is the fix and the
-cascade is the amplifier reduction. Worth keeping straight, because it is what
-survives if the cascade turns out to redistribute less than hoped.
-
-## Target model
-
-### Decided
-
-1. **The cage moves.** Coarse levels *and* the base mesh absorb their share of
-   an edit.
-2. **Levels ≤ active are edited directly**, with the downward fit keeping the
-   cage and coarser levels consistent by construction, per stroke — not as a
-   separate pass a user has to invoke.
-3. **Levels > active hold object-space displacement** and are not re-encoded
-   against a new absolute frame when a coarser level moves. (They are still
-   *touched* if the delta rotation lands — see the trade-off below.)
-4. **"A stroke touches one level" is abandoned as an invariant.** It was never
-   the right framing.
-5. **Object-space displacement is the uniform storage model at every level.**
-   Coarse levels holding *real positions* instead is a candidate optimization,
-   not part of the design: admissible only if it can be shown to improve
-   performance without sacrificing quality. Until measured, every level stores
-   `D` and composes `pos = base + D`.
-
-Item 5 is a correction. An earlier draft recorded "levels ≤ active hold real
-positions" as decided, which contradicts uniform object-space displacement
-everywhere else in this document and would quietly change what `dispNonZero` /
-`posIsBase` mean and what `addLevel`'s zero-displacement contract expresses
-(today: "smooth subdivision, no detail yet"). Two representations in one stack is
-a real cost; it needs to buy something measurable.
-
-### Why object space is the working *and* persistent form
-
-- **The decomposition is linear in object space and nonlinear in tangent
-  space.** Stencils are linear operators and the fit is least squares, but level
-  `L`'s frames depend on level `L−1`'s positions — so encoding per level makes
-  the analysis a coupled nonlinear system. Solve the pyramid in object space,
-  land it, encode once.
-- **Redistribution becomes cheap.** This is the stronger argument. Today's drift
-  guard is "skip bit-identical verts, never re-encode untouched regions". A
-  cascade re-touches coarser levels on every stroke, including verts never
-  sculpted at those levels — with tangent-space *storage* those levels start
-  paying a frame encode/decode per stroke. Object space replaces that with an
-  add and a subtract (~1 ulp per round trip). Not free: the least-squares fit
-  remains a genuinely lossy step, and it is the one that dominates.
-- **`invalidateAbove` survives unchanged in spirit.** Re-derive becomes "base
-  moved, re-apply stored object-space disp" — a cheap add instead of a frame
-  decode.
-
-### The rotation trade-off
-
-**Object-space displacement translates with the base but does not rotate with
-it.** Rotate a limb at level 1 and tangent-space detail follows the limb;
-object-space detail keeps its original world orientation and slides off the
-surface. This is the thing tangent space was buying, and it shows up immediately
-on any rotational edit.
-
-Three options, and the comparison has to include what the delta *costs*:
-
-| | cost per edit | correct under rotation | discrete ambiguity | error growth over N edits | writes fine levels |
-|---|---|---|---|---|---|
-| Truly left alone | zero | **no** | none | none | no |
-| Delta-rotated | one rotation apply per fine vert in the dilated support | yes | none | **≈ N·ε, composing** | **yes** |
-| Absolute frame (today) | frame rebuild + encode/decode | yes | **±90° flip** | none — re-derived from geometry | yes |
-
-**Recommended: delta-rotated**, with both of its costs stated plainly.
-
-The win is the discrete one. The delta is near-identity for a stroke-sized edit,
-so error scales with `|d|·|ε_delta|` with `ε_delta` small; the rotation between
-two known base configurations is unique modulo twist; and **no absolute tangent
-encode ever happens**, so the 90°-flip failure mode is *removed*, not mitigated.
-
-The two costs an earlier draft omitted:
-
-- **Stored orientation becomes path-dependent.** Deltas compose: the stored
-  direction is the product of every delta ever applied, so error accumulates
-  ≈ N·ε over N edits, and two edit sequences reaching the same base configuration
-  need not leave the same stored disp. An absolute frame has the opposite
-  profile — it re-derives exactly from current geometry and accumulates *nothing*.
-  This is a straight trade of a bounded-but-accumulating error for the removal of
-  an unbounded discrete one, and it is only obviously the right trade because the
-  discrete failure is visible and the accumulation is not. It wants a drift gate
-  (see *Test gates*).
-- **It writes every level above the active one.** Applying a delta mutates stored
-  disp throughout the dilated support at every finer level, which is why Decided 3
-  says "not re-encoded against a new absolute frame" rather than "left alone".
-  Option 1 is the only one that genuinely touches nothing.
-
-Twist pinning is open (see below).
-
-### What this does to the export
-
-The tangent-space conversion happens **once, at the Blender seam, for the top
-level only** — because MDisps is top-level only anyway. Our own frame provider
-leaves the composition path entirely.
-
-**But the export does not get better-conditioned by redistributing among levels,
-and an earlier draft claimed it did.** Blender measures MDisps against the *base
-mesh's* limit surface — `D = pos - P`, `P` sampled from the base cage
-(`multires_reshape_util.cc:730-750`) — and `pos` is exactly the quantity the
-cascade preserves. So draining low frequency out of level 4 into level 2 changes
-Blender's `|D|` by **zero**. The only lever on the seam is the cage itself.
-
-Two consequences:
-
-- **The export benefit arrives in phase 5, not phase 4.** Phases 1-4 buy
-  engine-internal stability and nothing at the seam.
-- **The cage bounds how much can be absorbed.** A cage vertex can only absorb
-  content at or above cage-edge wavelength; an edit broader than the mesh but
-  finer than the cage's spacing has nowhere to go. So the residual-magnitude gate
-  below has a floor set by cage resolution, and cannot be written as an absolute
-  bound.
-
-The stated payoff of this design is therefore engine-internal — removing the
-lever arm and the cross-field ambiguity from the composition path — with a
-bounded seam improvement as a phase-5 consequence.
-
-## Consequences for existing code
-
-**The bake ordering is load-bearing — this is the trap.** `export_bake` pushes
-only top-level positions, and Blender's reshape re-expresses them against
-*Blender's* cage. If our cage moved and Blender's did not, reshape silently
-absorbs our cage motion back into MDisps displacement, re-inflating `|d|` on
-Blender's side and undoing exactly the redistribution the cascade exists for.
-The bake must write cage positions into `ob.data` first, tag, re-evaluate, *then*
-reshape from top-level positions. Cage motion is a second channel across the
-seam.
-
-**Store format, and the version bump does less than it looks like.** Channel 0's
-semantics change from frame-space to object-space → `kGridsFormatVersion` bump
-(`grids.h:35`), and `grids.h:8-11`'s doc comment ("expressed in the level's
-tangent frame") changes with it. But an earlier draft claimed the mismatch was
-already handled, and that was wrong in three separate ways:
-
-- **The read path accepts the old version.** `grids.cc:477` is
-  `if (version == 0 || version > kGridsFormatVersion) return false;` — bumping to
-  2 leaves a v1 blob *passing* the gate and being reinterpreted as object space.
-  Rejecting or migrating v1 has to be written; the bump alone does nothing.
-- **The desync latch is not a version check.** `_multires_desync`
-  (`convert.py:883-892`) is a once-per-session `print`, and its two call sites
-  (`:933` cage vert-count change, `:953` level-stack stall) never see a blob or a
-  version number.
-- **There are no persisted blobs to invalidate.** Store blobs live only in the
-  in-memory undo step (`undo.py:97`), so within the addon the compatibility
-  question is moot today. It matters for any future on-disk path, which is what
-  the version field is for.
-
-**Sculpt layers must move too — and they gate phase 1.** Channels 1..N are
-frame-space, composited `disp_total = ch0 + Σ wᵢ·enabledᵢ·chᵢ`
-(`multires.h:170-177`), which only means something if all channels share a space.
-Flipping channel 0 alone puts two spaces in one additive sum. Object-space layers
-also inherit the rotation problem, once per layer.
-
-**Cage motion has no undo channel, and that is a phase-5 prerequisite.**
-`GridsStore::write`/`read` (`grids.cc:440-500`) serializes channels over grid
-verts and carries no cage positions; the addon's undo step is (meshlog id + store
-blob) and the meshlog tracks the *materialized level mesh*, not the cage; and
-`Multires_restoreStore` calls `invalidateAll()`, which re-derives from whatever
-cage is current rather than restoring one. Once the cage carries sculpt energy,
-undoing a stroke has to restore cage positions — a new serialized channel on the
-engine side plus a new field in the addon's step. This is comparable in size to
-the cage step itself and was missing from the scope table.
-
-**`downRefit` changes shape.** It has to become region-restricted (the edited
-support, dilated down through each stencil — stencils are CSR and local, so this
-is tractable) and extended to the level 1 → cage step it currently refuses.
-Cascading 4→3→2→1→cage per stroke end is a solve per level per stroke; unmasked
-whole-level solves will not pay for themselves.
-
-**The fit objective may want to be conditioning-aware.** Plain L2 residual
-spreads error by mean, and a large *tangential* displacement is where frame
-ambiguity bites hardest, so weighting tangential components above the normal one
-is worth measuring. Note what this costs: weighted least squares still reduces to
-normal equations and reuses the Jacobi-CG machinery, but a *true* max-norm
-objective does not — minimax is non-smooth and needs a different algorithm
-entirely (IRLS as an approximation, or an LP). Anything past reweighting is a new
-solver, not a new objective. Descoped for v1 either way.
-
-**The addon bridge gets simpler**, not harder: it already round-trips absolute
-positions in both directions, so it stops being an impedance mismatch.
-
-## Engine-side scope
-
-Scoped by reading `source/subdiv/` at 2026-07-30, **not** by attempting the
-change — the line counts are calibration, not estimates.
-
-| Area | Lines today | Change |
-|---|---|---|
-| `grids.{h,cc}` | 757 | version bump + a v1 **reject/migrate** path |
-| `subdiv.{h,cc}` (Refiner, stencils) | 542 | none |
-| composition + writeback in `multires.cc` | ~250 of 1282 | rewrite, net **simpler** |
-| the cascade in `multires.cc` | ~120 of 1282 | rewrite + genuinely new |
-| delta rotation | 0 | new, ~100–150 |
-| cage positions in store serialization + addon undo step | 0 | new, engine + addon |
-| `captureDetailToVdm` | 95 | breaks; convert or gate |
-| c-api + bindings + wasm/napi/TS bridge | 254 + ~35 | ~50 new, in **four** places |
-| `test_multires.cc` | 1012 | fewer assertions than expected — see below |
-
-The c-api line is easy to under-count. A new entry point has to be added to
-`subdiv_c_api.cc`, `Multires::defineBindings` (`multires.cc:1219`), the
-`wasm_add_symbols` list in `source/subdiv/CMakeLists.txt:26`, `napi_runtime.cc`
-(`:97-107`), and `typescript/api/{wasm.ts,nativeManager.ts}`. The
-`wasm_add_symbols` omission is the dangerous one: a missing entry links cleanly
-and is invisible until the symbol is called at runtime.
-
-**Most of the module is untouched.** `grids.h:8-11` already states the store is
-frame-agnostic and means it: storage is float3-per-grid-vert regardless of the
-space, so chunking, lz4 eviction, `seamMates`, `neighbor`, links and
-serialization all survive as-is (the doc comment's description of the space does
-not). So do the Refiner and stencil tables, the LRU and slot management,
-`materialize`'s tree adoption, `assignGridUVs`, the layer table save/restore, and
-every `*Out` export. `displace/frames.cc` (422 lines) stays — still needed for
-brush use and for the VDM paths; it just stops being on the composition path.
-
-**Where it gets simpler.** `applyDisp` (`multires.cc:215-262`) loses the
-frame-provider call and the `n/t/b` basis → `pos = base + D`.
-`storeDispFromPositions` (`:451-509`) loses the projection → `d = dp - rest`.
-
-What dies in `LevelPos` (`multires.h:275-295`) is the *frame* cache —
-`frameNo`, `frameTa`, `framesValid` — a deletion touching `:283-309`, `:316-354`,
-`:416`, `:463-464`, `:782-788`, with `extractFrameAttrs` dropping off this path.
-**`base` is not dead** and an earlier draft wrongly implied it was: object space
-still needs it on both sides (`pos = base + D`, `d = dp - rest`, `multires.cc:491`)
-— which is why the deletion list starts at `:463` and excludes `:462`.
-`ensureBaseAndFrames` (`:324-342`) survives as an `ensureBase`. `posIsBase` is an
-independent memory optimization, unrelated to frames, and survives too (subject to
-Decided 5).
-
-**The one genuinely hard piece is masking the solver — and it is not just an
-implementation problem.** `solveStencilLeastSquares` (`:686-748`) is Jacobi-CG
-sized to the dense coarse vert count — `n = x.size()`, with a comment at
-`:680-685` on why that dimension is load-bearing. Restricting the cascade to the
-edited support means solving on a subset: index compaction or a masked operator,
-with the Jacobi preconditioner *and* the convergence tolerance computed over the
-active set.
-
-The subtlety: `AᵀA` couples every coarse vertex reachable through the stencil, so
-holding the complement fixed does not truncate the same iteration — **it changes
-the minimizer.** A masked solve is a different problem with a different answer,
-not an approximation that converges to the unmasked one. So "gate it against the
-unmasked solve" is not well-posed as stated; the honest gate is a *tolerance* test
-resting on an explicit assumption that influence decays fast enough outside the
-dilated support, with the dilation width chosen to make that true. Getting this
-wrong produces a solver that silently under-converges rather than one that
-crashes. Everything else on the list is mechanical by comparison.
-
-**Two items are new territory rather than new code.** `downRefit` reads the cage
-only indirectly, via `ensureChain(level - 1)` (`:277`) — there is no
-`gatherVertCo` call in it, as an earlier draft had it. Cascading into the cage
-means mutating cage *positions*; `cage_` is already mutated today, but only for
-`sculptLayers` / `activeEditLayer` (`:897`, `:917-919`, `:972`, `:987`), so the
-"no precedent" point holds for positions specifically, as does the unexamined
-interaction with `invalidateAll()` ("cage edited"). And the delta rotation needs a
-helper `litestl/math/quat.h` does not have — no axis-angle, no from-two-vectors
-constructor — which **must stay transcendental-free** to preserve the
-cross-backend bit-parity property `frames.cc:117-122` deliberately buys
-(Rodrigues from cross/dot only, no `acos`/`atan2`).
-
-**Tests are a smaller chunk than expected.** An earlier draft claimed much of
-`test_multires.cc` asserts frame-space stored values; it does not. Every
-`store.elem` use is space-agnostic — value injection, bit-snapshots, zero probes,
-eviction round-trips (`:87`, `:141`, `:261`, `:276`, `:434`, `:546`) — and the
-substantive assertions are on composed *positions*, which this design preserves by
-construction. Most of the 118 `test_assert`s survive unchanged. `test_grids_store.cc`
-(250 lines) is space-agnostic and survives entirely. The work here is new gates
-(below), not rewriting old ones.
-
-**Total: ~600–900 lines changed or new under `source/subdiv/`** (calibration, not
-an estimate — nothing here was attempted), one delicate piece, and three decisions
-that must be made before coding: VDM capture, cage-mutation semantics, and how
-cage state reaches undo. A substantial change to roughly a quarter of one module —
-not a rewrite of the subdiv system. The audit moved the balance slightly: less
-test churn than expected, more surface at the seams (four bridge sites, a v1
-reject path, a cage undo channel).
-
-### Descope for v1
-
-**Keep the fit objective as plain L2.** The conditioning-aware objective
-(max-norm, tangential weighting) turns the normal equations into IRLS or weighted
-least squares, and whether it is needed is unknowable until the cascade is
-actually draining low frequency. Measure first.
-
-### Suggested phase order
-
-Each step is independently testable, and the delicate piece is isolated:
-
-0. **Decide the fate of the frame-space consumers.** Sculpt layers (channels
-   1..N) and `captureDetailToVdm` both assume frame space, and phase 1 breaks
-   both the moment it lands. Either convert the layers with channel 0 as one
-   change, or disable layers behind a flag for the duration. This is a
-   prerequisite, not a parallel track — an earlier draft called phase 1
-   self-consistent while leaving channels 1..N in the other space and summing
-   them together.
-1. **Flip channel 0 (and the layer channels) to object space.** No cascade, no
-   delta rotation; finer levels truly left alone. Composition and writeback both
-   simplify. Rotation following regresses; accept it here, the model is coherent.
-2. **Delta rotation**, restoring rotation following, with the drift gate that its
-   accumulating error requires. Independent of the cascade.
-3. **Masked solver**, in isolation, gated by a residual-tolerance test over the
-   active set plus a dilation-width sweep showing the answer stops moving — *not*
-   by convergence to the unmasked solve, which is a different minimizer.
-4. **The cascade** — iterate `L → L-1 → … → 1` on the masked solver, still
-   stopping above the cage. Nothing at the Blender seam improves yet.
-5. **The cage step: cage mutation + cage undo channel + the addon's
-   bake-ordering fix, as one landing.** Cage motion without the reordered bake is
-   silently absorbed into MDisps (see *Consequences*) and looks like the cascade
-   not working; cage motion without an undo channel loses sculpt energy on undo.
-   This is where the export benefit finally appears.
-6. **Conditioning-aware objective**, only if measurement says so, and only as far
-   as reweighting.
-
-## Open questions
-
-1. **Exact-where-possible vs. always least-squares for the downward fit.** This
-   decides whether a cage edit is uniquely determined by a fine-level stroke, and
-   therefore whether two different strokes producing the same level-2 surface
-   leave the same cage. If not, cage state is path-dependent — which matters a
-   lot once undo serializes it.
-2. **Cascade cadence.** Every stroke end, or cadenced/deferred? Every stroke end
-   is the clean invariant; it is also a per-level solve on the hot path.
-3. **Twist pinning for the delta rotation.** The rotation between two base
-   configurations is unique only modulo twist about the normal; that has to be
-   pinned from the surface, deterministically, or it becomes a new ambiguity in
-   place of the one being removed.
-4. **A cage edited outside the mode.** `invalidateAll()` handles "cage edited"
-   today, but under this model the cage *carries sculpt energy* — an external
-   cage edit is no longer cleanly separable from sculpted content.
-5. **Whether coarse levels should hold positions rather than displacement**
-   (Decided 5). A performance question, to be settled by measurement against the
-   uniform object-space baseline, not by design preference.
-6. **Whether the delta rotation's accumulating orientation error needs a
-   periodic re-anchor.** Deltas compose without bound; if the drift gate in
-   *Test gates* fails at realistic stroke counts, the fix is presumably an
-   occasional re-derivation from geometry — which reintroduces exactly the
-   absolute frame this design removes, for one frame in N. Unexamined.
-
-## Test gates that would need to exist
-
-The current gates assume single round trips and one-level strokes. New ones:
-
-- **Cross-level redistribution.** The composed surface at the edited level is
-  preserved to tolerance while energy redistributes downward. This replaces "a
-  stroke touches one level"; the byte-identical edit-free-switch gate
-  (`test_multires.cc:317-320`) still holds and should stay.
-- **Residual magnitude.** After a broad edit at a fine level, assert the finest
-  level's per-vert `|d|` drops relative to the no-cascade baseline. Note it cannot
-  be an absolute bound: absorption is capped by cage-edge wavelength, so a
-  relative-improvement assertion is the honest form.
-- **Repeated redistribution.** N successive strokes over the same verts, with a
-  drift bound. Today's assertions are single round trips at 1e-5.
-- **Delta-rotation drift.** Distinct from the above, and the gate the trade-off
-  table's `≈ N·ε` column demands: apply a coarse rotation and its inverse N times
-  and assert stored disp returns to its start within a bound. Absolute frames pass
-  this trivially; composed deltas are the reason it has to exist.
-- **Rotation following.** Rotate a limb at a coarse level; assert fine detail
-  tracks it (the delta-rotation contract, and the test that distinguishes the
-  options in the table above).
-- **Cage bake round trip.** Cage motion survives `export_bake` instead of being
-  absorbed into MDisps — the ordering trap above, as a test.
-- **Cage undo round trip.** A stroke that moves the cage, undone, restores the
-  cage exactly — the channel that does not exist yet.
-- **Store version rejection.** A v1 blob is refused (or migrated), not silently
-  reinterpreted as object space. `grids.cc:477` passes it today.
-
-A frame-90°-image-stability test would have been the right gate for the *current*
-design; under this one there is no absolute frame to be unstable, so it is moot
-rather than fixed.
+**Status: SUPERSEDED — rejected 2026-07-30, never implemented.** Killed by an
+adversarial pressure test on the day it was written. Superseded by
+[multires-parametric-frame.md](./multires-parametric-frame.md), which addresses
+the same defect at a small fraction of the cost.
+
+This page is kept as a postmortem, not a plan. It exists so the ideas below do
+not get re-proposed, and because the *diagnosis* that motivated it was correct
+and is still load-bearing for the successor.
+
+---
+
+## What was right, and is carried forward
+
+**The defect is real and, if anything, was understated.** Multires displacement
+is stored in a tangent frame whose tangent comes from a curvature-derived 4-RoSy
+cross field (`frames.cc:294-330`), and `buildLevelTopo` (`multires.cc:54-78`)
+hands the frame provider a *bare quad mesh* with no sharp/seam/group attrs — so
+`use_features` degenerates to open borders only and the tangent is pure
+`estimatePrincipalDir` curvature. On a nearly-flat subdivided base that is
+umbilic noise.
+
+**The lever arm.** `pos = base + R(base)·d`, so `∂pos/∂(frame rotation) ≈ |d|`.
+Frame perturbation is amplified by displacement magnitude, from three sources: a
+coarse edit moving the base; normal smoothing (`frames.cc:242-265`); and the
+cross field's ±90° ambiguity.
+
+**The third is the sharp one, and it is a discrete failure, not drift.** Frames
+are recomputed from geometry alone, so nothing pins a level's frame *choice*
+across rematerializations. A frame landing on a different 90° image decodes
+unchanged stored disp **rotated by 90°** — a visible detail flip in one step,
+near features and field singularities, not 1e-7 accumulating over a thousand
+strokes.
+
+**Everything under the old *What exists today* section was validated and still
+holds.** Storage is hierarchical and frame-relative (`grids.h`,
+`multires.h:9-12`, `ensureChain` at `multires.cc:264`). The frame is genuinely
+orthonormal (`frames.cc:332-343`) and the encode (`multires.cc:502-505`) / decode
+(`multires.cc:252-257`) are an exact orthogonal pair. The provider is
+transcendental-free by design (`frames.cc:117-122`) for cross-backend bit
+parity. All edit energy lands in one level (`storeDispFromPositions`,
+`multires.cc:451`). `downRefit` requires `level >= 2`, so the cage can never
+absorb anything (`test_multires.cc:562`), and nothing in the addon calls it.
+The Blender seam speaks absolute positions, top level only (`multires.py:182`),
+against a flat `MDisps` (`DNA_meshdata_types.h:215`).
+
+---
+
+## Why it was rejected
+
+Four independent kills. Any one of them is disqualifying.
+
+### 1. The delta rotation cannot work, and the correct version reintroduces a frame
+
+The design proposed abolishing the absolute frame and restoring rotation
+following with an incremental rotation built from cross/dot products only (to
+preserve the transcendental-free bit-parity property).
+
+The only such construction is the minimal, twist-free rotation `n_old → n_new`,
+which equals the true surface rotation **only when the normal is perpendicular
+to the rotation axis**. Measured error in where detail lands:
+
+| rigid rotation | normal ⊥ axis | 30° off | 60° off | normal ∥ axis |
+|---|---|---|---|---|
+| 45° | 0.00° | 23.40° | 39.47° | **45°** |
+| 90° | 0.00° | 53.13° | 81.79° | **90°** |
+
+This is the generic case, not a corner: bend a limb and detail on the flanks
+whose normals point along the axis does not rotate at all while the top and
+bottom do — a shear discontinuity along a line, at full stroke amplitude. It also
+returns NaN at exactly 180° (`1+c = 0`), with `‖RᵀR−I‖` growing as `1/(1+c)`
+approaching it.
+
+The construction that *is* correct — polar decomposition of a deformation
+gradient fitted to the 1-ring — recovers the rotation to 5e-16 even at 179° and
+is transcendental-free. But a surface 1-ring is **rank 2**: it becomes rank 3
+only when the normal is added, and pinning the remaining twist needs a second
+in-plane reference, i.e. a tangent.
+
+**So the design's central premise is unachievable.** You cannot simultaneously
+remove the frame from the composition path and follow rotation. You can only
+choose *which* frame ambiguity you have — which is exactly what the successor
+does, deliberately.
+
+Two supporting facts found along the way: `litestl/math/quat.h` is abandoned,
+uncompilable scaffolding (`var a = ...`, `T vec_[4]` with no `T` in scope,
+`return this;`) and is `#include`d by nothing; and the only working 3×3 type is
+Eigen-backed (`matrix.h:3-4`, `:147-152`), which would put architecture-dependent
+association order on the composition path — the precise thing
+`frames.cc:117-122` exists to avoid.
+
+### 2. The cascade relocates the displacement instead of shrinking it, and rings the cage
+
+A per-level least-squares fit is a **deconvolution, not a low-pass split**. The
+subdivision operator has `σ_min = 0.5`, so `A⁺` overshoots by up to 2× per level
+and the overshoot compounds downward.
+
+Simulating the exact pyramid the engine builds (1-D regular Catmull-Clark ==
+cubic B-spline, 4 levels, cage 32 → 512, `A` from the same (1,4,6,4,1)/8 mask,
+greedy `L→L-1→…→cage` as `downRefit` implements it), against a joint solve
+minimising `Σ‖D_l‖²` under the same surface constraint. Cage spacing = 16 fine
+verts:
+
+| edit width | max‖D‖ before | greedy: cage / max‖D‖ / Σ‖D‖² | joint: cage / max‖D‖ / Σ‖D‖² |
+|---|---|---|---|
+| 2 | 1.00 at L4 | 0.727 / **0.750 at L1** / 2.763 | 0.693 / 0.289 / **0.417** |
+| 8 | 1.00 at L4 | **1.536** / 0.107 / 0.0376 | 1.527 / 0.021 / **0.0085** |
+| 32 | 1.00 at L4 | 1.045 / 0.0009 / ~0 | 1.045 / 0.0002 / ~0 |
+
+Read the `w=2` row: the pyramid's largest displacement goes from 1.00 at level 4
+to 0.750 at level 1. **It moved; it did not shrink** — at 6.6× the achievable
+minimum energy. The `w=8` row is an ordinary detail stroke covering half a cage
+edge, and it **moves the cage by 1.54× the edit amplitude**.
+
+The "floor set by cage resolution" the document claimed does not exist: 98.8% of
+a bump one-eighth of a cage edge wide drains downward, as an alternating-sign
+ripple. A unit fine spike produces cage values
+`[0.008, −0.015, 0.029, −0.059, 0.142, −0.059, 0.029, …]`.
+
+**Root cause: the design never stated an objective for the pyramid.** The
+constraint `pos_L = stencil(pos_{L-1}) + D_L` is satisfiable by `D_L` alone, so
+the decomposition is underdetermined and needs a regularizer (`Σλ_l‖D_l‖²`) or a
+genuine frequency split to be well-posed *as a redistribution*. Greedy per-level
+LS is a particular heuristic, and it is the worst-behaved one for exactly the
+content the design claimed it would leave alone.
+
+The consequence lands on the export, not just internally: a rippled,
+locally self-intersecting cage is a *worse* input to Blender's reshape than a
+flat cage with large `|D|`, since the cage is what MDisps measures against.
+
+*Caveat honestly stated:* the simulation is 1-D and regular, so the constants do
+not transfer. The direction does — `σ_min` near an extraordinary vertex is
+*smaller*, so the overshoot is larger. To settle it in-engine: run `downRefit(2)`
+plus a hand-added `downRefit(1)` on a subdivided cube after a narrow level-3
+edit and dump cage positions; the alternating sign should be directly visible.
+
+### 3. Undo structurally cannot carry a cascade stroke
+
+The primary undo path is a **meshlog seek over the active level mesh only**
+(`undo.py:199-214`); the store-blob path runs only on generation mismatch
+(`:185-188`). The meshlog is built against `Multires_activeTree`, one level's
+slot mesh (`stroke.py:106-108`, `convert.py:822-823`), and `Multires::writeback`
+likewise touches one level (`multires.cc:607-625`).
+
+A cascade stroke spans the cage, every level ≤ active, and (with delta rotation)
+every level > active. **None of that is in the meshlog.** Sculpt at level 4 and
+press Ctrl-Z: the level-4 slot reverts while the cage and levels 1–3 keep the
+post-stroke state. Repeat, and the cage ratchets monotonically while the surface
+appears to return.
+
+The proposed mitigation ("a new serialized channel plus a new field in the addon
+step") was the wrong fix. The actual requirement is that *every* multires decode
+take the blob path, retiring the P6 Tier-2 delta-undo design for multires
+sessions. Note that Blender wraps its own `multires_base_apply` in a **full mesh
+undo push** (`object_multires_modifier.cc:398-402`) — its authors judged cage
+mutation unrepresentable in a delta step, which is precisely what was attempted.
+
+### 4. The prescribed bake-ordering fix cannot be built on the API it names
+
+The document prescribed: write cage positions into `ob.data`, tag, re-evaluate,
+then reshape from top-level positions. The reshape context is built from **two
+different meshes**: `base_positions`, topology and creases from `ob.data`
+(`multires_reshape_util.cc:196-203`), but `subdiv` — which supplies `P` in
+`D = pos - P` — from `mesh_get_eval_deform` (`:47-51`). Today both refer to the
+same unchanged cage, so the split is invisible. Write the cage and
+`foreach_grid_coordinate` walks new-cage topology while `P` samples the **old**
+cage's limit surface: MDisps absorbs the entire cage delta, which is exactly the
+failure the reorder existed to prevent. `depsgraph.update()` does not fix it.
+
+Blender's own cage-mutation path proves the shape of the real fix:
+`multiresModifier_base_apply` (`multires_reshape.cc:391-437`) calls
+`apply_base_refine_from_base` *before* mutating and `..._from_deform` *after*,
+inside the same context, re-running leading deform modifiers
+(`multires_reshape_apply_base.cc:149-167`). All three helpers are internal to
+`intern/multires_reshape.hh` with no RNA wrapper. **This is a fork change**, and
+the scope table had no row for the fork at all.
+
+---
+
+## Secondary findings that also had to be answered
+
+Not individually fatal, but none had a mitigation in the plan.
+
+- **Nothing the cascade builds survives the seam except the cage.**
+  `_enter_multires` seeds the entire stack from top-level positions only
+  (`multires.py:168-179`, `convert.py:212`), and `refresh` frees and re-enters
+  (`convert.py:1093-1109`), reachable from any foreign undo. Exit/re-enter and
+  levels 1..N−1 are flat again with all energy back at level N. Phases 1–4 bought
+  a within-session property only.
+- **Phase 1's "accept the rotation regression here" was not available.**
+  `md.sculpt_levels` is one slider drag (`handlers.py:74-77` →
+  `convert.py:977-999`), and the sheared result bakes with no original-grid
+  preservation: `reshapeFromVertPositions` forces `sculptlvl = totlvl`
+  (`multires_reshape.cc:291-294`), so the details-preserving smooth early-outs
+  (`multires_reshape_smooth.cc:1320-1324`) and the top grid is overwritten
+  wholesale. Block out at level 1, drag to 4, save — the pre-stroke MDisps is
+  gone.
+- **Cage-wavelength content in the cage silently redefines Delete Higher**
+  (`OBJECT_OT_multires_higher_levels_delete`): it no longer deletes what was
+  sculpted at level 4. Blender ships cage mutation as an explicit, opt-in
+  operator; the design made it implicit, per stroke.
+- **Cage divergence is undetectable and the cage is not flushed per stroke.**
+  With the draw provider active — always, for multires — stroke end calls
+  `draw_refresh`, not `flush` (`stroke.py:911-914`). Both divergence detectors
+  are vertex-count-only (`convert.py:1124-1130`, `:932`).
+- **The scope table structurally could not see the layer stack.** Sculpt layers
+  live in `source/displace/compositor.cc` (248 lines) plus the Mesh-side table
+  (`mesh/mesh.h:374-421`), *outside* `source/subdiv/`; `source/vdm/` is ~2.9
+  kLOC; and `downRefit` has a live caller at `source/debug/script.cc:1949`.
+- **The proposed per-vert residual gate is not implied by least squares**, which
+  bounds only global L2 — which is why the existing gate is a global
+  `stencilResidual` ratio (`test_multires.cc:527-538`). And the cascade would
+  permanently kill the `posIsBase` / `dispNonZero` fast paths
+  (`multires.cc:169-187`, `:303-310`) and the untouched-region invariant.
+
+---
+
+## Claims made in the draft that were wrong
+
+Recorded so they are not re-derived.
+
+- **"No lever arm" was false and self-contradicting.** `pos = base + R_delta·D`
+  gives `∂pos/∂R_delta ≈ |D|` — the same amplification, relocated from frame
+  perturbation to delta perturbation. If the lever arm survives, the cascade is
+  the load-bearing half and the phase order (frame flip first, cascade last) was
+  backwards.
+- **The drift gate targeted the wrong quantity by 4–6 orders of magnitude.**
+  Measured float32 composed-delta drift at N=10⁴: reversible 1.64e-5, correlated
+  full turn 4.37e-6, magnitude 4.8e-7. The `≈N·ε` worry was noise next to the
+  *systematic* twist error, which is degrees. Worse, the proposed rotate-and-
+  invert gate is structurally the case where consecutive errors cancel: it passes
+  at 1.6e-5 while the same construction is wrong by 53° in the non-reversible
+  case.
+- **"Object space is the persistent form" was never true.** The persistent form
+  is Blender's tangent-space MDisps; the engine store is session-scoped and the
+  only serialized blob is the in-memory undo payload (`undo.py:96-101`). The
+  version-field discussion protected nothing. Persisting object space is in fact
+  *unrecoverable*, since Blender re-evaluates MDisps against the current cage
+  every depsgraph tick (`subdiv_displacement_multires.cc:329-359`) with no hook
+  for the addon to apply a delta.
+- **The export-conditioning payoff** (already corrected once before the pressure
+  test) does not exist for intra-level redistribution: `D = pos - P` with `P`
+  from the base cage (`multires_reshape_util.cc:730-750`), and `pos` is what the
+  cascade preserves.
+
+---
+
+## What the pressure test settled *positively*
+
+Genuine results, worth keeping regardless of this design's fate.
+
+- **The unmasked cascade is exactly path-independent and idempotent** — settling
+  the old open question 1 in the affirmative. `A_l` is injective (the vertex
+  symbol `(6+2cos ω)/8` never vanishes; `σ_min = 0.5`), so `AᵀA` is SPD, the
+  minimizer is unique, and the cage is a function of `pos_L` alone. Verified at
+  0.00e+00 across differing stroke orders and active-level histories; a second
+  pass changes nothing. No oscillation, no overshoot-in-iteration.
+- **`cond(AᵀA) = 8`, independent of mesh size**, so `solveStencilLeastSquares`'s
+  Jacobi-CG converges in ~10 iterations at any resolution. The solver was never
+  the weak link.
+- **Influence decay through `(AᵀA)⁻¹` is 0.4465 per coarse vertex**, from the
+  palindromic roots of its symbol `(70 + 56cos ω + 2cos 2ω)/64`, confirmed
+  numerically to 4 digits. So masking accuracy is computable: 6 rings → 1e-2,
+  9 → 1e-3, 12 → 1e-4, 14 → 1e-6. This also kills masking as a *saving*: 12 rings
+  per level in 2-D is the whole level at levels 1–2, exactly where a cascade would
+  need to reach.
+- **Masked cascades are path-dependent at the decay tail** — two stroke orders
+  reaching an identical surface leave cage differences of 6.16e-2 at radius 3,
+  5.83e-3 at 6, 4.46e-5 at 12, i.e. `0.4465^r`.
+- **Surface preservation is exact by construction**, and seam replication is a
+  non-issue for the fit: the solve and `storeDispFromPositions` work in dense
+  vert-id space (`multires.cc:481-508`), so both replicas of a seam vert derive
+  from the same `pos[vid]`/`base[vid]` and receive bit-identical values.
+- **Object-space storage does not break Blender's animation path** — the
+  hypothesis was tested and held, because MDisps stays tangent-space and the
+  engine store is session-scoped.
+
+---
+
+## Do not re-propose
+
+1. **Object-space displacement as the stored form**, on the grounds that it
+   removes frame ambiguity. It relocates the ambiguity into the delta rotation,
+   which cannot be made correct without a frame (kill 1).
+2. **A delta/incremental rotation from cross and dot products.** It is the
+   twist-free minimal rotation and is wrong by up to the full rotation angle.
+3. **Greedy per-level least-squares as a redistribution mechanism.** It is a
+   deconvolution and rings. Any future redistribution needs a stated objective
+   with a per-level penalty, or a real frequency split — a different solver, not
+   a masked `solveStencilLeastSquares`.
+4. **Automatic per-stroke cage mutation.** It is unrepresentable in the delta
+   undo path, redefines Delete Higher, and needs a fork-side reshape entry point
+   that does not exist.
+5. **Masking the stencil solver as a performance measure.** The dilation width
+   required for path independence is the width at which masking stops saving
+   anything.
+
+**Still open as a possible future, with no urgency:** a properly regularized
+*joint* multilevel solve (all levels at once, `Σλ_l‖D_l‖²`) is a coherent way to
+improve conditioning, and the joint-solve column above shows it beats greedy by
+4–7×. It is a separate and much harder project, and once the discrete failure is
+gone (see the successor) there is no pressing reason to attempt it.

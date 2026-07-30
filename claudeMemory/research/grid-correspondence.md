@@ -111,6 +111,13 @@ and Blender's is the CC limit surface; those disagree, and the absolute-position
 exchange absorbs the difference — Blender re-derives its own frames when baking
 into `CD_MDISPS`.
 
+This is why the engine's choice of frame is entirely internal. Nothing about
+which basis the engine stores displacement in crosses this seam, so changing it
+(see [design/multires-parametric-frame.md](../design/multires-parametric-frame.md))
+needs no addon change, no fork change, and raises no file-compatibility
+question — the engine store is session-scoped and Blender's tangent-space
+`CD_MDISPS` is the persistent truth.
+
 Residual on a **creased** cage: ~1e-4, border samples only. That is Blender's
 own reshape being non-idempotent there, not the map — feeding Blender its own
 evaluated surface straight back through
