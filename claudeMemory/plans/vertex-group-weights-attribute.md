@@ -509,25 +509,50 @@ Branch `custom-object-modes`, in `source/blender/makesrna/intern/rna_mesh_api.cc
 Engine-agnostic and generally useful, so it fits the branch's charter (and is
 plausibly upstreamable).
 
+**Landed** (fork commit `9a098f3`, `custom-object-modes`).
+
 ```python
 mesh.vertex_group_element_count() -> int
-mesh.vertex_group_data_get(offsets, group_indices, weights)
+mesh.vertex_group_data_get() -> (offsets, group_indices, weights)
 mesh.vertex_group_data_set(offsets, group_indices, weights)
 ```
 
 - CSR again: `offsets` is `len(vertices) + 1` ints; the other two are
-  `element_count` long. Caller preallocates, matching `foreach_get`'s protocol,
-  so a `numpy`/`array.array` buffer transfers at memcpy speed.
-- Use the `PROP_DYNAMIC` + `PARM_REQUIRED`/`PARM_OUTPUT` precedent already in
-  that file (lines 334, 347, 359 — `normals_split_custom_set`).
-- Implementation reads `mesh->deform_verts()` / writes
-  `deform_verts_for_write()` (`DNA_mesh_types.h:427-429`) and uses
-  `BKE_defvert_*` (`BKE_deform.hh`) for the per-vertex edit rather than
-  hand-rolling `MDeformWeight` allocation.
+  `element_count` long.
+- **`_get` returns its arrays rather than filling caller-supplied buffers**,
+  which is where this section was wrong. RNA function parameters have no
+  caller-preallocated form: a `PARM_OUTPUT` + `PROP_DYNAMIC` array is allocated
+  by the callee and converted to a Python list, and a `PARM_REQUIRED` array is
+  copied into a temp buffer the callee cannot write back through. `foreach_get`
+  is the only memcpy-speed path in the RNA layer and it is collection-property
+  only, so it cannot serve a ragged table. The win is still the one that
+  mattered — one call and one C-side loop instead of a Python loop over every
+  vertex and influence — but A1 pays a list→buffer conversion on the way to
+  the c-api.
+- The `PROP_DYNAMIC` + `PARM_REQUIRED`/`PARM_OUTPUT` precedent
+  (`normals_split_custom_set`, `calc_smooth_groups`) is what it follows. Output
+  arrays are allocated with `MEM_new_array_uninitialized` — RNA frees them with
+  `MEM_delete_void` in `RNA_parameter_list_free`.
+- Reads `mesh->deform_verts()` / writes `deform_verts_for_write()`. `_set`
+  clears each vertex with `BKE_defvert_clear` and then allocates its run **once**
+  rather than calling `BKE_defvert_add_index_notest` per influence, which
+  reallocates and memcpys every time; the allocation matches the one that call
+  uses, so `BKE_defvert_clear` still frees it.
 - The two-call protocol (count, then fill) is deliberate: the total is not
   derivable from the vertex count.
+- **`_set` validates everything before it mutates**: offsets length, payload
+  lengths agreeing with each other and with the terminator, offsets
+  non-decreasing, and every group index naming an existing vertex group. A
+  rejected call reports and leaves the mesh alone — a half-written weight table
+  is not a state a caller can detect or recover from.
 - Group **names** are not part of this API — they are a short list and
   `object.vertex_groups` already reads and creates them cheaply.
+
+Verified headlessly against the rebuilt fork: a 4-vertex mesh with two groups
+round-trips get→set→get, Blender's own `VertexGroup.weight()` view agrees with
+what was written (so this is not a private side table), each of the five
+rejection paths raises and leaves the data intact, and a mesh with no groups
+reads as all-zero offsets rather than erroring.
 
 ## Addon work
 
