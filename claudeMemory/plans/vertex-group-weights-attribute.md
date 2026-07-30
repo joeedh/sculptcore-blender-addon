@@ -411,19 +411,57 @@ ctypes boundary.
 
 ### E7 — tests
 
-`engine/tests/test_deform_attr.cc`, plus debug-app verbs.
+**Landed.** The unit coverage grew alongside each phase rather than as one pass
+at the end, so it is spread over four files rather than the single
+`test_deform_attr.cc` this section originally named:
 
-- Intern/dedup correctness; refcount audit clean after churn.
-- Merge correctness against values computed arithmetically in the test.
-- Split/collapse round trips: weights on a uniformly-weighted region must be
-  bit-identical after remeshing, and must be a correct lerp across a boundary.
-- **Threading stress**: N threads interpolating and capturing concurrently, run
-  under TSan. Assert the audit afterward.
-- ~~Serialize round trip, including a mesh whose pool has holes before saving.~~
-  **Done in E5** (`test_mesh_serialize.cc::test_weights_roundtrip`).
-- `save_weights` / `assert_weights` debug-app verbs mirroring the existing
-  `save_pos` / `assert_pos` undo-fidelity pair (`engine/CLAUDE.md` § Debug app),
-  so `save_weights … stroke … undo … assert_weights` is a scriptable regression.
+- `tests/test_deform_attr.cc` (E1) — the pool alone: intern/dedup, refcounting,
+  `reassign`, sweep-keeps-indices, the audit itself, plus
+  `testConcurrentIntern` / `testConcurrentChurn` (8 threads, fan-in onto shared
+  slots, and release-to-zero racing intern of the same run).
+- `tests/test_weights_attr.cc` (E2/E4) — the column's reference discipline
+  (overwrite, element reuse, layer removal, teardown) and the merge handler's
+  value rules, each ending in an `auditRefcounts` check.
+- `tests/test_weights_undo.cc` (E3) — meshlog capture/restore and the
+  pool-outlives-mesh case.
+- `tests/test_mesh_serialize.cc` (E5) — the round trip, including a pool with
+  holes before saving.
+
+What this phase added on top:
+
+- **Threading stress** — `test_weights_attr.cc::testConcurrentMergeAndCapture`:
+  8 threads, each owning a disjoint slice of verts and its own
+  `ChunkElemData`, running the merge handler and a meshlog capture in a loop, so
+  interns, retains and releases all overlap on one pool. `t` is drawn from a
+  small shared set so the threads fan in onto the same runs. It asserts the
+  final blend per vertex (recomputed, not read back), a clean audit before and
+  after a sweep, and the exact live-slot count. The handler is called directly
+  rather than through `interpAttrs`: no other column claims to be writable from
+  several threads, and dragging them in would test a promise nothing makes.
+  - **Gap: not run under TSan.** The build has no TSan configuration (only
+    `WITH_ASAN`), and clang's TSan does not support Windows, which is this
+    box. Running it needs a Linux/macOS build with `-fsanitize=thread`.
+- **`set_weights` / `save_weights` / `assert_weights`** debug-app verbs
+  (`source/debug/script.cc`), mirroring `save_pos` / `assert_pos` down to the
+  `eps` / `soft` arguments and the non-zero exit. `set_weights` had to come
+  with them — without a way to *put* weights on a mesh the pair has nothing to
+  check — and its default is a z-gradient over the AABB, not a constant, since
+  a constant survives any interpolator, correct or not. `assert_weights`
+  compares whole runs, not slot indices (the pool interns by value, so an index
+  is not comparable across a sweep), and reports `dead` / `reshaped` /
+  `changed`. Documented in `documentation/debugApp.md` with the
+  `save_weights … stroke … undo … assert_weights` example.
+- **`dump_state` fingerprint** — a `weight_attrs` block per WEIGHTS layer:
+  `entries` (an influence gained or dropped), `group_sum` (a run landing on the
+  wrong group), `sum`/`sqsum` (the values), and the pool's live `slots` (which
+  is how run growth under repeated interpolation would show). The existing
+  vertex-attr block skips WEIGHTS, so meshes without one dump unchanged and
+  every brush golden stays stable.
+
+Still open, and better placed once dyntopo weights are exercised for real:
+split/collapse round trips asserting a uniformly-weighted region comes back
+bit-identical and a boundary comes back a correct lerp. `testMergeAcrossSplit`
+covers the single-split case today.
 
 ## Blender fork work
 
