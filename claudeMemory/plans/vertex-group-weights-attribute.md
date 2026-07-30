@@ -183,14 +183,16 @@ wrong in three places — the corrected shape:
   `attr.type == AttrType::WEIGHTS`. Keeping the column dumb is also what lets
   reorder, swap, resize, serialization and the meshlog's raw byte copies keep
   working untouched.
-- **Pool ownership**: one lazily-created `DeformPool` per mesh, owned by
-  `MeshBase` through a `DeformPoolOwner` member and reached by
-  `MeshBase::deformPool()` / `deformPoolOrNull()`. `deformPool()` stamps a
-  non-owning `AttrGroup::deform_pool` back-pointer onto all five element
-  groups. The owner is a *member* rather than a raw pointer plus a `~MeshBase`
-  body because a base destructor body runs *before* its base members are
-  destroyed — the pool would have died before the `AttrGroup`s that release
-  into it. It is declared first, so it destructs last.
+- **Pool ownership**: one lazily-created `DeformPool` per mesh, held by
+  `MeshBase` through a member reference and reached by `MeshBase::deformPool()`
+  / `deformPoolOrNull()`. `deformPool()` stamps a non-owning
+  `AttrGroup::deform_pool` back-pointer onto all five element groups. It is a
+  *member* rather than a raw pointer plus a `~MeshBase` body because a base
+  destructor body runs *before* its base members are destroyed — the pool would
+  have died before the `AttrGroup`s that release into it. It is declared first,
+  so it destructs last. (E2 landed this as a sole-owner `DeformPoolOwner`; E3
+  replaced it with the shared `DeformPoolUser` below, for reasons E2 had no way
+  to see.)
 - **The four dropping paths**, each now releasing (and zeroing, so nothing can
   be released twice) via `detail::weightsReleaseElem` / `weightsReleaseFrom`
   (declared in `attribute.h`, defined in `attr_weights.cc` so that
@@ -226,20 +228,75 @@ wrong in three places — the corrected shape:
 
 ### E3 — meshlog integration
 
-`source/meshlog/meshlog_base.h`, `parallel_capture.h`.
+`source/meshlog/meshlog_base.h`, plus `mesh/deform_pool.{h,cc}` and
+`mesh/mesh_types.{h,cc}`. **Landed.** The sketch below it assumed one row store
+and plain mesh ownership of the pool; both were wrong.
 
-- `cpyFrom` (line 217): retain after the memcpy for `WEIGHTS` columns. The
-  existing memcpy is otherwise unchanged.
-- `swapWith` (line 250): **no change** — swapping is refcount-neutral, and
-  `char buf[64]` is ample for a 4-byte element.
-- Row-store destruction / step drop: release every index in each `WEIGHTS`
-  column.
-- Memory accounting (line 328): report pool bytes as a separate term rather
-  than folding them into `elemSize * size_`.
-- Confirm the retain path is safe from `parallel_capture`'s worker threads (it
-  is a plain atomic increment from a live reference, but assert it).
-- **Verify undo state is not serialized.** If it is, save-time pool compaction
-  (E5) has to consider log columns too.
+- **The log holds a *user* of the pool, not a borrow.** `~Scene()`
+  (`source/debug/scene.cc:51`) does `alloc::Delete(mesh)` in its destructor
+  *body*, while `meshLog` is a member destroyed *after* that body. A
+  mesh-owned pool would therefore be gone before the log chunks that release
+  into it. `DeformPool` gained an intrusive `std::atomic<int> users_`
+  (`addUser`/`removeUser`, acq_rel on the decrement so every prior `release()`
+  on any thread happens-before the delete) and `DeformPoolUser` — a
+  move-free, non-copyable strong reference whose `reset()` is idempotent. The
+  mesh, each `ChunkElemData`, each `RowLayout`, and `MeshLog` itself each hold
+  one; the last one out deletes. `deformPool()` installs its pointer directly
+  rather than through `reset()`, since `New<>` already starts the count at one.
+- **There are two independent row stores, not one**, and WEIGHTS flows through
+  both:
+  - `detail::ChunkElemData` — an `AttrGroup`-backed store (brush capture,
+    declared attrs only). Its `AttrGroup` gets the mesh's pool via a new
+    `bindPool()`, called from `ensureAttr(src, ref)`: `AttrGroup::ensure`
+    asserts on the pool, and the copied rows are raw slot indices only
+    resolvable against that one pool. Bound once — re-pointing would strand the
+    references already-captured rows hold. Release comes free from `~AttrGroup`
+    (E2), which is why `pool_user` is declared *first* in the struct: it
+    destructs last, after the group that releases into it.
+  - `detail::ChunkElemRow` + `detail::RowLayout` — a raw byte blob for
+    `LogChunkTopo`, capturing **every** attribute of the group. It has no type
+    information at row-destruction time, so `RowLayout` now carries
+    `weight_cells` (byte offsets of the WEIGHTS cells, empty on the
+    overwhelmingly common weightless mesh) and its own `DeformPoolUser`.
+- **The verbs, by what they do to a cell:**
+  - *duplicate* → retain: `ChunkElemData::cpyFrom` (reassigns into a
+    materialized dst cell instead of memcpy'ing), `ChunkElemRow::captureFrom`
+    (releases first — a pooled row still names the previous element's runs —
+    then retains).
+  - *overwrite* → reassign: `ChunkElemRow::writeTo` and `refreshDataColumns`.
+  - *swap* → **nothing**, in both stores. Slots are interned and immutable, so
+    the two sides exchange indices and each reference simply moves with it.
+    `char buf[64]` is ample for a 4-byte element.
+  - *drop* → release: `~ChunkElemRow` (covering both `dropRecord`'s
+    release-to-pool and pool teardown, since `util::Pool::release` runs the
+    destructor), and `~AttrGroup` for the other store.
+- **Destruction order, again.** `~LogChunkTopo` deletes its `layouts_` in the
+  body, but `bodies_pool` / `records_pool` are members destroyed *after* the
+  body — a `~ChunkElemRow` reading `layout_->pool` would use-after-free. Both
+  pools are now cleared explicitly at the top of that body.
+- **Memory accounting**: `MeshLog::totalMemSize()` adds a single
+  `deformPoolMemSize()` term rather than folding pool bytes into each chunk's
+  `elemSize * rows` — a WEIGHTS cell is a 4-byte index into one shared table
+  that every step and the mesh point into. `MeshLog::setActiveMesh` picks the
+  pool up (`deformPoolOrNull` — never creates one, so a weightless mesh does
+  not grow a pool because it was logged) and holds it so the size is still
+  answerable after the mesh is gone.
+- **Thread safety confirmed, not assumed**: `parallel_capture`'s workers reach
+  `cpyFrom`, and `retain` / `release` / `reassign` all take the owning shard's
+  mutex. Nothing new was needed.
+- **Undo state is not serialized** — verified: `source/meshlog/` has runtime
+  reflection bindings only (`defineBindings`, no `loadSTRUCT`/`saveSTRUCT`, no
+  file writer), and no caller persists a `MeshLog`. So E5's save-time
+  compaction only has to consider live mesh columns. Were that to change, the
+  log's rows would need remapping too.
+- `tests/test_weights_undo.cc` covers all four: a `ChunkElemData` row keeping a
+  run alive across a `sweep()` after the mesh has overwritten it (and giving it
+  back at teardown); a `LogChunkTopo` kill/undo/redo/undo round trip restoring
+  the run *from the log* (the mesh's stale column entry is explicitly cleared
+  first, so a passing assert cannot be reading it); dropping the log making the
+  run reclaimable; and the lifetime case itself — `alloc::Delete` the mesh with
+  a live `MeshLog`, then delete the log, with `test_end()`'s leak check proving
+  the pool was freed exactly once.
 
 ### E4 — the merge handler
 
