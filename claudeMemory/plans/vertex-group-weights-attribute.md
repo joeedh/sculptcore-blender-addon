@@ -172,13 +172,57 @@ settled differently than sketched here:
 
 ### E2 — attribute integration
 
-- An `AttrDataBase` subclass (`attribute_base.h:46`) for the column, reusing the
-  existing paged storage and lazy `materializeElem` — the payload is still a
-  flat 4-byte-per-element column, so nothing about paging changes.
-- The write funnel: `setIndex(elem, slot)` that releases the old and retains the
-  new. No public `get_data<int>()` for this type.
-- `AttrGroup::ensure` already stamps merge policy and handler
-  (`attribute.h:742-743`); nothing new is needed there.
+New: `source/mesh/attr_weights.{h,cc}`. **Landed**, and the sketch below it was
+wrong in three places — the corrected shape:
+
+- **No `AttrDataBase` subclass.** The column is a plain
+  `AttrData<WeightSlot>`, because a subclass could never have been invoked:
+  `AttrGroup`'s generic paths `static_cast<AttrData<T> *>(attr.data)` and then
+  call *non-virtual* members (`set_default`, `resize`, `operator[]`). Reference
+  discipline therefore lives at `AttrGroup` level, keyed on
+  `attr.type == AttrType::WEIGHTS`. Keeping the column dumb is also what lets
+  reorder, swap, resize, serialization and the meshlog's raw byte copies keep
+  working untouched.
+- **Pool ownership**: one lazily-created `DeformPool` per mesh, owned by
+  `MeshBase` through a `DeformPoolOwner` member and reached by
+  `MeshBase::deformPool()` / `deformPoolOrNull()`. `deformPool()` stamps a
+  non-owning `AttrGroup::deform_pool` back-pointer onto all five element
+  groups. The owner is a *member* rather than a raw pointer plus a `~MeshBase`
+  body because a base destructor body runs *before* its base members are
+  destroyed — the pool would have died before the `AttrGroup`s that release
+  into it. It is declared first, so it destructs last.
+- **The four dropping paths**, each now releasing (and zeroing, so nothing can
+  be released twice) via `detail::weightsReleaseElem` / `weightsReleaseFrom`
+  (declared in `attribute.h`, defined in `attr_weights.cc` so that
+  `attribute.h` — included everywhere — never has to see `DeformPool`):
+  `~AttrGroup`, `remove_attr`, `set_default` and `shrink_capacity`.
+  `set_default` is the subtle one: `ElemData::release(elem)` does not touch
+  attrs, so a freed element's column entry keeps its slot *and its reference*
+  until the element is reallocated. No double release, no leak.
+- **`AttrGroup::ensure` did need a change** — a `util::Assert` that a WEIGHTS
+  column is not created before the group has a `deform_pool`.
+- **The write funnel** is `WeightsRef` (`attr_weights.h`), constructed from
+  `(AttrGroup &, AttrRef &)` and obtained via `ensureVertWeights(mesh, name)` /
+  `findVertWeights(mesh, name)`. `setSlot` materializes then goes through
+  `DeformPool::reassign` (retain new, release old); `setRun` interns, stores,
+  and drops `intern`'s reference. Reads copy out (`getRun`), never span into a
+  shard arena. `collectRoots` walks every materialized page — free elements
+  included — to feed `auditRefcounts`.
+- **`resolveMergePolicy` also needed a change**, which the sketch missed
+  entirely: its name-keyed path early-returns for names without a dot prefix,
+  so a user-facing `"weights"` layer would have fallen through to
+  `defaultMerge`, whose final `else` plainly copies src0's *slot index* into
+  dst with no retain — an under-count, which is fatal once `sweep()` runs. The
+  branch is now type-keyed (`type == AttrType::WEIGHTS` → `{CUSTOM,
+  mergeWeights}`) ahead of everything else. `mergeWeights` is interim: it
+  carries src0's run forward *with* a reference. E4 replaces the value rule;
+  the registration is already correct.
+- `tests/test_weights_attr.cc` covers pool ownership and idempotence, read /
+  write / canonicalization, interning collapse across a whole mesh, overwrite
+  releasing the old run (and a same-value write not double-counting),
+  kill/make element reuse being reference-neutral, `remove_attr` dropping every
+  reference, the CUSTOM handler surviving an `splitEdge`, and teardown ordering
+  (which `test_end()`'s leak check enforces).
 
 ### E3 — meshlog integration
 
