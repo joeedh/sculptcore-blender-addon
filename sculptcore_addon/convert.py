@@ -997,6 +997,13 @@ def set_multires_level(ob, level):
     if actual == top and was != top:
         multires.import_mask(ob, bpy.context.evaluated_depsgraph_get(),
                              session.mesh_ptr, session.multires_map)
+    if actual < was:
+        # A downward switch is where the engine pushes a finer level's detail
+        # into the coarser ones, so the store no longer matches the blob the
+        # last stroke recorded. Re-snapshot: that blob is the *pre*-state for
+        # the next stroke's undo step, and a stale one would revert this
+        # propagation along with the stroke (same reasoning as the restack).
+        session.multires_last_blob = multires_store_blob(session)
 
 
 def _flush_multires(ob, session):

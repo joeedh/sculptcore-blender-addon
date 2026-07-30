@@ -18,7 +18,8 @@ this keeps Tier-1 leak-free and consistent in the meantime.
 
 ``depsgraph_update_post`` additionally follows the multires modifier's
 ``sculpt_levels`` so a change in the modifier UI switches the session's
-active engine level (P8 C2).
+active engine level (P8 C2), and ``save_pre``/``save_post`` keep the
+mode-local multires suppression out of the written file.
 """
 
 import bpy
@@ -116,10 +117,57 @@ def _on_load(*_args):
     texture.invalidate()
 
 
+def _multires_modifiers_in_session():
+    """The multires modifier of every live multires session, with the
+    show_viewport value the session promised to restore on exit."""
+    for name in list(engine.sessions):
+        session = engine.sessions[name]
+        if not session.multires_ptr:
+            continue
+        ob = bpy.data.objects.get(name)
+        if ob is None:
+            continue
+        md = multires.modifier(ob)
+        if md is not None:
+            yield md, session.multires_show_viewport
+
+
+@persistent
+def _on_save_pre(*_args):
+    """Un-suppress the multires modifiers before the file is written.
+
+    A multires session hides the modifier for the mode's duration (the engine
+    surface is drawn by the external provider, and leaving the modifier on
+    would re-subdivide on every depsgraph update); the value is restored on
+    exit. Saving mid-mode would otherwise bake `show_viewport = False` into the
+    file, and since a custom mode never survives a load — object.cc's
+    `blend_read_data` clears #OB_MODE_CUSTOM — the object comes back in Object
+    mode with its multires modifier off, i.e. showing the bare base cage. The
+    displacement is in the file (the fork flushes the mode through
+    ED_editors_flush_edits before writing); only the modifier that shows it was
+    switched off.
+
+    Not a concern for the position/attribute state itself, and not needed for
+    auto-save, which runs the flush but no save callbacks."""
+    for md, show in _multires_modifiers_in_session():
+        md.show_viewport = show
+
+
+@persistent
+def _on_save_post(*_args):
+    # Back to the mode's suppressed state; the save is over either way, so
+    # this is registered on the failure callback too.
+    for md, _show in _multires_modifiers_in_session():
+        md.show_viewport = False
+
+
 def register():
     bpy.app.handlers.undo_post.append(_on_undo_redo)
     bpy.app.handlers.redo_post.append(_on_undo_redo)
     bpy.app.handlers.load_post.append(_on_load)
+    bpy.app.handlers.save_pre.append(_on_save_pre)
+    bpy.app.handlers.save_post.append(_on_save_post)
+    bpy.app.handlers.save_post_fail.append(_on_save_post)
     bpy.app.handlers.depsgraph_update_post.append(_on_depsgraph_update)
 
 
@@ -128,6 +176,9 @@ def unregister():
         (bpy.app.handlers.undo_post, _on_undo_redo),
         (bpy.app.handlers.redo_post, _on_undo_redo),
         (bpy.app.handlers.load_post, _on_load),
+        (bpy.app.handlers.save_pre, _on_save_pre),
+        (bpy.app.handlers.save_post, _on_save_post),
+        (bpy.app.handlers.save_post_fail, _on_save_post),
         (bpy.app.handlers.depsgraph_update_post, _on_depsgraph_update),
     ):
         if fn in handler_list:

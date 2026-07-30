@@ -475,6 +475,12 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
 
         self._last_flush = 0.0
         self._dab_count = 0
+        # Object-space running sum of this stroke's dab centers; written to
+        # Paint.stroke_pivot (world space) at stroke end so the viewport orbits
+        # around the last stroke, as vanilla sculpt does. Symmetry mirrors are
+        # excluded — vanilla accumulates only the primary center too.
+        self._pivot_sum = [0.0, 0.0, 0.0]
+        self._pivot_n = 0
         # A kernel toggle (smooth/mask) replaces the brush's own kernel, so
         # brush-type-derived behavior (grab anchoring, face-set group
         # assignment, autosmooth chaining) is bypassed for the stroke.
@@ -704,6 +710,7 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
                 tuple(plane_point[i] - self._drag_origin[i] for i in range(3)),
                 self._anchor_normal, self.session.brush_obj.strength)
             cursor = tuple(self._anchor[i] + drag[i] for i in range(3))
+            self._track_pivot(cursor)
             apply_grab_dab(self.session, self.kernel, self._anchor, cursor,
                            self._anchor_normal, self._anchor_radius)
             # Symmetry: reflect the anchor, cursor and normal directly (no
@@ -745,6 +752,27 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
                 convert.flush(context.active_object)
             self._last_flush = now
         context.area.tag_redraw()
+
+    def _track_pivot(self, position):
+        """Fold one logical dab's object-space center into the stroke's running
+        pivot sum (see ``_publish_pivot``)."""
+        for i in range(3):
+            self._pivot_sum[i] += position[i]
+        self._pivot_n += 1
+
+    def _publish_pivot(self, context, ob):
+        """Hand the stroke's average center to Blender as the orbit pivot.
+
+        ``view3d_orbit_calc_center`` reads it back through
+        ``BKE_paint_stroke_get_average`` for a custom mode that declares
+        ``bl_use_sculpt_paint``, so "Orbit Around Selection" follows the last
+        stroke instead of sitting at the object origin. World space, because
+        that is what the Paint runtime stores."""
+        if not self._pivot_n:
+            return
+        import mathutils
+        mean = mathutils.Vector(self._pivot_sum) / self._pivot_n
+        context.tool_settings.sculpt.stroke_pivot = ob.matrix_world @ mean
 
     def _apply_one_image(self, position, normal, world_radius, due, snake_delta=None):
         """Apply one dab image (primary or a symmetry mirror) through the active
@@ -823,6 +851,7 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
                 return
             position, normal, _face = hit
         world_radius = _world_radius(context, self.brush, position)
+        self._track_pivot(position)
         unified = context.tool_settings.sculpt.unified_paint_settings
         # Advance the stroke arc length and decide the dyntopo cadence once per
         # logical dab, so every mirror image remeshes on the same samples
@@ -915,6 +944,7 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         # The stroke mutated geometry (dabs applied before release/cancel), so
         # push its delta-undo step regardless of finish vs cancel.
         undo.push(context, ob, self.session)
+        self._publish_pivot(context, ob)
         context.area.tag_redraw()
         return {status}
 
@@ -1021,6 +1051,11 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
                 sc = self.session.brush_obj
                 sc.clearDeviceInputs()
                 sc.pushDeviceInput(mapping.DEVICE_PRESSURE, event.pressure)
+        # Only the last provisional dab survives the preview bracket, so the
+        # pivot replaces rather than accumulates (an average over every input
+        # would drag it back toward the stroke's first position).
+        self._pivot_sum = list(center)
+        self._pivot_n = 1
         self._preview_apply_image(center, normal, world_radius, extend=False,
                                   snake_delta=snake_delta)
         # Mirror images share the one preview bracket, so one rollback reverts
@@ -1051,6 +1086,9 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
             convert.flush(ob)
         if commit:
             undo.push(context, ob, self.session)
+            # A rolled-back preview left the mesh as the stroke found it, so it
+            # gets no say in the pivot.
+            self._publish_pivot(context, ob)
         context.area.tag_redraw()
         return {'FINISHED' if commit else 'CANCELLED'}
 
