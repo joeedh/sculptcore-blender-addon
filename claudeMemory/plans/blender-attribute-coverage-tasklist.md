@@ -85,6 +85,16 @@ The third leg. `Mesh.vertex_group_data_get`/`_set` (fork commit `9a098f3`) is
 the precedent for all of these: engine-agnostic, useful to any exporter or
 rigging script, and added because the Python-loop alternative was untenable.
 
+**F3, F2 and F4 are queued, in that order** — listed first below and mirrored
+into the session task list. F5 and F6 are not.
+
+- [ ] **F3. Any Python access at all to `CD_GRID_PAINT_MASK`.** There is
+  none — the string does not appear anywhere in `makesrna`. So the multires
+  sculpt mask (**3.4**) is not merely unbridged, it is *unreachable*: unlike
+  every other item on this page there is no addon-side workaround, and the fork
+  has to move first. That is why it leads: nothing else here blocks anyone but
+  us. `CD_MDISPS` was in exactly this position, which is why the fork already
+  carries the multires reshape API — this is the same gap, one layer over.
 - [ ] **F2. `Mesh`-level vertex group names.** The `vertex_group_names`
   ListBase lives on `Mesh` — `mesh_clear_geometry` frees it — but RNA exposes
   the names only through `Object.vertex_groups`; `rna_mesh.cc` has no
@@ -94,14 +104,9 @@ rigging script, and added because the Python-loop alternative was untenable.
   `ob.vertex_groups.clear()` + `.new()` invalidates live Python `VertexGroup`
   handles (this is a real trap — it broke the bridge's own test); and there is
   no bulk set, so it is one `.new()` per group. A `vertex_group_names_get`/
-  `_set` pair is the same shape and roughly the same size as F1.
-- [ ] **F3. Any Python access at all to `CD_GRID_PAINT_MASK`.** There is
-  none — the string does not appear anywhere in `makesrna`. So the multires
-  sculpt mask (**3.4**) is not merely unbridged, it is *unreachable*: unlike
-  every other item on this page there is no addon-side workaround, and the fork
-  has to move first. `CD_MDISPS` was in exactly this position, which is why the
-  fork already carries the multires reshape API — this is the same gap, one
-  layer over.
+  `_set` pair is the same shape and roughly the same size as F1 — it is F1's
+  missing other half. Landing it simplifies `_flush_vertex_groups` and retires
+  the stale-handle workaround in its test.
 - [ ] **F4. A bulk topology setter.** The rebuild is `clear_geometry()` +
   three `add()` calls + four `foreach_set` calls + `update(calc_edges=True)`
   (`convert.py:726-734`). `add()` preserves attribute layers but only *grows*;
@@ -382,6 +387,13 @@ everything else on demand.
 
 **E5** is a decision, not code, and can be recorded at any point. **E2** and
 **E6** only make sense as riders on E1.
+
+The fork work runs on its own track, since it lands in a different repo and
+gates different things: **F3** first (it unblocks 3.4, which nothing else can),
+then **F2** (retires the Object-level detour and the stale-handle trap the
+landed bridge lives with), then **F4** (the largest, and the one that would
+shrink this whole page rather than tick one line off it). **F5** and **F6** are
+not queued.
 
 1.4 (shape keys) is the item with the largest payoff — it is what decides
 whether the addon can be pointed at a production asset at all — and its
