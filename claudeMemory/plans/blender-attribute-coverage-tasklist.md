@@ -79,6 +79,62 @@ Nothing else on this page is engine work. In particular **1.2** (the edge
 domain) and **1.4** (shape keys) are pure addon work against types and domains
 the engine already carries.
 
+## Fork-side tasklist — what Blender's Python API is missing
+
+The third leg. `Mesh.vertex_group_data_get`/`_set` (fork commit `9a098f3`) is
+the precedent for all of these: engine-agnostic, useful to any exporter or
+rigging script, and added because the Python-loop alternative was untenable.
+
+- [ ] **F2. `Mesh`-level vertex group names.** The `vertex_group_names`
+  ListBase lives on `Mesh` — `mesh_clear_geometry` frees it — but RNA exposes
+  the names only through `Object.vertex_groups`; `rna_mesh.cc` has no
+  vertex-group property at all. Three costs, all of which the landed bridge
+  pays: restoring names needs the *Object*, so `_flush_vertex_groups` hangs off
+  `flush(ob)` instead of the mesh rebuild that actually dropped them;
+  `ob.vertex_groups.clear()` + `.new()` invalidates live Python `VertexGroup`
+  handles (this is a real trap — it broke the bridge's own test); and there is
+  no bulk set, so it is one `.new()` per group. A `vertex_group_names_get`/
+  `_set` pair is the same shape and roughly the same size as F1.
+- [ ] **F3. Any Python access at all to `CD_GRID_PAINT_MASK`.** There is
+  none — the string does not appear anywhere in `makesrna`. So the multires
+  sculpt mask (**3.4**) is not merely unbridged, it is *unreachable*: unlike
+  every other item on this page there is no addon-side workaround, and the fork
+  has to move first. `CD_MDISPS` was in exactly this position, which is why the
+  fork already carries the multires reshape API — this is the same gap, one
+  layer over.
+- [ ] **F4. A bulk topology setter.** The rebuild is `clear_geometry()` +
+  three `add()` calls + four `foreach_set` calls + `update(calc_edges=True)`
+  (`convert.py:726-734`). `add()` preserves attribute layers but only *grows*;
+  dyntopo also removes, which is why `clear_geometry()` is unavoidable, which
+  is why this whole page exists. A `Mesh.set_topology(positions, corner_verts,
+  face_offsets)` would be one call instead of eight, and could keep the layer
+  *declarations* (name/type/domain/active flags) across the rebuild even though
+  the per-element data is meaningless after a dyntopo pass — the addon would
+  write values instead of recreating layers. It could also take edges directly
+  rather than making Blender re-derive what the engine already knows. Biggest
+  lever here, and the biggest ask.
+- [ ] **F5. `Mesh.mselect`.** No RNA. Minor; wanted by **3.5**.
+- [ ] **F6. (optional) Bulk shape-key data get/set on `Mesh`.** Nothing is
+  strictly *missing* for **1.4** — `Object.shape_key_add` and
+  `KeyBlock.data.foreach_get("co")` both work — but it is Object-level and
+  per-block, so it has F2's shape. Worth doing only if 1.4's block-by-block
+  restore turns out to be slow or awkward in practice.
+
+**Checked and found present** — recorded so these do not get proposed:
+
+- Every Blender attribute type has an RNA value struct, including
+  `Short2AttributeValue` (which is what `custom_normal` is),
+  `Float4x4AttributeValue`, `Float4AttributeValue` and `ByteIntAttributeValue`.
+  All are reachable with `foreach_get`.
+- `foreach_get`/`foreach_set` handle `PROP_RAW_SHORT` and `PROP_RAW_INT8` with
+  a matching buffer format (`foreach_compat_buffer`, `bpy_rna.cc:6022`), so
+  16-bit and 8-bit attributes take the fast raw path given an `int16`/`int8`
+  numpy array. **1.1 and 2.3 are therefore engine-and-addon gaps, not RNA
+  gaps** — the host can already read the data.
+- Active color, default color, active UV and active attribute indices are all
+  exposed, so restoring the attribute *metadata* after `clear_geometry` needs
+  nothing new.
+
 ---
 
 ## Tier 1 — data a normal user can lose today
