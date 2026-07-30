@@ -32,10 +32,15 @@ Working notes Claude maintains for this repository. See the top-level
   data, the six active/default layer designations), the encoded `custom_normal`
   gap, the unbridged `EDGE` domain, loose edges, selection/hide state, shape
   keys, and the types with no engine equivalent — each with what it would take
-  and why it is ordered where it is. Fresh-context audited 2026-07-29; the two
-  engine prerequisites it uncovered (**E3** corner-domain merge dispatch, **E4**
-  merge-policy binding for host-created layers) are queued, and the corrections
-  are recorded at the end of the page so they do not get re-proposed.
+  and why it is ordered where it is. Fresh-context audited 2026-07-29, then
+  **adversarially pressure-tested 2026-07-30**, which broke considerably more
+  than the audit did: the two queued engine prerequisites (**E3**, **E4**) are
+  withdrawn, **E7** turned out to be a live bug (`collapseEdge` merges no vertex
+  attribute at all on the default path) and now leads the order, **1.6** was
+  redesigned to need no new engine type or handler, **1.9** and **1.2** are
+  re-filed out of addon-only work, **1.4** is gated behind a release-build heap
+  overflow, and **3.4** is un-done. Corrections from both passes are recorded at
+  the end of the page so they do not get re-proposed.
 - [research/grid-correspondence.md](research/grid-correspondence.md)
   — how the engine's multires grids line up with Blender's `CD_MDISPS`: the
   exact lattice transpose (an involution, so one table serves both directions),
