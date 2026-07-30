@@ -36,6 +36,49 @@ INT2 INT3 INT4 BYTE SHORT WEIGHTS`; `BYTE` is `uint8_t`, `SHORT` is `short`,
 and there is **no** `SHORT2`/`BYTE2` or any matrix type. `ElemType` does have
 `EDGE`.
 
+## Engine-side tasklist
+
+The whole of what the engine is missing, pulled to the front because it is
+short and because most of the tiers below turn out to need none of it — see
+*What of this is actually engine work* below for what was checked and found
+already present. Each item names the tier item that wants it.
+
+- [ ] **E1. `AttrType::SHORT2`** — a two-component 16-bit type. Wanted by
+  **1.1** (`custom_normal` is `CD_PROP_INT16_2D`). Four files: the
+  enumerator in `attribute_enums.h`, the
+  `T`→type mapping in `attribute_base.h`, `type_dispatch` in `attribute.h`, and
+  the `mesh_serialize.cc` switch. A `GPUType` too, but only if a shader ever
+  reads it.
+- [ ] **E2. A signed byte type** — `BYTE` is `uint8_t` and Blender's `INT8` is
+  signed, so the direct mapping corrupts negatives. Wanted by **2.3**. Same
+  four files as E1; only worth doing if the enum is already open for E1, since
+  the host can otherwise widen to `INT`.
+- [ ] **E3. A quaternion slerp `AttrMergeFn`** — wanted by **3.2**.
+  Component-wise averaging of two quaternions is unnormalized and passes
+  through zero when they are antipodal;
+  the handler needs the `dot < 0` sign flip. `AttrMerge::CUSTOM`,
+  `AttrRef::merge_fn` and `AttrMergeCtx` all exist already, with `mergeWeights`
+  as the worked example.
+- [ ] **E4. An encoded-normal `AttrMergeFn`** — decode, slerp, re-encode.
+  Wanted by **1.1**, and **not optional alongside E1**: shipping the storage
+  without the interpolator converts a
+  visible "normals were dropped" into a silent "normals are wrong". Same
+  handler shape as E3, so they likely land together.
+- [ ] **E5. Decide whether the edge and face domains ever need real
+  interpolation.** Every `interpAttrs` call site passes `m.v.attrs` or
+  `m.c.attrs` — never `e` or `f`, which get row copy/union instead. That is
+  correct for seam, sharp, material and face set, and defensible for crease and
+  bevel weight, but an edge collapse welding two edges with different creases
+  takes the first rather than the max. This is a decision to record, not
+  necessarily code to write; the point is that the limit should stop being
+  accidental.
+- [ ] **E6. (optional) `AttrUse` tags for shape keys and custom normals**, so
+  the semantics survive a round trip the way `UV` and `COLOR` do.
+
+Nothing else on this page is engine work. In particular **1.2** (the edge
+domain) and **1.4** (shape keys) are pure addon work against types and domains
+the engine already carries.
+
 ---
 
 ## Tier 1 — data a normal user can lose today
@@ -263,25 +306,9 @@ sites, not the headers.
   goes through `type_dispatch` (`spatial_gpu.cc:201`) — picks it up. A
   `GPUType` is only needed if a shader ever reads it.
 
-**Genuinely missing, engine-side:**
-
-- [ ] **`SHORT2`** — for 1.1. There is `SHORT` (`short`) but no two-component
-  16-bit type. Four files, per above.
-- [ ] **A signed byte type** — for 2.3. `BYTE` is `uint8_t`. Only worth adding
-  if the enum is being opened for `SHORT2` anyway; otherwise widen host-side.
-- [ ] **Two `AttrMergeFn` handlers** in `attr_merge.cc` — slerp for quaternions
-  (3.2) and decode/slerp/encode for encoded normals (1.1). The machinery
-  (`AttrMerge::CUSTOM`, `AttrRef::merge_fn`, `AttrMergeCtx`) already exists and
-  `mergeWeights` is the worked example.
-- [ ] **No interpolation path for the edge or face domains.** Every
-  `interpAttrs` call site passes `m.v.attrs` or `m.c.attrs` — never `e` or `f`.
-  Copy-or-union is *correct* for what lives there now (seam, sharp, material,
-  face set) and defensible for crease and bevel weight, but it means an edge
-  collapse that welds two edges with different crease values takes the first
-  rather than the max. Only worth building if a real edge attribute needs real
-  blending; note it so the limit is a decision rather than a surprise.
-- [ ] Optionally, **`AttrUse` tags** for shape keys and custom normals, so the
-  semantics survive a round trip the way `UV` and `COLOR` do.
+**Genuinely missing** — the six items are the
+*Engine-side tasklist* at the top of this page; they are
+not repeated here.
 
 **Shape keys (1.4) need nothing at all.** `FLOAT3` on the point domain with
 the default lerp. The only engine-side question is cost, not capability: N
@@ -293,8 +320,12 @@ against.
 ## Suggested order
 
 3.1 (one line) → 1.2's logging half (one line, makes the silent case visible) →
-1.1 (the real user-facing loss) → 3.2 (rides along with 1.1's merge handler) →
-1.3 → everything else on demand.
+1.1 with **E1 + E4** (the real user-facing loss, and the only place engine work
+gates addon work) → 3.2 with **E3** (rides along with E4's handler) → 1.3 →
+everything else on demand.
+
+**E5** is a decision, not code, and can be recorded at any point. **E2** and
+**E6** only make sense as riders on E1.
 
 1.4 (shape keys) is the item with the largest payoff — it is what decides
 whether the addon can be pointed at a production asset at all — and its
