@@ -26,6 +26,11 @@ Working notes Claude maintains for this repository. See the top-level
   bulk CSR accessor and the `convert.py` bridge. Fixes the `clear_geometry()`
   weight loss on the dyntopo flush path. **Landed** — every phase is marked up
   in the plan, with the two open follow-ups recorded under *Ordering and gates*.
+- [plans/blender-attribute-coverage-tasklist.md](plans/blender-attribute-coverage-tasklist.md)
+  — the backlog of Blender mesh data the bridge still drops on a topology
+  rebuild: the `INT16_2D` custom-normal gap, the entirely unbridged `EDGE`
+  domain, selection/hide state, shape keys, and the types with no engine
+  equivalent — each with what it would take and why it is ordered where it is.
 - [research/gpu-brush-evaluation-in-blender.md](research/gpu-brush-evaluation-in-blender.md)
   — how the engine's GPU brush stack could drive strokes under the addon: the
   existing marshal/dispatch seams, engine-owned wgpu vs. compute on Blender's
