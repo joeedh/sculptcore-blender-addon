@@ -237,6 +237,59 @@ save and restore it around the rebuild, host-side.
 
 ---
 
+## What of this is actually engine work
+
+Almost none of it, which is worth stating plainly because the list above reads
+like an engine backlog and mostly is not one. Verified by reading the call
+sites, not the headers.
+
+**Already there, no work needed:**
+
+- **All four domains have attribute groups.** `Mesh` carries `v/e/c/f.attrs`,
+  `attrGroupForDomainFlag` maps the `ElemType` bits onto them, and the C API's
+  `mesh_elem_domain` (`mesh_c_api.cc:372`) already accepts `EDGE`. So
+  `Mesh_writeAttr(m, 2, …)` works today — item 1.2 is entirely addon-side.
+- **Edge and face attributes already survive topology operators.** Not by
+  interpolation, by row copy: `edge_split.h:89/172` snapshots the parent edge's
+  row and restores it onto the child; `edge_collapse.h:551-554` restores onto
+  the survivor and `unionBoolAttrRow`s the rows of edges that welded into it;
+  `subdivide.h` and `split.h` do the equivalent for faces and corners.
+- **The meshlog logs all four domains** (`meshlog_base.h:379-391`), so anything
+  stored is already undoable.
+- **Adding an `AttrType` is a four-file change.** The only exhaustive switches
+  on it are `attribute.h`'s `type_dispatch` and `mesh_serialize.cc`; add the
+  enumerator in `attribute_enums.h` and the `T`→type mapping in
+  `attribute_base.h` and every generic path — including the GPU upload, which
+  goes through `type_dispatch` (`spatial_gpu.cc:201`) — picks it up. A
+  `GPUType` is only needed if a shader ever reads it.
+
+**Genuinely missing, engine-side:**
+
+- [ ] **`SHORT2`** — for 1.1. There is `SHORT` (`short`) but no two-component
+  16-bit type. Four files, per above.
+- [ ] **A signed byte type** — for 2.3. `BYTE` is `uint8_t`. Only worth adding
+  if the enum is being opened for `SHORT2` anyway; otherwise widen host-side.
+- [ ] **Two `AttrMergeFn` handlers** in `attr_merge.cc` — slerp for quaternions
+  (3.2) and decode/slerp/encode for encoded normals (1.1). The machinery
+  (`AttrMerge::CUSTOM`, `AttrRef::merge_fn`, `AttrMergeCtx`) already exists and
+  `mergeWeights` is the worked example.
+- [ ] **No interpolation path for the edge or face domains.** Every
+  `interpAttrs` call site passes `m.v.attrs` or `m.c.attrs` — never `e` or `f`.
+  Copy-or-union is *correct* for what lives there now (seam, sharp, material,
+  face set) and defensible for crease and bevel weight, but it means an edge
+  collapse that welds two edges with different crease values takes the first
+  rather than the max. Only worth building if a real edge attribute needs real
+  blending; note it so the limit is a decision rather than a surprise.
+- [ ] Optionally, **`AttrUse` tags** for shape keys and custom normals, so the
+  semantics survive a round trip the way `UV` and `COLOR` do.
+
+**Shape keys (1.4) need nothing at all.** `FLOAT3` on the point domain with
+the default lerp. The only engine-side question is cost, not capability: N
+extra float3 vertex columns grow the meshlog row linearly, so undo memory
+scales with the key count. `AttrUse::SCULPT_LAYER` is already exactly this
+shape (a float3 vertex passenger column) and is the precedent to measure
+against.
+
 ## Suggested order
 
 3.1 (one line) → 1.2's logging half (one line, makes the silent case visible) →
