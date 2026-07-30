@@ -340,15 +340,58 @@ was already correct and did not change.
 
 ### E5 — serialization
 
-`source/mesh/mesh_serialize.cc`.
+`source/mesh/mesh_serialize.{h,cc}`. **Landed**, at format version **6**
+(`kMeshFormatVersion`, the one constant writer, reader, and fixture generator
+all read).
 
-- Compact the pool at save time — order slots by first referencing vertex — so
-  the on-disk indices are dense and the "remap" is just the compaction map.
-- Write the pool (runs + slot table) and `group_names` as a companion blob
-  alongside the column, byte-swapped like everything else.
-- On load: rebuild the pool, re-intern, restore refcounts from the column.
-  Merge policy and `AttrUse` are re-derived by name on load already, so nothing
+A WEIGHTS cell is bit-identical to an int, so the existing `type_dispatch`
+already gathers, byte-swaps and writes it correctly — and that is exactly the
+problem: the bytes are *pool indices*, meaningless without the pool and
+dangerous if restored without refcounts. So the column travels as-is and
+everything else is new.
+
+- **Compaction on write.** A `WeightRemap` (a `Map<int,int>` plus a dense→slot
+  vector) assigns dense ids in the order the write pass meets slots — domains in
+  file order, elements in dense order — so the saved pool has no holes whatever
+  the live one looked like, and reloads with the mesh's own locality. Dense 0 is
+  pinned to the empty run, matching the live pool's slot 0. `remapWeightColumn`
+  rewrites each gathered column in place right after `gatherColumn`.
+- **One section, appended last.** The pool is written after all five domains
+  *and* the v3 sculpt-layer table — not beside its column — because `remap` is
+  only complete once every domain has been gathered. Layout: `uint32 slotCount`,
+  then per slot `uint32 runLen` and `(int32 group, float weight)` entries, then
+  `uint32 groupNameCount` and the names. `slotCount == 0` means "no pool", which
+  is distinct from a pool holding only the empty run. Everything goes through
+  `BinFile`, so byte-swap is free; `scalarSize()` already returned 4 for WEIGHTS.
+- **Pool before columns on read.** `AttrGroup::ensure` *asserts* the group has a
+  `deform_pool` before it will create a WEIGHTS column, so `readMesh` calls
+  `mesh.deformPool()` ahead of `buildDomain` whenever the file has a pool
+  section or (`hasWeightColumn`) any WEIGHTS column at all.
+- **`buildDomain` skips WEIGHTS entirely.** A raw copy would install dense ids
+  as live slot indices and take no reference — a double-release at teardown,
+  since `~AttrGroup`, `remove_attr`, `shrink_capacity` and `set_default` all
+  release WEIGHTS references. The cells stay at the empty run until:
+- **`restoreWeights`** interns each dense run once, then walks every WEIGHTS
+  column writing cells through `reassign` (which retains), and finally releases
+  each `intern()` reference exactly once. That ledger is what `auditRefcounts`
+  checks in the test.
+- **v5 → v6 migration** zeroes any WEIGHTS bytes it finds rather than
+  reconstructing: a v5 file's indices point into a pool that was never written.
+  No file with real weights predates v6 — E1–E4 landed while the version was
+  still 5, and the pool section and the bump landed together. The existing
+  `test_load_fixture("mesh_v5.bin")` exercises that path for free.
+- Merge policy and `AttrUse` are re-derived by name on load already, so nothing
   new is serialized for those.
+- **Tests.** `tests/test_mesh_serialize.cc::test_weights_roundtrip` builds a
+  4×4 grid whose runs are position-derived across three shapes (so several verts
+  sharing one slot is the common case), then deliberately creates *two* kinds of
+  pool hole — a run named only by a killed vertex (its cell keeps the reference,
+  so the slot is live but unreachable) and a run overwritten then swept — before
+  saving. On the loaded mesh it asserts every run round-tripped, `group_names`
+  survived, `liveSlotCount() == 3` (compaction dropped both holes), and
+  `auditRefcounts(roots) == 0`. `fixtures/mesh_v6.bin` is checked in and loaded
+  by `test_load_fixture`. Commenting out `restoreWeights` was confirmed to fail
+  the test, so it is not vacuous. Payload budget unchanged (20528 / 22500).
 
 ### E6 — c-api
 
@@ -376,7 +419,8 @@ ctypes boundary.
   bit-identical after remeshing, and must be a correct lerp across a boundary.
 - **Threading stress**: N threads interpolating and capturing concurrently, run
   under TSan. Assert the audit afterward.
-- Serialize round trip, including a mesh whose pool has holes before saving.
+- ~~Serialize round trip, including a mesh whose pool has holes before saving.~~
+  **Done in E5** (`test_mesh_serialize.cc::test_weights_roundtrip`).
 - `save_weights` / `assert_weights` debug-app verbs mirroring the existing
   `save_pos` / `assert_pos` undo-fidelity pair (`engine/CLAUDE.md` § Debug app),
   so `save_weights … stroke … undo … assert_weights` is a scriptable regression.
