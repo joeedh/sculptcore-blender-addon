@@ -300,22 +300,43 @@ and plain mesh ownership of the pool; both were wrong.
 
 ### E4 — the merge handler
 
-`source/mesh/attr_merge.cc`, registered in `resolveMergePolicy` (line 225) by
-layer name, exactly like `mergeOrigNormal` / `mergeSculptLayerRest`.
+`source/mesh/attr_merge.cc`. **Landed**, replacing E2's interim carry-src0 rule;
+the registration (type-keyed in `resolveMergePolicy`, not name-keyed — see E2)
+was already correct and did not change.
 
-Signature is `void(AttrRef &, const AttrMergeCtx &)`. `AttrMergeCtx` already
-carries `Mesh *mesh` (`attr_interp.h:220-234`), so the handler reaches the pool
-with no ABI change to the context.
+`AttrMergeCtx` already carried everything needed (`grp->deform_pool`, `src0`,
+`src1`, `t`), so there was no ABI change to the context.
 
-Behavior: union the two sparse runs, `lerp(w0, w1, ctx.t)` treating a group
-absent from one side as weight 0, drop sub-epsilon entries, cap the influence
-count, then intern. Do **not** auto-normalize — Blender does not, and a sculpt
-operation silently renormalizing a rigged mesh would be a worse bug than the one
-this fixes. `COPY_SRC0` semantics for the degenerate cases, matching
-`defaultMerge` (`attr_merge.cc:48`).
-
-This is the engine's **first merge handler that allocates**, which is why E1's
-concurrency work is a precondition rather than a follow-up.
+- **Value rule**: union the two sparse runs — both are canonicalized
+  group-ascending, so it is one merge walk — with `lerp(w0, w1, ctx.t)` and a
+  group absent from one side weighing **0** there, not "unchanged". Then drop
+  sub-epsilon entries, cap the influence count, intern, and `reassign` the
+  result in (releasing `intern`'s own reference).
+- **Not normalized**, deliberately. Blender does not renormalize on
+  interpolation, and a sculpt operation silently rescaling a rigged mesh's
+  weights would be a worse bug than the one this fixes. The
+  `testMergeInterpolates` case sums to 1.5 precisely to pin that.
+- **Endpoint fast paths**: `src0 == src1` (a collapse), `t <= 0` or `t >= 1`
+  take the existing interned run whole and skip the intern entirely. This is
+  both the common case and what makes a collapse exactly a copy.
+- **Two growth bounds**, because interpolation is transitive — a dyntopo region
+  resplit repeatedly feeds every merge its own output:
+  - `WEIGHT_MERGE_EPSILON` (1e-5f, the smallest weight a 16-bit UI slider can
+    express) drops noise entries, or a run accumulates groups it can never lose,
+    one denormal at a time, until it starts evicting real influences.
+  - the cap at `DEFORM_MAX_INFLUENCES` keeps the **strongest** entries, by
+    magnitude rather than value (weights are not required to be positive). It
+    sorts by magnitude and truncates without re-sorting, since `intern()`
+    canonicalizes back to group order anyway.
+- This is the engine's **first merge handler that allocates** — `intern()` takes
+  a shard lock — which is why the pool being thread-safe from the start was a
+  precondition rather than a follow-up.
+- `tests/test_weights_attr.cc` gained `testMergeInterpolates` (union,
+  absent-is-zero, no normalization), `testMergeEndpoints` (t=0, t=1, and the
+  collapse case, each asserting the *slot* is shared, not merely equal) and
+  `testMergeBounds` (epsilon drop; 32+32 disjoint groups capping to 32). Each
+  ends in an `auditRefcounts` check, so a handler that leaks or under-counts
+  fails on accounting even when its arithmetic is right.
 
 ### E5 — serialization
 
