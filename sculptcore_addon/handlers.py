@@ -34,12 +34,30 @@ def _tag_view3d_redraw():
                 area.tag_redraw()
 
 
+# Both level-sync paths re-evaluate the depsgraph, which fires this handler
+# again; the nested pass would act on half-updated session bookkeeping.
+_syncing_multires = False
+
+
 def _sync_multires_levels():
-    """Follow the multires modifier's sculpt level (C2): when the user moves
-    ``sculpt_levels`` in the modifier UI, switch the session's active engine
-    level. Cheap when nothing changed (a dict scan and an int compare)."""
+    """Follow the multires modifier's levels: its *count* (C5 — the user clicked
+    Subdivide or Delete Higher, so the engine stack gains or drops a level) and
+    then its sculpt level (C2 — a ``sculpt_levels`` move switches the session's
+    active engine level). Cheap when nothing changed (a dict scan and two int
+    compares)."""
     from . import convert
 
+    global _syncing_multires
+    if _syncing_multires:
+        return
+    _syncing_multires = True
+    try:
+        _sync_multires_levels_inner(convert)
+    finally:
+        _syncing_multires = False
+
+
+def _sync_multires_levels_inner(convert):
     for name in list(engine.sessions):
         session = engine.sessions[name]
         if not session.multires_ptr:
@@ -50,6 +68,9 @@ def _sync_multires_levels():
         md = multires.modifier(ob)
         if md is None:
             continue
+        if md.total_levels != session.multires_level:
+            convert.sync_multires_total_levels(ob)
+            _tag_view3d_redraw()
         want = min(max(md.sculpt_levels, 1), session.multires_level)
         if want != session.multires_active_level:
             convert.set_multires_level(ob, want)

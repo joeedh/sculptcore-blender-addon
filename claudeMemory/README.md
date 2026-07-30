@@ -32,6 +32,13 @@ Working notes Claude maintains for this repository. See the top-level
   domain, selection/hide state, shape keys (a `FLOAT3` point attribute per key
   block — no new engine or fork support needed), and the types with no engine
   equivalent — each with what it would take and why it is ordered where it is.
+- [research/grid-correspondence.md](research/grid-correspondence.md)
+  — how the engine's multires grids line up with Blender's `CD_MDISPS`: the
+  exact lattice transpose (an involution, so one table serves both directions),
+  the fork's `Object.multires_grid_vert_indices` primitive that supplies grid
+  sample → subdivided vertex, why the exchange is in absolute positions, and the
+  KD-tree nearest-neighbour pairing this replaced — the cause of the "grid
+  borders snap to zero at level ≥ 3" bug.
 - [research/gpu-brush-evaluation-in-blender.md](research/gpu-brush-evaluation-in-blender.md)
   — how the engine's GPU brush stack could drive strokes under the addon: the
   existing marshal/dispatch seams, engine-owned wgpu vs. compute on Blender's

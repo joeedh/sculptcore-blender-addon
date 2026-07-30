@@ -71,6 +71,11 @@ class Session:
         # Store snapshot after the latest undo push (bytes) — the next push's
         # pre-state, and the C4 blob-fallback base for level-crossing undo.
         "multires_last_blob",
+        # The modifier's stack and the engine's have diverged in a way only a
+        # re-enter can fix (the base cage was rebuilt, or the engine would not
+        # follow a level-count change). Latches so the level-sync handler, which
+        # runs on every depsgraph update, reports it once instead of per update.
+        "multires_desynced",
         # User attribute layers (UV maps, colors, custom attrs) seeded into the
         # engine on enter and recreated on the Blender mesh after a topology
         # rebuild (which drops all customdata). A list of descriptor dicts; see
@@ -112,6 +117,7 @@ class Session:
         self.multires_active_level = 0
         self.multires_show_viewport = True
         self.multires_last_blob = None
+        self.multires_desynced = False
         self.bridged_attrs = []
         self.color_attr_name = None
         self.uv_dirty = False

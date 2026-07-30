@@ -161,6 +161,27 @@ def enter(ob):
     return session
 
 
+def _eval_multires_top(ob, md, level):
+    """Blender's displaced top-level surface in subdiv-vertex order, plus the
+    depsgraph it was read through. `md.levels` is restored, but the modifier's
+    viewport display is left ON for the caller to deal with: enter has to
+    remember the pre-mode value before suppressing it, a mid-session restack
+    only has to suppress it again."""
+    import bpy
+    import numpy as np
+
+    prev_levels = md.levels
+    md.show_viewport = True
+    md.levels = level
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    depsgraph.update()
+    eval_mesh = ob.evaluated_get(depsgraph).data
+    top = np.empty(len(eval_mesh.vertices) * 3, dtype=np.float64)
+    eval_mesh.vertices.foreach_get("co", top)
+    md.levels = prev_levels
+    return top.reshape(-1, 3), depsgraph
+
+
 def _enter_multires(ob, md):
     """Multires enter (P8): build an engine Multires stack over the base cage,
     import the object's displaced top-level surface (CD_MDISPS via the
@@ -180,28 +201,14 @@ def _enter_multires(ob, md):
 
     base_arrays = _gather_arrays(ob.data)
 
-    # The displaced top-level surface in subdiv-vertex order: evaluate the
-    # modifier at its top level, then suppress it for the mode's lifetime.
     prev_show = md.show_viewport
-    prev_levels = md.levels
-    md.show_viewport = True
-    md.levels = level
-    depsgraph = context.evaluated_depsgraph_get()
-    depsgraph.update()
-    eval_mesh = ob.evaluated_get(depsgraph).data
-    top = np.empty(len(eval_mesh.vertices) * 3, dtype=np.float64)
-    eval_mesh.vertices.foreach_get("co", top)
-    top = top.reshape(-1, 3)
-    md.levels = prev_levels
+    top, depsgraph = _eval_multires_top(ob, md, level)
     md.show_viewport = False
 
     mr = cage = None
     try:
         mr, cage = multires.build_engine(base_arrays, level)
-        mr_map = multires.build_map(context, base_arrays, mr, level)
-        if len(top) != len(mr_map.blender_to_engine_sample):
-            raise ConvertError(
-                "SculptCore: multires subdiv vertex count mismatch on {!r}".format(ob.name))
+        mr_map = multires.build_map(ob, depsgraph, mr, level, len(top))
         multires.import_displacement(mr, mr_map, top)
     except Exception:
         if mr:
@@ -871,6 +878,100 @@ def multires_restore_blob(ob, session, blob, level):
     # The store now equals this blob; a new stroke branches from here.
     session.multires_last_blob = blob
     return True
+
+
+def _multires_desync(session, reason):
+    """Report a modifier/engine divergence that only a re-enter can fix, once
+    per session — the level-sync handler that gets here runs on every depsgraph
+    update, so an unlatched print would repeat for as long as the mode is on."""
+    if session.multires_desynced:
+        return
+    session.multires_desynced = True
+    print("SculptCore: {}; exit and re-enter the mode to rebuild the engine "
+          "multires stack".format(reason))
+
+
+def sync_multires_total_levels(ob):
+    """Follow the modifier's *level count* (C5): mirror Subdivide and Delete
+    Higher into the engine stack so the two never disagree about how deep the
+    hierarchy is.
+
+    `Multires_addLevel` appends a smooth subdivision of the engine's current
+    finest surface and `Multires_removeTopLevel` pops one, both preserving the
+    surviving levels' displacement — so the engine keeps its own per-level
+    decomposition instead of re-deriving everything from Blender's freshly
+    subdivided CD_MDISPS (which would leave the coarse levels smooth and lose
+    level switching's coarse edits).
+
+    The grid lattice grows with the level, so the sample map is rebuilt. The
+    paint mask lives on the level meshes that the restack drops, so it is
+    re-seeded from CD_GRID_PAINT_MASK — current as of the last flush, since
+    every stroke end bakes it out; only an in-stroke mask edit is lost.
+
+    Two divergences cannot be repaired here, and both mark the session desynced
+    (reported once — the caller runs on every depsgraph update) and wait for a
+    re-enter: a base-cage change (Unsubdivide, Apply Base), which invalidates
+    the whole stack rather than just its depth, and an engine stack that will
+    not step all the way to the modifier's count. The second is unreachable
+    short of the engine's level cap, but it cannot be papered over either: the
+    exchange is keyed on Blender's *top* level, so tables built at a shallower
+    engine depth would not even match sample counts."""
+    import bpy
+
+    session = engine.sessions.get(ob.name)
+    if session is None or not session.multires_ptr or session.multires_desynced:
+        return
+    md = multires.modifier(ob)
+    if md is None:
+        return
+    lib = engine.capi().lib
+    want = int(md.total_levels)
+    have = lib.Multires_maxLevel(session.multires_ptr)
+    if want == have or want < 1 or have < 1:
+        return
+    if len(ob.data.vertices) != session.blender_verts_num:
+        _multires_desync(session, "{!r}'s multires base cage changed ({} -> {} verts)".format(
+            ob.name, session.blender_verts_num, len(ob.data.vertices)))
+        return
+
+    while have < want:
+        stepped = lib.Multires_addLevel(session.multires_ptr)
+        if stepped <= have:
+            break
+        have = stepped
+    while have > want and have > 1:
+        stepped = lib.Multires_removeTopLevel(session.multires_ptr)
+        if stepped >= have:
+            break
+        have = stepped
+    session.multires_level = have
+    if have != want:
+        # Partially restacked: rebind first or mesh_ptr/tree_ptr keep naming a
+        # slot the stepping dropped. The sample map stays stale, which the
+        # desync flag is there to stop anything from building on.
+        _rebind_multires_views(session, lib.Multires_setActiveLevel(session.multires_ptr, have))
+        _multires_desync(session, "engine multires stack stopped at level {} of {} on {!r}".format(
+            have, want, ob.name))
+        return
+
+    # Rebuild the correspondence at the new depth and re-point the session at
+    # the (new) finest level, which addLevel/removeTopLevel left active.
+    top, depsgraph = _eval_multires_top(ob, md, have)
+    md.show_viewport = False
+    session.multires_map = multires.build_map(ob, depsgraph, session.multires_ptr, have, len(top))
+    _rebind_multires_views(session, lib.Multires_setActiveLevel(session.multires_ptr, have))
+    multires.import_mask(ob, bpy.context.evaluated_depsgraph_get(),
+                         session.mesh_ptr, session.multires_map)
+    if session.draw_key:
+        lib.sc_external_draw_update(session.draw_key)
+
+    # The restack is the pre-state for the next undo push (C4); the old blob
+    # describes a store with a different number of levels.
+    session.multires_last_blob = multires_store_blob(session)
+
+    sculpt_level = min(max(md.sculpt_levels, 1), have)
+    if sculpt_level != have:
+        set_multires_level(ob, sculpt_level)
 
 
 def set_multires_level(ob, level):

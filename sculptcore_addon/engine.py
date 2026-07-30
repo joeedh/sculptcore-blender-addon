@@ -185,6 +185,15 @@ class _CApi:
         lib.Multires_fromLevelPositions.restype = ctypes.c_int
         lib.Multires_writeback.argtypes = [ctypes.c_void_p, ctypes.c_int]
         lib.Multires_writeback.restype = ctypes.c_int
+        # Level count mutation (P8 C5): follow the modifier's Subdivide /
+        # Delete Higher so both stacks keep the same number of levels. Each
+        # returns the new maxLevel and leaves the finest level active.
+        lib.Multires_maxLevel.argtypes = [ctypes.c_void_p]
+        lib.Multires_maxLevel.restype = ctypes.c_int
+        lib.Multires_addLevel.argtypes = [ctypes.c_void_p]
+        lib.Multires_addLevel.restype = ctypes.c_int
+        lib.Multires_removeTopLevel.argtypes = [ctypes.c_void_p]
+        lib.Multires_removeTopLevel.restype = ctypes.c_int
         # Store snapshot seam (P8 C4): serialize returns an engine-owned
         # buffer (free with freeMeshBuffer); restore replaces the store and
         # invalidates every derived level (re-activate + re-fetch afterwards).

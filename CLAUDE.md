@@ -20,8 +20,11 @@ This addon is one of three coupled repositories:
   checkout, e.g. `C:\dev\blender\main`). Carries only the engine-agnostic core
   changes that make Python-registered custom object modes possible:
   `OB_MODE_CUSTOM`, the `bpy.types.ObjectModeType` RNA type, custom-mode undo,
-  the external draw provider hooks, the multires reshape API, and
-  `Mesh.vertex_group_data_get`/`_set` (bulk CSR read/write of the whole
+  the external draw provider hooks, the multires reshape API,
+  `Object.multires_grid_vert_indices` (which grid sample is which subdivided
+  vertex — the pairing every reshape walk computes internally and none exposed;
+  see [claudeMemory/research/grid-correspondence.md](./claudeMemory/research/grid-correspondence.md)),
+  and `Mesh.vertex_group_data_get`/`_set` (bulk CSR read/write of the whole
   `MDeformVert` table — the addon's vertex-group bridge would otherwise be a
   Python loop over every vertex and influence). It knows nothing about
   SculptCore. A stock Blender without these changes cannot load this addon's
