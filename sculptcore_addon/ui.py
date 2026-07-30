@@ -34,6 +34,15 @@ def _in_mode(context):
     )
 
 
+def _on_multires(context):
+    """True while the active object's session sculpts a multires level. Dyntopo
+    is refused there (a level mesh is derived from the grid store)."""
+    if not _in_mode(context):
+        return False
+    session = engine.sessions.get(context.active_object.name)
+    return session is not None and session.multires_ptr is not None
+
+
 class SCULPTCORE_PT_brush_engine(bpy.types.Panel):
     """Engine-side brush state the vanilla panels don't cover: support
     warnings and the kernel's engine-only uniforms (generated group, M2).
@@ -152,7 +161,9 @@ class SCULPTCORE_PT_dyntopo(bpy.types.Panel):
         return _in_mode(context)
 
     def draw_header(self, context):
-        self.layout.prop(context.scene, "sculptcore_dyntopo", text="")
+        header = self.layout
+        header.enabled = not _on_multires(context)
+        header.prop(context.scene, "sculptcore_dyntopo", text="")
 
     def draw(self, context):
         layout = self.layout
@@ -160,8 +171,12 @@ class SCULPTCORE_PT_dyntopo(bpy.types.Panel):
         layout.use_property_decorate = False
         sculpt = context.tool_settings.sculpt
 
+        on_multires = _on_multires(context)
+        if on_multires:
+            layout.label(text="Unavailable with Multires", icon='INFO')
+
         col = layout.column()
-        col.active = context.scene.sculptcore_dyntopo
+        col.active = context.scene.sculptcore_dyntopo and not on_multires
         if sculpt.detail_type_method in {'CONSTANT', 'MANUAL'}:
             col.prop(sculpt, "constant_detail_resolution")
         elif sculpt.detail_type_method == 'BRUSH':

@@ -12,6 +12,8 @@ the Sculpt and Face Sets menus land with their engine operators.
 
 import bpy
 
+from . import ui
+
 _MODE = "sculptcore.sculpt"
 
 
@@ -86,8 +88,11 @@ class SCULPTCORE_MT_sculpt(bpy.types.Menu):
     def draw(self, context):
         layout = self.layout
         # Vanilla's "Dynamic Topology Toggle"; the engine's dyntopo is a
-        # scene property, so a prop toggle replaces the operator.
-        layout.prop(context.scene, "sculptcore_dyntopo", text="Dynamic Topology")
+        # scene property, so a prop toggle replaces the operator. Greyed on a
+        # multires session, which refuses remeshing (see ui._on_multires).
+        row = layout.row()
+        row.enabled = not ui._on_multires(context)
+        row.prop(context.scene, "sculptcore_dyntopo", text="Dynamic Topology")
 
 
 class SCULPTCORE_MT_face_sets(bpy.types.Menu):

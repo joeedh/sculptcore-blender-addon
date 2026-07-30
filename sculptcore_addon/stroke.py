@@ -588,7 +588,12 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         self._dyntopo = None
         self._program = None
         self._detail_factor = None
+        # A multires level mesh is derived from the grid store, so remeshing it
+        # strands every level's displacement and the grid map; the engine
+        # refuses the dab (Mesh::topoLocked) and this keeps the stroke from
+        # opening a topology-logging undo step for changes that never come.
         if (not self._grab_class and not kernel_toggle
+                and self.session.multires_ptr is None
                 and getattr(scene, "sculptcore_dyntopo", False)):
             self._program = build_program(self.session, self.kernel, smooth_factor)
             # Detail size from Blender's dyntopo settings (see

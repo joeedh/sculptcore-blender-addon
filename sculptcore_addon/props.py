@@ -46,7 +46,9 @@ def register():
         ))
     bpy.types.Scene.sculptcore_dyntopo = bpy.props.BoolProperty(
         name="Dynamic Topology",
-        description="Dynamically remesh under the brush while sculpting",
+        description="Dynamically remesh under the brush while sculpting. "
+                    "Unavailable while sculpting a multires level, whose "
+                    "topology comes from the subdivision grids",
         default=False,
     )
     # Detail size/mode come from Blender's own dyntopo settings

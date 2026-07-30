@@ -43,6 +43,23 @@ Working notes Claude maintains for this repository. See the top-level
   sample → subdivided vertex, why the exchange is in absolute positions, and the
   KD-tree nearest-neighbour pairing this replaced — the cause of the "grid
   borders snap to zero at level ≥ 3" bug.
+- [design/multires-object-space-cascade.md](design/multires-object-space-cascade.md)
+  — **design only, nothing implemented.** Moving multires displacement from
+  tangent-frame to object-space storage with an automatic downward cascade into
+  the coarser levels and the cage: why the tangent frame is a lever arm that
+  amplifies frame error by `|d|` (and why the cross field's ±90° ambiguity is the
+  sharp edge, not float drift), the decided target model, the
+  translate-but-don't-rotate flaw in object space and the delta-rotation fix, the
+  bake-ordering trap that would silently undo the whole cascade, and the six
+  open questions — chiefly whether the downward fit makes cage state
+  path-dependent. Carries an engine-side scope breakdown (~600–900 lines under
+  `source/subdiv/`; the masked CG solver is the one delicate piece) with a
+  seven-phase order and the v1 descope. Fresh-context audited 2026-07-30: the
+  export-conditioning payoff **did not survive** (Blender measures MDisps against
+  the base cage, so redistributing among levels changes it by zero — only cage
+  motion helps), and the audit also turned up a missing cage undo channel, a
+  version gate that accepts the old format, and the delta rotation's
+  path-dependence. Corrections are folded in and flagged in place.
 - [research/gpu-brush-evaluation-in-blender.md](research/gpu-brush-evaluation-in-blender.md)
   — how the engine's GPU brush stack could drive strokes under the addon: the
   existing marshal/dispatch seams, engine-owned wgpu vs. compute on Blender's
