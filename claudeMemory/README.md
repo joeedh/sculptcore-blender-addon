@@ -29,7 +29,8 @@ Working notes Claude maintains for this repository. See the top-level
 - [plans/blender-attribute-coverage-tasklist.md](plans/blender-attribute-coverage-tasklist.md)
   — the backlog of Blender mesh data the bridge still drops on a topology
   rebuild: the `INT16_2D` custom-normal gap, the entirely unbridged `EDGE`
-  domain, selection/hide state, shape keys, and the types with no engine
+  domain, selection/hide state, shape keys (a `FLOAT3` point attribute per key
+  block — no new engine or fork support needed), and the types with no engine
   equivalent — each with what it would take and why it is ordered where it is.
 - [research/gpu-brush-evaluation-in-blender.md](research/gpu-brush-evaluation-in-blender.md)
   — how the engine's GPU brush stack could drive strokes under the addon: the

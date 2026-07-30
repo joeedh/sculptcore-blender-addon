@@ -102,21 +102,44 @@ receiving end exists. The task is to carve named exceptions out of
 `_SKIP_ATTR_NAMES`'s dot rule rather than to loosen the rule — the rule is
 right for topology links.
 
-### [ ] 1.4 Shape keys
+### [ ] 1.4 Shape keys — one `FLOAT3` point attribute per key block
 
-Currently a hard refusal at `enter()` (`convert.py:97`), which is honest and
-the right v1 behaviour. But it means the addon simply cannot be used on any
-rigged or corrective-shape asset, which is most production geometry.
+Currently a hard refusal at `enter()` (`convert.py:97`), which means the addon
+cannot be used on any rigged or corrective-shape asset — most production
+geometry.
 
-This is a `WEIGHTS`-class problem, not an attribute-map problem: shape keys are
-a separate `Key` ID with N blocks of per-vertex coordinates, not CustomData.
-The engine would need a multi-layer per-vertex float3 store, and every
-topology operator would have to interpolate every block — with the interesting
-constraint that the *basis* block must stay in lockstep with the live
-positions.
+**The storage needs nothing new.** A `KeyBlock` is per-vertex coordinates, so
+each block maps to an ordinary `AttrType::FLOAT3` attribute on the point
+domain, and the default merge policy is already the right one — the values are
+coordinates, exactly like `position`, so a split's midpoint is their midpoint.
+This holds for relative keys too: a `KeyBlock` stores absolute coordinates and
+the delta against `relative_key` is taken at evaluation time, so there is
+nothing delta-shaped to interpolate carefully. Every new dyntopo vertex gets a
+sensible coordinate in every block for free.
 
-Worth writing its own plan before any code. Not a tasklist item so much as a
-project.
+No fork change either, unlike vertex groups: `ShapeKeyPoint.co` for a mesh key
+is a plain array property (`rna_key.cc:872`, no custom get/set), so
+`key_blocks[i].data.foreach_get("co", buf)` already takes the raw fast path in
+both directions.
+
+What is actually left is host-side bookkeeping:
+
+- **Naming and round trip.** One engine attribute per block, on a reserved
+  prefix so a user attribute cannot collide with it. Blender's block *order*
+  matters (`relative_key` is a reference to another block), so the flush has to
+  recreate blocks in order and re-point the references by name.
+- **Per-block metadata is not per-element** and so does not belong in an
+  attribute: `value`, `slider_min`/`max`, `vgroup`, `relative_key`, `mute`,
+  `interpolation`. Snapshot them on enter, reapply after the rebuild — the same
+  shape as `_flush_vertex_groups` reading its name table back, and like that
+  one it needs the *object*, since `shape_key_add` is an Object method.
+- **The active key vs. live positions** is the only genuinely awkward part.
+  Vanilla sculpt mode edits the active shape key while displaying the mixed
+  result; SculptCore's positions are the mesh's. The cheap first version is to
+  carry shape keys as *passengers* — interpolate and restore them, but keep
+  refusing to sculpt when a non-basis key is active. That preserves the data
+  (which is the whole point of this tier) without taking on the display
+  coupling, and it is a much smaller change than the refusal it replaces.
 
 ---
 
@@ -220,6 +243,8 @@ save and restore it around the rebuild, host-side.
 1.1 (the real user-facing loss) → 3.2 (rides along with 1.1's merge handler) →
 1.3 → everything else on demand.
 
-1.4 (shape keys) is the largest item on the page and the one most likely to
-decide whether the addon is usable on production assets. It should get its own
-plan rather than a checkbox here.
+1.4 (shape keys) is the item with the largest payoff — it is what decides
+whether the addon can be pointed at a production asset at all — and its
+passenger-only form is mostly marshalling against types the engine already
+has. Worth doing early on that basis, not late on the basis of the refusal it
+replaces.
