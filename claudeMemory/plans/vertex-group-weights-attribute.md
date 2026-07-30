@@ -395,19 +395,57 @@ everything else is new.
 
 ### E6 — c-api
 
-`source/mesh/c-api/mesh_c_api.cc`. The generic typed accessors cannot serve
-this type, so it needs its own, and the shape should match what the addon
-actually moves — **CSR, in bulk**:
+**Landed.** `source/mesh/c-api/mesh_c_api.cc`, the CSR shape this section
+planned, with the two additions the marshalling actually needed:
 
 ```
-sc_mesh_weights_element_count(mesh) -> int
-sc_mesh_weights_get(mesh, int *offsets, int *group_ids, float *weights)
-sc_mesh_weights_set(mesh, const int *offsets, const int *group_ids, const float *weights)
-sc_mesh_weight_groups_get / _set   (the name table)
+int  sc_mesh_weights_element_count(Mesh *)
+int  sc_mesh_weights_get(Mesh *, int *offsets, int *group_ids, float *weights)
+int  sc_mesh_weights_set(Mesh *, const int *offsets, const int *group_ids, const float *weights)
+int  sc_mesh_weight_group_count(Mesh *)
+int  sc_mesh_weight_groups_get(Mesh *, char *buf, int buf_size)
+void sc_mesh_weight_groups_set(Mesh *, const char *buf, int count)
 ```
 
-`offsets` has `vert_count + 1` entries. No per-vertex call ever crosses the
-ctypes boundary.
+- `offsets` has `vert_count + 1` entries, in the **live-vertex order**
+  `Mesh_toArrays` exports — not engine index order. A mesh with a freelist gap
+  is where the difference bites, which is what the new test block builds.
+- `element_count` sizes the two payload arrays; it is `offsets[vert_count]`.
+  Both readers return 0 without writing when there is no weights layer, so the
+  addon's enter path can call them unconditionally.
+- **Names cross as one NUL-separated block**, not a call per name:
+  `_groups_get(m, nullptr, 0)` returns the byte count, so the caller sizes once
+  and copies once. `sc_mesh_weight_group_count` exists because splitting the
+  block to count is silly when the pool already knows.
+- `_set` writes **every** live vertex, so an empty run clears rather than
+  leaving the previous one — a half-write is not a state the bridge can
+  produce. It creates the layer and the pool on first use (`ensureVertWeights`),
+  and interning canonicalizes, so runs need not arrive sorted or deduplicated.
+- **The layer name is fixed**, not a parameter: `mesh::VERT_WEIGHTS`
+  (`".vertex_groups"`, new in `attr_weights.h`). Blender carries exactly one
+  MDeformVert table per mesh, so a name argument would only ever take one value.
+
+Two pieces of wiring beyond the c-api file itself, both of which a build would
+not catch:
+
+- `source/mesh/CMakeLists.txt`'s exported-symbol list. The native shared library
+  exports by explicit list (`lt_native_export_symbols`), so an unlisted
+  `extern "C"` function compiles, links, and is then invisible to `ctypes`.
+- `sculptcore_addon/engine.py`'s `_CApi.__init__` — the addon's mesh c-api
+  declarations live there, *not* in the engine's `python/sculptcore/_capi.py`
+  `_DECLS` table (which covers the binding/alloc surface only). Without
+  `restype`, ctypes truncates a returned pointer to `int`; these all return
+  `int`, but the `argtypes` matter for the numpy `ndpointer` checks.
+
+Tested in `tests/test_mesh_arrays.cc` (the c-api marshalling test), on a mesh
+with three killed vertices: no-layer returns, the name-table size/copy round
+trip, a CSR write whose first run is given out of group order (it comes back
+group-ascending, values following their groups), the runs landing on verts
+3/4/5 rather than the dead slots, and an all-empty write clearing. Rewriting
+`_set`'s loop as `for (vi = 0; vi < m->v.count; vi++)` fails seven of those
+assertions, so the live-order half is not vacuous. A ctypes smoke against the
+built `sculptcore_capi.dll` confirmed the exports resolve on the path the addon
+actually uses.
 
 ### E7 — tests
 

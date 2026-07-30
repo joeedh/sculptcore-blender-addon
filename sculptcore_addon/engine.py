@@ -114,6 +114,26 @@ class _CApi:
             ctypes.c_void_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_int,
             ctypes.c_void_p]
         lib.Mesh_writeAttr.restype = ctypes.c_int
+        # Vertex-group weights. The generic bridge above refuses
+        # AttrType::WEIGHTS — a cell is a refcounted pool index, meaningless
+        # outside its mesh — so these move the resolved runs instead, as CSR in
+        # bulk: `offsets` has vert_count + 1 entries indexing parallel
+        # group/weight arrays, in the same live-vertex order as Mesh_toArrays.
+        # Group ids index the name table, which must be written first.
+        lib.sc_mesh_weights_element_count.argtypes = [ctypes.c_void_p]
+        lib.sc_mesh_weights_element_count.restype = ctypes.c_int
+        lib.sc_mesh_weights_get.argtypes = [ctypes.c_void_p, i32p, i32p, f32p]
+        lib.sc_mesh_weights_get.restype = ctypes.c_int
+        lib.sc_mesh_weights_set.argtypes = [ctypes.c_void_p, i32p, i32p, f32p]
+        lib.sc_mesh_weights_set.restype = ctypes.c_int
+        lib.sc_mesh_weight_group_count.argtypes = [ctypes.c_void_p]
+        lib.sc_mesh_weight_group_count.restype = ctypes.c_int
+        lib.sc_mesh_weight_groups_get.argtypes = [
+            ctypes.c_void_p, ctypes.c_char_p, ctypes.c_int]
+        lib.sc_mesh_weight_groups_get.restype = ctypes.c_int
+        lib.sc_mesh_weight_groups_set.argtypes = [
+            ctypes.c_void_p, ctypes.c_char_p, ctypes.c_int]
+        lib.sc_mesh_weight_groups_set.restype = ctypes.c_int
         # Boundary edge flags (P11): seam/sharp migration keyed by vertex
         # pairs (the engine derives its own edges, so there is no stable edge
         # index correspondence), plus the boundary recompute and the
