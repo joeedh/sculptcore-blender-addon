@@ -24,7 +24,8 @@ Working notes Claude maintains for this repository. See the top-level
   `AttrType::WEIGHTS` column (32-bit index into an interned, refcounted,
   thread-safe pool) with a `AttrMerge::CUSTOM` interpolator, plus the fork's
   bulk CSR accessor and the `convert.py` bridge. Fixes the `clear_geometry()`
-  weight loss on the dyntopo flush path.
+  weight loss on the dyntopo flush path. **Landed** — every phase is marked up
+  in the plan, with the two open follow-ups recorded under *Ordering and gates*.
 - [research/gpu-brush-evaluation-in-blender.md](research/gpu-brush-evaluation-in-blender.md)
   — how the engine's GPU brush stack could drive strokes under the addon: the
   existing marshal/dispatch seams, engine-owned wgpu vs. compute on Blender's
