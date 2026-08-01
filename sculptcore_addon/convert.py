@@ -143,10 +143,19 @@ def enter(ob):
     session = Session(ob.name, mesh_ptr, tree_ptr, verts_num)
     engine.sessions[ob.name] = session
 
+    # Engine vertex indices equal Blender indices at enter (Mesh_fromArrays
+    # creates verts in order); rebuilt after every topology flush. The maps
+    # carry host-only per-vertex state (loose edges, mid-session layers)
+    # across rebuilds.
+    import numpy as np
+    session.vert_map_prev = np.arange(verts_num, dtype=np.int32)
+
     # Seed the remaining user attribute layers so they ride the engine through
     # dyntopo + undo and can be rebuilt after a topology change.
     _load_bridged_attrs(ob.data, mesh_ptr, session)
     _load_vertex_groups(ob, mesh_ptr)
+    _load_skin(ob.data, mesh_ptr, verts_num)
+    _load_custom_normals(ob.data, mesh_ptr, session)
 
     # Register the tree for external-provider viewport draw, keyed by the
     # object's session_uid (the key Blender's draw path passes). Switch it to the
@@ -224,11 +233,13 @@ def _enter_multires(ob, md):
     tree_ptr = lib.Multires_activeTree(mr)
 
     # Mask (A4): seed the top-level engine mask from the grid paint mask.
-    # Exchange happens at the top level only — see _flush_multires.
+    # The exchange follows the active level — a level switch re-seeds at the
+    # new level and exports the outgoing one (see set_multires_level).
     depsgraph = context.evaluated_depsgraph_get()
-    multires.import_mask(ob, depsgraph, mesh_ptr, mr_map)
+    mask_base = multires.import_mask(ob, depsgraph, mesh_ptr, mr_map, mr, level)
 
     session = Session(ob.name, mesh_ptr, tree_ptr, _mesh_vert_num(mesh_ptr))
+    session.multires_mask_base = mask_base
     session.blender_verts_num = len(ob.data.vertices)
     session.multires_ptr = mr
     session.cage_ptr = cage
@@ -302,23 +313,42 @@ def _load_color(mesh, mesh_ptr, verts_num):
 
 
 def _flush_color(mesh, mesh_ptr, verts_num, color_name=None):
-    """Write the engine `color` attr back into the active POINT/FLOAT_COLOR
-    color attribute, creating one when none exists (under `color_name`, the name
-    recorded at enter, so a rebuild keeps the layer's identity). Leaves
-    corner/byte color attributes untouched (logs a warning)."""
+    """Write the engine `color` attr back into the POINT/FLOAT_COLOR color
+    attribute it mirrors: the layer recorded at enter (`color_name`), created
+    when missing — a rebuild recreating layers may have auto-assigned the
+    active designation to an unrelated color layer, so the name wins over the
+    active designation. Leaves corner/byte color attributes untouched (logs a
+    warning)."""
     import numpy as np
 
     values = np.empty(verts_num * 4, dtype=np.float32)
     if not engine.capi().lib.Mesh_readVertFloat4Attr(mesh_ptr, _SC_COLOR, values):
         return
-    attr = _point_float_color(mesh)
+    attr = None
+    if color_name:
+        cand = mesh.color_attributes.get(color_name)
+        if cand is None:
+            # The rebuild dropped it (or the user deleted it); recreate under
+            # its own name. Falling back to the *active* layer here would
+            # clobber whichever unrelated color layer attributes.new
+            # auto-assigned during the rebuild.
+            attr = mesh.color_attributes.new(color_name, 'FLOAT_COLOR', 'POINT')
+            if mesh.color_attributes.active_color is None:
+                mesh.color_attributes.active_color = attr
+        elif cand.domain == 'POINT' and cand.data_type == 'FLOAT_COLOR':
+            attr = cand
+        else:
+            print("SculptCore: color attribute {!r} is no longer "
+                  "POINT/FLOAT_COLOR; painted colors not written back".format(color_name))
+            return
+    if attr is None:
+        attr = _point_float_color(mesh)
     if attr is None:
         if mesh.color_attributes.active_color is not None:
             print("SculptCore: active color attribute is not POINT/FLOAT_COLOR; "
                   "painted colors not written back")
             return
-        attr = mesh.color_attributes.new(color_name or _DEFAULT_COLOR_NAME,
-                                         'FLOAT_COLOR', 'POINT')
+        attr = mesh.color_attributes.new(_DEFAULT_COLOR_NAME, 'FLOAT_COLOR', 'POINT')
         mesh.color_attributes.active_color = attr
     attr.data.foreach_set("color", values)
 
@@ -357,6 +387,43 @@ def _load_edge_flags(mesh, mesh_ptr, recompute=False):
         lib.Mesh_recomputeBoundary(mesh_ptr)
 
 
+def _pair_keys(pairs):
+    """Sorted vertex pairs packed into int64 keys (order-independent)."""
+    import numpy as np
+
+    lo = np.minimum(pairs[:, 0], pairs[:, 1]).astype(np.int64)
+    hi = np.maximum(pairs[:, 0], pairs[:, 1]).astype(np.int64)
+    return (lo << 32) | hi
+
+
+def _match_pairs(dst_pairs, src_pairs):
+    """For each dst vertex pair, the index of the matching src pair (-1 when
+    unmatched). Both arrays are (n, 2); matching is endpoint-order-agnostic."""
+    import numpy as np
+
+    if not len(src_pairs) or not len(dst_pairs):
+        return np.full(len(dst_pairs), -1, dtype=np.int64)
+    src_keys = _pair_keys(src_pairs)
+    order = np.argsort(src_keys)
+    sorted_keys = src_keys[order]
+    dst_keys = _pair_keys(dst_pairs)
+    idx = np.searchsorted(sorted_keys, dst_keys)
+    idx[idx >= len(sorted_keys)] = len(sorted_keys) - 1
+    return np.where(sorted_keys[idx] == dst_keys, order[idx], -1)
+
+
+def _engine_edge_pairs(mesh_ptr):
+    """Every live engine edge's vertex pair, live-iteration order — the order
+    the EDGE-domain attribute c-api reads and writes."""
+    import numpy as np
+
+    lib = engine.capi().lib
+    count = lib.Mesh_edgeCount(mesh_ptr)
+    pairs = np.empty(max(count, 1) * 2, dtype=np.int32)
+    lib.Mesh_edgeVertsOut(mesh_ptr, pairs)
+    return pairs[:count * 2].reshape(-1, 2)
+
+
 def _flush_edge_flags(session, mesh, vert_map):
     """Recreate the Blender seam/sharp edge attributes from the engine
     boundary flags after a topology rebuild (`calc_edges=True` regenerated the
@@ -372,11 +439,6 @@ def _flush_edge_flags(session, mesh, vert_map):
     if not edges_num or not engine_edges:
         return
 
-    def pair_keys(pairs):
-        lo = np.minimum(pairs[:, 0], pairs[:, 1]).astype(np.int64)
-        hi = np.maximum(pairs[:, 0], pairs[:, 1]).astype(np.int64)
-        return (lo << 32) | hi
-
     bl_order = bl_keys = None
     buf = np.empty(engine_edges * 2, dtype=np.int32)
     for bl_name, sc_name in _EDGE_FLAG_MAP:
@@ -386,11 +448,11 @@ def _flush_edge_flags(session, mesh, vert_map):
         if bl_keys is None:
             bl_edge_verts = np.empty(edges_num * 2, dtype=np.int32)
             mesh.edges.foreach_get("vertices", bl_edge_verts)
-            keys = pair_keys(bl_edge_verts.reshape(-1, 2))
+            keys = _pair_keys(bl_edge_verts.reshape(-1, 2))
             bl_order = np.argsort(keys)
             bl_keys = keys[bl_order]
         pairs = vert_map[buf[:count * 2].reshape(-1, 2)]
-        keys = pair_keys(pairs[np.all(pairs >= 0, axis=1)])
+        keys = _pair_keys(pairs[np.all(pairs >= 0, axis=1)])
         idx = np.searchsorted(bl_keys, keys)
         idx[idx >= edges_num] = edges_num - 1
         matched = bl_order[idx[bl_keys[idx] == keys]]
@@ -463,10 +525,11 @@ def _flush_uv(mesh, mesh_ptr):
 # builtins, and the dedicated brush-target layers (mask/face-set/active color)
 # have their own paths and are skipped here.
 
-# Blender attribute domain -> engine ElemType flag. The engine edge domain has
-# no stable correspondence to Blender's derived edges, so edge attributes
-# (creases/seams/sharp) are not bridged yet.
-_DOMAIN_TO_ENGINE = {'POINT': 1, 'CORNER': 4, 'FACE': 16}
+# Blender attribute domain -> engine ElemType flag. Edge indices have no
+# correspondence across the boundary (the engine derives its own edges), so
+# EDGE-domain values are pair-matched by endpoints on both directions
+# (Mesh_edgeVertsOut is the identity channel) instead of copied in order.
+_DOMAIN_TO_ENGINE = {'POINT': 1, 'EDGE': 2, 'CORNER': 4, 'FACE': 16}
 
 # Engine AttrType values (extern/sculptcore/source/mesh/attribute_enums.h).
 _AT_FLOAT, _AT_FLOAT2, _AT_FLOAT3, _AT_FLOAT4 = 1, 2, 4, 8
@@ -484,6 +547,7 @@ _ATTR_TYPE_MAP = {
     'FLOAT_VECTOR': (_AT_FLOAT3, 3, "float32", "vector"),
     'FLOAT_COLOR':  (_AT_FLOAT4, 4, "float32", "color"),
     'BYTE_COLOR':   (_AT_FLOAT4, 4, "float32", "color"),
+    'FLOAT4':       (_AT_FLOAT4, 4, "float32", "vector"),
     'INT':          (_AT_INT,    1, "int32",   "value"),
     'INT32_2D':     (_AT_INT2,   2, "int32",   "value"),
     'BOOLEAN':      (_AT_BOOL,   1, "uint8",   "value"),
@@ -497,85 +561,319 @@ _ATTR_TYPE_MAP = {
 # dynamically in _load_bridged_attrs.)
 _SKIP_ATTR_NAMES = {"position"}
 
+# Dot-prefixed layers bridged despite the rule above: selection/hide state and
+# the per-UV-map sublayers (vert select / edge select / pin) are user work
+# state, not topology links, and losing them across a rebuild loses work the
+# user cannot see being lost. The edge-domain pair rides the pair-matched edge
+# bridge like any other edge attribute. The engine treats all of these as
+# ordinary passenger layers — there is no hide concept engine-side, so hidden
+# geometry stays sculptable during the session and comes back hidden but
+# possibly modified.
+_DOT_ATTR_EXCEPTIONS = {".select_vert", ".select_poly", ".select_edge",
+                        ".hide_vert", ".hide_poly", ".hide_edge"}
+_DOT_ATTR_PREFIXES = (".vs.", ".es.", ".pn.")
 
-def _bridge_use(data_type, domain, engine_type):
+
+def _attr_is_bridgeable_name(name):
+    """False for names the bridge never touches: "position" and dot-prefixed
+    internal layers, minus the explicit work-state exceptions."""
+    if name in _SKIP_ATTR_NAMES:
+        return False
+    if not name.startswith("."):
+        return True
+    return name in _DOT_ATTR_EXCEPTIONS or name.startswith(_DOT_ATTR_PREFIXES)
+
+
+def _bridge_use(mesh, name, data_type, domain, engine_type):
     """The engine AttrUse tag for a bridged layer, so a re-imported UV map or
-    color layer keeps its semantic type."""
+    color layer keeps its semantic type. Only a layer `uv_layers` actually
+    lists is a UV map — an arbitrary corner float2 (a flow field, a packed
+    pair) must not inherit UV semantics (wedge blending, seam handling)."""
     if data_type in {'FLOAT_COLOR', 'BYTE_COLOR'}:
         return _USE_COLOR
-    if engine_type == _AT_FLOAT2 and domain == 'CORNER':
+    if (engine_type == _AT_FLOAT2 and domain == 'CORNER'
+            and mesh.uv_layers.get(name) is not None):
         return _USE_UV
     return _USE_NONE
+
+
+def _bridge_descriptor(mesh, attr):
+    """The bridge descriptor for a Blender attribute layer, or None (logged)
+    when its domain or type has no engine mapping. Name-based skips are the
+    caller's business (they differ between enter and reconcile)."""
+    engine_domain = _DOMAIN_TO_ENGINE.get(attr.domain)
+    mapping = _ATTR_TYPE_MAP.get(attr.data_type)
+    if engine_domain is None or mapping is None:
+        print("SculptCore: attribute {!r} ({:s}/{:s}) is unsupported and "
+              "will be dropped on topology change".format(
+                  attr.name, attr.domain, attr.data_type))
+        return None
+    engine_type, ncomp, dtype, prop = mapping
+    return {
+        "name": attr.name,
+        "name_bytes": attr.name.encode("utf-8"),
+        "bl_domain": attr.domain,
+        "bl_type": attr.data_type,
+        "engine_domain": engine_domain,
+        "engine_type": engine_type,
+        "ncomp": ncomp,
+        "dtype": dtype,
+        "prop": prop,
+        "use": _bridge_use(mesh, attr.name, attr.data_type, attr.domain, engine_type),
+    }
+
+
+def _write_bridged_attr(mesh_ptr, desc, values):
+    """Write a bridged layer's values (live-iteration order) into the engine
+    under its descriptor's name/type/use."""
+    import ctypes
+
+    engine.capi().lib.Mesh_writeAttr(
+        mesh_ptr, desc["engine_domain"], desc["name_bytes"], desc["engine_type"],
+        desc["use"], values.ctypes.data_as(ctypes.c_void_p))
+
+
+def _edge_flag_names():
+    return {bl_name for bl_name, _ in _EDGE_FLAG_MAP}
 
 
 def _load_bridged_attrs(mesh, mesh_ptr, session):
     """Seed every user attribute layer into the engine and record a descriptor
     so :func:`_flush_bridged_attrs` can recreate it after a topology rebuild.
-    Skips positions/topology builtins, the dedicated mask/face-set/color layers,
-    the engine edge domain, and unsupported Blender types (logged)."""
-    import ctypes
-
+    Skips positions/topology builtins, the dedicated mask/face-set/color and
+    seam/sharp layers, and unsupported Blender types (logged). EDGE-domain
+    values are reordered into engine edge order by endpoint matching (engine
+    vertex indices equal Blender's at enter); the engine's edges are derived
+    from faces, so a value on a loose Blender edge has no engine edge to land
+    on and rides the loose-edge snapshot instead (topology only — see
+    _read_loose_edges)."""
     import numpy as np
 
-    lib = engine.capi().lib
-    skip = set(_SKIP_ATTR_NAMES)
     color = _point_float_color(mesh)
     if color is not None:
-        skip.add(color.name)
         session.color_attr_name = color.name
+    edge_flags = _edge_flag_names()
 
     session.bridged_attrs = []
+    engine_pairs = None
     for attr in mesh.attributes:
-        if attr.name in skip or attr.name.startswith("."):
+        if not _attr_is_bridgeable_name(attr.name):
             continue
-        engine_domain = _DOMAIN_TO_ENGINE.get(attr.domain)
-        if engine_domain is None:
+        if color is not None and attr.name == color.name:
             continue
-        mapping = _ATTR_TYPE_MAP.get(attr.data_type)
-        if mapping is None:
-            print("SculptCore: attribute {!r} ({:s}/{:s}) is unsupported and "
-                  "will be dropped on topology change".format(
-                      attr.name, attr.domain, attr.data_type))
+        if attr.name in edge_flags:
             continue
-        engine_type, ncomp, dtype, prop = mapping
-        values = np.empty(len(attr.data) * ncomp, dtype=dtype)
-        attr.data.foreach_get(prop, values)
-        name_bytes = attr.name.encode("utf-8")
-        use = _bridge_use(attr.data_type, attr.domain, engine_type)
-        lib.Mesh_writeAttr(mesh_ptr, engine_domain, name_bytes, engine_type, use,
-                           values.ctypes.data_as(ctypes.c_void_p))
-        session.bridged_attrs.append({
-            "name": attr.name,
-            "name_bytes": name_bytes,
-            "bl_domain": attr.domain,
-            "bl_type": attr.data_type,
-            "engine_domain": engine_domain,
-            "engine_type": engine_type,
-            "ncomp": ncomp,
-            "dtype": dtype,
-            "prop": prop,
-        })
+        if attr.name == _BL_CUSTOM_NORMAL and attr.data_type == 'INT16_2D':
+            continue  # the encoded form has its own decode/re-encode path
+        desc = _bridge_descriptor(mesh, attr)
+        if desc is None:
+            continue
+        values = np.empty(len(attr.data) * desc["ncomp"], dtype=desc["dtype"])
+        attr.data.foreach_get(desc["prop"], values)
+        if desc["bl_domain"] == 'EDGE':
+            if engine_pairs is None:
+                engine_pairs = _engine_edge_pairs(mesh_ptr)
+                bl_pairs = np.empty(len(mesh.edges) * 2, dtype=np.int32)
+                mesh.edges.foreach_get("vertices", bl_pairs)
+                match = _match_pairs(engine_pairs, bl_pairs.reshape(-1, 2))
+            ncomp = desc["ncomp"]
+            engine_values = np.zeros(len(engine_pairs) * ncomp, dtype=desc["dtype"])
+            hit = match >= 0
+            engine_values.reshape(-1, ncomp)[hit] = \
+                values.reshape(-1, ncomp)[match[hit]]
+            values = engine_values
+        _write_bridged_attr(mesh_ptr, desc, values)
+        session.bridged_attrs.append(desc)
 
 
-def _flush_bridged_attrs(session, mesh):
+def _vert_carry_maps(session, vert_map):
+    """(new_bl, old_bl, carry): for every live engine vertex, its rebuilt
+    Blender index, its Blender index at the last sync (-1 when it did not
+    exist then), and the mask of vertices present on both sides. The carry is
+    how host-only per-vertex state crosses a rebuild. An engine index reused
+    after a kill can pair a dead vertex's value with an unrelated new one —
+    accepted, it is bounded to the brush region."""
+    import numpy as np
+
+    prev = session.vert_map_prev
+    live_e = np.nonzero(vert_map >= 0)[0]
+    new_bl = vert_map[live_e]
+    old_bl = np.full(len(live_e), -1, dtype=np.int64)
+    if prev is not None:
+        in_prev = live_e < len(prev)
+        old_bl[in_prev] = prev[live_e[in_prev]]
+    return new_bl, old_bl, old_bl >= 0
+
+
+def _reconcile_bridged_attrs(session, mesh, vert_map, counts):
+    """Re-read the Mesh's attribute list immediately before it is destroyed.
+
+    ``session.bridged_attrs`` was built at enter and there is no other read
+    point in the session (``refresh`` is disabled for custom-undo modes and
+    ``resync_if_diverged`` only compares vertex counts), so without this a
+    layer created mid-session is silently dropped by the rebuild and a layer
+    deleted mid-session is resurrected from its stale engine copy.
+
+    A deleted layer's descriptor is dropped (its engine column stays, unread).
+    A new supported layer is seeded into the engine: POINT-domain values are
+    carried over for vertices that survived the topology change, via the
+    engine-index maps (``session.vert_map_prev`` pairs engine indices with the
+    Blender indices of the last sync, ``vert_map`` with the rebuilt ones); new
+    vertices get the type default. An engine index reused after a kill can pair
+    a dead vertex's value with an unrelated new one — accepted, it is bounded
+    to the brush region. CORNER/FACE domains have no index map across the
+    boundary, so their new layers keep their existence but start from defaults
+    (logged)."""
+    import numpy as np
+
+    live = {}
+    edge_flags = _edge_flag_names()
+    for attr in mesh.attributes:
+        if not _attr_is_bridgeable_name(attr.name) or attr.name in edge_flags:
+            continue
+        if attr.name == _BL_CUSTOM_NORMAL and attr.data_type == 'INT16_2D':
+            continue  # dedicated decode/re-encode path
+        # The layer the dedicated engine `color` column mirrors is the one
+        # recorded at enter — a mid-session active-color change does not move
+        # that column, so any *other* color layer stays generically bridged.
+        if session.color_attr_name and attr.name == session.color_attr_name:
+            continue
+        live[attr.name] = (attr.domain, attr.data_type)
+
+    kept = []
+    known = set()
+    for desc in session.bridged_attrs:
+        state = live.get(desc["name"])
+        if state == (desc["bl_domain"], desc["bl_type"]):
+            kept.append(desc)
+            known.add(desc["name"])
+        # else: deleted (or deleted-and-recreated with a new shape, which the
+        # created branch below re-seeds under its new descriptor).
+    session.bridged_attrs = kept
+
+    created = [name for name, state in live.items() if name not in known]
+    if not created:
+        return
+
+    new_bl, old_bl, carry = _vert_carry_maps(session, vert_map)
+
+    for name in created:
+        attr = mesh.attributes.get(name)
+        desc = _bridge_descriptor(mesh, attr)
+        if desc is None:
+            continue
+        count = len(attr.data)
+        ncomp = desc["ncomp"]
+        if desc["bl_domain"] == 'POINT':
+            old_values = np.empty(count * ncomp, dtype=desc["dtype"])
+            attr.data.foreach_get(desc["prop"], old_values)
+            new_count = counts[0]
+            values = np.zeros(new_count * ncomp, dtype=desc["dtype"])
+            values.reshape(new_count, ncomp)[new_bl[carry]] = \
+                old_values.reshape(count, ncomp)[old_bl[carry]]
+        else:
+            if desc["bl_domain"] == 'EDGE':
+                domain_count = engine.capi().lib.Mesh_edgeCount(session.mesh_ptr)
+            else:
+                domain_count = counts[{'CORNER': 1, 'FACE': 2}[desc["bl_domain"]]]
+            values = np.zeros(domain_count * ncomp, dtype=desc["dtype"])
+            print("SculptCore: attribute {!r} was created mid-session on the "
+                  "{:s} domain; the layer survives the topology change but "
+                  "its values reset (no index map across the rebuild)".format(
+                      name, desc["bl_domain"]))
+        _write_bridged_attr(session.mesh_ptr, desc, values)
+        session.bridged_attrs.append(desc)
+
+
+def _read_layer_designations(mesh):
+    """Snapshot the active/default layer designations that
+    ``clear_geometry()`` frees along with the layers (``clear_attribute_names``
+    drops all six): the two color names plus the four UV-map designations.
+    Read immediately before the rebuild — an enter-time snapshot would revert
+    any designation the user changed mid-session. Without the restore, a
+    single-UV textured mesh renders untextured after one dyntopo pass (no
+    active UV designation means the draw cache skips UV extraction)."""
+    uvs = mesh.uv_layers
+    active = uvs.active
+    clone = mesh.uv_layer_clone
+    stencil = mesh.uv_layer_stencil
+    return {
+        "active_color": mesh.attributes.active_color_name or None,
+        "default_color": mesh.attributes.default_color_name or None,
+        "uv_active": active.name if active is not None else None,
+        "uv_render": next((layer.name for layer in uvs if layer.active_render), None),
+        "uv_clone": clone.name if clone is not None else None,
+        "uv_stencil": stencil.name if stencil is not None else None,
+    }
+
+
+def _restore_layer_designations(mesh, snap):
+    """Write the snapshotted designations back, after every layer exists again
+    (``attributes.new`` auto-assigns the active color designation, so restoring
+    must come after all layer recreation). The color setters accept dangling
+    names without validation, so only names whose layer was actually recreated
+    are written."""
+    if snap["active_color"] and mesh.attributes.get(snap["active_color"]):
+        mesh.attributes.active_color_name = snap["active_color"]
+    if snap["default_color"] and mesh.attributes.get(snap["default_color"]):
+        mesh.attributes.default_color_name = snap["default_color"]
+    uvs = mesh.uv_layers
+    layer = uvs.get(snap["uv_active"]) if snap["uv_active"] else None
+    if layer is not None:
+        uvs.active = layer
+    layer = uvs.get(snap["uv_render"]) if snap["uv_render"] else None
+    if layer is not None:
+        layer.active_render = True
+    layer = uvs.get(snap["uv_clone"]) if snap["uv_clone"] else None
+    if layer is not None:
+        mesh.uv_layer_clone = layer
+    layer = uvs.get(snap["uv_stencil"]) if snap["uv_stencil"] else None
+    if layer is not None:
+        mesh.uv_layer_stencil = layer
+
+
+def _flush_bridged_attrs(session, mesh, vert_map):
     """Recreate every bridged user attribute layer on the rebuilt Blender mesh
     from the engine's (interpolated / undo-reverted) values. Called on the
     topology-rebuild path only — the fast path leaves Blender customdata intact.
-    A layer the engine no longer carries is skipped (leaves no stale data)."""
+    A layer the engine no longer carries is skipped (leaves no stale data).
+    EDGE-domain columns are gathered back by endpoint matching (engine pairs
+    mapped through `vert_map`); rebuilt edges with no engine counterpart (the
+    re-added loose edges) take the type default."""
     import ctypes
 
     import numpy as np
 
     lib = engine.capi().lib
-    domain_len = {'POINT': len(mesh.vertices), 'CORNER': len(mesh.loops),
-                  'FACE': len(mesh.polygons)}
+    domain_len = {'POINT': len(mesh.vertices), 'EDGE': len(mesh.edges),
+                  'CORNER': len(mesh.loops), 'FACE': len(mesh.polygons)}
+    edge_match = None
     for desc in session.bridged_attrs:
         count = domain_len[desc["bl_domain"]]
-        values = np.empty(count * desc["ncomp"], dtype=desc["dtype"])
-        if not lib.Mesh_readAttr(session.mesh_ptr, desc["engine_domain"],
-                                 desc["name_bytes"], desc["engine_type"],
-                                 values.ctypes.data_as(ctypes.c_void_p)):
-            continue
+        ncomp = desc["ncomp"]
+        if desc["bl_domain"] == 'EDGE':
+            engine_pairs = _engine_edge_pairs(session.mesh_ptr)
+            engine_values = np.empty(len(engine_pairs) * ncomp, dtype=desc["dtype"])
+            if not lib.Mesh_readAttr(session.mesh_ptr, desc["engine_domain"],
+                                     desc["name_bytes"], desc["engine_type"],
+                                     engine_values.ctypes.data_as(ctypes.c_void_p)):
+                continue
+            if edge_match is None:
+                mapped = np.where(engine_pairs >= 0, vert_map[engine_pairs], -1)
+                mapped[np.any(engine_pairs < 0, axis=1)] = -1
+                bl_pairs = np.empty(count * 2, dtype=np.int32)
+                mesh.edges.foreach_get("vertices", bl_pairs)
+                edge_match = _match_pairs(bl_pairs.reshape(-1, 2), mapped)
+            values = np.zeros(count * ncomp, dtype=desc["dtype"])
+            hit = edge_match >= 0
+            values.reshape(count, ncomp)[hit] = \
+                engine_values.reshape(-1, ncomp)[edge_match[hit]]
+        else:
+            values = np.empty(count * ncomp, dtype=desc["dtype"])
+            if not lib.Mesh_readAttr(session.mesh_ptr, desc["engine_domain"],
+                                     desc["name_bytes"], desc["engine_type"],
+                                     values.ctypes.data_as(ctypes.c_void_p)):
+                continue
         try:
             attr = mesh.attributes.get(desc["name"])
             if attr is None:
@@ -586,6 +884,189 @@ def _flush_bridged_attrs(session, mesh):
             # domain-size mismatch; skip rather than abort the whole flush.
             print("SculptCore: could not restore attribute {!r}: {:s}".format(
                 desc["name"], str(error)))
+
+
+# Encoded custom normals (the corner-fan short2 form of `custom_normal`)
+#
+# The free (FLOAT_VECTOR) storage forms ride the generic bridge; the encoded
+# INT16_2D corner form cannot — it is only meaningful relative to a smooth-fan
+# structure a topology change destroys. So the bridge carries *directions*:
+# decode on enter via Mesh.corner_normals (the resolved corner normals,
+# whichever storage form the file used), store an engine corner FLOAT3 that
+# dyntopo lerps like any direction field, and re-encode into the new fans on
+# rebuild. Bit-exact round-tripping across a topology change is impossible in
+# principle; a session that never rebuilds never re-encodes.
+_SC_CUSTOM_NORMAL = b".blender.custom_normal"
+_BL_CUSTOM_NORMAL = "custom_normal"
+
+
+def _load_custom_normals(mesh, mesh_ptr, session):
+    """Seed the engine direction column when the mesh carries the *encoded*
+    custom-normal form. The free float3 forms are left to the generic
+    bridge."""
+    import ctypes
+
+    import numpy as np
+
+    attr = mesh.attributes.get(_BL_CUSTOM_NORMAL)
+    if attr is None or attr.data_type != 'INT16_2D' or attr.domain != 'CORNER':
+        return
+    values = np.empty(len(mesh.loops) * 3, dtype=np.float32)
+    mesh.corner_normals.foreach_get("vector", values)
+    engine.capi().lib.Mesh_writeAttr(mesh_ptr, 4, _SC_CUSTOM_NORMAL, _AT_FLOAT3,
+                                     _USE_NONE,
+                                     values.ctypes.data_as(ctypes.c_void_p))
+    session.custom_normal_encoded = True
+
+
+def _flush_custom_normals(session, mesh):
+    """Re-encode the bridged directions into the rebuilt mesh's fans. Prefers
+    the fork's Mesh.custom_normals_encode (encodes against current sharpness,
+    never writes sharp_edge); falls back to normals_split_custom_set, whose
+    fan-divergence scan can *add* sharp edges per call — logged once, since
+    over many rebuilds that accumulates faceting."""
+    import ctypes
+
+    import numpy as np
+
+    if not session.custom_normal_encoded:
+        return
+    lib = engine.capi().lib
+    values = np.empty(len(mesh.loops) * 3, dtype=np.float32)
+    if not lib.Mesh_readAttr(session.mesh_ptr, 4, _SC_CUSTOM_NORMAL, _AT_FLOAT3,
+                             values.ctypes.data_as(ctypes.c_void_p)):
+        return
+    if hasattr(mesh, "custom_normals_encode"):
+        mesh.custom_normals_encode(values.reshape(-1, 3))
+    else:
+        if not session.custom_normal_creep_warned:
+            print("SculptCore: this Blender lacks Mesh.custom_normals_encode; "
+                  "falling back to normals_split_custom_set, which may add "
+                  "sharp edges on every topology flush")
+            session.custom_normal_creep_warned = True
+        mesh.normals_split_custom_set(values.reshape(-1, 3))
+
+
+# Skin-modifier vertices (CD_MVERT_SKIN)
+#
+# Not a generic attribute — `mesh.attributes` cannot see it — so it gets a
+# dedicated pair of engine vertex columns: the two radii as a FLOAT2 (lerped
+# by dyntopo like any float column) and the root/loose flags packed into an
+# INT (integer default merge copies one side, which is right for flags).
+# Without this every Skin-modifier asset loses all its radii on the first
+# topology rebuild.
+_SC_SKIN_RADIUS = b".blender.skin.radius"
+_SC_SKIN_FLAGS = b".blender.skin.flags"
+_SKIN_ROOT, _SKIN_LOOSE = 1, 2
+
+
+def _read_skin_arrays(mesh, verts_num):
+    """(radius float32 * 2, flags int32) read from the skin layer, or None."""
+    import numpy as np
+
+    if not len(mesh.skin_vertices):
+        return None
+    data = mesh.skin_vertices[0].data
+    radius = np.empty(verts_num * 2, dtype=np.float32)
+    data.foreach_get("radius", radius)
+    root = np.empty(verts_num, dtype=np.bool_)
+    data.foreach_get("use_root", root)
+    loose = np.empty(verts_num, dtype=np.bool_)
+    data.foreach_get("use_loose", loose)
+    flags = root.astype(np.int32) * _SKIN_ROOT + loose.astype(np.int32) * _SKIN_LOOSE
+    return radius, flags
+
+
+def _load_skin(mesh, mesh_ptr, verts_num):
+    """Seed the engine skin columns from the mesh's skin layer. No-op when the
+    mesh carries none."""
+    import ctypes
+
+    arrays = _read_skin_arrays(mesh, verts_num)
+    if arrays is None:
+        return
+    radius, flags = arrays
+    lib = engine.capi().lib
+    lib.Mesh_writeAttr(mesh_ptr, 1, _SC_SKIN_RADIUS, _AT_FLOAT2, _USE_NONE,
+                       radius.ctypes.data_as(ctypes.c_void_p))
+    lib.Mesh_writeAttr(mesh_ptr, 1, _SC_SKIN_FLAGS, _AT_INT, _USE_NONE,
+                       flags.ctypes.data_as(ctypes.c_void_p))
+
+
+def _reconcile_skin(session, mesh, vert_map):
+    """The 1.8 read point for the skin layer: True when the mesh carries one
+    now (the rebuild must restore it), seeding the engine columns first if the
+    layer appeared mid-session (values carried across the index maps like
+    _reconcile_bridged_attrs; new vertices default to zero)."""
+    import ctypes
+
+    import numpy as np
+
+    if not len(mesh.skin_vertices):
+        return False
+    lib = engine.capi().lib
+    nv = _mesh_vert_num(session.mesh_ptr)
+    probe = np.empty(nv * 2, dtype=np.float32)
+    if lib.Mesh_readAttr(session.mesh_ptr, 1, _SC_SKIN_RADIUS, _AT_FLOAT2,
+                         probe.ctypes.data_as(ctypes.c_void_p)):
+        return True
+    arrays = _read_skin_arrays(mesh, len(mesh.vertices))
+    if arrays is None:
+        return False
+    old_radius, old_flags = arrays
+    new_bl, old_bl, carry = _vert_carry_maps(session, vert_map)
+    radius = np.zeros(nv * 2, dtype=np.float32)
+    radius.reshape(nv, 2)[new_bl[carry]] = old_radius.reshape(-1, 2)[old_bl[carry]]
+    flags = np.zeros(nv, dtype=np.int32)
+    flags[new_bl[carry]] = old_flags[old_bl[carry]]
+    lib.Mesh_writeAttr(session.mesh_ptr, 1, _SC_SKIN_RADIUS, _AT_FLOAT2, _USE_NONE,
+                       radius.ctypes.data_as(ctypes.c_void_p))
+    lib.Mesh_writeAttr(session.mesh_ptr, 1, _SC_SKIN_FLAGS, _AT_INT, _USE_NONE,
+                       flags.ctypes.data_as(ctypes.c_void_p))
+    return True
+
+
+def _flush_skin(session, mesh):
+    """Recreate the skin layer from the engine columns after a rebuild. Layer
+    creation has no direct RNA: prefer the fork's Mesh.skin_vertices_ensure
+    when present, else round-trip through bmesh (whose skin layer access can
+    create the CustomData layer). Never an operator — flush runs inside undo
+    pushes and save handlers, and an operator call there re-enters the mode's
+    own flush and frees the session under us."""
+    import ctypes
+
+    import numpy as np
+
+    lib = engine.capi().lib
+    verts_num = len(mesh.vertices)
+    radius = np.empty(verts_num * 2, dtype=np.float32)
+    if not lib.Mesh_readAttr(session.mesh_ptr, 1, _SC_SKIN_RADIUS, _AT_FLOAT2,
+                             radius.ctypes.data_as(ctypes.c_void_p)):
+        return
+    flags = np.zeros(verts_num, dtype=np.int32)
+    lib.Mesh_readAttr(session.mesh_ptr, 1, _SC_SKIN_FLAGS, _AT_INT,
+                      flags.ctypes.data_as(ctypes.c_void_p))
+
+    if not len(mesh.skin_vertices):
+        if hasattr(mesh, "skin_vertices_ensure"):
+            mesh.skin_vertices_ensure()
+        else:
+            import bmesh
+            bm = bmesh.new()
+            try:
+                bm.from_mesh(mesh)
+                bm.verts.layers.skin.verify()
+                bm.to_mesh(mesh)
+            finally:
+                bm.free()
+        if not len(mesh.skin_vertices):
+            print("SculptCore: could not recreate the skin vertex layer; "
+                  "radii stay engine-side until the next flush")
+            return
+    data = mesh.skin_vertices[0].data
+    data.foreach_set("radius", radius)
+    data.foreach_set("use_root", (flags & _SKIN_ROOT) != 0)
+    data.foreach_set("use_loose", (flags & _SKIN_LOOSE) != 0)
 
 
 # Vertex groups
@@ -712,7 +1193,13 @@ def _flush_topology_rebuild(session, mesh):
     clear_geometry; the dedicated mask/face-set/color layers are re-flushed by
     the caller, and the bridged user attributes (UV maps, colors, custom attrs)
     are recreated here onto the new topology from their engine copies. Updates
-    the session's sizes/stamp so the next flush is fast again."""
+    the session's sizes/stamp so the next flush is fast again.
+
+    Everything that must survive the rebuild is read *here*, immediately
+    before clear_geometry — the one point where the host state is both current
+    and about to be destroyed. Returns the layer-designation snapshot for the
+    caller to restore once the dedicated color/UV flushes have recreated their
+    layers (they run after this)."""
     import ctypes
 
     import numpy as np
@@ -727,6 +1214,14 @@ def _flush_topology_rebuild(session, mesh):
     vert_map = np.empty(cap.value, dtype=np.int32)
     lib.Mesh_toArrays(session.mesh_ptr, positions, corner_verts, face_offsets, vert_map)
 
+    # The 1.8 read point: reconcile mid-session attribute creation/deletion and
+    # snapshot what clear_geometry destroys beyond the layers themselves.
+    _reconcile_bridged_attrs(session, mesh, vert_map,
+                             (nv.value, nc.value, nf.value))
+    designations = _read_layer_designations(mesh)
+    loose_edges = _read_loose_edges(session, mesh, vert_map)
+    has_skin = _reconcile_skin(session, mesh, vert_map)
+
     # Bulk rebuild (no per-face Python — dyntopo meshes get large). Build the
     # vert/loop/poly domains directly from the flat arrays, then let update()
     # derive the edges.
@@ -738,15 +1233,63 @@ def _flush_topology_rebuild(session, mesh):
     mesh.polygons.add(nf.value)
     mesh.polygons.foreach_set("loop_start", face_offsets[:nf.value])
     mesh.polygons.foreach_set("loop_total", np.diff(face_offsets))
+    if loose_edges is not None:
+        # Re-add loose edges before update(): clear_geometry removed every
+        # edge and the face rebuild never calls edges.add(), so without this
+        # wire/scaffold edges die here. calc_edges keeps existing edges.
+        mesh.edges.add(len(loose_edges))
+        mesh.edges.foreach_set("vertices", loose_edges.reshape(-1))
     mesh.update(calc_edges=True)
 
     session.verts_num = nv.value
     session.topo_stamp = lib.Mesh_topoStamp(session.mesh_ptr)
+    session.vert_map_prev = vert_map
 
     # Recreate the user attribute layers clear_geometry dropped, from their
     # engine copies (interpolated by dyntopo / reverted by the meshlog on undo).
-    _flush_bridged_attrs(session, mesh)
+    _flush_bridged_attrs(session, mesh, vert_map)
     _flush_edge_flags(session, mesh, vert_map)
+    if has_skin:
+        _flush_skin(session, mesh)
+    _flush_custom_normals(session, mesh)
+    return designations
+
+
+def _read_loose_edges(session, mesh, vert_map):
+    """Loose (wire) edges as an ``(n, 2)`` array of *rebuilt* Blender vertex
+    indices, or None when there are none. Loose edges never enter the engine
+    (Mesh_fromArrays takes faces only), so they are carried across the rebuild
+    host-side: current endpoints are mapped old-Blender-index -> engine index
+    (inverting ``session.vert_map_prev``) -> new index (``vert_map``). An edge
+    whose endpoint died — or whose engine index was reused by new geometry, the
+    same accepted imprecision as _reconcile_bridged_attrs — is dropped."""
+    import numpy as np
+
+    edges_num = len(mesh.edges)
+    if not edges_num:
+        return None
+    loose = np.empty(edges_num, dtype=np.bool_)
+    mesh.edges.foreach_get("is_loose", loose)
+    if not loose.any():
+        return None
+    edge_verts = np.empty(edges_num * 2, dtype=np.int32)
+    mesh.edges.foreach_get("vertices", edge_verts)
+    pairs = edge_verts.reshape(-1, 2)[loose]
+
+    prev = session.vert_map_prev
+    if prev is None:
+        return None
+    # Invert prev: old Blender index -> engine index.
+    old_count = int(prev.max()) + 1
+    eng_of_bl = np.full(max(old_count, int(pairs.max()) + 1), -1, dtype=np.int64)
+    live_prev = np.nonzero(prev >= 0)[0]
+    eng_of_bl[prev[live_prev]] = live_prev
+    eng_pairs = eng_of_bl[pairs]
+    valid = np.all((eng_pairs >= 0) & (eng_pairs < len(vert_map)), axis=1)
+    new_pairs = np.full_like(eng_pairs, -1)
+    new_pairs[valid] = vert_map[eng_pairs[valid]]
+    new_pairs = new_pairs[np.all(new_pairs >= 0, axis=1)]
+    return new_pairs.astype(np.int32) if len(new_pairs) else None
 
 
 def _mesh_counts(mesh_ptr):
@@ -875,6 +1418,12 @@ def multires_restore_blob(ob, session, blob, level):
         return False
     actual = lib.Multires_setActiveLevel(session.multires_ptr, level)
     _rebind_multires_views(session, actual)
+    # The restore invalidated the slot meshes and their mask columns with
+    # them; re-seed at the restored level so mask state survives the seek.
+    import bpy
+    session.multires_mask_base = multires.import_mask(
+        ob, bpy.context.evaluated_depsgraph_get(), session.mesh_ptr,
+        session.multires_map, session.multires_ptr, actual)
     # The store now equals this blob; a new stroke branches from here.
     session.multires_last_blob = blob
     return True
@@ -960,8 +1509,9 @@ def sync_multires_total_levels(ob):
     md.show_viewport = False
     session.multires_map = multires.build_map(ob, depsgraph, session.multires_ptr, have, len(top))
     _rebind_multires_views(session, lib.Multires_setActiveLevel(session.multires_ptr, have))
-    multires.import_mask(ob, bpy.context.evaluated_depsgraph_get(),
-                         session.mesh_ptr, session.multires_map)
+    session.multires_mask_base = multires.import_mask(
+        ob, bpy.context.evaluated_depsgraph_get(), session.mesh_ptr,
+        session.multires_map, session.multires_ptr, have)
     if session.draw_key:
         lib.sc_external_draw_update(session.draw_key)
 
@@ -978,8 +1528,10 @@ def set_multires_level(ob, level):
     """Switch a multires session's active engine level (C2). The engine
     writes the outgoing level's edits back into the store; finer detail rides
     on top of coarser edits through the displacement cascade. The paint mask
-    lives on the level mesh (dropped with the evicted slot), so leaving the
-    top level persists it to the grid paint mask and returning re-seeds it."""
+    lives on the level mesh (dropped with the evicted slot), so leaving any
+    level persists it to the grid paint mask (delta-based — see
+    multires.export_mask) and arriving re-seeds from it at the new level's
+    lattice."""
     import bpy
 
     session = engine.sessions.get(ob.name)
@@ -987,16 +1539,18 @@ def set_multires_level(ob, level):
         return
     lib = engine.capi().lib
     level = min(max(int(level), 1), session.multires_level)
-    top = session.multires_level
     was = session.multires_active_level
-    if was == top and level != top:
-        multires.export_mask(ob, bpy.context.evaluated_depsgraph_get(),
-                             session.mesh_ptr, session.multires_map)
+    if level != was:
+        session.multires_mask_base = multires.export_mask(
+            ob, bpy.context.evaluated_depsgraph_get(), session.mesh_ptr,
+            session.multires_map, session.multires_ptr, was,
+            session.multires_mask_base)
     actual = lib.Multires_setActiveLevel(session.multires_ptr, level)
     _rebind_multires_views(session, actual)
-    if actual == top and was != top:
-        multires.import_mask(ob, bpy.context.evaluated_depsgraph_get(),
-                             session.mesh_ptr, session.multires_map)
+    if actual != was:
+        session.multires_mask_base = multires.import_mask(
+            ob, bpy.context.evaluated_depsgraph_get(), session.mesh_ptr,
+            session.multires_map, session.multires_ptr, actual)
     if actual < was:
         # A downward switch is where the engine pushes a finer level's detail
         # into the coarser ones, so the store no longer matches the blob the
@@ -1012,14 +1566,16 @@ def _flush_multires(ob, session):
     so the suppressed modifier viewport state does not affect it. Dumping the
     top level moves the engine's active level there; restore the sculpt level
     afterwards (a no-op rebind while the slots stay resident). The paint mask
-    is exchanged at the top level only (the mask attribute lives on the level
-    mesh; a level switch persists it — see set_multires_level)."""
+    is exported at whatever level is active — before the bake's level dance,
+    while session.mesh_ptr certainly still names the active slot."""
     import bpy
 
     depsgraph = bpy.context.evaluated_depsgraph_get()
+    session.multires_mask_base = multires.export_mask(
+        ob, depsgraph, session.mesh_ptr, session.multires_map,
+        session.multires_ptr, session.multires_active_level,
+        session.multires_mask_base)
     multires.export_bake(ob, depsgraph, session.multires_ptr, session.multires_map)
-    if session.multires_active_level == session.multires_level:
-        multires.export_mask(ob, depsgraph, session.mesh_ptr, session.multires_map)
     lib = engine.capi().lib
     if session.multires_active_level != session.multires_level:
         lib.Multires_setActiveLevel(session.multires_ptr, session.multires_active_level)
@@ -1044,8 +1600,9 @@ def flush(ob):
     # The topo stamp catches forward topology edits, but a meshlog undo reverts
     # the topology without rolling the stamp back; a live-vs-Blender vertex-count
     # mismatch catches that case so undo/redo also take the rebuild path.
+    designations = None
     if session.topology_changed() or _mesh_vert_num(session.mesh_ptr) != len(mesh.vertices):
-        _flush_topology_rebuild(session, mesh)
+        designations = _flush_topology_rebuild(session, mesh)
         # Vertex groups need the object, which the rebuild does not take. The
         # fast path leaves them alone: only new or removed vertices can change
         # them, and that is a topology change by definition.
@@ -1056,6 +1613,11 @@ def flush(ob):
     _flush_mask(mesh, session.mesh_ptr, session.verts_num)
     _flush_face_sets(mesh, session.mesh_ptr)
     _flush_color(mesh, session.mesh_ptr, session.verts_num, session.color_attr_name)
+    if designations is not None:
+        # After _flush_color (which recreates the active color layer) and
+        # before _flush_uv (which needs the active UV designation to find its
+        # target instead of creating a duplicate map).
+        _restore_layer_designations(mesh, designations)
     if session.uv_dirty:
         _flush_uv(mesh, session.mesh_ptr)
     mesh.update()

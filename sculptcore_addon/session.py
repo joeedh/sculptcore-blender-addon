@@ -84,6 +84,22 @@ class Session:
         # Name of the active POINT/FLOAT_COLOR color attribute at enter, so the
         # color write-back recreates it under its own name after a rebuild.
         "color_attr_name",
+        # Engine vertex index -> Blender vertex index at the last sync
+        # (identity at enter, Mesh_toArrays' vert_map after each rebuild).
+        # Carries host-only per-vertex state (loose edges, mid-session-created
+        # layers) across topology rebuilds. None for multires sessions.
+        "vert_map_prev",
+        # Multires paint-mask delta base: the active level's per-vertex mask as
+        # last imported/exported, so the next export writes only the user's
+        # delta into CD_GRID_PAINT_MASK (preserving finer-lattice detail when
+        # sculpting at a lower level). None when the object has no mask layer.
+        "multires_mask_base",
+        # The mesh entered with the *encoded* (INT16_2D corner) custom-normal
+        # form: the bridge carries decoded directions and re-encodes on every
+        # topology rebuild (convert._load_custom_normals). The second flag
+        # latches the sharp-edge-creep warning for the pre-fork fallback.
+        "custom_normal_encoded",
+        "custom_normal_creep_warned",
         # Engine UVs diverged from the Blender mesh (UV-project op, UV
         # reprojection): every flush writes the engine `uv` column back into
         # the active UV map. Sticky for the session — undo decodes re-flush.
@@ -120,6 +136,10 @@ class Session:
         self.multires_desynced = False
         self.bridged_attrs = []
         self.color_attr_name = None
+        self.vert_map_prev = None
+        self.multires_mask_base = None
+        self.custom_normal_encoded = False
+        self.custom_normal_creep_warned = False
         self.uv_dirty = False
         self._freed = False
 

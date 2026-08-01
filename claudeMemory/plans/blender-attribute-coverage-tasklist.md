@@ -1,5 +1,23 @@
 # Blender attribute coverage — what the bridge still drops
 
+> **Status 2026-07-30 — most of this page is implemented.** The `attrs`
+> branch landed: the 1.8 read point (reconcile + designations + loose edges +
+> skin read immediately before `clear_geometry`), 1.2 in full (engine
+> `Mesh_edgeVertsOut` identity channel + pair-matched EDGE-domain bridge),
+> 1.3 (all six select/hide layers + `.vs./.es./.pn.` UV sublayers), 1.5
+> (loose edges re-added before `update()`), 1.6 (decode-on-read /
+> re-encode-on-flush via the fork's new `Mesh.custom_normals_encode`, F7),
+> 1.7 (all six designations), 1.10 (skin bridged as engine columns; fork
+> `Mesh.skin_vertices_ensure` + bmesh fallback), 3.1 (`FLOAT4`), 3.4
+> (level-aware delta mask exchange), E10 (c-api AttrType validation), E12
+> (UV tag only for real UV maps). E7 turned out to be already correct on the
+> rebased engine tip (see its entry). Headless tests:
+> `claudeMemory/scripts/test_attr_roundtrip.py`,
+> `test_multires_mask_levels.py`. Still open: 1.4 (shape keys — the
+> `Mesh.key` resize gate stands), 1.9 (animdata, fork-side), 1.11 (particle
+> warning), E11/E8 (edge weld + corner interpolation contract), E4/E5/3.2
+> (quaternion slerp), 2.x types, 3.3, 3.5/F5, F2/F4.
+
 A tasklist of Blender mesh data the addon does **not** currently hand to the
 engine, and what each one would take. Written after the `AttrType::WEIGHTS`
 work landed (see
@@ -101,7 +119,16 @@ The old framing — "nothing moves on the engine side until E3 and E4 land" — 
 the single most expensive claim on this page: it blocked the only engine item
 that is both real and cheap behind two that are not.
 
-- [ ] **E7. `collapseEdge` skips attribute merging entirely at the default
+- [x] **E7 — checked against the rebased engine tip (2026-07-30) and the bug
+  does not exist there.** The pressure test's claim was verified against the
+  wrong tree: on the `attrs` branch's engine (`e41cae9`, the rebased tip the
+  addon actually links), the dyntopo caller has passed `mid` **and**
+  `blend=0.5f` since the very first dyntopo commit (`afdac12`;
+  `dyntopo.h:1037-1043`), so `interpAttrs` runs on every collapse with the
+  midpoint handed to the merge policies. Nothing to fix. The entry below is
+  retained for the record.
+
+- [ ] **E7 (historical). `collapseEdge` skips attribute merging entirely at the default
   blend.** **Do this first.** *Rewritten — the original premise was wrong and
   the real bug is smaller and worse.*
 

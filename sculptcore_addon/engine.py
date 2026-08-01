@@ -141,6 +141,11 @@ class _CApi:
         u8p = np.ctypeslib.ndpointer(dtype=np.uint8, flags="C_CONTIGUOUS")
         lib.Mesh_edgeCount.argtypes = [ctypes.c_void_p]
         lib.Mesh_edgeCount.restype = ctypes.c_int
+        # Edge identity channel: live edge endpoints in the same live-iteration
+        # order the EDGE-domain Mesh_readAttr/Mesh_writeAttr use, so edge
+        # columns can be paired with Blender edges by endpoint matching.
+        lib.Mesh_edgeVertsOut.argtypes = [ctypes.c_void_p, i32p]
+        lib.Mesh_edgeVertsOut.restype = ctypes.c_int
         lib.Mesh_writeEdgeFlagsByVerts.argtypes = [
             ctypes.c_void_p, ctypes.c_char_p, i32p, u8p, ctypes.c_int]
         lib.Mesh_writeEdgeFlagsByVerts.restype = ctypes.c_int

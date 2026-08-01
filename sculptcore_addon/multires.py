@@ -73,6 +73,10 @@ class MultiresMap:
         # attribute exchange, e.g. the paint mask). Derived from the grid
         # tables: each grid sample names its engine vertex.
         self.engine_vert_to_blender = engine_vert_to_blender
+        # level -> (grid-sample -> engine level-mesh vertex) tables, built
+        # lazily for the per-level mask exchange (the top level's is seeded by
+        # build_map). A level switch reuses these; a restack rebuilds the map.
+        self.level_grid_verts = {}
 
 
 def build_engine(base_arrays, level):
@@ -161,8 +165,10 @@ def build_map(ob, depsgraph, mr_ptr, level, blender_verts_num):
     valid = grid_verts >= 0
     engine_vert_to_blender = np.zeros(int(grid_verts.max()) + 1, dtype=np.int64)
     engine_vert_to_blender[grid_verts[valid]] = engine_sample_to_blender[valid]
-    return MultiresMap(level, grid_size, engine_sample_to_blender,
-                       blender_to_engine_sample, engine_vert_to_blender)
+    mapping = MultiresMap(level, grid_size, engine_sample_to_blender,
+                          blender_to_engine_sample, engine_vert_to_blender)
+    mapping.level_grid_verts[level] = grid_verts
+    return mapping
 
 
 def import_displacement(mr_ptr, mapping, blender_top_positions):
@@ -196,57 +202,149 @@ def export_bake(ob, depsgraph, mr_ptr, mapping):
     ob.data.update_tag()
 
 
-# Mask exchange (A4). The engine mask lives on the level mesh's
-# `.spatial.v.mask` column, Blender's on CD_GRID_PAINT_MASK; both directions
-# route through top-level per-subdiv-vertex values via the vert map.
+# Mask exchange (A4). The engine mask lives on the *active level* mesh's
+# `.spatial.v.mask` column, Blender's on CD_GRID_PAINT_MASK — a top-level
+# lattice. The exchange is level-aware: importing to a lower level restricts
+# the top lattice to the level's own (every level sample coincides with a top
+# sample), and exporting from a lower level prolongates the user's *delta*
+# bilinearly and adds it into the stored mask, so finer-lattice detail the
+# lower level cannot represent is preserved rather than overwritten. The
+# import result is the delta base (kept on the session); an export returns the
+# new base.
 _SC_MASK = b".spatial.v.mask"
 
 
-def _vert_map(mesh_ptr, mapping):
-    """`mapping.engine_vert_to_blender` sized to the engine mesh's live vertex
-    count, which is what the per-vertex attribute c-api reads and writes. The
-    two agree for a freshly built level mesh (compact, no freelist gaps); a
-    disagreement would otherwise run off the end of the exchange buffer."""
+def _mesh_vert_count(mesh_ptr):
     import ctypes
 
     nv, nc, nf, cap = (ctypes.c_int(0) for _ in range(4))
     engine.capi().lib.Mesh_arraySizes(mesh_ptr, ctypes.byref(nv), ctypes.byref(nc),
                                       ctypes.byref(nf), ctypes.byref(cap))
-    vert_map = mapping.engine_vert_to_blender
-    if nv.value != len(vert_map):
-        raise engine.EngineError(
-            "SculptCore: multires level mesh has {} verts, map covers {}".format(
-                nv.value, len(vert_map)))
-    return vert_map
+    return nv.value
 
 
-def import_mask(ob, depsgraph, mesh_ptr, mapping):
-    """Seed the engine mask on the (top-level) engine mesh from the object's
-    grid paint mask. No-op without a mask layer; returns True when seeded."""
+def _level_grid_verts(mapping, mr_ptr, level):
+    """Grid-sample -> engine-vertex table for `level`, cached on the map."""
+    grid_verts = mapping.level_grid_verts.get(level)
+    if grid_verts is None:
+        import sculptcore
+
+        mgr = engine.manager()
+        mr_obj = mgr.get_bound_pointer(
+            mgr.get("sculptcore::subdiv::Multires"), mr_ptr, deref=False)
+        with sculptcore.construct_from_items(mgr, mgr.get("int32"), []) as out:
+            mr_obj.levelGridVertsOut(level, out)
+            grid_verts = out.numpy().copy()
+        mapping.level_grid_verts[level] = grid_verts
+    return grid_verts
+
+
+def _level_lattice(mapping, grid_verts):
+    """(level grid side w, stride f) pairing a level's lattice with the top
+    one: level sample (u, v) coincides with top sample (u*f, v*f) — both sides
+    anchor every level's lattice at the same corner."""
+    top_w = mapping.grid_size
+    area = top_w * top_w
+    grids_num = len(mapping.engine_sample_to_blender) // area
+    if grids_num == 0 or len(grid_verts) % grids_num:
+        raise engine.EngineError("SculptCore: multires level sample count "
+                                 "does not tile the grids")
+    level_area = len(grid_verts) // grids_num
+    w = int(round(level_area ** 0.5))
+    if w * w != level_area or w < 2:
+        raise engine.EngineError("SculptCore: multires level lattice is not "
+                                 "square ({} samples/grid)".format(level_area))
+    f, rem = divmod(top_w - 1, w - 1)
+    if rem:
+        raise engine.EngineError("SculptCore: multires level lattice ({}) does "
+                                 "not subdivide the top one ({})".format(w, top_w))
+    return w, f
+
+
+def _prolongate(grids, f):
+    """Bilinearly upsample `(n, w, w)` grid lattices by integer factor `f`."""
+    import numpy as np
+
+    if f == 1:
+        return grids
+    n, w, _ = grids.shape
+    top_w = (w - 1) * f + 1
+    idx = np.arange(top_w) / f
+    i0 = np.minimum(idx.astype(np.int64), w - 2)
+    t = (idx - i0).astype(grids.dtype)
+    rows = grids[:, i0, :] * (1.0 - t)[None, :, None] + grids[:, i0 + 1, :] * t[None, :, None]
+    return rows[:, :, i0] * (1.0 - t)[None, None, :] + rows[:, :, i0 + 1] * t[None, None, :]
+
+
+def _stored_top_engine_values(ob, depsgraph, mapping):
+    """The stored grid paint mask in top-level engine-sample order, or None
+    when the object has no mask layer."""
     import numpy as np
 
     values, has_mask = ob.multires_mask_to_vert_values(depsgraph)
     if not has_mask:
-        return False
-    vert_map = _vert_map(mesh_ptr, mapping)
+        return None
     blender_values = np.array(values, dtype=np.float32)
-    engine_values = np.ascontiguousarray(blender_values[vert_map], dtype=np.float32)
-    engine.capi().lib.Mesh_writeVertFloatAttr(mesh_ptr, _SC_MASK, engine_values)
-    return True
+    return blender_values[mapping.engine_sample_to_blender]
 
 
-def export_mask(ob, depsgraph, mesh_ptr, mapping):
-    """Write the engine mask back into the object's grid paint mask (created
-    on first use). No-op when the engine mesh carries no mask."""
+def import_mask(ob, depsgraph, mesh_ptr, mapping, mr_ptr, level):
+    """Seed the engine mask on the active-level engine mesh from the object's
+    grid paint mask, restricted to the level's lattice. Returns the imported
+    per-vertex values (the delta base for export_mask), or None when the
+    object has no mask layer."""
     import numpy as np
 
-    vert_map = _vert_map(mesh_ptr, mapping)
-    engine_values = np.zeros(len(vert_map), dtype=np.float32)
-    if not engine.capi().lib.Mesh_readVertFloatAttr(mesh_ptr, _SC_MASK, engine_values):
-        return False
+    top_values = _stored_top_engine_values(ob, depsgraph, mapping)
+    if top_values is None:
+        return None
+    grid_verts = _level_grid_verts(mapping, mr_ptr, level)
+    w, f = _level_lattice(mapping, grid_verts)
+    top_w = mapping.grid_size
+    level_values = np.ascontiguousarray(
+        top_values.reshape(-1, top_w, top_w)[:, ::f, ::f].reshape(-1),
+        dtype=np.float32)
+
+    nv = _mesh_vert_count(mesh_ptr)
+    engine_values = np.zeros(nv, dtype=np.float32)
+    valid = (grid_verts >= 0) & (grid_verts < nv)
+    engine_values[grid_verts[valid]] = level_values[valid]
+    engine.capi().lib.Mesh_writeVertFloatAttr(mesh_ptr, _SC_MASK, engine_values)
+    return engine_values
+
+
+def export_mask(ob, depsgraph, mesh_ptr, mapping, mr_ptr, level, base):
+    """Write the engine mask back into the object's grid paint mask (created
+    on first use): gather the active level's per-vertex values, subtract the
+    imported `base`, prolongate the delta to the top lattice and add it into
+    the stored mask (clamped to 0..1). Painting the level did not touch leaves
+    the stored mask bit-identical. Returns the new base (the current level
+    values), or None when the engine mesh carries no mask column."""
+    import numpy as np
+
+    nv = _mesh_vert_count(mesh_ptr)
+    current = np.zeros(nv, dtype=np.float32)
+    if not engine.capi().lib.Mesh_readVertFloatAttr(mesh_ptr, _SC_MASK, current):
+        return None
+
+    grid_verts = _level_grid_verts(mapping, mr_ptr, level)
+    w, f = _level_lattice(mapping, grid_verts)
+    delta = current if base is None else current - base
+    valid = (grid_verts >= 0) & (grid_verts < nv)
+    delta_samples = np.zeros(len(grid_verts), dtype=np.float32)
+    delta_samples[valid] = delta[grid_verts[valid]]
+    if not delta_samples.any():
+        return current
+
+    top_delta = _prolongate(delta_samples.reshape(-1, w, w), f).reshape(-1)
+    stored = _stored_top_engine_values(ob, depsgraph, mapping)
+    if stored is None:
+        stored = np.zeros(len(mapping.engine_sample_to_blender), dtype=np.float32)
+    new_top = np.clip(stored + top_delta, 0.0, 1.0)
+
     blender_values = np.zeros(len(mapping.blender_to_engine_sample), dtype=np.float32)
-    blender_values[vert_map] = engine_values
+    blender_values[mapping.engine_sample_to_blender] = new_top
     ob.multires_mask_from_vert_values(
         depsgraph, np.ascontiguousarray(blender_values, dtype=np.float32))
     ob.data.update_tag()
-    return True
+    return current
