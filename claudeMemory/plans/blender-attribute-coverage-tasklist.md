@@ -13,10 +13,26 @@
 > (UV tag only for real UV maps). E7 turned out to be already correct on the
 > rebased engine tip (see its entry). Headless tests:
 > `claudeMemory/scripts/test_attr_roundtrip.py`,
-> `test_multires_mask_levels.py`. Still open: 1.4 (shape keys — the
-> `Mesh.key` resize gate stands), 1.9 (animdata, fork-side), 1.11 (particle
-> warning), E11/E8 (edge weld + corner interpolation contract), E4/E5/3.2
-> (quaternion slerp), 2.x types, 3.3, 3.5/F5, F2/F4.
+> `test_multires_mask_levels.py`.
+>
+> **Second pass (2026-08-01):** **F4** landed — the fork's `Mesh.set_topology`
+> resizes all four domains in place, so layer declarations, designations,
+> vertex-group names, **animation data (1.9 closed on this path)** and
+> shape-key blocks survive the rebuild; the addon prefers it with the old
+> clear_geometry path as fallback. **1.4** landed on top: shape keys enter as
+> passengers (non-basis blocks = index-keyed engine FLOAT3 columns, basis
+> follows positions every flush; requires relative keys + basis active;
+> `set_topology` keeps the blocks sized, closing the heap-overflow gate).
+> **E8/E11 decided and implemented**: bool attrs OR on merge by default
+> (`AttrFlag::NOCOPY` or COPY_SRC0 opts back into src0 copy; edge weld
+> already OR'd), and every float-backed corner layer now averages across a
+> collapse using the UV wedge machinery generalized (value-proximity pair
+> matching doubles as the chart rule — unmatched wedges keep their value).
+> Roundtrip suite: 42 checks. Still open: 1.11 (particle warning), E4/E5/3.2
+> (quaternion slerp — revisit next), 2.x types, 3.3, 3.5/F5, F2 (subsumed by
+> F4 — names now survive), edge-weld non-bool values (crease on a welded
+> edge still keeps the survivor's row; corner bools across a wedge likewise
+> restore rather than OR).
 
 A tasklist of Blender mesh data the addon does **not** currently hand to the
 engine, and what each one would take. Written after the `AttrType::WEIGHTS`
