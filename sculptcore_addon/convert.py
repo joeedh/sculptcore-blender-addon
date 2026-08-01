@@ -273,6 +273,11 @@ def _enter_multires(ob, md):
 
     session.draw_key = int(ob.session_uid)
     lib.sc_external_draw_register(session.draw_key, tree_ptr)
+    # The dynamic per-attribute layout (color@0/uv@1/mask@2/fset@3): without it
+    # the provider exposes only the legacy composited color stream, which
+    # Blender skips for an object with no color attribute — losing the
+    # sculpt-mask overlay on every multires session.
+    lib.sc_external_draw_enable_dynamic(tree_ptr)
     lib.sc_external_draw_update(session.draw_key)
 
     # Honor the modifier's sculpt level (C2); the import left the top active.
@@ -1537,6 +1542,7 @@ def _rebind_multires_views(session, active_level):
     if session.draw_key:
         lib.sc_external_draw_unregister(session.draw_key)
         lib.sc_external_draw_register(session.draw_key, tree_ptr)
+        lib.sc_external_draw_enable_dynamic(tree_ptr)
         lib.sc_external_draw_update(session.draw_key)
 
 
