@@ -141,6 +141,25 @@ def main():
     vg = ob.vertex_groups.new(name="grp")
     vg.add(list(range(0, nv, 2)), 0.75, 'REPLACE')
 
+    # Animation data on the Mesh ID (survives only via set_topology).
+    has_set_topology = hasattr(mesh, "set_topology")
+    if has_set_topology:
+        mesh.animation_data_create()
+
+    # Shape keys: basis + one offset key, basis active (the enter requirement).
+    shape_offset = None
+    if has_set_topology:
+        ob.shape_key_add(name="Basis")
+        smile = ob.shape_key_add(name="Smile")
+        shape_offset = np.zeros(nv * 3, dtype=np.float32)
+        smile.data.foreach_get("co", shape_offset)
+        shape_offset = shape_offset.reshape(-1, 3)
+        shape_offset[:, 2] += 0.5
+        smile.data.foreach_set("co", shape_offset.reshape(-1))
+        smile.value = 0.7
+        smile.slider_max = 2.0
+        ob.active_shape_key_index = 0
+
     # Skin layer.
     skin_ok = True
     try:
@@ -282,7 +301,40 @@ def main():
         np.asarray(seeded["freestyle_edge"], dtype=np.bool_).tolist()),
         "freestyle_edge value multiset round-trips")
 
+    # F4-only guarantees.
+    if has_set_topology:
+        check(mesh.animation_data is not None, "animation data survives (F4)")
+        key = mesh.shape_keys
+        check(key is not None and len(key.key_blocks) == 2, "shape key blocks survive")
+        if key is not None and len(key.key_blocks) == 2:
+            smile = key.key_blocks[1]
+            got = np.zeros(nv * 3, dtype=np.float32)
+            smile.data.foreach_get("co", got)
+            check(np.allclose(got.reshape(-1, 3), shape_offset, atol=1e-6),
+                  "non-basis key values round-trip")
+            check(abs(smile.value - 0.7) < 1e-6 and abs(smile.slider_max - 2.0) < 1e-6,
+                  "key block metadata survives")
+            basis = np.zeros(nv * 3, dtype=np.float32)
+            key.key_blocks[0].data.foreach_get("co", basis)
+            pos = np.zeros(nv * 3, dtype=np.float32)
+            mesh.vertices.foreach_get("co", pos)
+            check(np.allclose(basis, pos), "basis key equals mesh positions")
+
     convert.exit_(ob)
+
+    # A rebuild with no loose edges exercises set_topology's empty edge_verts.
+    mesh2 = bpy.data.meshes.new("no_loose")
+    mesh2.from_pydata([(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)], [],
+                      [(0, 1, 2, 3)])
+    mesh2.update(calc_edges=True)
+    ob2 = bpy.data.objects.new("no_loose", mesh2)
+    bpy.context.scene.collection.objects.link(ob2)
+    session2 = convert.enter(ob2)
+    session2.topo_stamp ^= 0xFFFF
+    convert.flush(ob2)
+    check(len(ob2.data.vertices) == 4 and len(ob2.data.edges) == 4,
+          "empty-edge-list rebuild keeps counts")
+    convert.exit_(ob2)
 
     print()
     if failures:

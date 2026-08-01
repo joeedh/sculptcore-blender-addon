@@ -89,14 +89,35 @@ def _gather_arrays(mesh):
 
 
 def validate(ob, ignore_multires=False):
-    """v1 entry rules (sculpt-modifier-coupling research): refuse shape
-    keys; warn-and-proceed on enabled modifiers and loose edges. Multires
-    sessions pass ``ignore_multires`` — their modifier is supported (converted,
-    not ignored), so it is excluded from the enabled-modifier warning."""
+    """v1 entry rules (sculpt-modifier-coupling research): shape keys are
+    carried as passengers when the fork's Mesh.set_topology exists (it keeps
+    the key blocks sized to the vertex count — without it, a topology rebuild
+    on a keyed mesh is a release-build buffer overrun in
+    BKE_keyblock_update_from_mesh, so the refusal stands). Sculpting writes
+    the basis, so entry requires the basis key active. Warn-and-proceed on
+    enabled modifiers and loose edges. Multires sessions pass
+    ``ignore_multires`` — their modifier is supported (converted, not
+    ignored), so it is excluded from the enabled-modifier warning."""
     mesh = ob.data
     if mesh.shape_keys is not None:
-        raise ConvertError(
-            "SculptCore: cannot enter on {!r} — shape keys are not supported".format(ob.name))
+        if ignore_multires:
+            raise ConvertError(
+                "SculptCore: cannot enter on {!r} — shape keys plus multires "
+                "are not supported together".format(ob.name))
+        if not hasattr(mesh, "set_topology"):
+            raise ConvertError(
+                "SculptCore: cannot enter on {!r} — shape keys need a Blender "
+                "with Mesh.set_topology (topology changes would corrupt the "
+                "key blocks)".format(ob.name))
+        if not mesh.shape_keys.use_relative:
+            raise ConvertError(
+                "SculptCore: cannot enter on {!r} — absolute shape keys are "
+                "not supported".format(ob.name))
+        if ob.active_shape_key_index != 0:
+            raise ConvertError(
+                "SculptCore: cannot enter on {!r} — make the Basis shape key "
+                "active first (sculpting edits the basis; other keys ride "
+                "along)".format(ob.name))
 
     warnings = []
     if any(md.show_viewport for md in ob.modifiers
@@ -156,6 +177,7 @@ def enter(ob):
     _load_vertex_groups(ob, mesh_ptr)
     _load_skin(ob.data, mesh_ptr, verts_num)
     _load_custom_normals(ob.data, mesh_ptr, session)
+    _load_shape_keys(ob.data, mesh_ptr, session)
 
     # Register the tree for external-provider viewport draw, keyed by the
     # object's session_uid (the key Blender's draw path passes). Switch it to the
@@ -947,6 +969,125 @@ def _flush_custom_normals(session, mesh):
         mesh.normals_split_custom_set(values.reshape(-1, 3))
 
 
+# Shape keys (1.4)
+#
+# Each non-basis key block is one engine FLOAT3 point column, index-keyed —
+# a KeyBlock stores *absolute* coordinates (deltas against relative_key are
+# taken at evaluation time), so the default midpoint merge a dyntopo collapse
+# applies is exactly right, the same as for positions. The basis block is
+# never bridged: sculpting edits the mesh positions, which *are* the basis
+# (vanilla sculpt on the basis key behaves the same), so the basis simply
+# follows the position flush. Block metadata (value, ranges, vgroup,
+# relative_key, order) lives on the Key ID, which nothing in the rebuild
+# touches once Mesh.set_topology keeps the blocks alive and sized.
+_SC_KEY_PREFIX = ".blender.key."
+
+
+def _sc_key_name(index):
+    return "{:s}{:d}".format(_SC_KEY_PREFIX, index).encode("utf-8")
+
+
+def _shape_key_names(mesh):
+    key = mesh.shape_keys
+    return [kb.name for kb in key.key_blocks] if key is not None else []
+
+
+def _write_key_column(mesh_ptr, index, values):
+    import ctypes
+
+    engine.capi().lib.Mesh_writeAttr(mesh_ptr, 1, _sc_key_name(index), _AT_FLOAT3,
+                                     _USE_NONE, values.ctypes.data_as(ctypes.c_void_p))
+
+
+def _load_shape_keys(mesh, mesh_ptr, session):
+    """Seed each non-basis key block into the engine so dyntopo interpolates
+    it and the meshlog reverts it on undo. No-op without shape keys."""
+    import numpy as np
+
+    key = mesh.shape_keys
+    if key is None:
+        return
+    verts_num = len(mesh.vertices)
+    for i, kb in enumerate(key.key_blocks):
+        if i == 0:
+            continue
+        values = np.empty(verts_num * 3, dtype=np.float32)
+        kb.data.foreach_get("co", values)
+        _write_key_column(mesh_ptr, i, values)
+    session.shape_key_names = _shape_key_names(mesh)
+
+
+def _reconcile_shape_keys(session, mesh, vert_map):
+    """The 1.8 read point for shape keys: when the block list changed
+    mid-session (a key added, removed, renamed or reordered through the
+    properties panel), re-seed every non-basis engine column from the current
+    Blender data, carried across the index maps — the engine columns are
+    index-keyed, so a stale pairing would write one key's data into
+    another."""
+    import numpy as np
+
+    names = _shape_key_names(mesh)
+    if names == session.shape_key_names:
+        return
+    nv = _mesh_vert_num(session.mesh_ptr)
+    new_bl, old_bl, carry = _vert_carry_maps(session, vert_map)
+    key = mesh.shape_keys
+    old_count = len(mesh.vertices)
+    for i, kb in enumerate(key.key_blocks if key is not None else []):
+        if i == 0 or len(kb.data) != old_count:
+            continue
+        old_values = np.empty(old_count * 3, dtype=np.float32)
+        kb.data.foreach_get("co", old_values)
+        values = np.zeros(nv * 3, dtype=np.float32)
+        values.reshape(nv, 3)[new_bl[carry]] = old_values.reshape(-1, 3)[old_bl[carry]]
+        _write_key_column(session.mesh_ptr, i, values)
+    session.shape_key_names = names
+
+
+def _flush_shape_keys(session, mesh):
+    """Write the non-basis key blocks back from their engine columns after a
+    rebuild. Mesh.set_topology already resized every block to the new vertex
+    count and reset it to the new base shape, so the basis is current and a
+    column the engine somehow lost degrades to that reset, not a crash."""
+    import ctypes
+
+    import numpy as np
+
+    key = mesh.shape_keys
+    if key is None:
+        return
+    lib = engine.capi().lib
+    verts_num = len(mesh.vertices)
+    for i, kb in enumerate(key.key_blocks):
+        if i == 0 or len(kb.data) != verts_num:
+            continue
+        values = np.empty(verts_num * 3, dtype=np.float32)
+        if not lib.Mesh_readAttr(session.mesh_ptr, 1, _sc_key_name(i), _AT_FLOAT3,
+                                 values.ctypes.data_as(ctypes.c_void_p)):
+            continue
+        kb.data.foreach_set("co", values)
+
+
+def _flush_basis_key(mesh):
+    """Keep the basis block equal to the mesh positions — for a keyed mesh
+    the evaluated geometry comes from the Key data, so a sculpt that only
+    moved mesh positions would be invisible outside the mode. Vanilla sculpt
+    on the basis key does the same. Fast path only; the rebuild path's
+    set_topology already reset every block to the new positions."""
+    import numpy as np
+
+    key = mesh.shape_keys
+    if key is None or not len(key.key_blocks):
+        return
+    basis = key.key_blocks[0]
+    verts_num = len(mesh.vertices)
+    if len(basis.data) != verts_num:
+        return
+    values = np.empty(verts_num * 3, dtype=np.float32)
+    _read_positions(mesh, values)
+    basis.data.foreach_set("co", values)
+
+
 # Skin-modifier vertices (CD_MVERT_SKIN)
 #
 # Not a generic attribute — `mesh.attributes` cannot see it — so it gets a
@@ -1221,25 +1362,37 @@ def _flush_topology_rebuild(session, mesh):
     designations = _read_layer_designations(mesh)
     loose_edges = _read_loose_edges(session, mesh, vert_map)
     has_skin = _reconcile_skin(session, mesh, vert_map)
+    _reconcile_shape_keys(session, mesh, vert_map)
 
-    # Bulk rebuild (no per-face Python — dyntopo meshes get large). Build the
-    # vert/loop/poly domains directly from the flat arrays, then let update()
-    # derive the edges.
-    mesh.clear_geometry()
-    mesh.vertices.add(nv.value)
-    mesh.vertices.foreach_set("co", positions)
-    mesh.loops.add(nc.value)
-    mesh.loops.foreach_set("vertex_index", corner_verts)
-    mesh.polygons.add(nf.value)
-    mesh.polygons.foreach_set("loop_start", face_offsets[:nf.value])
-    mesh.polygons.foreach_set("loop_total", np.diff(face_offsets))
-    if loose_edges is not None:
-        # Re-add loose edges before update(): clear_geometry removed every
-        # edge and the face rebuild never calls edges.add(), so without this
-        # wire/scaffold edges die here. calc_edges keeps existing edges.
-        mesh.edges.add(len(loose_edges))
-        mesh.edges.foreach_set("vertices", loose_edges.reshape(-1))
-    mesh.update(calc_edges=True)
+    # Bulk rebuild (no per-face Python — dyntopo meshes get large). The fork's
+    # Mesh.set_topology (F4) resizes every domain in place: layer
+    # declarations, the six designations, the vertex-group name table,
+    # animation data and shape-key blocks all survive, with values reset for
+    # the flushes below to refill. Without it, fall back to
+    # clear_geometry + add() + update(), which destroys all of those (the
+    # designation snapshot above repairs what it can).
+    loose_flat = loose_edges.reshape(-1) if loose_edges is not None else ()
+    if hasattr(mesh, "set_topology"):
+        # RNA float params accept numpy scalars; the int params insist on
+        # Python ints, hence the tolist() (linear, dwarfed by the rebuild).
+        mesh.set_topology(positions, corner_verts.tolist(), face_offsets.tolist(),
+                          loose_flat.tolist() if len(loose_flat) else ())
+    else:
+        mesh.clear_geometry()
+        mesh.vertices.add(nv.value)
+        mesh.vertices.foreach_set("co", positions)
+        mesh.loops.add(nc.value)
+        mesh.loops.foreach_set("vertex_index", corner_verts)
+        mesh.polygons.add(nf.value)
+        mesh.polygons.foreach_set("loop_start", face_offsets[:nf.value])
+        mesh.polygons.foreach_set("loop_total", np.diff(face_offsets))
+        if loose_edges is not None:
+            # Re-add loose edges before update(): clear_geometry removed
+            # every edge and the face rebuild never calls edges.add().
+            # calc_edges keeps existing edges.
+            mesh.edges.add(len(loose_edges))
+            mesh.edges.foreach_set("vertices", loose_flat)
+        mesh.update(calc_edges=True)
 
     session.verts_num = nv.value
     session.topo_stamp = lib.Mesh_topoStamp(session.mesh_ptr)
@@ -1252,6 +1405,7 @@ def _flush_topology_rebuild(session, mesh):
     if has_skin:
         _flush_skin(session, mesh)
     _flush_custom_normals(session, mesh)
+    _flush_shape_keys(session, mesh)
     return designations
 
 
@@ -1609,6 +1763,7 @@ def flush(ob):
         _flush_vertex_groups(ob, session)
     else:
         _flush_positions_fast(session, mesh)
+        _flush_basis_key(mesh)
 
     _flush_mask(mesh, session.mesh_ptr, session.verts_num)
     _flush_face_sets(mesh, session.mesh_ptr)

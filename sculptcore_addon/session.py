@@ -100,6 +100,10 @@ class Session:
         # latches the sharp-edge-creep warning for the pre-fork fallback.
         "custom_normal_encoded",
         "custom_normal_creep_warned",
+        # Shape-key block names at the last seed/reconcile: the engine key
+        # columns are index-keyed, so a changed block list means re-seeding
+        # (convert._reconcile_shape_keys). Empty for keyless meshes.
+        "shape_key_names",
         # Engine UVs diverged from the Blender mesh (UV-project op, UV
         # reprojection): every flush writes the engine `uv` column back into
         # the active UV map. Sticky for the session — undo decodes re-flush.
@@ -140,6 +144,7 @@ class Session:
         self.multires_mask_base = None
         self.custom_normal_encoded = False
         self.custom_normal_creep_warned = False
+        self.shape_key_names = []
         self.uv_dirty = False
         self._freed = False
 
