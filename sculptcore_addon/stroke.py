@@ -577,10 +577,17 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         self._dyntopo_spacing = 0.0
         # Plane-mirror symmetry: one sign vector per reflection (empty = off).
         self._mirror_signs = symmetry.mirror_signs(symmetry.axes_from_mesh(ob.data))
-        # Face-set brushes paint a fresh group id per stroke.
+        # Face-set brushes paint a fresh group id per stroke. ensureFaceGroups
+        # flood-fills a first-ever group attr with the mesh's default id (so
+        # unpainted faces read as Blender's default set, not scattered zeros);
+        # newFaceGroupId skips that default, so a painted set is never the
+        # invisible one (extending the default set stays an explicit sample of
+        # an existing face's id, never an allocation).
         if not kernel_toggle and self.brush.sculpt_brush_type in mapping.FACE_SET_TYPES:
             brush = _ensure_brush(self.session)
-            brush.activeGroup = int(self.session.mesh().maxFaceGroup()) + 1
+            mesh_obj = self.session.mesh()
+            mesh_obj.ensureFaceGroups()
+            brush.activeGroup = int(mesh_obj.newFaceGroupId())
         # Dyntopo (scene toggle) and autosmooth both run through a program;
         # neither applies to grab-class nor to a Shift-smooth stroke.
         # Autosmooth also skips the smooth brush itself.

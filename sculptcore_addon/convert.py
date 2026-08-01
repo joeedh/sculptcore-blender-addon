@@ -187,6 +187,7 @@ def enter(ob):
     lib = engine.capi().lib
     lib.sc_external_draw_register(session.draw_key, tree_ptr)
     lib.sc_external_draw_enable_dynamic(tree_ptr)
+    lib.sc_external_draw_set_default_group(tree_ptr, _default_face_set(ob.data))
     lib.sc_external_draw_update(session.draw_key)
 
     return session
@@ -278,6 +279,7 @@ def _enter_multires(ob, md):
     # Blender skips for an object with no color attribute — losing the
     # sculpt-mask overlay on every multires session.
     lib.sc_external_draw_enable_dynamic(tree_ptr)
+    lib.sc_external_draw_set_default_group(tree_ptr, _default_face_set(ob.data))
     lib.sc_external_draw_update(session.draw_key)
 
     # Honor the modifier's sculpt level (C2); the import left the top active.
@@ -288,6 +290,13 @@ def _enter_multires(ob, md):
     # The imported state is the first undo push's pre-state (C4).
     session.multires_last_blob = multires_store_blob(session)
     return session
+
+
+def _default_face_set(mesh):
+    """Blender's invisible/default face-set id (Mesh.face_sets_color_default,
+    fork RNA; usually 1) — the engine must leave that group untinted in its
+    fset overlay stream, where its own "no group" is 0."""
+    return int(getattr(mesh, "face_sets_color_default", 1))
 
 
 def _load_face_sets(mesh, mesh_ptr):
@@ -1543,6 +1552,10 @@ def _rebind_multires_views(session, active_level):
         lib.sc_external_draw_unregister(session.draw_key)
         lib.sc_external_draw_register(session.draw_key, tree_ptr)
         lib.sc_external_draw_enable_dynamic(tree_ptr)
+        import bpy
+        ob = bpy.data.objects.get(session.object_name)
+        if ob is not None:
+            lib.sc_external_draw_set_default_group(tree_ptr, _default_face_set(ob.data))
         lib.sc_external_draw_update(session.draw_key)
 
 

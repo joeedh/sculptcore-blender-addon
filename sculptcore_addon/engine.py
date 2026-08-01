@@ -222,6 +222,11 @@ class _CApi:
         lib.sc_external_draw_update.restype = None
         lib.sc_external_draw_enable_dynamic.argtypes = [ctypes.c_void_p]
         lib.sc_external_draw_enable_dynamic.restype = None
+        # The face `group` id the fset overlay stream leaves untinted, i.e.
+        # Blender's Mesh.face_sets_color_default (usually 1) — the engine's own
+        # notion of "no group" is 0.
+        lib.sc_external_draw_set_default_group.argtypes = [ctypes.c_void_p, ctypes.c_int]
+        lib.sc_external_draw_set_default_group.restype = None
         lib.sc_external_draw_provider.argtypes = []
         lib.sc_external_draw_provider.restype = ctypes.c_void_p
 
