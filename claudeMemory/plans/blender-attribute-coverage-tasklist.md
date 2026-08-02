@@ -128,63 +128,50 @@ broke this section harder than any other. In order:
   default lerp is adequate), and E7 turns out to
   be vertex-domain, which E3 explicitly is not about. Nothing on this page needs
   corner-domain CUSTOM dispatch today. Keep the analysis; drop the queue slot.
-- **E7 is the item that should have been first.** Its stated defect does not
-  exist, but there is a *different*, real one-line bug underneath it.
+- **E7 does not exist.** Neither the audit's version of it nor the pressure
+  test's replacement survived a look at the call sites — see its entry and
+  [`../research/collapse-blend-gate.md`](../research/collapse-blend-gate.md).
 
 The old framing — "nothing moves on the engine side until E3 and E4 land" — was
-the single most expensive claim on this page: it blocked the only engine item
-that is both real and cheap behind two that are not.
+wrong, but so was the claim that replaced it. With E7 gone, **the honest state
+of the engine track is that almost nothing on it is needed**: E1, E6 and E7 are
+struck, E3 has no consumer, E4 has one (3.2), and what remains are three small
+hygiene items (E10, E11, E12) and two decisions (E8, E9).
 
-- [x] **E7 — checked against the rebased engine tip (2026-07-30) and the bug
-  does not exist there.** The pressure test's claim was verified against the
-  wrong tree: on the `attrs` branch's engine (`e41cae9`, the rebased tip the
-  addon actually links), the dyntopo caller has passed `mid` **and**
+- [ ] ~~**E7**~~ — **withdrawn entirely. Both versions of it were wrong, and
+  there is no bug here.** Verified on the rebased engine tip (`e41cae9`, the
+  tree the addon actually links): the dyntopo caller has passed `mid` **and**
   `blend=0.5f` since the very first dyntopo commit (`afdac12`;
-  `dyntopo.h:1037-1043`), so `interpAttrs` runs on every collapse with the
-  midpoint handed to the merge policies. Nothing to fix. The entry below is
-  retained for the record.
+  `dyntopo.h:1037-1043`). Full write-up:
+  [`../research/collapse-blend-gate.md`](../research/collapse-blend-gate.md).
 
-- [ ] **E7 (historical). `collapseEdge` skips attribute merging entirely at the default
-  blend.** **Do this first.** *Rewritten — the original premise was wrong and
-  the real bug is smaller and worse.*
+  The audit's version claimed a passenger float3 column drifts from `position`
+  on a collapse because the survivor lands at `merged_co` rather than the lerp
+  of the endpoints. The pressure test's version claimed the merge never runs at
+  all, because `interpAttrs` is gated behind `blend > 0.0f`
+  (`edge_collapse.h:331`) and `blend` defaults to `0.0f`.
 
-  The original claim was that a passenger float3 column drifts from `position`
-  because the survivor is placed at `merged_co`, which is not the lerp of the
-  endpoints. Under dyntopo that is false: `collapseEdge`'s only caller passes no
-  `merged_co` at all, and the default midpoint *is* the `t=0.5` lerp, so the
-  passenger column and `position` agree exactly.
+  Both reasoned from the declaration and neither checked the call sites. There
+  is **one** non-test caller, `dyntopo.h:1037`, and it passes `mid` and
+  `blend=0.5f` explicitly — so the production collapse merges every vertex
+  attribute at the midpoint, reaching `defaultMerge`, `mergeWeights` and
+  `mergeSculptLayerRest` normally (`utils/attr_interp.h:243-258`). The defaults
+  are exercised only by three topology tests that deliberately want no
+  attribute motion.
 
-  The actual defect is the gate one line up (`edge_collapse.h:328-337`):
+  What is genuinely there is a **latent API footgun**, not a defect: the
+  position write is guarded by `merged_co.has_value()` (`:455-458`) and the
+  merge by `blend > 0.0f`, so a hypothetical `collapseEdge(m, e, target)` with
+  the default blend would relocate the survivor without merging onto it. No
+  caller does this. Worth a debug assert on
+  `merged_co.has_value() && blend == 0.0f` plus a line on the signature comment
+  noting the two travel together — a few minutes, not a work item.
 
-  ```cpp
-  collapseEdge(Mesh &m, int edge,
-               std::optional<litestl::math::float3> merged_co = std::nullopt,
-               float blend = 0.0f, ...)
-  ...
-  if (blend > 0.0f) {
-    const litestl::math::float3 *mco = merged_co.has_value() ? &merged_co.value() : nullptr;
-    interpAttrs(m.v.attrs, v_keep, v_keep, v_kill, blend, &m, mco);
-  }
-  ```
-
-  `blend` defaults to `0.0f`, so on the default path `interpAttrs` is **never
-  called** — no lerp, no CUSTOM handler, no `mergeWeights`, no
-  `mergeSculptLayerRest`. The survivor keeps `v_keep`'s values verbatim while
-  its *position* is relocated to the midpoint unconditionally. So every vertex
-  attribute in the engine — masks, colours, weights, sculpt layers, and any
-  passenger column 1.4 would add — is nearest-copy-from-one-side across a
-  collapse, and which side wins is whichever the topology code happened to name
-  `v_keep`.
-
-  That is a live correctness bug in shipped behaviour, not a prerequisite for a
-  backlog item. Fixing it is roughly five lines (call `interpAttrs`
-  unconditionally, with the blend the caller asked for, defaulting to the same
-  0.5 the position uses). It needs **neither E3 nor E4**.
-
-  Do this before anything else on the engine track, and re-check 1.4's
-  requirements afterwards — with the gate fixed, shape keys as passenger
-  `FLOAT3` columns are plausibly correct under the *default* policy, which is
-  what the original 1.4 write-up assumed and could not justify.
+  **Consequence for 1.4:** since the production path already merges at 0.5 with
+  `merged_co == mid`, a passenger `FLOAT3` column lerped at 0.5 lands exactly
+  where `position` does. Shape keys need **no CUSTOM handler and no engine work
+  for their merge policy** — the item's original write-up was right and the
+  audit was wrong to talk it out of that.
 
 - [ ] **E3. Corner-domain merge dispatch.** *No consumer — analysis retained,
   do not schedule.* Today a CUSTOM handler
@@ -327,11 +314,6 @@ that is both real and cheap behind two that are not.
   on read and re-encodes on flush, so the engine sees an ordinary corner
   `FLOAT3` and the default lerp of two unit directions (renormalized at encode
   time) is adequate. This item was the last named consumer of **E3**.
-
-- [ ] **E7** — *moved to the top of this section and rewritten.* The original
-  entry described a `merged_co`-vs-lerp drift for passenger coordinate columns.
-  That drift does not occur under dyntopo, and the real bug is that no merge
-  runs at all. See the entry above.
 
 - [ ] **E11. A welded edge drops one side's non-bool values.** On a collapse,
   edges that weld into the survivor are combined with `unionBoolAttrRow`
@@ -634,17 +616,22 @@ domain. This holds for relative keys too: a `KeyBlock` stores absolute
 coordinates and the delta against `relative_key` is taken at evaluation time,
 so there is nothing delta-shaped to interpolate carefully.
 
-**The merge policy needs E7, but not for the reason previously given.** The
-audit's version of this paragraph said the default policy fails on a collapse
-because the survivor is placed at `merged_co` rather than at the lerp of the
-endpoints. That is not what happens under dyntopo — no caller passes
-`merged_co`, and the default midpoint *is* the `t=0.5` lerp, so a passenger
-float3 column and `position` would agree exactly. What actually breaks it is
-E7's real bug: `interpAttrs` is not called at all on the default collapse path
-(`edge_collapse.h:331`), so a passenger column is nearest-copy-from-one-side
-while the position moves to the midpoint. **With E7 fixed, the default policy
-is correct here** and 1.4 needs no CUSTOM handler — which is close to what the
-first write-up claimed, arrived at by a different route.
+**The merge policy needs nothing new. The original write-up was right.** This
+paragraph has been wrong twice. The audit said the default policy fails on a
+collapse because the survivor is placed at `merged_co` rather than at the lerp
+of the endpoints; the pressure test said it fails because no merge runs at all.
+Neither is true — the sole production caller (`dyntopo.h:1037`) passes
+`merged_co = mid` *and* `blend = 0.5f`, so the survivor lands at the midpoint
+and every vertex attribute is lerped to the midpoint alongside it. A passenger
+`FLOAT3` column therefore agrees with `position` exactly, which is what "the
+values are coordinates, exactly like `position`" claimed in the first place.
+
+No CUSTOM handler, no **E7** (withdrawn), no engine work for the merge policy.
+The `SCULPT_LAYER` precedent that was cited against this is not a
+counterexample: `mergeSculptLayerRest` exists because a *rest* column has to be
+reconstructed against where the vertex ends up, which is a different problem
+from carrying a second coordinate set. See
+[`../research/collapse-blend-gate.md`](../research/collapse-blend-gate.md).
 
 No fork change *for the shape-key data itself*, unlike vertex groups: see
 *Checked and found present*. The `Mesh.key` resize above is a separate fork
@@ -1103,10 +1090,9 @@ section claimed. Verified by reading call sites, not headers.
   with its own, so a written edge column cannot be read back meaningfully. 1.2
   needs an engine-side edge identity channel first. See its entry.
 - **Edge, face and corner attributes already survive topology operators.** Not
-  by interpolation, by row copy — and note that **vertex attributes do not
-  survive a collapse by interpolation either**, because `interpAttrs` is gated
-  behind `blend > 0.0f` and the default caller passes 0 (**E7**). Row copy:
-  `edge_split.h:89/172` snapshots the parent
+  by interpolation, by row copy — *vertex* attributes are the ones that do
+  interpolate, on splits and on collapses alike (`dyntopo.h:1037` passes
+  `blend=0.5f`). Row copy: `edge_split.h:89/172` snapshots the parent
   edge's row and restores it onto the child; `edge_collapse.h:551-554` restores
   onto the survivor and `unionBoolAttrRow`s the rows of edges that welded into
   it; `edge_collapse.h:402-410/517-525`, `triangulate.h`, `symmetrize.h` and
@@ -1126,49 +1112,51 @@ section claimed. Verified by reading call sites, not headers.
   the audit's version of this page wanted was on the wrong side of both
   restrictions.
 
-  The pressure test then removed most of the demand: 1.6 no longer needs a
-  CUSTOM handler (it carries directions, not an encoding), and 1.4 no longer
-  needs one either (E7's real fix makes the default policy correct). **3.2's
-  quaternion slerp is the only remaining CUSTOM consumer on this page**, and of
-  E4's surviving routes only a dedicated `AttrType` reaches it. The restriction
-  is still real; what changed is that almost nothing is behind it.
+  The demand then evaporated: 1.6 no longer needs a CUSTOM handler (it carries
+  directions, not an encoding), and 1.4 never needed one (the production
+  collapse already merges at 0.5, so the default policy is correct — see
+  **E7**). **3.2's quaternion slerp is the only remaining CUSTOM consumer on
+  this page**, and of E4's surviving routes only a dedicated `AttrType` reaches
+  it. The restriction is still real; what changed is that almost nothing is
+  behind it.
 
 **Genuinely missing** — the items in the *Engine-side tasklist* at the top of
 this page; they are not repeated here.
 
 ## Suggested order
 
-*Rewritten after the pressure test. The previous order led with engine items
-that are unbuildable, scheduled `animation_data` as an addon quick win when
-Python cannot write it, and put the governing lifecycle rule sixth.*
+*Rewritten after the pressure test, then corrected again once **E7** turned out
+not to exist. The audit's order led with two engine items that are unbuildable;
+the pressure test's order led with an engine bug that isn't one. What is left is
+almost entirely addon work.*
 
-**First, because it is a live bug in shipped behaviour rather than a backlog
-item:**
+**First, the one confirmed live defect:**
 
-1. **E7** — remove the `blend > 0.0f` gate in `collapseEdge`. Today no vertex
-   attribute is merged on a dyntopo collapse: masks, colours, weights and
-   sculpt layers all take one endpoint's value verbatim while the position moves
-   to the midpoint. ~5 lines, no dependencies. Re-check 1.4's requirements after.
-2. **3.4** — either export the grid paint mask at the active level or refuse
+1. **3.4** — either export the grid paint mask at the active level or refuse
    painting below the top one. Currently strokes at a non-top level are accepted
    and discarded, and entering at `sculpt_levels` puts users there by default.
+   This is now the only item on the page known to lose a user's work in shipped
+   behaviour.
 
 **Then the addon quick wins, in ascending size:**
 
-3. **3.1** — one line in `_ATTR_TYPE_MAP`. The only item on this page that
-   survived the pressure test completely unchanged.
-4. **1.2's logging half** — one line; makes the silent edge-domain skip visible.
+2. **3.1** — one line in `_ATTR_TYPE_MAP`. The only item on this page that
+   survived both passes completely unchanged.
+3. **1.2's logging half** — one line; makes the silent edge-domain skip visible.
    The rest of 1.2 is engine work.
-5. **1.7** — restore the five unrestored layer designations at the **1.8** read
+4. **1.7** — restore the five unrestored layer designations at the **1.8** read
    point. The most visible bug here: with no active UV designation the draw
    cache skips UV extraction entirely, so an ordinary single-UV textured mesh
    renders untextured after one dyntopo pass.
-6. **1.3's vert and poly halves** — a named-exception list before the dot rule.
+5. **1.3's vert and poly halves** — a named-exception list before the dot rule.
    The edge halves ride on 1.2. Consider folding in the `.uv_select_*` pins.
-7. **E12** — stop tagging every corner `FLOAT2` as a UV map. One predicate,
+6. **E12** — stop tagging every corner `FLOAT2` as a UV map. One predicate,
    and it should land before E9 puts more weight on that channel.
-8. **E10** — a `default:` in `type_dispatch`, so a bad `AttrType` through the
+7. **E10** — a `default:` in `type_dispatch`, so a bad `AttrType` through the
    c-api errors instead of returning success having written nothing.
+8. **The `collapseEdge` assert** — a debug-build check that `merged_co` and
+   `blend` were not supplied inconsistently, plus a signature-comment line. Not
+   a bug fix; it closes the footgun that E7 was mistaken for. Minutes.
 
 **Then the one structural change, which is what most of this tier actually
 wants:**
@@ -1209,7 +1197,9 @@ wants:**
 **1.4 (shape keys) is no longer "the largest payoff, do it early".** It is
 still what decides whether the addon can be pointed at a production asset, but
 the refusal at `convert.py:97` is a safety interlock over a memory-safety bug,
-not a policy stub — see its entry. It moves behind item 15 and behind E7.
+not a policy stub — see its entry. It moves behind item 15. Its *merge policy*,
+though, needs nothing at all: that was the audit's error and E7 was the failed
+attempt to fix it.
 
 **1.9** is re-filed as fork work: `animation_data` is not Python-assignable and
 the struct is freed, so there is nothing to restore it with.
@@ -1278,12 +1268,9 @@ survived the audit intact.
   (`attribute_enums.h:104-114`, `MAKE_FLAGS_CLASS`), which has no defined
   single-handler dispatch. Both are fatal to the proposed mechanism
   independently.
-- **E7's stated defect does not occur.** No dyntopo caller passes `merged_co`,
-  and the default midpoint *is* the `t=0.5` lerp, so passenger columns and
-  `position` agree. The real bug is one line up: `if (blend > 0.0f)`
-  (`edge_collapse.h:331`) skips `interpAttrs` entirely on the default path, so
-  **no vertex attribute is merged on a collapse at all**. Smaller than the
-  proposed fix, worse in effect, and it needs neither E3 nor E4.
+- **E7's stated defect does not occur.** Correct as far as it goes — but the
+  replacement defect the pressure test proposed does not occur either. See
+  *Corrections to the pressure test* below; E7 is withdrawn outright.
 - **1.4 is not the largest-payoff early item.** `mesh_clear_geometry`
   deliberately does not free `Mesh.key` (`mesh.cc:1079-1090`) and nothing
   resizes `KeyBlock.totelem`; `BKE_keyblock_update_from_mesh` (`key.cc:1665`)
@@ -1324,8 +1311,8 @@ survived the audit intact.
   (`mesh_normals.cc:1463-1521`), which adds sharp edges, and by its own comment
   (`:1422-1427`) is not performance-critical, which a per-flush path is.
 - **The engine track's dependency claim was inverted.** "Nothing moves until E3
-  and E4" put the one cheap, real engine fix (E7) behind two that cannot be
-  built. E3 and E4 now have almost no consumers left; E7 leads.
+  and E4" was wrong, though not for the reason given at the time: E3 and E4 turn
+  out to have almost no consumers left, so the gate was guarding an empty room.
 - **F2 is scheduled ahead of the item that deletes it.** F4 preserving the layer
   declarations across the rebuild leaves `vertex_group_names_get`/`_set` with
   nothing to restore.
@@ -1366,3 +1353,36 @@ survived the audit intact.
 
 **Survived unchanged:** **3.1**. It is one line in `_ATTR_TYPE_MAP` over an
 engine type that already exists, and nothing was found against it.
+
+## Corrections to the pressure test
+
+The pressure test was itself checked, and one of its findings was wrong. Full
+write-up: [`../research/collapse-blend-gate.md`](../research/collapse-blend-gate.md).
+
+- **E7 is withdrawn; there is no bug in `collapseEdge`.** The pressure test read
+  `blend`'s `0.0f` default and `if (blend > 0.0f)` (`edge_collapse.h:331`) and
+  concluded no vertex attribute is merged on a dyntopo collapse. The sole
+  non-test caller (`dyntopo.h:1037`) passes `merged_co = mid` **and**
+  `blend = 0.5f` — with a comment above it reasoning about exactly that — so the
+  merge runs, reaching `defaultMerge`, `mergeWeights` and `mergeSculptLayerRest`
+  normally. Only three topology tests exercise the defaults, deliberately.
+- **The accompanying "position is relocated unconditionally" claim was also
+  wrong.** The position write is guarded too (`:455-458`,
+  `if (merged_co.has_value())`), so with both defaults the position and the
+  attributes both stay at `v_keep` — consistent, not divergent.
+- **What is real is a latent footgun**, not a defect: the two conditionals are
+  keyed on different parameters, so `collapseEdge(m, e, target)` with the
+  default blend would move the survivor without merging onto it. Nothing does
+  that today. A debug assert plus a comment line closes it.
+- **1.4's merge policy needs nothing**, which restores the item's *original*
+  claim. The audit rejected it, the pressure test rejected the audit's
+  replacement, and the first answer was correct: a passenger `FLOAT3` column
+  lerped at 0.5 lands exactly where `position` does.
+
+**Method note, and the reason this section exists.** Both the audit and the
+pressure test produced a confident, well-cited, wrong claim about the same
+function, in opposite directions, and neither caught the other. The shared
+failure was reasoning about a call from its declaration. **Any finding that
+turns on a defaulted parameter, an unexercised branch, or a "nothing calls this
+correctly" claim needs the call-site inventory before it is believed** — here
+that was one grep, and it would have killed both findings on sight.

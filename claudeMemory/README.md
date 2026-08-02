@@ -35,12 +35,20 @@ Working notes Claude maintains for this repository. See the top-level
   and why it is ordered where it is. Fresh-context audited 2026-07-29, then
   **adversarially pressure-tested 2026-07-30**, which broke considerably more
   than the audit did: the two queued engine prerequisites (**E3**, **E4**) are
-  withdrawn, **E7** turned out to be a live bug (`collapseEdge` merges no vertex
-  attribute at all on the default path) and now leads the order, **1.6** was
-  redesigned to need no new engine type or handler, **1.9** and **1.2** are
-  re-filed out of addon-only work, **1.4** is gated behind a release-build heap
-  overflow, and **3.4** is un-done. Corrections from both passes are recorded at
-  the end of the page so they do not get re-proposed.
+  withdrawn, **1.6** was redesigned to need no new engine type or handler,
+  **1.9** and **1.2** are re-filed out of addon-only work, **1.4** is gated
+  behind a release-build heap overflow, and **3.4** is un-done. The pressure
+  test's own **E7** finding was then checked and withdrawn as well — see
+  [research/collapse-blend-gate.md](research/collapse-blend-gate.md).
+  Corrections from all three passes are recorded at the end of the page so they
+  do not get re-proposed.
+- [research/collapse-blend-gate.md](research/collapse-blend-gate.md)
+  — why `collapseEdge`'s `blend > 0.0f` gate is **not** a bug: the caller
+  inventory (one production caller, passing `mid` and `blend=0.5f`), the
+  latent API footgun that is actually there, and the method lesson — a finding
+  that turns on a defaulted parameter needs the call sites enumerated before it
+  is believed. Kills the tasklist's **E7** and restores **1.4**'s original
+  merge-policy claim.
 - [research/grid-correspondence.md](research/grid-correspondence.md)
   — how the engine's multires grids line up with Blender's `CD_MDISPS`: the
   exact lattice transpose (an involution, so one table serves both directions),
