@@ -96,6 +96,26 @@ Working notes Claude maintains for this repository. See the top-level
   list, and the results the test settled positively — the unmasked cascade is
   provably path-independent, `cond(AᵀA) = 8`, and influence decays 0.4465 per
   coarse vertex.
+- [design/blender-brush-textures.md](design/blender-brush-textures.md)
+  — **design, not implemented.** How Blender brush textures reach the engine:
+  the transport already exists (bake → `setTexture` → four kernels), what is
+  missing is the *mapping*. Every non-3D `map_mode` Blender offers is an affine
+  transform, and `ctx.renderMatrix` — a `mat4` with exactly one consumer — can
+  carry all of it, so five of six modes are addon-only work (per-dab matrix
+  composition in Python; per-mode recipes included). Engine work reduces to
+  folding the texture into the `strength()` intrinsic so it reaches more than
+  four kernels, and a wrap/clip mode for TILED and STENCIL. True 3D mapping is
+  **deferred** (2026-08-02): not a volume bake — the interim escape hatch is a
+  host-sampler callback, and the canonical answer for DCC integration is host
+  procedural textures implemented in the brush DSL, so they lower to CPU and GPU
+  alike (the `texture` block already prototypes this) — ending in a **runtime
+  procedural-texture compiler** emitting WGSL/SPIR-V, with the CPU side JITed or
+  interpreting SPIR-V, which would make hand-maintained CPU/GPU parity
+  unnecessary for what it covers. Records three live defects — `apply_render_matrix` omits
+  `matrix_world`, `texture_slot.angle` is bound to Ctrl-F but never read, and
+  the matrix is pushed per stroke where three modes need it per dab — plus the
+  Blender-side quirks parity has to mirror (AREA's inverted bias sign, sculpt
+  reading `mtex` not `mask_mtex`, `PaintRuntime` being invisible to RNA).
 - [research/gpu-brush-evaluation-in-blender.md](research/gpu-brush-evaluation-in-blender.md)
   — how the engine's GPU brush stack could drive strokes under the addon: the
   existing marshal/dispatch seams, engine-owned wgpu vs. compute on Blender's
