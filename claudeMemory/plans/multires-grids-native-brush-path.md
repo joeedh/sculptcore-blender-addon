@@ -1,6 +1,11 @@
 # Plan: a direct grids editing path for multires ("grids-native brush path")
 
-**Status: plan, nothing implemented.** Written 2026-08-04, immediately after the
+**Status: engine phases G1–G4 executed 2026-08-04** — all gates green, four
+engine commits (one per phase); G5's seam design is
+[design/grids-native-addon-seams.md](../design/grids-native-addon-seams.md)
+and the execution record with every gate/bench number is
+[research/grids-native-brush-path-results.md](../research/grids-native-brush-path-results.md).
+Blender addon wiring remains open (its own plan). Written 2026-08-04, immediately after the
 multires stroke optimization work
 ([research/multires-stroke-performance.md](../research/multires-stroke-performance.md)),
 whose conclusion this plan executes: after a ~17× optimization pass (87.8 s →

@@ -50,7 +50,8 @@ Working notes Claude maintains for this repository. See the top-level
   is believed. Kills the tasklist's **E7** and restores **1.4**'s original
   merge-policy claim.
 - [plans/multires-grids-native-brush-path.md](plans/multires-grids-native-brush-path.md)
-  — **plan, not implemented.** The direct grids editing path that closes the
+  — **engine phases G1–G4 executed 2026-08-04** (see the results doc below);
+  Blender wiring still open. The direct grids editing path that closes the
   residual ~6× multires gap: sculpt on the dense level-vert position buffer
   (`LevelPos::pos`) with lattice-CSR neighbors instead of a materialized
   `mesh::Mesh` — chosen over a Blender-style replicated CCG layout because the
@@ -61,6 +62,20 @@ Working notes Claude maintains for this repository. See the top-level
   of `debug/`), touched-set writeback, the ride-along mirror that keeps draw
   correct until an extdraw-from-grids provider exists, and five phases with
   parity/undo/perf gates. Blender wiring is explicitly out of scope.
+- [research/grids-native-brush-path-results.md](research/grids-native-brush-path-results.md)
+  — the G1–G4 execution record: what landed per phase, every gate result
+  (draw/clay/pinch/sharp A/B bit-exact, undo bit-exact, CPU-vs-GPU grids
+  worst-diff 0 on both dispatchers), the bench table (per-dab core 0.082 ms
+  vs the 0.35 gate; writeback 2.3 ms; undo 19.9 MB), the GPU size-crossover
+  measurement (dispatch crosses ~4 M, readback forces per-frame batching),
+  and the deviations (no mesh-orchestrator hoist; store-block capture moved
+  to stroke end).
+- [design/grids-native-addon-seams.md](design/grids-native-addon-seams.md)
+  — G5: the addon-facing seams, reviewed against `stroke.py`/`session.py`/
+  `undo.py` — the `GridStroke_*` c-api mapping, extdraw-from-grids with
+  `node_id` = stable leaf id (interim ride-along mirror first), grid-log undo
+  steps replacing per-stroke store blobs (blob demoted to level switches),
+  and the four-case lazy-mirror rule that eventually kills the 15.6 s enter.
 - [research/multires-stroke-performance.md](research/multires-stroke-performance.md)
   — why a sculptcore multires stroke cost ~87 s where native costs ~0.86 s on a
   1 M-vert level-4 cage, and how it got to ~5.0 s (~17×): the headed A/B rig and
