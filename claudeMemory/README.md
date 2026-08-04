@@ -49,6 +49,18 @@ Working notes Claude maintains for this repository. See the top-level
   that turns on a defaulted parameter needs the call sites enumerated before it
   is believed. Kills the tasklist's **E7** and restores **1.4**'s original
   merge-policy claim.
+- [plans/multires-grids-native-brush-path.md](plans/multires-grids-native-brush-path.md)
+  — **plan, not implemented.** The direct grids editing path that closes the
+  residual ~6× multires gap: sculpt on the dense level-vert position buffer
+  (`LevelPos::pos`) with lattice-CSR neighbors instead of a materialized
+  `mesh::Mesh` — chosen over a Blender-style replicated CCG layout because the
+  store's dense↔grid machinery already exists and seam replicas vanish by
+  construction. Covers `GridLevelDomain`/`GridTree`/`GridStrokeLog`, the
+  sbrushc TYPES generalization that makes the generated kernels domain-generic,
+  GPU dispatch reuse (flat buffers + one shared CSR, orchestrator hoisted out
+  of `debug/`), touched-set writeback, the ride-along mirror that keeps draw
+  correct until an extdraw-from-grids provider exists, and five phases with
+  parity/undo/perf gates. Blender wiring is explicitly out of scope.
 - [research/multires-stroke-performance.md](research/multires-stroke-performance.md)
   — why a sculptcore multires stroke cost ~87 s where native costs ~0.86 s on a
   1 M-vert level-4 cage, and how it got to ~5.0 s (~17×): the headed A/B rig and
