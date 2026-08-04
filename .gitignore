@@ -12,3 +12,7 @@ __pycache__/
 # Editor/OS noise.
 .vscode/
 .DS_Store
+
+# Raw bench output (JSON per run); the rig is committed, the samples are not.
+/claudeMemory/scripts/bench-results*/
+/claudeMemory/scripts/bench-sc/

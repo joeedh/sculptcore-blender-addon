@@ -39,6 +39,10 @@ class Session:
         "mesh_obj",
         "brush_obj",
         "executor",
+        # What brush_obj's 256-entry LUTs (falloff, cavity, pressure response)
+        # were last loaded with, so a stroke that changes none of them skips the
+        # re-upload — each entry is a separate marshalled call (see mapping).
+        "curve_cache",
         # Per-session undo history (wired to the executor as executor.meshLog);
         # each stroke is one step. Drives Tier-2 delta undo (see undo.py).
         "meshlog",
@@ -123,6 +127,7 @@ class Session:
         self.filter_high_water = 0.0
         self.mesh_obj = None
         self.brush_obj = None
+        self.curve_cache = {}
         self.executor = None
         self.meshlog = None
         self.meshlog_cursor = 0
@@ -185,6 +190,7 @@ class Session:
         self.executor = None
         self.meshlog = None
         self.brush_obj = None
+        self.curve_cache = {}
         self.mesh_obj = None
         lib = engine.capi().lib
         if self.multires_ptr:

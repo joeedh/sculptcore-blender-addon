@@ -49,6 +49,14 @@ Working notes Claude maintains for this repository. See the top-level
   that turns on a defaulted parameter needs the call sites enumerated before it
   is believed. Kills the tasklist's **E7** and restores **1.4**'s original
   merge-policy claim.
+- [research/multires-stroke-performance.md](research/multires-stroke-performance.md)
+  — why a sculptcore multires stroke cost ~87 s where native costs ~0.86 s on a
+  1 M-vert level-4 cage, and how it got to ~5.0 s (~17×): the headed A/B rig and
+  its ±150 ms noise floor, the full attribution tree down to engine phase timers,
+  the root cause of the residual ~6× (a materialized `mesh::Mesh` + BVH +
+  per-element undo capture vs native's in-place CCG grids), what was fixed, the
+  two regressions only the full ctest sweep caught, and the ranked remainder — a
+  grids-native brush path is the only item that closes the gap.
 - [research/grid-correspondence.md](research/grid-correspondence.md)
   — how the engine's multires grids line up with Blender's `CD_MDISPS`: the
   exact lattice transpose (an involution, so one table serves both directions),

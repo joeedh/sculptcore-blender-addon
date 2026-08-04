@@ -397,7 +397,10 @@ def stroke_end(session):
     # endStep() advanced the meshlog's applied-step count; mirror it (a stroke
     # begun after an undo truncates the redo branch, so +1 is always correct).
     session.meshlog_cursor += 1
-    session.mesh().recalc_normals()
+    # Normals only over the leaves the stroke dirtied. Mesh.recalc_normals() is
+    # O(whole mesh) and thaws the topology, so on a multires cage it cost half a
+    # second per stroke plus a frozen-topology rebuild on the next dab.
+    session.tree().updateNormals()
 
 
 def raycast(session, origin, direction):
@@ -528,23 +531,23 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
             mapping.sample_pressure_curve(self.brush.curve_strength) if use_strength else None)
         self._pressure_size_lut = (
             mapping.sample_pressure_curve(self.brush.curve_size) if use_size else None)
-        if self._smooth_stroke:
-            sc_brush.clearPropDynamics(mapping.PROP_STRENGTH)
-            sc_brush.clearPropDynamics(mapping.PROP_RADIUS)
-        else:
-            mapping.apply_pressure_dynamics(
-                self.brush, sc_brush, use_strength=use_strength, use_size=use_size)
+        curve_cache = self.session.curve_cache
+        mapping.apply_pressure_dynamics(
+            self.brush, sc_brush, cache=curve_cache,
+            use_strength=use_strength and not self._smooth_stroke,
+            use_size=use_size and not self._smooth_stroke)
         # Brush texture (Phase 2): bind or clear per stroke; view-pinned
         # mappings also need the current perspective matrix.
         texture.apply_texture(self.brush, sc_brush)
         if texture.needs_render_matrix(self.brush):
             texture.apply_render_matrix(context, _ensure_executor(self.session))
         # Stroke-constant brush settings, including the falloff/cavity curve
-        # bakes (256 engine calls each): once per stroke. The dab paths write
-        # only the radius/invert state on top (mapping.apply_dab_state).
+        # bakes (256 engine calls each, skipped when session.curve_cache shows
+        # the engine already holds them). The dab paths write only the
+        # radius/invert state on top (mapping.apply_dab_state).
         paint = context.tool_settings.sculpt
         mapping.apply_brush_settings(
-            self.brush, paint.unified_paint_settings, sc_brush, paint=paint)
+            self.brush, paint.unified_paint_settings, sc_brush, paint=paint, cache=curve_cache)
         # UV slide-reprojection (scene toggle): the executor re-anchors moved
         # verts' UVs for the smooth-family kernels. Any stroke that may run
         # one (smooth brush, Shift-smooth, autosmooth chain) diverges the

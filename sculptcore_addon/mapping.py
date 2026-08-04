@@ -215,7 +215,26 @@ _PRESET_FALLOFF = {
 }
 
 
-def _bake_falloff(bl_brush, sc_brush):
+def _upload_lut(cache, key, values, setter):
+    """Push a baked 256-entry LUT to the engine, skipping it when the same
+    table was uploaded last time.
+
+    Every entry crosses the ctypes marshaller separately (~0.08 ms), so a
+    re-upload costs far more than the bake that produced it, and a stroke
+    almost never changes the curve. ``cache`` is the session's dict (None
+    disables the memo); the baked values themselves are the identity, so an
+    actual curve edit still re-uploads.
+    """
+    values = tuple(values)
+    if cache is not None and cache.get(key) == values:
+        return
+    for i, value in enumerate(values):
+        setter(i, value)
+    if cache is not None:
+        cache[key] = values
+
+
+def _bake_falloff(bl_brush, sc_brush, cache=None):
     """Bake the Blender falloff (preset formula, or the editable curve for
     CUSTOM) into the engine's 256-entry LUT, folding in `hardness`, so brush
     feel matches Blender. `t` = 1 - normalized distance (the value the engine
@@ -231,6 +250,7 @@ def _bake_falloff(bl_brush, sc_brush):
 
     hardness = min(1.0, max(0.0, bl_brush.hardness))
     n = _FALLOFF_CURVE_SIZE
+    lut = []
     for i in range(n):
         t = i / (n - 1)
         d = 1.0 - t  # normalized distance
@@ -240,7 +260,8 @@ def _bake_falloff(bl_brush, sc_brush):
             v = 1.0 if d < hardness else fn(1.0 - (d - hardness) / (1.0 - hardness))
         else:
             v = fn(t)
-        sc_brush.setFalloffCurveEntry(i, min(1.0, max(0.0, v)))
+        lut.append(min(1.0, max(0.0, v)))
+    _upload_lut(cache, "falloff", lut, sc_brush.setFalloffCurveEntry)
     sc_brush.falloff_kind = _FALLOFF_KIND_CURVE
     # PROJECTED (2D view falloff) has no distinct engine metric yet; both use
     # the spherical distance for now.
@@ -268,7 +289,7 @@ def cavity_settings(bl_brush, paint):
     return None
 
 
-def _apply_cavity(settings, sc_brush):
+def _apply_cavity(settings, sc_brush, cache=None):
     """Copy the resolved cavity settings onto the engine brush. The executor
     pre-fills a per-vertex factor once per stroke when `automask_cavity` is
     set; every kernel that reads the strength intrinsic is masked by it."""
@@ -291,9 +312,8 @@ def _apply_cavity(settings, sc_brush):
     cumap.update()
     curve = cumap.curves[0]
     n = _CAVITY_CURVE_SIZE
-    for i in range(n):
-        value = cumap.evaluate(curve, i / (n - 1))
-        sc_brush.setCavityCurveEntry(i, min(1.0, max(0.0, value)))
+    lut = [min(1.0, max(0.0, cumap.evaluate(curve, i / (n - 1)))) for i in range(n)]
+    _upload_lut(cache, "cavity", lut, sc_brush.setCavityCurveEntry)
 
 
 # Pen-pressure response curves. Blender maps tablet pressure to a strength /
@@ -328,28 +348,37 @@ def eval_pressure_lut(lut, pressure):
     return lut[i] * (1.0 - t) + lut[i + 1] * t
 
 
-def apply_pressure_dynamics(bl_brush, sc_brush, *, use_strength, use_size):
+def apply_pressure_dynamics(bl_brush, sc_brush, *, use_strength, use_size, cache=None):
     """Configure the engine's per-stroke pressure dynamics: a MULTIPLY device
     layer per pressure-enabled channel, carrying the baked response curve from
     the matching Brush CurveMapping. Runs once per stroke (the 256-sample bakes
     are far too slow per dab); the stroke operator refills the device sample
-    with the event pressure each dab. The clears always run so a channel toggled
-    off — or a grab-class stroke that passes both flags false — leaves no stale
-    dynamic behind."""
+    with the event pressure each dab. Passing both flags false — a smooth or
+    grab-class stroke — clears both channels, so no stale dynamic survives.
+
+    ``cache`` is the session's curve memo: a stroke asking for the configuration
+    the engine already holds reuses it instead of re-marshalling 512 samples
+    across the ctypes boundary."""
+    # addPropDynamic appends a device with an *identity* curve, so the samples
+    # can never be memoized on their own — the memo has to cover the whole
+    # clear/add/upload, i.e. skip it only when the engine already holds exactly
+    # this configuration.
+    want = (tuple(sample_pressure_curve(bl_brush.curve_strength)) if use_strength else None,
+            tuple(sample_pressure_curve(bl_brush.curve_size)) if use_size else None)
+    if cache is not None and cache.get("pressure") == want:
+        return
+
     sc_brush.clearPropDynamics(PROP_STRENGTH)
     sc_brush.clearPropDynamics(PROP_RADIUS)
-    if use_strength:
-        _add_pressure_dynamic(sc_brush, PROP_STRENGTH, bl_brush.curve_strength)
-    if use_size:
-        _add_pressure_dynamic(sc_brush, PROP_RADIUS, bl_brush.curve_size)
-
-
-def _add_pressure_dynamic(sc_brush, prop_id, cumap):
-    sc_brush.addPropDynamic(prop_id, DEVICE_PRESSURE, MIX_MULTIPLY, 1.0)
-    table = sample_pressure_curve(cumap)
-    n = len(table)
-    for i, value in enumerate(table):
-        sc_brush.setPropDynamicSample(prop_id, DEVICE_PRESSURE, i, n, value)
+    for prop_id, table in ((PROP_STRENGTH, want[0]), (PROP_RADIUS, want[1])):
+        if table is None:
+            continue
+        sc_brush.addPropDynamic(prop_id, DEVICE_PRESSURE, MIX_MULTIPLY, 1.0)
+        n = len(table)
+        for i, value in enumerate(table):
+            sc_brush.setPropDynamicSample(prop_id, DEVICE_PRESSURE, i, n, value)
+    if cache is not None:
+        cache["pressure"] = want
 
 
 # For UI / diagnostics: every mapped type (supported or not).
@@ -371,7 +400,7 @@ def kernel_enum(mgr, bl_brush):
     return None if value is None else int(value)
 
 
-def apply_brush_settings(bl_brush, unified, sc_brush, *, paint=None):
+def apply_brush_settings(bl_brush, unified, sc_brush, *, paint=None, cache=None):
     """Configure the stroke-constant part of a SculptCore Brush from a
     Blender Brush: the scalar settings, per-type extras, and the falloff /
     cavity curve bakes. The bakes are 256 engine calls each (~3-5 ms), far
@@ -401,8 +430,8 @@ def apply_brush_settings(bl_brush, unified, sc_brush, *, paint=None):
         bc = sc_brush.brushColor.vec
         bc[0], bc[1], bc[2], bc[3] = col[0], col[1], col[2], 1.0
 
-    _bake_falloff(bl_brush, sc_brush)
-    _apply_cavity(cavity_settings(bl_brush, paint), sc_brush)
+    _bake_falloff(bl_brush, sc_brush, cache)
+    _apply_cavity(cavity_settings(bl_brush, paint), sc_brush, cache)
 
     # Generated engine-only uniforms (Brush.sculptcore, brush-mapping M2) —
     # after the mapping so table-driven fields keep authority.
