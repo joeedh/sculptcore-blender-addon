@@ -230,6 +230,49 @@ class _CApi:
         lib.sc_external_draw_provider.argtypes = []
         lib.sc_external_draw_provider.restype = ctypes.c_void_p
 
+        # Grids-native stroke session (multires W1): the per-level session
+        # the stroke path drives instead of filterNodes + execBrush when the
+        # tool is grids-capable — no materialized-mesh hot path, block undo.
+        lib.GridStroke_new.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p]
+        lib.GridStroke_new.restype = ctypes.c_void_p
+        lib.GridStroke_free.argtypes = [ctypes.c_void_p]
+        lib.GridStroke_free.restype = None
+        lib.GridStroke_supported.argtypes = [ctypes.c_int]
+        lib.GridStroke_supported.restype = ctypes.c_int
+        lib.GridStroke_setMirror.argtypes = [ctypes.c_void_p, ctypes.c_int]
+        lib.GridStroke_setMirror.restype = None
+        lib.GridStroke_setNonAccum.argtypes = [ctypes.c_void_p, ctypes.c_int]
+        lib.GridStroke_setNonAccum.restype = None
+        lib.GridStroke_setAnchoredGrab.argtypes = [ctypes.c_void_p, ctypes.c_int]
+        lib.GridStroke_setAnchoredGrab.restype = None
+        lib.GridStroke_sync.argtypes = [ctypes.c_void_p]
+        lib.GridStroke_sync.restype = ctypes.c_int
+        lib.GridStroke_syncMask.argtypes = [ctypes.c_void_p]
+        lib.GridStroke_syncMask.restype = None
+        lib.GridStroke_begin.argtypes = [ctypes.c_void_p]
+        lib.GridStroke_begin.restype = ctypes.c_int
+        lib.GridStroke_dab.argtypes = (
+            [ctypes.c_void_p, ctypes.c_int] + [ctypes.c_float] * 6 + [ctypes.c_int])
+        lib.GridStroke_dab.restype = ctypes.c_int
+        lib.GridStroke_end.argtypes = [ctypes.c_void_p]
+        lib.GridStroke_end.restype = None
+        lib.GridStroke_canUndo.argtypes = [ctypes.c_void_p]
+        lib.GridStroke_canUndo.restype = ctypes.c_int
+        lib.GridStroke_canRedo.argtypes = [ctypes.c_void_p]
+        lib.GridStroke_canRedo.restype = ctypes.c_int
+        lib.GridStroke_undo.argtypes = [ctypes.c_void_p]
+        lib.GridStroke_undo.restype = ctypes.c_int
+        lib.GridStroke_redo.argtypes = [ctypes.c_void_p]
+        lib.GridStroke_redo.restype = ctypes.c_int
+        lib.GridStroke_undoBytes.argtypes = [ctypes.c_void_p]
+        lib.GridStroke_undoBytes.restype = ctypes.c_double
+        lib.Multires_hasGridDomain.argtypes = [ctypes.c_void_p, ctypes.c_int]
+        lib.Multires_hasGridDomain.restype = ctypes.c_int
+        lib.GridTree_castRay.argtypes = (
+            [ctypes.c_void_p, ctypes.c_int] + [ctypes.c_float] * 6
+            + [f32p, ctypes.POINTER(ctypes.c_int)])
+        lib.GridTree_castRay.restype = ctypes.c_int
+
         self.lib = lib
 
 

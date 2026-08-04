@@ -116,7 +116,80 @@ def _ensure_executor(session):
     return session.executor
 
 
-def stroke_begin(session, *, has_dyntopo=False, accumulate=True, anchored_grab=True):
+# Cached MASK kernel id: the binding enum introspection walks descriptors and
+# costs ~20 ms — far too much per stroke.
+_mask_kernel_id = None
+
+
+def grids_capable(session, brush_type):
+    """Whether a stroke of ``brush_type`` can run grids-native (multires
+    session + engine roster kernel). MASK is held back for now: the addon's
+    mask truth is the slot mesh's column (flood fills, CD_GRID_PAINT_MASK
+    import), and a grids mask stroke would write the store channel the host
+    doesn't read back yet."""
+    global _mask_kernel_id
+    if not session.multires_ptr:
+        return False
+    if _mask_kernel_id is None:
+        mgr = engine.manager()
+        _mask_kernel_id = int(mgr.get("sculptcore::brush::SculptBrushes").items['MASK'])
+    if int(brush_type) == _mask_kernel_id:
+        return False
+    return bool(engine.capi().lib.GridStroke_supported(int(brush_type)))
+
+
+def _grid_session(session):
+    """The engine grids stroke session for the active multires level, created
+    lazily and recreated on level change (a session binds one level). None
+    when creation fails."""
+    lib = engine.capi().lib
+    level = session.multires_active_level
+    if session.grid_ptr and session.grid_level != level:
+        lib.GridStroke_free(session.grid_ptr)
+        session.grid_ptr = None
+        session.grid_generation += 1
+        session.grid_cursor = 0
+    if not session.grid_ptr:
+        brush = _ensure_brush(session)
+        ptr = lib.GridStroke_new(session.multires_ptr, level, brush.ptr)
+        if not ptr:
+            return None
+        session.grid_ptr = ptr
+        session.grid_level = level
+        session.grid_generation += 1
+        session.grid_cursor = 0
+        session.grid_undo_bytes_base = 0
+        session.grid_mask_dirty = True
+        # The addon relies on the engine-side ride-along mirror to keep the
+        # slot mesh (extdraw, flush, mesh-path queries) current.
+        lib.GridStroke_setMirror(ptr, 1)
+    return session.grid_ptr
+
+
+def stroke_begin(session, *, has_dyntopo=False, accumulate=True, anchored_grab=True,
+                 grids_kernel=None):
+    session.last_stroke_grids = False
+    if grids_kernel is not None and grids_capable(session, grids_kernel):
+        grid = _grid_session(session)
+        if grid is not None:
+            lib = engine.capi().lib
+            lib.GridStroke_setNonAccum(grid, 0 if accumulate else 1)
+            lib.GridStroke_setAnchoredGrab(grid, 1 if anchored_grab else 0)
+            # A fold point (mesh-path stroke, level op) may have rebuilt the
+            # domain, which cleared the grid undo history.
+            if lib.GridStroke_sync(grid) == 2:
+                session.grid_generation += 1
+                session.grid_cursor = 0
+                session.grid_undo_bytes_base = 0
+                session.grid_mask_dirty = True
+            if session.grid_mask_dirty:
+                lib.GridStroke_syncMask(grid)
+                session.grid_mask_dirty = False
+            if lib.GridStroke_begin(grid):
+                session.last_stroke_grids = True
+                session.stroke_gen += 1
+                session.filter_high_water = 0.0
+                return
     executor = _ensure_executor(session)
     executor.beginStep(has_dyntopo)
     session.dyntopo_active = has_dyntopo
@@ -244,8 +317,17 @@ def apply_dyntopo_dab(session, program, center, normal, radius, params, seed):
 def apply_dab(session, brush_type, center, normal, radius):
     """Run one dab at an object-space center/normal. `center`/`normal` are
     3-tuples; `brush_type` is the SculptBrushes enum value. Returns the
-    number of spatial nodes the dab touched (0 = brush missed the surface)."""
+    number of spatial nodes the dab touched (0 = brush missed the surface);
+    grids-native strokes return the moved-vert count instead."""
     import sculptcore
+
+    if session.last_stroke_grids:
+        # Grids-native: the engine queries its own GridTree, mirrors the slot
+        # mesh, and refreshes normals/bounds — no filterNodes/_refresh_queries.
+        return engine.capi().lib.GridStroke_dab(
+            session.grid_ptr, int(brush_type),
+            center[0], center[1], center[2],
+            normal[0], normal[1], normal[2], 0)
 
     mgr = engine.manager()
     executor = _ensure_executor(session)
@@ -304,6 +386,14 @@ def apply_grab_dab(session, brush_type, anchor, cursor, normal, radius, accum_ad
         gt[i] = cursor[i] - anchor[i]
         drag += (cursor[i] - anchor[i]) ** 2
     drag = drag ** 0.5
+
+    if session.last_stroke_grids:
+        # Grids-native anchored grab: the engine pins the first dab's leaf
+        # region (radius + the @unbounded floor) — no drag widening needed.
+        return engine.capi().lib.GridStroke_dab(
+            session.grid_ptr, int(brush_type),
+            anchor[0], anchor[1], anchor[2],
+            normal[0], normal[1], normal[2], 1 if accum_add else 0)
 
     anchor_v = _float3(mgr, *anchor)
     normal_v = _float3(mgr, *normal)
@@ -390,6 +480,13 @@ def apply_dab_program(session, program, center, normal, radius, kernel=None):
 
 
 def stroke_end(session):
+    if session.last_stroke_grids:
+        # Grids-native: endStep folded the stroke into the store already
+        # (restricted writeback) and closed the grid undo step; the engine
+        # mirror kept the slot mesh + normals current per dab.
+        engine.capi().lib.GridStroke_end(session.grid_ptr)
+        session.grid_cursor += 1
+        return
     executor = _ensure_executor(session)
     if session.dyntopo_active:
         executor.endDynTopoStroke()
@@ -405,7 +502,38 @@ def stroke_end(session):
 
 def raycast(session, origin, direction):
     """Cast a ray (object space) against the engine tree; returns a
-    (position, normal, face_index) tuple on hit, else None."""
+    (position, normal, face_index) tuple on hit, else None. Grids sessions
+    with a live domain use the GridTree — its bounds refresh per dab
+    engine-side, where the mesh tree's would be stale between grids dabs."""
+    lib = engine.capi().lib
+    if (session.grid_ptr and session.multires_ptr
+            # Only while the grids path is current: a mesh-path stroke edits
+            # the slot mesh and the domain goes stale until the next fold, and
+            # a level switch leaves the grid session on the old level until
+            # the next stroke recreates it — the mesh tree is current in both.
+            and session.last_stroke_grids
+            and session.grid_level == session.multires_active_level
+            and lib.Multires_hasGridDomain(session.multires_ptr, session.grid_level)):
+        import ctypes
+
+        import numpy as np
+
+        out = np.zeros(10, dtype=np.float32)
+        nearest = ctypes.c_int(-1)
+        hit = lib.GridTree_castRay(
+            session.multires_ptr, session.grid_level,
+            origin[0], origin[1], origin[2],
+            direction[0], direction[1], direction[2],
+            out, ctypes.byref(nearest))
+        if not hit:
+            return None
+        # Level-mesh face id from the hit cell (buildLevelTopo's grid-major
+        # cell order) so callers keep their face-index semantics.
+        side = 1 << (session.grid_level - 1)
+        face = int(out[7]) * side * side + int(out[9]) * side + int(out[8])
+        return ((float(out[0]), float(out[1]), float(out[2])),
+                (float(out[3]), float(out[4]), float(out[5])), face)
+
     mgr = engine.manager()
     tree = session.tree()
     orig_v = _float3(mgr, *origin)
@@ -670,10 +798,18 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
                       or self.brush.use_accumulate
                       or (not kernel_toggle and
                           self.brush.sculpt_brush_type in mapping.FORCE_ACCUMULATE))
+        # Grids-native dispatch (multires W1): plain dab/grab strokes of
+        # roster kernels skip the materialized-mesh hot path entirely. The
+        # program (autosmooth), preview and snake-hook flows stay mesh-path.
+        grids_kernel = None
+        if (self.session.multires_ptr is not None and self._program is None
+                and not self._preview_method and not self._snake_hook):
+            grids_kernel = self.kernel
         # The grab-class path is the anchored one (fixed region at the stroke
         # start, absolute cursor drag); every other path dabs along the stroke.
         stroke_begin(self.session, has_dyntopo=self._dyntopo is not None,
-                     accumulate=accumulate, anchored_grab=self._grab_class)
+                     accumulate=accumulate, anchored_grab=self._grab_class,
+                     grids_kernel=grids_kernel)
         context.window_manager.modal_handler_add(self)
         # First dab at the invoke location.
         self._publish_cursor_pressure(event.pressure)

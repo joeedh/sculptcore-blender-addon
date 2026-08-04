@@ -55,6 +55,14 @@ _next_key = 1
 # domain/type; each entry is (numpy dtype, count-getter, writer-getter).
 _ATTR_TAG = ("attr",)
 
+# Grids-native stroke steps (multires W1): the stroke lives in the engine's
+# GridStrokeLog, not the meshlog. Entries: (tag, object_name, generation,
+# grid_generation, target_cursor, blob_before, blob_after, level). Decode
+# seeks the grid log (fast, bit-exact) when the session/level/history still
+# match; otherwise it falls back to the store-blob restore, exactly like the
+# meshlog steps' C4 fallback.
+_GRID_TAG = ("grid",)
+
 _ATTR_KINDS = {
     'VERT_F32': ("float32",
                  lambda session: convert.mesh_vert_num(session.mesh_ptr),
@@ -80,6 +88,29 @@ def _tag_view3d_redraw(context):
 def push(context, ob, session):
     """Record one undo step for the stroke just ended on ``ob``'s session."""
     global _next_key
+    if session.last_stroke_grids:
+        # Grids-native stroke: one GridStrokeLog step, no meshlog entry. The
+        # store blob chain is kept per stroke for now (the cross-level and
+        # dead-history fallback); demoting it to level switches only is the
+        # follow-up recorded in the seams design.
+        blob_before = session.multires_last_blob
+        blob_after = convert.multires_store_blob(session)
+        session.multires_last_blob = blob_after
+        lib = engine.capi().lib
+        # undoBytes is the whole history; report this step's delta.
+        total = int(lib.GridStroke_undoBytes(session.grid_ptr))
+        size = max(0, total - session.grid_undo_bytes_base)
+        session.grid_undo_bytes_base = total
+        if blob_after is not None:
+            size += len(blob_after)
+        key = _next_key
+        _next_key += 1
+        _pending[key] = (_GRID_TAG, ob.name, session.generation,
+                         session.grid_generation, session.grid_cursor,
+                         blob_before, blob_after, session.grid_level)
+        bpy.ops.object.custom_mode_undo_push(
+            'EXEC_DEFAULT', message="Sculpt Stroke", state_id=key, size=size)
+        return
     log = session.meshlog
     if log is None:
         return
@@ -117,6 +148,8 @@ def push_attr(context, ob, session, message, kind, attr, blob_before, blob_after
     global _next_key
     key = _next_key
     _next_key += 1
+    if attr == convert._SC_MASK:
+        session.grid_mask_dirty = True
     _pending[key] = (_ATTR_TAG, ob.name, session.generation,
                      kind, attr, blob_before, blob_after)
     bpy.ops.object.custom_mode_undo_push(
@@ -141,12 +174,58 @@ def _decode_attr(context, ob, session, info, direction, is_final):
     if count_fn(session) != len(values):
         return
     writer_fn(engine.capi().lib)(session.mesh_ptr, attr, np.ascontiguousarray(values))
+    if attr == convert._SC_MASK:
+        session.grid_mask_dirty = True
     # Flush on the leave decode too, not only on the final one: an undo whose
     # destination is a step this type never decodes (e.g. the mode-enter
     # memfile boundary) would otherwise leave the restored column engine-only,
     # with the Mesh still showing the undone state.
     convert.flush(ob)
     if is_final:
+        _tag_view3d_redraw(context)
+
+
+def _decode_grid(context, ob, session, info, direction, is_final):
+    """Seek the grids stroke log for a grids-native step. Valid only while
+    the session, level, and grid history the step was pushed against are all
+    unchanged AND the engine session is still bound to the same domain
+    (GridStroke_sync == 1); anything else falls back to the store-blob
+    restore, which is exact (grids strokes write back at stroke end)."""
+    _tag, _name, generation, grid_gen, target, blob_before, blob_after, level = info
+    lib = engine.capi().lib
+    live = (generation == session.generation
+            and grid_gen == session.grid_generation
+            and session.grid_ptr is not None
+            and session.grid_level == level)
+    if live and lib.GridStroke_sync(session.grid_ptr) != 1:
+        # The domain was rebuilt under the session: history is gone.
+        session.grid_generation += 1
+        session.grid_cursor = 0
+        session.grid_undo_bytes_base = 0
+        session.grid_mask_dirty = True
+        live = False
+    if live:
+        if direction < 0 and not is_final:
+            target -= 1
+        moved = False
+        while session.grid_cursor > target and lib.GridStroke_undo(session.grid_ptr):
+            session.grid_cursor -= 1
+            moved = True
+        while session.grid_cursor < target and lib.GridStroke_redo(session.grid_ptr):
+            session.grid_cursor += 1
+            moved = True
+        if moved or is_final:
+            landed = blob_after if (is_final or direction > 0) else blob_before
+            if landed is not None:
+                session.multires_last_blob = landed
+            convert.flush(ob)
+            _tag_view3d_redraw(context)
+        return
+    blob = blob_before if (direction < 0 and not is_final) else blob_after
+    if blob is None:
+        return
+    if convert.multires_restore_blob(ob, session, blob, level):
+        convert.flush(ob)
         _tag_view3d_redraw(context)
 
 
@@ -180,6 +259,9 @@ def decode(context, ob, state_id, direction, is_final):
         return
     if info[0] is _ATTR_TAG:
         _decode_attr(context, ob, session, info, direction, is_final)
+        return
+    if info[0] is _GRID_TAG:
+        _decode_grid(context, ob, session, info, direction, is_final)
         return
     _object_name, _step_id, target, generation, _blob_before, blob_after, _level = info
     if session.multires_ptr and blob_after is not None and (
@@ -224,6 +306,13 @@ def decode(context, ob, state_id, direction, is_final):
             landed = _ba if (is_final or direction > 0) else _bb
             if landed is not None:
                 session.multires_last_blob = landed
+            # Heal the store: the meshlog seek reverted slot-mesh edits the
+            # store still carries (mesh-path pushes fold at push time). The
+            # mesh path self-heals at its next writeback, but the grids path
+            # rebuilds its domain FROM the store — re-encode now so it can't
+            # resurrect the undone stroke.
+            engine.capi().lib.Multires_writeback(
+                session.multires_ptr, session.multires_active_level)
         convert.flush(ob)
         _tag_view3d_redraw(context)
 
@@ -234,8 +323,10 @@ def free(state_id):
     info = _pending.pop(state_id, None)
     if info is None:
         return
-    if info[0] is _ATTR_TAG:
-        # No meshlog entry to free; the snapshots go with the popped entry.
+    if info[0] is _ATTR_TAG or info[0] is _GRID_TAG:
+        # No meshlog entry to free; snapshots (and, for grid steps, the
+        # engine-side log — linear history, truncated by later re-attaches)
+        # go with the popped entry.
         return
     object_name, step_id, _target, generation, _bb, _ba, _level = info
     session = engine.sessions.get(object_name)

@@ -1597,6 +1597,12 @@ def multires_restore_blob(ob, session, blob, level):
     session.multires_mask_base = multires.import_mask(
         ob, bpy.context.evaluated_depsgraph_get(), session.mesh_ptr,
         session.multires_map, session.multires_ptr, actual)
+    # The restore invalidated every grid domain too — the engine grids
+    # session re-binds on its next sync, and its undo history is gone.
+    session.grid_generation += 1
+    session.grid_cursor = 0
+    session.grid_undo_bytes_base = 0
+    session.grid_mask_dirty = True
     # The store now equals this blob; a new stroke branches from here.
     session.multires_last_blob = blob
     return True

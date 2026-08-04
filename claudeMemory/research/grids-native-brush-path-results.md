@@ -1,4 +1,7 @@
-# Grids-native brush path: engine-phase results (G1–G4)
+# Grids-native brush path: engine-phase results (G1–G4) + addon wiring (W1/W2)
+
+> **Addendum 2026-08-04 (later): the addon wiring landed** — see the W1/W2
+> section at the end for the end-to-end numbers.
 
 Execution record for
 [plans/multires-grids-native-brush-path.md](../plans/multires-grids-native-brush-path.md),
@@ -98,3 +101,50 @@ unchanged from the plan: GPU wiring must batch readback per frame
   validate the wgpu path (not a repo change).
 - The pinch sbrush-verify golden mismatch pre-exists this work (verified on
   the unmodified tree) and is untouched.
+
+## W1/W2 addendum: addon wiring + end-to-end bench (same day)
+
+**What landed** (addon repo + engine `GridStroke_*` extensions): stroke.py
+dispatches roster kernels through the grids session (`grids_kernel` at
+stroke begin; program/preview/snake-hook/MASK stay mesh-path), engine-side
+per-dab ride-along mirror + full mirror on undo/redo, domain raycast (gated
+on last-stroke-grids + level + domain liveness), grid-tagged undo steps
+(grid-log seek primary, per-stroke store blob kept as the fallback chain),
+flag-driven mask sync from the slot column, per-step undo-size delta
+accounting, and the meshlog-undo store heal (a meshlog seek reverts slot-mesh
+edits the store still carries — re-encode at decode so a later grids domain
+rebuild can't resurrect them). Headless gate:
+`claudeMemory/scripts/test_grids_native.py` (18 checks); per-phase profile:
+`profile_grids_stroke.py`.
+
+**End-to-end** (`bench_multires_sc.py`, grid 64 / level 4 ≈ 1M verts, 19
+strokes, same rig/noise floor as the baseline):
+
+| | native | pre-grids baseline | grids-wired (W1) |
+|---|---|---|---|
+| sculpt_phase_ms | ~857 | ~5,050 | **~3,656** |
+| stroke_ms mean | — | ~240 (derived) | 149 |
+| undo memory | 10.6 MB | ~190 MB | **144 MB → mostly blobs** |
+| peak_z | — | 0.11412 | 0.11412 (bit-identical surface) |
+
+Steady-state per-stroke (headless profile at the same workload): dabs 11 ms
+(0.26 ms/dab through Python+engine), stroke-end fold 2.5 ms, store blob
+24 ms, raycasts 1.3 ms. The wiring pass also fixed two hot mistakes found by
+measurement: the mirror originally set `Spatial_RegenTris` (leaf
+re-triangulation + GPU partition recompute per draw refresh — ~600 ms of the
+bench) and `GridStroke_begin` originally re-pulled the mask column per stroke
+(~20 ms → flag-driven).
+
+**Where the remaining 3.66 s − 0.86 s lives** (the ranked follow-ups):
+1. draw refresh ~100 ms/stroke at 30 Hz mid-stroke cadence — the
+   extdraw-from-grids provider (seams design §2 end state) is the fix;
+2. the per-stroke store blob (~24 ms + ~8 MB/step) — blob demotion to level
+   switches (seams design §3), needs `GridStrokeLog` eviction first;
+3. residual modal Python per-move overhead — the cpp-stroke-driver plan;
+4. `enter_mode_ms` ~12.8 s — the lazy-mirror rule (seams design §4).
+
+**Watch item:** `test_grids_native.py`'s raycast-lands-on-surface check
+flaked ~1-in-4 in one build, then passed 7+ consecutive runs; the check now
+prints the full hit on failure. Positions/moved-counts were bit-identical
+across those runs, so if it recurs the printed hit will say whether the
+raycast (tie on the center seam?) or the branch selection moved.

@@ -75,6 +75,24 @@ class Session:
         # Store snapshot after the latest undo push (bytes) — the next push's
         # pre-state, and the C4 blob-fallback base for level-crossing undo.
         "multires_last_blob",
+        # Grids-native stroke session (W1): the engine GridStrokeSession for
+        # grid_level (created lazily per level, recreated on level change).
+        # grid_generation bumps whenever its undo history dies (recreate, fold
+        # re-attach, blob restore); grid_cursor mirrors applied grid steps;
+        # last_stroke_grids marks the stroke just ended as grids-native so
+        # undo.push records the right step flavor.
+        "grid_ptr",
+        "grid_level",
+        "grid_generation",
+        "grid_cursor",
+        "last_stroke_grids",
+        # GridStroke_undoBytes high-water at the last push, so each step
+        # reports its own delta to the undo limiter, not the cumulative log.
+        "grid_undo_bytes_base",
+        # The slot mesh's mask column changed since the grids domain mirror
+        # last pulled it (flood fill, mask import, attr-undo, domain rebuild)
+        # — the next grids stroke re-syncs. O(level), so flag-driven.
+        "grid_mask_dirty",
         # The modifier's stack and the engine's have diverged in a way only a
         # re-enter can fix (the base cage was rebuilt, or the engine would not
         # follow a level-count change). Latches so the level-sync handler, which
@@ -142,6 +160,13 @@ class Session:
         self.multires_active_level = 0
         self.multires_show_viewport = True
         self.multires_last_blob = None
+        self.grid_ptr = None
+        self.grid_level = 0
+        self.grid_generation = 0
+        self.grid_cursor = 0
+        self.last_stroke_grids = False
+        self.grid_undo_bytes_base = 0
+        self.grid_mask_dirty = True
         self.multires_desynced = False
         self.bridged_attrs = []
         self.color_attr_name = None
@@ -193,6 +218,10 @@ class Session:
         self.curve_cache = {}
         self.mesh_obj = None
         lib = engine.capi().lib
+        if self.grid_ptr:
+            # Before the Multires it references.
+            lib.GridStroke_free(self.grid_ptr)
+            self.grid_ptr = None
         if self.multires_ptr:
             # mesh_ptr/tree_ptr are the stack's active-level views (stack-owned);
             # the cage outlives the stack (Multires_new does not own it).
