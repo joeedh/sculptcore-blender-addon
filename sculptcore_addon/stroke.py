@@ -161,8 +161,11 @@ def _grid_session(session):
         session.grid_undo_bytes_base = 0
         session.grid_mask_dirty = True
         # The addon relies on the engine-side ride-along mirror to keep the
-        # slot mesh (extdraw, flush, mesh-path queries) current.
+        # slot mesh (extdraw, flush, mesh-path queries) current, and defers
+        # normal refreshes to the frame cadence (closely-spaced dabs overlap
+        # ~90%, so per-dab refresh recomputes the same fans many times).
         lib.GridStroke_setMirror(ptr, 1)
+        lib.GridStroke_setDeferNormals(ptr, 1)
     return session.grid_ptr
 
 
@@ -892,6 +895,10 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         import time
         now = time.monotonic()
         if now - self._last_flush > 1.0 / 30.0:
+            # Deferred grids normals resolve at the same cadence the provider
+            # re-uploads, so shading and geometry stay in step.
+            if self.session.last_stroke_grids and self.session.grid_ptr:
+                engine.capi().lib.GridStroke_flushNormals(self.session.grid_ptr)
             if self.session.draw_key:
                 convert.draw_refresh(context.active_object)
             else:

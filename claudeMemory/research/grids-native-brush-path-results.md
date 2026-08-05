@@ -143,6 +143,45 @@ bench) and `GridStroke_begin` originally re-pulled the mask column per stroke
 3. residual modal Python per-move overhead — the cpp-stroke-driver plan;
 4. `enter_mode_ms` ~12.8 s — the lazy-mirror rule (seams design §4).
 
+## W3 addendum: per-stroke cost attribution + two wins (same day, later)
+
+Headed per-phase instrumentation (temporary, removed after measurement)
+finally attributed the post-W1 stroke_ms 149 ms: **~70 ms was the engine dabs
+themselves at production radius** — dominated by the per-dab normal refresh,
+which recomputes ~90 %-overlapping fans dab after dab (spacing is 10 % of the
+brush diameter) — plus 23 ms undo push (17 ms blob serialize + a redundant
+O(1M) writeback scan) and ~5 ms draw refresh. The draw-refresh hypothesis
+from W2 was **wrong**: `tree.update(gpu)` costs 0.4–0.5 ms/call (~4 ms/stroke
+at the 30 Hz cadence), measured by registering the provider headlessly.
+
+Fixes:
+
+1. **Deferred normal refresh** (`GridBrushExecutor::deferNormals` +
+   `GridStroke_setDeferNormals/flushNormals`): dabs accumulate moved verts;
+   the refresh runs deduped at the host frame cadence (`_mid_redraw`, before
+   the provider re-upload) and at stroke end. This is the mesh path's / native
+   sculpt's per-frame normal cadence; kernels and raycast normals read
+   ≤1-frame-stale values, and the bench surface moved only in the 5th decimal
+   (stale dab normals steer dabs microscopically differently). Off by
+   default engine-side — the per-dab A/B tests keep exact semantics; the
+   addon opts in. `images` 70 → 34 ms/stroke.
+2. **Blob push skips the writeback scan** (`multires_store_blob(...,
+   skip_writeback=True)` from the grid-step push): the grids fold already ran
+   at stroke end and the mirror makes the scan compare a million
+   bit-identical verts. ~7 ms/stroke.
+
+| | native | pre-grids | W1 | **W3** |
+|---|---|---|---|---|
+| sculpt_phase_ms | ~857 | ~5,050 | ~3,656 | **~2,811** |
+| stroke_ms mean | — | ~240 | 149 | **105** |
+
+Remaining per-stroke (headed): engine dabs 34 ms, undo push ~25 ms (17 ms
+blob serialize — demotion still the designed fix), normals+provider refresh
+~12 ms at frame cadence, sampler ~7 ms, ~25 ms modal dispatch/misc. Next
+levers in value order: blob demotion (§3 of the seams design), the
+extdraw-from-grids provider (mirror + slice fills), enter (~13 s, lazy
+mirror).
+
 **Watch item:** `test_grids_native.py`'s raycast-lands-on-surface check
 flaked ~1-in-4 in one build, then passed 7+ consecutive runs; the check now
 prints the full hit on failure. Positions/moved-counts were bit-identical

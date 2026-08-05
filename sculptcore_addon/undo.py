@@ -94,7 +94,7 @@ def push(context, ob, session):
         # dead-history fallback); demoting it to level switches only is the
         # follow-up recorded in the seams design.
         blob_before = session.multires_last_blob
-        blob_after = convert.multires_store_blob(session)
+        blob_after = convert.multires_store_blob(session, skip_writeback=True)
         session.multires_last_blob = blob_after
         lib = engine.capi().lib
         # undoBytes is the whole history; report this step's delta.

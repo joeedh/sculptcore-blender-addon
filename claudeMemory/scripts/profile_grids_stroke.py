@@ -44,9 +44,18 @@ def main():
     sc_brush.strength = 0.1
     sc_brush.writeProps()
 
+    # The headed flow refreshes the external-draw buffers at <=30 Hz mid
+    # stroke; register the tree so update() runs the same pipeline here.
+    draw_key = 4242
+    lib.sc_external_draw_register(draw_key, session.tree_ptr)
+    lib.sc_external_draw_enable_dynamic(session.tree_ptr)
+    lib.sc_external_draw_update(draw_key)  # settle the initial build
+
     n_strokes = 5
     dabs = 42
-    t_begin = t_state = t_ray = t_dab = t_end = t_blob = t_push_rest = 0.0
+    t_begin = t_state = t_ray = t_dab = t_end = t_blob = 0.0
+    t_draw = 0.0
+    n_draw = 0
     for s in range(n_strokes):
         t = time.perf_counter()
         stroke.stroke_begin(session, grids_kernel=kernel_draw)
@@ -66,11 +75,17 @@ def main():
             t = time.perf_counter()
             stroke.apply_dab(session, kernel_draw, (x, y, 0.0), (0.0, 0.0, 1.0), 0.06)
             t_dab += time.perf_counter() - t
+            # ~30 Hz in the headed flow: every 5th dab here.
+            if i % 5 == 0:
+                t = time.perf_counter()
+                lib.sc_external_draw_update(draw_key)
+                t_draw += time.perf_counter() - t
+                n_draw += 1
         t = time.perf_counter()
         stroke.stroke_end(session)
         t_end += time.perf_counter() - t
         t = time.perf_counter()
-        blob = convert.multires_store_blob(session)
+        blob = convert.multires_store_blob(session, skip_writeback=True)
         session.multires_last_blob = blob
         t_blob += time.perf_counter() - t
 
@@ -81,6 +96,14 @@ def main():
               t_end * per, t_blob * per))
     print("per-dab ms: state={:.3f} raycast={:.3f} dab={:.3f}".format(
         t_state * per / dabs, t_ray * per / dabs, t_dab * per / dabs))
+    print("draw_refresh: {:.2f} ms/call over {:d} calls ({:.1f} ms/stroke at "
+          "this cadence)".format(t_draw * 1000.0 / max(n_draw, 1), n_draw,
+                                 t_draw * per))
+    # Steady-state floor: nothing dirty.
+    t = time.perf_counter()
+    lib.sc_external_draw_update(draw_key)
+    print("draw_refresh idle: {:.2f} ms".format((time.perf_counter() - t) * 1000))
+    lib.sc_external_draw_unregister(draw_key)
     print("undo bytes: {:.1f} MB (blob {:.1f} MB)".format(
         lib.GridStroke_undoBytes(session.grid_ptr) / 1e6,
         (len(blob) if blob else 0) / 1e6))

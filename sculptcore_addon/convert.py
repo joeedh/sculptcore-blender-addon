@@ -1559,16 +1559,20 @@ def _rebind_multires_views(session, active_level):
         lib.sc_external_draw_update(session.draw_key)
 
 
-def multires_store_blob(session):
+def multires_store_blob(session, skip_writeback=False):
     """Snapshot the multires displacement store as bytes (C4 undo payload).
     The active level is written back first so pending slot-mesh edits are
-    included. Returns None on failure (or for plain-Mesh sessions)."""
+    included — except with ``skip_writeback`` (grids-native strokes fold at
+    stroke end and mirror the slot mesh, so the scan would compare a million
+    bit-identical verts for nothing). Returns None on failure (or for
+    plain-Mesh sessions)."""
     import ctypes
 
     if not session.multires_ptr:
         return None
     lib = engine.capi().lib
-    lib.Multires_writeback(session.multires_ptr, session.multires_active_level)
+    if not skip_writeback:
+        lib.Multires_writeback(session.multires_ptr, session.multires_active_level)
     size = ctypes.c_int(0)
     buf = lib.Multires_serializeStore(session.multires_ptr, ctypes.byref(size))
     if not buf or size.value <= 0:

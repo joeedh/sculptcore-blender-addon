@@ -249,6 +249,10 @@ class _CApi:
         lib.GridStroke_sync.restype = ctypes.c_int
         lib.GridStroke_syncMask.argtypes = [ctypes.c_void_p]
         lib.GridStroke_syncMask.restype = None
+        lib.GridStroke_setDeferNormals.argtypes = [ctypes.c_void_p, ctypes.c_int]
+        lib.GridStroke_setDeferNormals.restype = None
+        lib.GridStroke_flushNormals.argtypes = [ctypes.c_void_p]
+        lib.GridStroke_flushNormals.restype = None
         lib.GridStroke_begin.argtypes = [ctypes.c_void_p]
         lib.GridStroke_begin.restype = ctypes.c_int
         lib.GridStroke_dab.argtypes = (
