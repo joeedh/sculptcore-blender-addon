@@ -188,6 +188,9 @@ class _CApi:
         lib.Multires_fromLevelPositions.argtypes = [
             ctypes.c_void_p, ctypes.c_int, f32p, ctypes.c_int]
         lib.Multires_fromLevelPositions.restype = ctypes.c_int
+        lib.Multires_seedLevelPositions.argtypes = [
+            ctypes.c_void_p, ctypes.c_int, f32p, ctypes.c_int]
+        lib.Multires_seedLevelPositions.restype = ctypes.c_int
         lib.Multires_writeback.argtypes = [ctypes.c_void_p, ctypes.c_int]
         lib.Multires_writeback.restype = ctypes.c_int
         # Level count mutation (P8 C5): follow the modifier's Subdivide /

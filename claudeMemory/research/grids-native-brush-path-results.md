@@ -182,6 +182,35 @@ levers in value order: blob demotion (§3 of the seams design), the
 extdraw-from-grids provider (mirror + slice fills), enter (~13 s, lazy
 mirror).
 
+## W4 addendum: fast enter (same day, later)
+
+cProfile on `convert.enter` at 1M attributed **11.0 of the 13.1 s to
+`Multires_fromLevelPositions`**: it materialized the level (topo mesh + tree
++ normals), scattered the seed into the slot mesh, ran a full writeback,
+eagerly cascaded `propagateDown` through every level, then invalidated and
+materialized AGAIN — with the addon's own `setActiveLevel` that's ~3 slot
+builds of a 1M mesh plus a cascade the user may never look at.
+
+Fix: `Multires::seedLevelPositions` (+ c-api) — seed through the CHAIN:
+ensure base+frames first (one throwaway topo mesh for the frame provider —
+the posIsBase hazard again), write the samples into `LevelPos::pos` in
+place, one `storeDispFromPositions` over the level, set the down-prop DEBT
+instead of cascading (the first downward switch settles it — `sculpt_levels
+< top` enters pay it immediately, same as before), drop resident slots.
+The addon then materializes exactly once.
+
+Gates: seeded-level surface vs the old path 3e-8 (float re-derivation);
+the settled coarse level after a downward switch **bit-identical** to the
+old eager cascade; all headless suites green.
+
+**Enter: 13.1 s → ~6.2 s headed** (6.1 s headless), with `sculpt_phase`
+unchanged (~2.82 s across repeat runs; a 3.27 s outlier run was variance —
+single-run phase deltas at this scale swing more than the native rig's
+±150 ms floor, so bracket with a repeat before believing a change). The
+remaining ~6 s of enter is the refiner init ~1.4 s, chain+frames ~2 s, and
+the one real materialization — the lazy-mirror end state is still the fix
+for most of that.
+
 **Watch item:** `test_grids_native.py`'s raycast-lands-on-surface check
 flaked ~1-in-4 in one build, then passed 7+ consecutive runs; the check now
 prints the full hit on failure. Positions/moved-counts were bit-identical

@@ -173,7 +173,10 @@ def build_map(ob, depsgraph, mr_ptr, level, blender_verts_num):
 
 def import_displacement(mr_ptr, mapping, blender_top_positions):
     """Seed the engine stack from Blender's displaced top-level positions
-    (subdiv-vertex order). Returns the changed-vert count."""
+    (subdiv-vertex order). Uses the chain-only seeding seam — no throwaway
+    materializations, down-propagation deferred as debt (settled by the
+    first downward level switch) — which is what makes the mode enter fast;
+    the caller activates the level afterwards. Returns the sample count."""
     import numpy as np
 
     lib = engine.capi().lib
@@ -181,7 +184,7 @@ def import_displacement(mr_ptr, mapping, blender_top_positions):
     # Blender subdiv vertex (seam replicas resolve to equal values).
     seed = np.ascontiguousarray(
         blender_top_positions[mapping.engine_sample_to_blender], dtype=np.float32)
-    return lib.Multires_fromLevelPositions(
+    return lib.Multires_seedLevelPositions(
         mr_ptr, mapping.level, seed.reshape(-1), len(seed))
 
 

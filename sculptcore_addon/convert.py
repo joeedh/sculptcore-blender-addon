@@ -250,7 +250,7 @@ def _enter_multires(ob, md):
         md.show_viewport = prev_show
         raise
 
-    # The import rematerialized the seeded level; fetch the current views.
+    # The seed left nothing resident; this is the one materialization.
     lib.Multires_setActiveLevel(mr, level)
     mesh_ptr = lib.Multires_activeMesh(mr)
     tree_ptr = lib.Multires_activeTree(mr)
