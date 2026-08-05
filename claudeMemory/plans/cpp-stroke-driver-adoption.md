@@ -5,6 +5,10 @@ per-dab raycasting) with the engine's `sculptcore::brush::BrushStrokeDriver`
 (`engine/source/brush/stroke_driver.{h,cc}`, engine commit `9a22ee8`), keeping
 every dispatcher-side concern in Python.
 
+> **Revised 2026-08-04 after the grids-native wiring (W1/W2)** — see the
+> "Grids-native interaction" section below; it changes how phase 1 must
+> handle multires sessions, and re-scopes the expected perf win.
+
 ## Why
 
 - One sampler instead of two. The C++ driver is a statement-for-statement port
@@ -15,6 +19,14 @@ every dispatcher-side concern in Python.
 - Per-dab pressure/tilt/twist interpolation across a segment, which we do not
   do today (every dab of a segment reuses the arriving event's pressure).
 - Deletes ~250 lines of Python whose only purpose is to mirror engine behavior.
+- **Perf expectation (measured 2026-08-04):** this is a correctness /
+  maintenance plan, not the next big perf lever. The W1 headless profile at
+  the 1 M multires bench puts the whole Python sampler side at ~0.05 ms/dab
+  (`apply_dab_state` 0.016 + raycast 0.033) — the end-to-end multires gap is
+  dominated by the 30 Hz draw-refresh cadence, the per-stroke store blob and
+  the enter cost (see `research/grids-native-brush-path-results.md`, W1/W2
+  addendum). Plain-mesh / dyntopo strokes were not re-measured and may
+  benefit more.
 
 ## What is in scope
 
@@ -22,10 +34,44 @@ The driver's own docs are explicit: **the sampler only**. Symmetry, per-dab
 brush policy, dyntopo cadence, preview rollback, undo and the GPU path stay
 host-side. This plan does not move any of them.
 
+## Grids-native interaction (added 2026-08-04, after W1)
+
+The multires wiring changed the sampler's surroundings in ways phase 1 must
+respect:
+
+- **The driver raycasts the mesh `SpatialTree` it is constructed with**
+  (`BrushStrokeDriver::rayCast` → `tree_->castRay`). On a grids-native stroke
+  the addon no longer runs per-dab `updateQueries` — the ride-along mirror
+  keeps the slot mesh's *positions* current but its tree *bounds* refresh at
+  best at the 30 Hz draw cadence (never, headless). `stroke.raycast` therefore
+  routes grids sessions through `GridTree_castRay` (domain bounds refresh per
+  dab engine-side), gated on last-stroke-grids + level + domain liveness.
+  Constructing the driver with `session.tree()` and letting it re-raycast
+  control points would sample a stale-bounded tree mid-stroke — the exact
+  failure `_refresh_queries` existed to prevent.
+- **Resolution for phase 1:** for multires sessions, use the driver as a
+  *pure spacer* and re-raycast each emitted `screenP` host-side through
+  `stroke.raycast` (the fallback already described under "Known behavior
+  change", promoted to *required* on grids sessions; it costs ~0.03 ms/dab).
+  Plain-mesh sessions may use the driver's own raycast as planned. If the
+  split reads badly, the alternative is an engine seam — a ray-source hook on
+  `BrushStrokeDriver` (or a `GridTree` adapter with the `castRay` contract) —
+  but that is engine work this plan should not start with.
+- **The sampler seam itself is untouched by W1**: the grids dispatch happens
+  inside `apply_dab`/`apply_grab_dab`, *below* `_apply_spaced_dab`, so
+  phase 1's "only the spaced-dab branch changes" scoping still holds.
+- **Validation additions:** the parity script's reference raycast is now the
+  branchy `stroke.raycast` (grid tree on grids sessions); the in-viewport A/B
+  list (1.4) must include a multires grids-native stroke of a roster kernel,
+  checked against the per-dab raycast-currency behavior (snake hook / grab
+  style "stroke dies mid-drag" is the failure mode to look for).
+
 ## Preconditions (already true, verify before starting)
 
-- The driver is in the recorded submodule gitlink (`engine` @ `4b32dae`
-  contains `9a22ee8`) — **no submodule bump required**.
+- The driver is in the recorded submodule gitlink — **no submodule bump
+  required**. (Originally verified at `engine @ 4b32dae` ⊇ `9a22ee8`; the
+  gitlink has since advanced through the grids-native work to `68cdea8`+,
+  which still contains it.)
 - It is bound through litestl (`engine/source/brush/bindings.cc`), so the
   ctypes runtime builds the class automatically. `sampleAt(i)` returns a
   **non-owning** `DabSample` wrapper, or `None` for an out-of-range index
@@ -183,12 +229,14 @@ which still deletes `stroke_math` and the spacer.
 `9a22ee8` also fixes `SpatialTree::castRay`: the barycentric weights from
 `rayTriIsect` were applied cyclically rotated, so **every** reported hit
 position and normal was wrong. Two `stroke.py` comments cite that bug as their
-rationale:
+rationale (line numbers drifted with the W1 wiring — anchor on the text):
 
-- `stroke.py:686` — `_drag_origin` taken from a plane projection rather than
-  the anchor, "castRay's reconstructed hit sits off the mouse ray".
-- `stroke.py:880` — symmetry reflects the resolved hit rather than re-raycasting
-  the mirrored ray.
+- "castRay's reconstructed hit sits off the mouse ray" (near the grab
+  anchoring in `_dab_at`, ~line 841 as of W1) — `_drag_origin` taken from a
+  plane projection rather than the anchor.
+- "castRay reconstructs the hit position imprecisely" (the symmetry comment
+  in `_apply_spaced_dab`'s caller, ~line 1062 as of W1) — symmetry reflects
+  the resolved hit rather than re-raycasting the mirrored ray.
 
 Reflecting the resolved hit is still what vanilla sculpt does and should stay,
 but **both comments are now stale** and the anchored-drag workaround may be
@@ -200,6 +248,7 @@ updating to record the fix.
 
 | Risk | Mitigation |
 |---|---|
+| Driver raycasts a stale-bounded mesh tree on grids strokes | Pure-spacer mode + host-side `stroke.raycast` for multires sessions (see "Grids-native interaction") |
 | Ortho ray synthesis wrong | Parity script + explicit ortho pass in 1.4; the toggle stays off until it matches |
 | Matrix convention / y-flip silently off by a transpose | Headless parity script diffs centers against the current sampler |
 | Interpolated dabs read worse on deforming surfaces | Documented above; fallback is host-side re-raycast of `screenP` |

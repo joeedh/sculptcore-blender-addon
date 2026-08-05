@@ -18,7 +18,11 @@ Working notes Claude maintains for this repository. See the top-level
   + per-dab raycasting) with the engine's C++ `BrushStrokeDriver`: phased by
   stroke method, the Blender→driver view-snapshot conversion (row-vector
   matrices, y-flip, ortho), what stays host-side, and the castRay fix the same
-  engine commit brings.
+  engine commit brings. **Revised after the grids-native wiring**: on multires
+  sessions the driver must run as a pure spacer with host-side re-raycast (its
+  own raycast would sample the deliberately stale-bounded mesh tree), and the
+  measured sampler cost (~0.05 ms/dab) re-scopes it as a correctness /
+  maintenance win rather than a perf lever.
 - [plans/vertex-group-weights-attribute.md](plans/vertex-group-weights-attribute.md)
   — giving the engine ownership of Blender vertex-group weights as a sparse
   `AttrType::WEIGHTS` column (32-bit index into an interned, refcounted,
