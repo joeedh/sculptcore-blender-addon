@@ -252,3 +252,36 @@ why the native suite and three probe scripts all passed while the full test
 crashed deterministically). Fixed with `Multires::domainGen_` — bumped on
 every domain build/drop, compared by sync; regression-gated in
 `test_grid_stroke.cc`.
+
+## Provider v2 addendum (2026-08-06, same day)
+
+The grids-fed extdraw source landed (engine `1d6f58e`, addon `b62be69`),
+rebuilt per the pressure-test findings: row-band partition (~2048 tris/node,
+sub-grid granularity at deep levels), exact occurrence-table dirty marking
+(±2 cell rows = the cell-Newell closure; covers seams and grab by
+construction), never-build-a-domain-on-a-draw-poll, born-TOPOLOGY nodes, a
+type-erased custom-source vtable in external_draw.cc (spatial cannot depend
+on subdiv), and per-stroke-class provider flips addon-side (mesh-path tools
+draw the slot tree; the ride-along mirror stays on, so no heal is needed).
+
+Measured (1M/L4, same binary): sculpt_phase ~2.0–2.1 s (vs ~2.1–2.2 blob-
+demotion baseline — no regression), stroke_ms median ~73, peak_z parity,
+engine-side registration ~200 ms at enter. An apparent +2.5 s enter
+regression dissolved under a same-binary A/B: the slot provider entered at
+~8.8 s in the same environment — display pacing had shifted 30→60 Hz
+between run batches (idle_frame 33.3→16.7 ms is exactly the vsync
+interval). Cross-batch numbers on this machine are not comparable; A/B
+within a batch.
+
+Visual note: the grids source supplies smooth per-vert normals (native
+multires' shading); the slot path hard-codes flat. Color/uv/fset overlays
+fall back to the slot provider via the mesh-path flip.
+
+**Remaining for the §4 end state (designed, not yet implemented):** the
+lazy slot — enter still materializes the level mesh + tree (~2.5 s of the
+~6 s baseline enter) purely for mesh-path readers. With the writeback
+authority guard landed, turning the mirror off is data-safe; the remaining
+work is session-surface: nullable slot pointers (or an ensureSlot() seam)
+across convert/stroke/multires readers, mask exchange ported to domain
+reads, and Multires_levelPositionsOut reading the chain instead of
+materializing. See plans/extdraw-from-grids.md.

@@ -1,6 +1,14 @@
-# External draw from grids — pressure-tested: REDESIGN REQUIRED
+# External draw from grids — v2 LANDED 2026-08-06 (lazy slot pending)
 
-**Status: killed as designed, 2026-08-06.** The v1 plan (this file's git history)
+**Status: v2 implemented and landed 2026-08-06** (engine `1d6f58e`, addon
+`b62be69`) after the pressure test below killed v1; steps (1) writeback
+authority (engine `219f5af`) and (2) the provider are done, with (3) mask
+authority partially handled (refresh_grids_mask), (4) provider flips done
+(two-way freeing: grids buffers free on flip; slot GpuData still persists),
+and (5) the lazy slot still open — see the results doc's provider-v2
+addendum for measurements and the remaining session-surface work.
+
+**Original verdict (kept for the record):** The v1 plan (this file's git history)
 was pressure-tested by three adversarial reviews (staleness / host-ABI /
 engine-perf lenses) before implementation, per the repo's design convention.
 All three returned kills. This file records the verdict, the findings worth
