@@ -285,3 +285,26 @@ work is session-surface: nullable slot pointers (or an ensureSlot() seam)
 across convert/stroke/multires readers, mask exchange ported to domain
 reads, and Multires_levelPositionsOut reading the chain instead of
 materializing. See plans/extdraw-from-grids.md.
+
+## Lazy-slot addendum (2026-08-06, same day)
+
+The §4 end state landed (engine `d4e8cf9`, addon `a469108`): a multires
+enter materializes NOTHING — chain seed, grids draw source, domain-direct
+mask import. `convert.ensure_multires_slot` is the single materialization
+seam (mesh-path strokes and the slot-provider flip call it; the build reads
+the chain so positions are current by construction, and the mask column
+seeds from the domain). `Multires_levelPositionsOut` reads the chain, so
+saves below top no longer materialize the top slot or settle debt; level
+switches and blob restores preserve residency (lazy stays lazy). The
+writeback-authority guard is what makes all of it data-safe.
+
+Bench (1M/L4, all in one environment): enter ~9.0 → **~7.3 s**, sculpt_phase
+~2.1 → **~1.9 s**, stroke_ms ~73 → **~64** — the second win because the
+ride-along mirror no-ops while no slot exists, removing the last mirror leg
+from pure-grids sessions. Undo 0.7 MB, parity to 1e-6, ctest 125/125,
+wiring test covers slot-less sculpt/raycast/save.
+
+Day total at 1M/L4 (same-day control → now): sculpt_phase 3.3 → 1.9 s,
+stroke 128 → 64 ms, undo 99.7 → 0.7 MB, and enter carries no slot cost.
+Remaining enter is refiner + chain + domain fill (~200 ms of it the
+provider); further wins are domain-build parallelization territory.
