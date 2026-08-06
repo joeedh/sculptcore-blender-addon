@@ -322,7 +322,31 @@ were left untouched so TS↔C++ parity holds. Python's `stroke_math.cr_to_bezier
 floors every knot interval at `_EPS`, which is why the addon's own sampler
 never hit this.
 
-**This engine change is uncommitted in the submodule.**
+Landed as engine `0524e99` ("brush: fix crToBezier NaN on a repeated stroke
+point"); the addon commit `51a657c` bumps the submodule.
+
+### A/B result: multires perf is neutral (2026-08-06)
+
+The "ctypes cost per dab" risk row is measured and closed. Six interleaved
+headed runs of `bench_multires_sc.py` (grid 64 / level 4, 19 strokes, driver
+off vs on via the bench's new `--cpp-driver` flag):
+
+| | sculpt_phase_ms (3 runs) | median | stroke_ms median (mean of runs) |
+|---|---|---|---|
+| spacer (off) | 3244 / 3308 / 3410 | 3308 | 128.8 |
+| driver (on) | 3148 / 3192 / 3367 | 3192 | 125.7 |
+
+Medians favor the driver by ~116 ms (~3.5%) but the ranges overlap and the
+rig's noise floor is ±150 ms — read it as **neutral, no regression**. The
+per-move `push_view` (17 marshalled calls × ~380 moves/bench) does not show
+up; neither does per-dab `sampleAt`. Parity in the same runs: dab counts
+identical (median 63 per stroke, both configs), `peak_z` agrees to 1e-6
+(0.077474–0.077476 across all six), undo memory identical (99.7 MB).
+
+The off-config absolute numbers sit ~400 ms above the 2026-08-04 bracket
+(~2.82 s) — cross-day machine-state drift, which is exactly why the control
+runs interleave with the driver runs. Compare within the table, not against
+history.
 
 ### Accepted difference: clamped-end tangent
 
