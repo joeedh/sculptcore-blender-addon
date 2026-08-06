@@ -250,6 +250,12 @@ def _enter_multires(ob, md):
         md.show_viewport = prev_show
         raise
 
+    # Per-node draw materials: the grids source stamps node materials from the
+    # cage's FACE material_index at registration (use_grids_provider below),
+    # and the cage is built from bare arrays with no attribute bridge — seed
+    # it explicitly first.
+    _seed_cage_material_index(ob.data, cage)
+
     # Lazy slot (extdraw v2 end state): nothing materializes at enter — the
     # grids provider draws the domain, grids strokes edit the chain in place,
     # and the level mesh + tree build on first mesh-path need
@@ -292,6 +298,24 @@ def _enter_multires(ob, md):
     # The imported state is the first undo push's pre-state (C4).
     session.multires_last_blob = multires_store_blob(session)
     return session
+
+
+def _seed_cage_material_index(mesh, cage_ptr):
+    """Copy the Blender mesh's FACE ``material_index`` layer onto the engine
+    cage mesh (same face order — the cage is built from the base arrays).
+    No-op when absent (single-material objects usually carry no layer)."""
+    import ctypes
+
+    import numpy as np
+
+    attr = mesh.attributes.get("material_index")
+    if attr is None or attr.domain != 'FACE' or attr.data_type != 'INT':
+        return
+    values = np.empty(len(attr.data), dtype=np.int32)
+    attr.data.foreach_get("value", values)
+    engine.capi().lib.Mesh_writeAttr(
+        cage_ptr, _DOMAIN_TO_ENGINE['FACE'], b"material_index", _AT_INT,
+        _USE_NONE, values.ctypes.data_as(ctypes.c_void_p))
 
 
 def _default_face_set(mesh):
