@@ -10,6 +10,11 @@ Working notes Claude maintains for this repository. See the top-level
 - `codebase/` — validated reference docs for this repo and the Blender fork's
   custom-mode API the addon depends on.
 - `design/` — design documents.
+- `scripts/` — headless harnesses and benchmarks (run with Blender's Python or
+  a plain interpreter, depending on the script). Not indexed individually
+  below; the plan or research note that introduced one names it.
+  `stroke_sampler_parity.py` is the bpy-free Python-vs-C++ stroke-sampler
+  parity gate for the plan below.
 
 ## Index
 
@@ -22,7 +27,12 @@ Working notes Claude maintains for this repository. See the top-level
   sessions the driver must run as a pure spacer with host-side re-raycast (its
   own raycast would sample the deliberately stale-bounded mesh tree), and the
   measured sampler cost (~0.05 ms/dab) re-scopes it as a correctness /
-  maintenance win rather than a perf lever.
+  maintenance win rather than a perf lever. **Phase 1 implemented 2026-08-06**
+  behind the (default-off) `sculptcore_cpp_stroke_driver` scene bool — see the
+  implementation notes at the end of the plan: the driver runs as a pure spacer
+  on *every* session (not just grids), the parity harness found and got fixed a
+  NaN in the engine's `crToBezier`, and the in-viewport A/B checklist is still
+  the sign-off gate.
 - [plans/vertex-group-weights-attribute.md](plans/vertex-group-weights-attribute.md)
   — giving the engine ownership of Blender vertex-group weights as a sparse
   `AttrType::WEIGHTS` column (32-bit index into an interned, refcounted,

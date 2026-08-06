@@ -147,7 +147,9 @@ class SCULPTCORE_PT_dyntopo(bpy.types.Panel):
     """Vanilla VIEW3D_PT_sculpt_dyntopo's shape over Blender's own detail
     settings (which the stroke consumes via stroke.dyntopo_max_edge), plus
     the engine's remesh-cadence property. Omitted vs vanilla (allowlisted):
-    the sample-detail eyedropper and detail flood fill."""
+    the sample-detail eyedropper and detail flood fill. It doubles as the
+    mode's dev panel — the Experimental section at the bottom is not dyntopo
+    state and is not gated on it."""
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = _CATEGORY
@@ -200,6 +202,12 @@ class SCULPTCORE_PT_dyntopo(bpy.types.Panel):
         sub.prop(scene, "sculptcore_dyntopo_max_rounds")
         sub.prop(scene, "sculptcore_dyntopo_split_budget")
         sub.prop(scene, "sculptcore_dyntopo_collapse_budget")
+
+        # Off `col`: this is stroke-sampler state, live whether or not dyntopo
+        # is on.
+        layout.separator()
+        dev = layout.column(heading="Experimental")
+        dev.prop(scene, "sculptcore_cpp_stroke_driver")
 
 
 class SCULPTCORE_PT_boundary_uv(bpy.types.Panel):

@@ -6,11 +6,13 @@
 The interactive stroke: a modal operator plus the reusable dab core the
 operator and headless tests both drive.
 
-Dabs are spaced along the 2D mouse path (StrokeSpacer, interval = pixel
-radius x spacing / 50 — vanilla's percentage-of-diameter semantics, residual
-carried across segments) and each spaced point is projected onto the
-surface, so stroke density is independent of both the mouse event rate and
-the surface deforming under the stroke.
+Dabs are spaced along the 2D mouse path (interval = pixel radius x spacing /
+50 — vanilla's percentage-of-diameter semantics, residual carried across
+segments) and each spaced point is projected onto the surface, so stroke
+density is independent of both the mouse event rate and the surface deforming
+under the stroke. Two samplers implement that spacing identically: the Python
+StrokeSpacer below, and the engine's BrushStrokeDriver behind the
+``sculptcore_cpp_stroke_driver`` scene toggle (see ``stroke_driver``).
 The viewport updates through the external draw provider; the Mesh ID is
 written back lazily by the mode's flush callback (memfile encode / save /
 render), keeping dabs and stroke release free of the full Mesh write. The
@@ -21,8 +23,8 @@ is scriptable end-to-end.
 
 import bpy
 
-from . import (brush_policy, convert, cursor, engine, mapping, stroke_math, symmetry,
-               texture, undo)
+from . import (brush_policy, convert, cursor, engine, mapping, stroke_driver, stroke_math,
+               symmetry, texture, undo)
 
 
 def _float3(mgr, x, y, z):
@@ -699,6 +701,13 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         # Dab spacing along the stroke path (engine StrokeSpacer semantics:
         # interval = world radius x spacing fraction). Grab-class ignores it.
         self._spacer = StrokeSpacer()
+        # A/B: the engine's sampler in place of the spacer above. Only the
+        # spaced-dab path has one — grab anchors itself and anchored/drag-dot
+        # drive the preview API, neither of which walks a spline.
+        self._driver = None
+        if (not self._grab_class and not self._preview_method
+                and getattr(context.scene, "sculptcore_cpp_stroke_driver", False)):
+            self._driver = stroke_driver.make_driver()
         # Trailing-flush state, refreshed on every move (see _dab_at); defaults
         # cover a commit with no intervening move.
         self._last_invert = False
@@ -841,8 +850,8 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
                 self._anchor_normal = normal
                 self._anchor_radius = _world_radius(context, self.brush, position)
                 # Drag reference: the mouse ray's plane projection at pen-down,
-                # NOT the anchor itself — castRay's reconstructed hit sits off
-                # the mouse ray, so anchor-relative deltas would start nonzero.
+                # so both drag endpoints come from the same projection and the
+                # first dab's delta is exactly zero, not merely near it.
                 self._drag_origin = _cursor_on_anchor_plane(context, event, self._anchor)
             # No re-raycast after anchoring: the drag must keep working when
             # the cursor leaves the surface (vanilla grab semantics), and the
@@ -882,8 +891,23 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
             self._last_invert = invert
             self._last_pressure = event.pressure
             self._last_spacing = step
-            for point in self._spacer.add(coord, step):
-                self._apply_spaced_dab(context, point, invert, event.pressure)
+            if self._driver is not None:
+                # SCREEN mode walks spacing * 2 * radius, so the spacing
+                # fraction is /100 against the pixel radius, not /50.
+                region_h = context.region.height
+                stroke_driver.push_view(self._driver, context)
+                stroke_driver.push_event(
+                    self._driver, coord, region_h, pressure=event.pressure,
+                    invert=invert, radius=pixel_size,
+                    spacing=max(self.brush.spacing, 1) / 100.0)
+                for dab in stroke_driver.poll_dabs(self._driver, region_h):
+                    # Pressure and invert come from the driver: it interpolates
+                    # pressure along the segment, where the spacer path can
+                    # only reuse the arriving event's.
+                    self._apply_spaced_dab(context, dab.screen, dab.invert, dab.pressure)
+            else:
+                for point in self._spacer.add(coord, step):
+                    self._apply_spaced_dab(context, point, invert, event.pressure)
 
         self._mid_redraw(context)
 
@@ -1065,10 +1089,9 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         # Symmetry mirror images: reflect the resolved primary center and normal
         # directly (mirror the operation, as vanilla sculpt does), reusing the
         # primary's world radius. Re-raycasting the mirrored view ray instead —
-        # as the reference app does — is not reflection-equivariant here: the
-        # engine's castRay reconstructs the hit position imprecisely (off the
-        # ray by ~tessellation scale), which leaves visible asymmetry. Reflecting
-        # the resolved hit is exact.
+        # as the reference app does — is only equivariant where the mirrored
+        # surface is identical and the mirrored ray hits at all; reflecting the
+        # resolved hit is exact and cannot drop a mirror image.
         for sign in self._mirror_signs:
             self._apply_one_image(
                 symmetry.reflect(position, sign),
@@ -1082,9 +1105,16 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         # On commit, flush the trailing spline segment held back by the
         # 1-segment lookahead (right-clamped); cancel drops it.
         if status == 'FINISHED' and not self._grab_class:
-            for point in self._spacer.flush(self._last_spacing):
-                self._apply_spaced_dab(context, point, self._last_invert,
-                                       self._last_pressure)
+            if self._driver is not None:
+                for dab in stroke_driver.flush_dabs(self._driver, context.region.height):
+                    self._apply_spaced_dab(context, dab.screen, dab.invert, dab.pressure)
+            else:
+                for point in self._spacer.flush(self._last_spacing):
+                    self._apply_spaced_dab(context, point, self._last_invert,
+                                           self._last_pressure)
+        if self._driver is not None:
+            self._driver.dispose()
+            self._driver = None
         stroke_end(self.session)
         # Deferred write-back: with the draw provider active the viewport only
         # needs its GPU buffers; the Mesh ID syncs on demand through the

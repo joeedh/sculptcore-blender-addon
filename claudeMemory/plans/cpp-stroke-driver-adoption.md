@@ -260,3 +260,122 @@ updating to record the fix.
 
 Everything is behind `sculptcore_cpp_stroke_driver`. Until 1.5 runs, flipping
 the scene bool restores the Python sampler with no code change.
+
+---
+
+## Implementation notes — phase 1 landed 2026-08-06
+
+Phase 1 is written and the toggle is in, still `default=False`. Phases 2 and 3
+were not started, and 1.5 (the deletions) has not run: `StrokeSpacer` and
+`stroke_math.py` are both still live, since the toggle defaults off.
+
+**Files:** new `sculptcore_addon/stroke_driver.py`; `props.py` (the scene
+bool), `ui.py` (an "Experimental" section at the bottom of the dyntopo panel,
+off the dyntopo `col` because it is not dyntopo state), `stroke.py` (driver
+constructed in `invoke()`, used in `_dab_at`'s spaced-dab branch, flushed and
+disposed in `_finish`), plus the two stale `castRay` comments. New harness
+`claudeMemory/scripts/stroke_sampler_parity.py`.
+
+### Deviation: pure spacer everywhere, not just on grids sessions
+
+The driver is constructed with the **no-arg** form, so its internal `rayCast`
+always misses and every emitted `screenP` is re-raycast host-side by
+`_apply_spaced_dab` → `stroke.raycast`. This is the fallback the "Known
+behavior change" section sanctions, promoted from *multires-only* (per the W1
+revision) to *unconditional*. Two reasons:
+
+- **The ortho virtual-eye strategy in 1.1 is unsound as specified.**
+  `SpatialNode::castRay` casts the ray origin to `float3` and runs
+  `rayTriIsect` in float32 throughout. A synthetic eye at `1e6 ×` scene scale
+  loses hit precision by construction — the error the plan bounds analytically
+  in `double` is not the error the tree actually computes.
+- **Branching the ray source on `is_perspective` would move dabs when the user
+  hits numpad-1.** A sampler whose placement changes with the projection mode
+  is worse than one that is uniformly host-raycast.
+
+Consequences: `make_driver()` takes no session, so the "dangling
+`SpatialTree*`" risk row is void; only `screenP` / `pressure` / `invert` are
+read per sample (cheaper than the 1.1 list); and the "interpolated dabs are not
+re-projected" behavior change does not occur at all — dab *placement* changes,
+surface tracking does not. `push_view` must still run before every batch:
+`unproject` divides by `viewSize`, so an unset view yields NaN.
+
+The win that survives: one spline implementation instead of two, double
+precision, and **per-dab pressure interpolation along the segment**
+(`lerpNum(cpA.pressure, cpB.pressure, t)`), which the Python path cannot do —
+it reuses the arriving event's pressure for every dab of a segment.
+
+### Engine bug found and fixed: `crToBezier` NaN on a repeated point
+
+`engine/source/brush/stroke_curve.h` divided by the raw `t12` in the
+non-degenerate `m1`/`m2` branches. When a pointer reports the same position
+twice, `t12 == 0` → `0/0` → NaN control points → `walkCarry_` goes NaN
+**permanently**, and nothing ever satisfies the walk's emit condition again:
+the rest of the stroke silently produces zero dabs. The parity script caught it
+as 86 vs 34 dabs on the jitter path; per-event counts showed the driver going
+to 0 immediately after the duplicated point and never recovering.
+
+Fixed by using the already-EPS-floored `span` as the divisor everywhere the
+P1P2 interval appears (4 sites). No behavior change on non-degenerate input —
+`span == t12` exactly there. The one-sided `t01 < EPS` / `t23 < EPS` branches
+were left untouched so TS↔C++ parity holds. Python's `stroke_math.cr_to_bezier`
+floors every knot interval at `_EPS`, which is why the addon's own sampler
+never hit this.
+
+**This engine change is uncommitted in the submodule.**
+
+### Accepted difference: clamped-end tangent
+
+Where a neighbour coincides with an endpoint — the clamping idiom (`p0 = p1` at
+path start, `p3 = p2` on flush) and either side of a duplicated point — the
+engine takes a genuine one-sided tangent `m1 = (P2-P1)/span`, while Python's
+1e-9 flooring yields a near-zero tangent (zero velocity at the clamped end).
+The engine's rule is the better one; the parity script buckets dabs as
+`interior` vs `clamped` and holds them to separate documented tolerances rather
+than asserting the difference away.
+
+### Parity results (headless, after the engine fix)
+
+Dab counts match **exactly** on every path × spacing combo. At 10% spacing /
+50 px radius:
+
+| path | interior dabs | max offset | clamped | max offset |
+|---|---|---|---|---|
+| straight | 45 | 0.000000 px | 2 | 0.001308 |
+| sine, ramping pressure | 100 | 0.000062 | 4 | 0.003032 |
+| fast flick | 74 | 0.000040 | 37 | 0.066502 |
+| jitter + coincident point | 80 | 0.023343 | 6 | 0.347437 |
+| loop | 75 | 0.000047 | 1 | 0.011902 |
+
+Tolerances in the script: `POS_TOL = 0.05` px interior, `5%` of the dab
+interval for clamped. The jitter path's interior 0.023 px is a constant
+sub-pixel walk-carry offset inherited from the clamped segments upstream, not a
+divergence that grows. Pressure interpolation is reported, not asserted: 60
+distinct input pressures over the sine path become 104 distinct dab pressures.
+
+Run it as:
+
+```
+SCULPTCORE_PYTHON_PATH=<repo>/engine/python \
+PATH=<repo>/engine/build/python:$PATH \
+python claudeMemory/scripts/stroke_sampler_parity.py
+```
+
+It cannot `import sculptcore_addon` (that pulls in `bpy`), so it builds a
+synthetic parent package and imports `stroke_math` / `stroke_driver` under it;
+`push_event`/`poll_dabs` therefore take `region_height` as a plain number
+rather than a context. `push_view` *is* exercised, against a mathutils
+stand-in with a non-identity object matrix, so a dropped or wrongly-transposed
+matrix cannot pass.
+
+### Still open
+
+- **The in-viewport A/B checklist (1.4) is the sign-off gate** and has not been
+  run — perspective + ortho, fast flick, off-and-back-on-mesh, deforming
+  surface, symmetry, dyntopo, snake hook, tablet pressure, multires grids
+  stroke. The toggle stays off until it passes.
+- Anchored-drag: the `_drag_origin` plane-projection workaround was left in
+  place (the comment now states the real reason — both endpoints coming from
+  one projection makes the first delta exactly zero — rather than the fixed
+  `castRay` bug). Re-test before removing.
+- Stub regeneration (`python -m sculptcore._gen`) not run; typing-only.
