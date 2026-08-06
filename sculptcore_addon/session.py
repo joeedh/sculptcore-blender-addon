@@ -53,6 +53,12 @@ class Session:
         # The object's ID.session_uid, the key the external draw provider is
         # registered under (P5 D6). 0 when external draw is unavailable.
         "draw_key",
+        # Which geometry source the provider is registered with: 'SLOT' (the
+        # session's SpatialTree — plain-Mesh sessions, and multires while a
+        # mesh-path tool needs its slot edits/overlays drawn) or 'GRIDS'
+        # (the extdraw-v2 grids source; multires default). See
+        # convert.use_grids_provider / use_slot_provider.
+        "draw_provider_kind",
         # Reusable [main, SMOOTH] autosmooth program, rebuilt per stroke when
         # the brush's auto-smooth factor is nonzero.
         "program",
@@ -150,6 +156,7 @@ class Session:
         self.meshlog = None
         self.meshlog_cursor = 0
         self.draw_key = 0
+        self.draw_provider_kind = 'SLOT'
         self.program = None
         self.dyntopo_active = False
         self.dtparams = None

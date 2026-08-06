@@ -169,3 +169,19 @@ Working notes Claude maintains for this repository. See the top-level
   — how the engine's GPU brush stack could drive strokes under the addon: the
   existing marshal/dispatch seams, engine-owned wgpu vs. compute on Blender's
   device, and what per-dab work can and cannot be deferred to stroke end.
+- [research/sculpt-stroke-world-model.md](research/sculpt-stroke-world-model.md)
+  — **speculative; nothing proposed for implementation.** Prior art on AI world
+  models for DCC apps (Moonlake's Blender computer-use agent; the
+  structured-output branch — HY-World 2.0 / World Tracing / WorldMesh — versus
+  pixel-space Genie 3) and the gap: nothing published works at *stroke*
+  granularity. Then what a corpus for one would be — the local-patch,
+  radius-normalized displacement-field formulation, the per-vertex channels a
+  positions-only model gets wrong (mask, relational face sets), the dab action
+  space including falloff-as-a-curve, and the `loadProps`/pressure-LUT capture
+  trap that would poison labels invisibly (`stroke.py:887-890`). Records that the
+  meshlog is **stroke**-granular (`undo.py:7-9`) and so is *not* a corpus for the
+  differentiable-operator goal without new per-dab capture at `apply_dab`
+  (`stroke.py:322`); that dyntopo's changing vertex set structurally breaks the
+  formulation; and that rollout, not per-dab accuracy, is the metric. Ends with a
+  five-point minimum viable experiment whose only success criterion is inverting
+  a known stroke, and a **do not re-propose** list.

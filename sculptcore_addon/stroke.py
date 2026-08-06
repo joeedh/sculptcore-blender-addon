@@ -194,7 +194,17 @@ def stroke_begin(session, *, has_dyntopo=False, accumulate=True, anchored_grab=T
                 session.last_stroke_grids = True
                 session.stroke_gen += 1
                 session.filter_high_water = 0.0
+                # Grids strokes draw from the grids source; flip back if a
+                # mesh-path tool moved the provider to the slot tree.
+                if session.draw_provider_kind != 'GRIDS':
+                    convert.use_grids_provider(session)
                 return
+    if session.multires_ptr and session.draw_provider_kind != 'SLOT':
+        # Mesh-path stroke on a multires session: its edits land in the slot
+        # mesh, which the grids source cannot see — draw the slot tree for
+        # the duration (first flip pays the slot GPU-buffer build; the
+        # ride-along mirror keeps the slot current, so no heal is needed).
+        convert.use_slot_provider(session)
     executor = _ensure_executor(session)
     executor.beginStep(has_dyntopo)
     session.dyntopo_active = has_dyntopo

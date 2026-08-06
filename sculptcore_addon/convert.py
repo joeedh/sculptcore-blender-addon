@@ -273,14 +273,10 @@ def _enter_multires(ob, md):
     engine.sessions[ob.name] = session
 
     session.draw_key = int(ob.session_uid)
-    lib.sc_external_draw_register(session.draw_key, tree_ptr)
-    # The dynamic per-attribute layout (color@0/uv@1/mask@2/fset@3): without it
-    # the provider exposes only the legacy composited color stream, which
-    # Blender skips for an object with no color attribute — losing the
-    # sculpt-mask overlay on every multires session.
-    lib.sc_external_draw_enable_dynamic(tree_ptr)
-    lib.sc_external_draw_set_default_group(tree_ptr, _default_face_set(ob.data))
-    lib.sc_external_draw_update(session.draw_key)
+    # Multires draws from the grids source (extdraw v2): geometry/mask come
+    # straight from the level's grid domain — the slot tree never builds its
+    # GPU buffers unless a mesh-path tool flips the provider (below).
+    use_grids_provider(session)
 
     # Honor the modifier's sculpt level (C2); the import left the top active.
     sculpt_level = min(max(md.sculpt_levels, 1), level)
@@ -1523,6 +1519,58 @@ def mesh_topo_arrays(mesh_ptr):
     return corner_verts, face_offsets
 
 
+def use_grids_provider(session):
+    """Point the external-draw provider at the grids source for the session's
+    active level (multires only). Draw then reads the grid domain directly —
+    no slot mirror copy feeds the viewport, and the slot tree's GPU buffers
+    never build. Re-registering replaces any previous source; the fresh
+    source is born fully dirty, so the host reallocs its batches."""
+    if not session.draw_key or not session.multires_ptr:
+        return
+    lib = engine.capi().lib
+    lib.sc_external_draw_register_grids(
+        session.draw_key, session.multires_ptr, session.multires_active_level)
+    lib.sc_external_draw_update(session.draw_key)
+    session.draw_provider_kind = 'GRIDS'
+
+
+def use_slot_provider(session, ob=None):
+    """Point the provider at the materialized slot tree — required while a
+    mesh-path tool edits the slot (its edits are invisible to the grid
+    domain until the fold) and for the color/uv/fset overlays the grids
+    source does not carry. First use pays the slot GPU-buffer build."""
+    if not session.draw_key:
+        return
+    lib = engine.capi().lib
+    lib.sc_external_draw_register(session.draw_key, session.tree_ptr)
+    lib.sc_external_draw_enable_dynamic(session.tree_ptr)
+    if ob is None:
+        import bpy
+        ob = bpy.data.objects.get(session.object_name)
+    if ob is not None:
+        lib.sc_external_draw_set_default_group(session.tree_ptr, _default_face_set(ob.data))
+    lib.sc_external_draw_update(session.draw_key)
+    session.draw_provider_kind = 'SLOT'
+
+
+def refresh_grids_mask(session):
+    """Pull a changed slot-mesh mask column into the grids domain mirror NOW
+    when the grids provider is displaying (mask flood fill, attr-undo): the
+    op's visual feedback must not wait for the next grids stroke to run
+    GridStroke_syncMask. Handles the sync==2 bookkeeping the stroke path
+    normally does."""
+    if (session.draw_provider_kind != 'GRIDS' or session.grid_ptr is None
+            or not session.grid_mask_dirty):
+        return
+    lib = engine.capi().lib
+    if lib.GridStroke_sync(session.grid_ptr) == 2:
+        session.grid_generation += 1
+        session.grid_cursor = 0
+        session.grid_undo_bytes_base = 0
+    lib.GridStroke_syncMask(session.grid_ptr)
+    session.grid_mask_dirty = False
+
+
 def _rebind_multires_views(session, active_level):
     """Point the session at the stack's current active mesh/tree. When the
     slot pointers changed (level switch, or an eviction rematerialized the
@@ -1549,14 +1597,14 @@ def _rebind_multires_views(session, active_level):
     session.meshlog_cursor = 0
     session.mesh_obj = None
     if session.draw_key:
-        lib.sc_external_draw_unregister(session.draw_key)
-        lib.sc_external_draw_register(session.draw_key, tree_ptr)
-        lib.sc_external_draw_enable_dynamic(tree_ptr)
-        import bpy
-        ob = bpy.data.objects.get(session.object_name)
-        if ob is not None:
-            lib.sc_external_draw_set_default_group(tree_ptr, _default_face_set(ob.data))
-        lib.sc_external_draw_update(session.draw_key)
+        # Level switch (or slot rematerialization): rebind the provider. The
+        # grids source is bound to one level, so it re-registers for the new
+        # one; a session that was flipped to the slot provider re-registers
+        # the new slot tree instead.
+        if session.draw_provider_kind == 'SLOT':
+            use_slot_provider(session)
+        else:
+            use_grids_provider(session)
 
 
 def multires_store_blob(session, skip_writeback=False):

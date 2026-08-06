@@ -235,6 +235,7 @@ def push_attr(context, ob, session, message, kind, attr, blob_before, blob_after
     _next_key += 1
     if attr == convert._SC_MASK:
         session.grid_mask_dirty = True
+        convert.refresh_grids_mask(session)
     _pending[key] = (_ATTR_TAG, ob.name, session.generation,
                      kind, attr, blob_before, blob_after)
     bpy.ops.object.custom_mode_undo_push(
@@ -261,6 +262,7 @@ def _decode_attr(context, ob, session, info, direction, is_final):
     writer_fn(engine.capi().lib)(session.mesh_ptr, attr, np.ascontiguousarray(values))
     if attr == convert._SC_MASK:
         session.grid_mask_dirty = True
+        convert.refresh_grids_mask(session)
     # Flush on the leave decode too, not only on the final one: an undo whose
     # destination is a step this type never decodes (e.g. the mode-enter
     # memfile boundary) would otherwise leave the restored column engine-only,

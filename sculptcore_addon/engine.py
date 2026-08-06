@@ -219,6 +219,9 @@ class _CApi:
         # native provider address.
         lib.sc_external_draw_register.argtypes = [ctypes.c_uint, ctypes.c_void_p]
         lib.sc_external_draw_register.restype = None
+        lib.sc_external_draw_register_grids.argtypes = [ctypes.c_uint, ctypes.c_void_p,
+                                                        ctypes.c_int]
+        lib.sc_external_draw_register_grids.restype = None
         lib.sc_external_draw_unregister.argtypes = [ctypes.c_uint]
         lib.sc_external_draw_unregister.restype = None
         lib.sc_external_draw_update.argtypes = [ctypes.c_uint]
