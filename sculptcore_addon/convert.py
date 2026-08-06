@@ -250,18 +250,22 @@ def _enter_multires(ob, md):
         md.show_viewport = prev_show
         raise
 
-    # The seed left nothing resident; this is the one materialization.
-    lib.Multires_setActiveLevel(mr, level)
-    mesh_ptr = lib.Multires_activeMesh(mr)
-    tree_ptr = lib.Multires_activeTree(mr)
+    # Lazy slot (extdraw v2 end state): nothing materializes at enter — the
+    # grids provider draws the domain, grids strokes edit the chain in place,
+    # and the level mesh + tree build on first mesh-path need
+    # (ensure_multires_slot). The chain-only seed left nothing resident.
+    lib.Multires_setActiveLevelLazy(mr, level)
+    mesh_ptr = 0
+    tree_ptr = 0
 
-    # Mask (A4): seed the top-level engine mask from the grid paint mask.
-    # The exchange follows the active level — a level switch re-seeds at the
-    # new level and exports the outgoing one (see set_multires_level).
+    # Mask (A4): seed the engine mask from the grid paint mask — straight
+    # into the grid domain + store (no slot column yet). The exchange
+    # follows the active level (see set_multires_level).
     depsgraph = context.evaluated_depsgraph_get()
     mask_base = multires.import_mask(ob, depsgraph, mesh_ptr, mr_map, mr, level)
 
-    session = Session(ob.name, mesh_ptr, tree_ptr, _mesh_vert_num(mesh_ptr))
+    session = Session(ob.name, mesh_ptr, tree_ptr,
+                      lib.Multires_levelVertCount(mr, level))
     session.multires_mask_base = mask_base
     session.blender_verts_num = len(ob.data.vertices)
     session.multires_ptr = mr
@@ -270,6 +274,8 @@ def _enter_multires(ob, md):
     session.multires_level = level
     session.multires_active_level = level
     session.multires_show_viewport = prev_show
+    # The domain-direct mask import (above) already synced domain + store.
+    session.grid_mask_dirty = False
     engine.sessions[ob.name] = session
 
     session.draw_key = int(ob.session_uid)
@@ -1519,6 +1525,30 @@ def mesh_topo_arrays(mesh_ptr):
     return corner_verts, face_offsets
 
 
+def ensure_multires_slot(session):
+    """Materialize the active level's slot mesh + tree for a mesh-path reader
+    (executor stroke, slot draw provider, slot mask/attr ops). The build
+    reads the chain — which the grids path edits in place — so positions and
+    normals are current by construction; the mask column is seeded from the
+    grid domain, the mask truth while the slot was lazy. No-op when already
+    resident (the ride-along mirror keeps a resident slot current)."""
+    if session.mesh_ptr or not session.multires_ptr:
+        return
+    import numpy as np
+
+    lib = engine.capi().lib
+    level = session.multires_active_level
+    lib.Multires_setActiveLevel(session.multires_ptr, level)
+    session.mesh_ptr = lib.Multires_activeMesh(session.multires_ptr)
+    session.tree_ptr = lib.Multires_activeTree(session.multires_ptr)
+    session.verts_num = _mesh_vert_num(session.mesh_ptr)
+    session.topo_stamp = lib.Mesh_topoStamp(session.mesh_ptr)
+    nv = lib.Multires_levelVertCount(session.multires_ptr, level)
+    mask = np.zeros(nv, dtype=np.float32)
+    if lib.Multires_readDomainMask(session.multires_ptr, level, mask, nv):
+        lib.Mesh_writeVertFloatAttr(session.mesh_ptr, _SC_MASK, mask)
+
+
 def use_grids_provider(session):
     """Point the external-draw provider at the grids source for the session's
     active level (multires only). Draw then reads the grid domain directly —
@@ -1541,6 +1571,7 @@ def use_slot_provider(session, ob=None):
     source does not carry. First use pays the slot GPU-buffer build."""
     if not session.draw_key:
         return
+    ensure_multires_slot(session)
     lib = engine.capi().lib
     lib.sc_external_draw_register(session.draw_key, session.tree_ptr)
     lib.sc_external_draw_enable_dynamic(session.tree_ptr)
@@ -1578,15 +1609,24 @@ def _rebind_multires_views(session, active_level):
     history is dropped (the generation bump makes its undo steps decode as
     no-ops, like a refresh), and the draw provider moves to the new tree."""
     lib = engine.capi().lib
-    mesh_ptr = lib.Multires_activeMesh(session.multires_ptr)
-    tree_ptr = lib.Multires_activeTree(session.multires_ptr)
+    # activeMesh/activeTree are null while the slot is lazy (never
+    # materialized at this level) — the session then stays slot-less and
+    # ensure_multires_slot fills the views on first mesh-path need.
+    mesh_ptr = lib.Multires_activeMesh(session.multires_ptr) or 0
+    tree_ptr = lib.Multires_activeTree(session.multires_ptr) or 0
+    level_changed = active_level != session.multires_active_level
     session.multires_active_level = active_level
-    if mesh_ptr == session.mesh_ptr and tree_ptr == session.tree_ptr:
+    if (mesh_ptr == session.mesh_ptr and tree_ptr == session.tree_ptr
+            and not level_changed):
+        # Same level, same (possibly absent) slot: nothing rebinds. A lazy
+        # level switch has 0 == 0 pointers, so the level check is what keeps
+        # the provider from staying bound to the old level's source.
         return
     session.mesh_ptr = mesh_ptr
     session.tree_ptr = tree_ptr
-    session.verts_num = _mesh_vert_num(mesh_ptr)
-    session.topo_stamp = lib.Mesh_topoStamp(mesh_ptr)
+    session.verts_num = (_mesh_vert_num(mesh_ptr) if mesh_ptr else
+                         lib.Multires_levelVertCount(session.multires_ptr, active_level))
+    session.topo_stamp = lib.Mesh_topoStamp(mesh_ptr) if mesh_ptr else 0
     session.generation += 1
     # The executor points at the meshlog; dispose it first (as in free()).
     for obj in (session.executor, session.meshlog):
@@ -1648,7 +1688,10 @@ def multires_restore_blob(ob, session, blob, level):
         print("SculptCore: multires undo blob no longer matches {!r}; "
               "step skipped".format(ob.name))
         return False
-    actual = lib.Multires_setActiveLevel(session.multires_ptr, level)
+    if session.mesh_ptr:
+        actual = lib.Multires_setActiveLevel(session.multires_ptr, level)
+    else:
+        actual = lib.Multires_setActiveLevelLazy(session.multires_ptr, level)
     _rebind_multires_views(session, actual)
     # The restore invalidated the slot meshes and their mask columns with
     # them; re-seed at the restored level so mask state survives the seek.
@@ -1792,12 +1835,20 @@ def set_multires_level(ob, level):
             ob, bpy.context.evaluated_depsgraph_get(), session.mesh_ptr,
             session.multires_map, session.multires_ptr, was,
             session.multires_mask_base)
-    actual = lib.Multires_setActiveLevel(session.multires_ptr, level)
+    if session.mesh_ptr:
+        actual = lib.Multires_setActiveLevel(session.multires_ptr, level)
+    else:
+        # Lazy slot: switch on the chain only; the new level stays
+        # unmaterialized until a mesh-path tool needs it.
+        actual = lib.Multires_setActiveLevelLazy(session.multires_ptr, level)
     _rebind_multires_views(session, actual)
     if actual != was:
         session.multires_mask_base = multires.import_mask(
             ob, bpy.context.evaluated_depsgraph_get(), session.mesh_ptr,
             session.multires_map, session.multires_ptr, actual)
+        # A slot-column import is ahead of the domain until the next grids
+        # sync; a domain-direct import (lazy) is current everywhere.
+        session.grid_mask_dirty = bool(session.mesh_ptr)
     if actual != was:
         # The switch changed the store (downward settles down-propagation
         # into the coarser levels; either direction folds pending slot
@@ -1832,12 +1883,11 @@ def _flush_multires(ob, session):
         session.multires_ptr, session.multires_active_level,
         session.multires_mask_base)
     multires.export_bake(ob, depsgraph, session.multires_ptr, session.multires_map)
-    lib = engine.capi().lib
-    if session.multires_active_level != session.multires_level:
-        lib.Multires_setActiveLevel(session.multires_ptr, session.multires_active_level)
-        _rebind_multires_views(session, session.multires_active_level)
+    # Multires_levelPositionsOut reads the chain now — the bake no longer
+    # moves the active level, so there is no level dance to undo (and a
+    # below-top save no longer settles down-prop debt or kills grid logs).
     if session.draw_key:
-        lib.sc_external_draw_update(session.draw_key)
+        engine.capi().lib.sc_external_draw_update(session.draw_key)
 
 
 def flush(ob):
@@ -1846,10 +1896,14 @@ def flush(ob):
     dyntopo/remesh. Either way the v1 attribute layers are re-flushed.
     Multires sessions instead bake the engine surface into CD_MDISPS."""
     session = engine.sessions.get(ob.name)
-    if session is None or not session.mesh_ptr:
+    if session is None:
         return
     if session.multires_ptr:
+        # Before the mesh_ptr guard: a lazy multires session has no slot
+        # mesh, and skipping the bake here would save a stale CD_MDISPS.
         _flush_multires(ob, session)
+        return
+    if not session.mesh_ptr:
         return
 
     mesh = ob.data

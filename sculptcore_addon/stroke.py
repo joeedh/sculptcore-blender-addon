@@ -521,14 +521,14 @@ def raycast(session, origin, direction):
     with a live domain use the GridTree — its bounds refresh per dab
     engine-side, where the mesh tree's would be stale between grids dabs."""
     lib = engine.capi().lib
-    if (session.grid_ptr and session.multires_ptr
-            # Only while the grids path is current: a mesh-path stroke edits
-            # the slot mesh and the domain goes stale until the next fold, and
-            # a level switch leaves the grid session on the old level until
-            # the next stroke recreates it — the mesh tree is current in both.
-            and session.last_stroke_grids
-            and session.grid_level == session.multires_active_level
-            and lib.Multires_hasGridDomain(session.multires_ptr, session.grid_level)):
+    if (session.multires_ptr
+            # While the grids provider is displaying, the domain is the
+            # authoritative surface (a mesh-path stroke flips the provider to
+            # 'SLOT' first, and a level rebind re-registers at the new
+            # level), and with the lazy slot there may be NO mesh tree yet.
+            and session.draw_provider_kind == 'GRIDS'
+            and lib.Multires_hasGridDomain(
+                session.multires_ptr, session.multires_active_level)):
         import ctypes
 
         import numpy as np
@@ -536,7 +536,7 @@ def raycast(session, origin, direction):
         out = np.zeros(10, dtype=np.float32)
         nearest = ctypes.c_int(-1)
         hit = lib.GridTree_castRay(
-            session.multires_ptr, session.grid_level,
+            session.multires_ptr, session.multires_active_level,
             origin[0], origin[1], origin[2],
             direction[0], direction[1], direction[2],
             out, ctypes.byref(nearest))
@@ -544,7 +544,7 @@ def raycast(session, origin, direction):
             return None
         # Level-mesh face id from the hit cell (buildLevelTopo's grid-major
         # cell order) so callers keep their face-index semantics.
-        side = 1 << (session.grid_level - 1)
+        side = 1 << (session.multires_active_level - 1)
         face = int(out[7]) * side * side + int(out[9]) * side + int(out[8])
         return ((float(out[0]), float(out[1]), float(out[2])),
                 (float(out[3]), float(out[4]), float(out[5])), face)

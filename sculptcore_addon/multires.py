@@ -308,11 +308,18 @@ def import_mask(ob, depsgraph, mesh_ptr, mapping, mr_ptr, level):
         top_values.reshape(-1, top_w, top_w)[:, ::f, ::f].reshape(-1),
         dtype=np.float32)
 
-    nv = _mesh_vert_count(mesh_ptr)
+    lib = engine.capi().lib
+    # Lazy slot: no level mesh — the mask lands in the grid domain (and the
+    # store channel) directly; the slot column is seeded from the domain when
+    # a mesh-path tool materializes it (convert.ensure_multires_slot).
+    nv = _mesh_vert_count(mesh_ptr) if mesh_ptr else lib.Multires_levelVertCount(mr_ptr, level)
     engine_values = np.zeros(nv, dtype=np.float32)
     valid = (grid_verts >= 0) & (grid_verts < nv)
     engine_values[grid_verts[valid]] = level_values[valid]
-    engine.capi().lib.Mesh_writeVertFloatAttr(mesh_ptr, _SC_MASK, engine_values)
+    if mesh_ptr:
+        lib.Mesh_writeVertFloatAttr(mesh_ptr, _SC_MASK, engine_values)
+    else:
+        lib.Multires_writeDomainMask(mr_ptr, level, engine_values, nv)
     return engine_values
 
 
@@ -325,10 +332,18 @@ def export_mask(ob, depsgraph, mesh_ptr, mapping, mr_ptr, level, base):
     values), or None when the engine mesh carries no mask column."""
     import numpy as np
 
-    nv = _mesh_vert_count(mesh_ptr)
+    lib = engine.capi().lib
+    # Lazy slot: read the grid domain's dense mask (the mask truth while no
+    # slot exists); a resident slot's column stays authoritative (mesh-path
+    # mask tools write it).
+    nv = _mesh_vert_count(mesh_ptr) if mesh_ptr else lib.Multires_levelVertCount(mr_ptr, level)
     current = np.zeros(nv, dtype=np.float32)
-    if not engine.capi().lib.Mesh_readVertFloatAttr(mesh_ptr, _SC_MASK, current):
-        return None
+    if mesh_ptr:
+        if not lib.Mesh_readVertFloatAttr(mesh_ptr, _SC_MASK, current):
+            return None
+    else:
+        if not lib.Multires_readDomainMask(mr_ptr, level, current, nv):
+            return None
 
     grid_verts = _level_grid_verts(mapping, mr_ptr, level)
     w, f = _level_lattice(mapping, grid_verts)

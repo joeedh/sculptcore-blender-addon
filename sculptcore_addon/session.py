@@ -145,7 +145,9 @@ class Session:
         self.tree_ptr = tree_ptr
         self.verts_num = verts_num
         self.blender_verts_num = verts_num
-        self.topo_stamp = engine.capi().lib.Mesh_topoStamp(mesh_ptr)
+        # Lazy multires sessions start with no slot mesh (mesh_ptr 0);
+        # convert.ensure_multires_slot fills these on first mesh-path need.
+        self.topo_stamp = engine.capi().lib.Mesh_topoStamp(mesh_ptr) if mesh_ptr else 0
         self.generation = 0
         self.stroke_gen = 0
         self.filter_high_water = 0.0
@@ -202,6 +204,8 @@ class Session:
     def topology_changed(self):
         """True when a topology op ran since import — original Blender
         indices are then no longer valid (slow-path export required)."""
+        if not self.mesh_ptr:
+            return False  # lazy multires slot: topology is locked anyway
         return engine.capi().lib.Mesh_topoStamp(self.mesh_ptr) != self.topo_stamp
 
     def free(self):

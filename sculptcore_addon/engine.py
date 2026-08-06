@@ -280,6 +280,16 @@ class _CApi:
         lib.GridStroke_undoBytes.restype = ctypes.c_double
         lib.Multires_hasGridDomain.argtypes = [ctypes.c_void_p, ctypes.c_int]
         lib.Multires_hasGridDomain.restype = ctypes.c_int
+        lib.Multires_setActiveLevelLazy.argtypes = [ctypes.c_void_p, ctypes.c_int]
+        lib.Multires_setActiveLevelLazy.restype = ctypes.c_int
+        lib.Multires_levelVertCount.argtypes = [ctypes.c_void_p, ctypes.c_int]
+        lib.Multires_levelVertCount.restype = ctypes.c_int
+        lib.Multires_readDomainMask.argtypes = [ctypes.c_void_p, ctypes.c_int, f32p,
+                                                ctypes.c_int]
+        lib.Multires_readDomainMask.restype = ctypes.c_int
+        lib.Multires_writeDomainMask.argtypes = [ctypes.c_void_p, ctypes.c_int, f32p,
+                                                 ctypes.c_int]
+        lib.Multires_writeDomainMask.restype = ctypes.c_int
         lib.GridTree_castRay.argtypes = (
             [ctypes.c_void_p, ctypes.c_int] + [ctypes.c_float] * 6
             + [f32p, ctypes.POINTER(ctypes.c_int)])

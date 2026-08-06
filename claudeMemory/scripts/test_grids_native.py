@@ -67,8 +67,30 @@ def main():
     sc_brush.strength = 0.5
     sc_brush.writeProps()
 
+    # --- lazy slot: sculpt, raycast, and flush before any materialization ---
+    check(session.mesh_ptr == 0, "slot is lazy at enter")
+    check(session.draw_provider_kind == 'GRIDS', "grids provider at enter")
+    stroke.stroke_begin(session, grids_kernel=kernel_draw)
+    check(session.last_stroke_grids, "slot-less grids stroke dispatched")
+    lazy_moved = stroke.apply_dab(
+        session, kernel_draw, (0.0, -0.4, 1.0), (0.0, 0.0, 1.0), 0.4)
+    stroke.stroke_end(session)
+    check(lazy_moved > 0, "slot-less dab moved verts")
+    check(session.mesh_ptr == 0, "grids stroke did not materialize the slot")
+    hit_lazy = stroke.raycast(session, (0.0, -0.4, 3.0), (0.0, 0.0, -1.0))
+    check(hit_lazy is not None, "raycast works slot-less")
+    convert.flush(ob)
+    check(session.mesh_ptr == 0, "flush/bake did not materialize the slot")
+
+    convert.ensure_multires_slot(session)
+    check(bool(session.mesh_ptr), "ensure_multires_slot materialized the slot")
     pre = slot_positions(session)
     check(pre.size > 0, "slot positions readable")
+    # The materialized slot must carry the surface the domain raycast saw
+    # (the subdivided cube's smooth top sits near z~0.86, so compare against
+    # the actual hit, not an absolute bump height).
+    check(hit_lazy is not None and pre[:, 2].max() >= hit_lazy[0][2] - 1e-4,
+          "the slot-less stroke is present in the materialized slot")
 
     # --- grids stroke -------------------------------------------------------
     stroke.stroke_begin(session, grids_kernel=kernel_draw)
@@ -79,7 +101,7 @@ def main():
             session, kernel_draw, (0.05 * i, 0.0, 1.0), (0.0, 0.0, 1.0), 0.5)
     stroke.stroke_end(session)
     check(moved > 0, "grids dabs moved verts ({:d})".format(moved))
-    check(session.grid_cursor == 1, "grid cursor advanced")
+    check(session.grid_cursor == 2, "grid cursor advanced")
 
     post = slot_positions(session)
     diff = np.abs(post - pre).max()
@@ -94,7 +116,7 @@ def main():
         # displaced surface (above the undisplaced top, at or under the peak)
         # rather than pinning one winner.
         z = hit_grid[0][2]
-        check(pre[:, 2].max() + 0.02 < z <= post[:, 2].max() + 1e-3,
+        check(1.02 < z <= post[:, 2].max() + 1e-3,
               "grid raycast lands on the displaced surface "
               "(z={:.5f} band=({:.5f}, {:.5f}] hit={!r})".format(
                   z, pre[:, 2].max() + 0.02, post[:, 2].max() + 1e-3, hit_grid))
