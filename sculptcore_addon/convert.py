@@ -1572,6 +1572,13 @@ def multires_store_blob(session, skip_writeback=False):
         return None
     lib = engine.capi().lib
     if not skip_writeback:
+        # A real writeback is a fold point: it can drop the grid domain and
+        # kill the grid log. Blob demotion means live grid steps may hold no
+        # snapshots yet — attach them while the history is still seekable.
+        # (materialize itself serializes with skip_writeback=True, so this
+        # cannot recurse.)
+        from . import undo
+        undo.materialize_grid_blobs(session)
         lib.Multires_writeback(session.multires_ptr, session.multires_active_level)
     size = ctypes.c_int(0)
     buf = lib.Multires_serializeStore(session.multires_ptr, ctypes.byref(size))
@@ -1666,6 +1673,10 @@ def sync_multires_total_levels(ob):
             ob.name, session.blender_verts_num, len(ob.data.vertices)))
         return
 
+    # addLevel/removeTopLevel write back and restack — a boundary for any
+    # live grid history (blob demotion): snapshot its steps first.
+    from . import undo
+    undo.materialize_grid_blobs(session)
     while have < want:
         stepped = lib.Multires_addLevel(session.multires_ptr)
         if stepped <= have:
@@ -1724,6 +1735,11 @@ def set_multires_level(ob, level):
     level = min(max(int(level), 1), session.multires_level)
     was = session.multires_active_level
     if level != was:
+        # The switch writes back and re-derives levels — a boundary for the
+        # outgoing level's grid history (blob demotion): snapshot its steps
+        # while the log can still seek them.
+        from . import undo
+        undo.materialize_grid_blobs(session)
         session.multires_mask_base = multires.export_mask(
             ob, bpy.context.evaluated_depsgraph_get(), session.mesh_ptr,
             session.multires_map, session.multires_ptr, was,
@@ -1734,12 +1750,13 @@ def set_multires_level(ob, level):
         session.multires_mask_base = multires.import_mask(
             ob, bpy.context.evaluated_depsgraph_get(), session.mesh_ptr,
             session.multires_map, session.multires_ptr, actual)
-    if actual < was:
-        # A downward switch is where the engine pushes a finer level's detail
-        # into the coarser ones, so the store no longer matches the blob the
-        # last stroke recorded. Re-snapshot: that blob is the *pre*-state for
-        # the next stroke's undo step, and a stale one would revert this
-        # propagation along with the stroke (same reasoning as the restack).
+    if actual != was:
+        # The switch changed the store (downward settles down-propagation
+        # into the coarser levels; either direction folds pending slot
+        # edits), so the last snapshot no longer matches. Re-snapshot: that
+        # blob roots the *pre*-state of the next stroke's undo step, and a
+        # stale one would revert the switch's derivation along with the
+        # stroke (same reasoning as the restack).
         session.multires_last_blob = multires_store_blob(session)
 
 
@@ -1754,6 +1771,14 @@ def _flush_multires(ob, session):
     import bpy
 
     depsgraph = bpy.context.evaluated_depsgraph_get()
+    if session.multires_active_level != session.multires_level:
+        # Below top level the bake's level dance settles down-prop debt on
+        # the way back — a fold that kills the grid log. Blob demotion means
+        # its steps may hold no snapshots yet; attach them first (top-level
+        # sessions skip the dance, so this stays off the common flush path
+        # — decode calls flush on every seek).
+        from . import undo
+        undo.materialize_grid_blobs(session)
     session.multires_mask_base = multires.export_mask(
         ob, depsgraph, session.mesh_ptr, session.multires_map,
         session.multires_ptr, session.multires_active_level,

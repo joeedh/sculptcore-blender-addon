@@ -127,6 +127,60 @@ def main():
     convert.flush(ob)
     check(True, "flush completed")
 
+    # --- blob demotion: boundary materialization (seams §3) -----------------
+    from sculptcore_addon import undo
+
+    undo._pending.clear()
+    cursor0 = session.grid_cursor
+
+    def grid_stroke(x):
+        stroke.stroke_begin(session, grids_kernel=kernel_draw)
+        stroke.apply_dab(session, kernel_draw, (x, 0.4, 1.0), (0.0, 0.0, 1.0), 0.4)
+        stroke.stroke_end(session)
+        # Exactly what undo.push records for a grids step under demotion.
+        undo._pending[9000 + session.grid_cursor] = (
+            undo._GRID_TAG, ob.name, session.generation,
+            session.grid_generation, session.grid_cursor,
+            session.multires_last_blob if session.grid_cursor == 1 else None,
+            None, session.grid_level)
+
+    grid_stroke(-0.1)
+    s1_state = slot_positions(session)
+    grid_stroke(0.1)
+    s2_state = slot_positions(session)
+    k1, k2 = 9000 + cursor0 + 1, 9000 + cursor0 + 2
+
+    check(undo._pending[k1][6] is None and undo._pending[k2][6] is None,
+          "grid steps pushed without blobs")
+    undo.materialize_grid_blobs(session)
+    e1, e2 = undo._pending[k1], undo._pending[k2]
+    check(e1[6] is not None and e2[6] is not None, "materialize attached blobs")
+    check(e2[5] is e1[6], "adjacent steps share one blob object")
+    check(e1[5] is not None, "pre-run state snapshotted for the oldest step")
+    check(session.grid_cursor == cursor0 + 2, "materialize returned to the cursor")
+    check(np.array_equal(slot_positions(session), s2_state),
+          "materialize left the surface untouched")
+    undo.materialize_grid_blobs(session)
+    check(undo._pending[k1][6] is e1[6], "second materialize is a no-op")
+
+    check(convert.multires_restore_blob(ob, session, e1[6], e1[7]),
+          "restore of a materialized blob succeeds")
+    check(np.abs(slot_positions(session) - s1_state).max() < 1e-5,
+          "materialized blob reproduces the mid-run surface")
+
+    # --- undo-limiter eviction (dropOldest) ---------------------------------
+    undo._pending.clear()
+    grid_stroke(-0.2)
+    grid_stroke(0.2)
+    ev_post = slot_positions(session)
+    undo.free(9001)  # oldest live entry -> engine log drops its front step
+    check(bool(lib.GridStroke_undo(session.grid_ptr)), "undo after eviction")
+    check(not bool(lib.GridStroke_undo(session.grid_ptr)),
+          "evicted step is out of reach")
+    check(bool(lib.GridStroke_redo(session.grid_ptr)), "redo after eviction")
+    check(np.array_equal(slot_positions(session), ev_post),
+          "eviction round-trip restored the surface bit-exactly")
+
     print("grids-native wiring: {:d} failures".format(len(failures)))
     if failures:
         raise SystemExit(1)

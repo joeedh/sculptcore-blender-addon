@@ -24,15 +24,18 @@ memfile boundary that decodes to a memfile step this type never sees. The
 Blender-side ``state_id`` is a global key routing :func:`decode`/:func:`free`
 to the right session; the session generation detects a rebuilt session.
 
-Multires sessions (P8 C4) additionally snapshot the displacement store with
-each step (``blob_before``/``blob_after`` — consecutive steps share one bytes
-object). When the meshlog seek is unavailable — a level switch or an earlier
-blob restore reset the meshlog and bumped the generation — decode falls back
+Multires sessions (P8 C4) additionally snapshot the displacement store
+(``blob_before``/``blob_after`` — consecutive steps share one bytes object).
+When the meshlog/grid-log seek is unavailable — a level switch or an earlier
+blob restore reset the history and bumped the generation — decode falls back
 to restoring the step's blob at its recorded level, which is exact because
-every stroke's edits are written back into the store at push time. The level
-switch itself needs no step here: the ``sculpt_levels`` property edit pushes
-a memfile step, and undoing that re-drives the engine through the depsgraph
-handler.
+every stroke's edits are written back into the store by stroke end. Mesh-path
+steps snapshot at push time; grids-native steps push NO blob (the grid log's
+block swaps are the payload) and receive theirs retroactively from
+:func:`materialize_grid_blobs` at the boundary that kills their log. The
+level switch itself needs no step here: the ``sculpt_levels`` property edit
+pushes a memfile step, and undoing that re-drives the engine through the
+depsgraph handler.
 """
 
 import bpy
@@ -77,6 +80,83 @@ _ATTR_KINDS = {
 }
 
 
+def materialize_grid_blobs(session):
+    """Retro-attach store blobs to blob-less grid steps while their history is
+    still seekable. Pure-grids runs push no per-stroke blobs (the log's block
+    swaps are the undo payload), so every operation that kills the grid log —
+    a level switch/restack, a mesh-path writeback, a store-blob restore, the
+    meshlog store heal — must call this first: the log's undo/redo swap store
+    blocks bit-exactly, so seeking the live history reproduces each step's
+    store state, one serialize per step, once per boundary instead of per
+    stroke. Ends back at the current cursor and re-roots
+    ``session.multires_last_blob`` at the current state's snapshot.
+
+    Degrades gracefully: a dead domain/history means the states are already
+    unreachable (their steps keep ``None`` blobs and decode skips them), and
+    positions evicted by the undo limiter simply stop the seek."""
+    if session.grid_ptr is None or not session.multires_ptr:
+        return
+    lib = engine.capi().lib
+    # hasGridDomain first: GridStroke_sync would *build* a dropped domain
+    # (a multi-second hitch at 1M) just to report the history cleared.
+    if not lib.Multires_hasGridDomain(session.multires_ptr, session.grid_level):
+        return
+    if lib.GridStroke_sync(session.grid_ptr) != 1:
+        return
+    # Live-history grid entries by absolute cursor target, and the seek
+    # positions their missing blobs need. blob_after of step t lives at
+    # position t; blob_before at t - 1 (shared with the step below).
+    live = {}
+    need = set()
+    for key, info in _pending.items():
+        if info[0] is not _GRID_TAG:
+            continue
+        _tag, _name, generation, grid_gen, target, bb, ba, level = info
+        if (generation != session.generation
+                or grid_gen != session.grid_generation
+                or level != session.grid_level):
+            continue
+        live[target] = key
+        if ba is None:
+            need.add(target)
+        if bb is None:
+            need.add(target - 1)
+    if not need:
+        return
+    home = session.grid_cursor
+    blobs = {}
+
+    def snap():
+        if session.grid_cursor in need and session.grid_cursor not in blobs:
+            blobs[session.grid_cursor] = convert.multires_store_blob(
+                session, skip_writeback=True)
+
+    snap()
+    while session.grid_cursor < max(need) and lib.GridStroke_redo(session.grid_ptr):
+        session.grid_cursor += 1
+        snap()
+    while session.grid_cursor > min(need) and lib.GridStroke_undo(session.grid_ptr):
+        session.grid_cursor -= 1
+        snap()
+    while session.grid_cursor < home and lib.GridStroke_redo(session.grid_ptr):
+        session.grid_cursor += 1
+    if session.grid_cursor != home:
+        # A seek the engine accepted going out was refused coming back —
+        # should be unreachable (swaps are symmetric); latch loudly.
+        print("SculptCore: grid blob materialization ended at cursor {} "
+              "(expected {})".format(session.grid_cursor, home))
+    for target, key in live.items():
+        _tag, name, generation, grid_gen, t, bb, ba, level = _pending[key]
+        if ba is None:
+            ba = blobs.get(t)
+        if bb is None:
+            bb = blobs.get(t - 1)
+        _pending[key] = (_GRID_TAG, name, generation, grid_gen, t, bb, ba, level)
+    current = blobs.get(home)
+    if current is not None:
+        session.multires_last_blob = current
+
+
 def _tag_view3d_redraw(context):
     window_manager = (context or bpy.context).window_manager
     for window in window_manager.windows:
@@ -89,25 +169,25 @@ def push(context, ob, session):
     """Record one undo step for the stroke just ended on ``ob``'s session."""
     global _next_key
     if session.last_stroke_grids:
-        # Grids-native stroke: one GridStrokeLog step, no meshlog entry. The
-        # store blob chain is kept per stroke for now (the cross-level and
-        # dead-history fallback); demoting it to level switches only is the
-        # follow-up recorded in the seams design.
-        blob_before = session.multires_last_blob
-        blob_after = convert.multires_store_blob(session, skip_writeback=True)
-        session.multires_last_blob = blob_after
+        # Grids-native stroke: one GridStrokeLog step, no meshlog entry and no
+        # per-stroke store blob — the log's block swaps ARE the undo payload
+        # (blob demotion, seams design §3). Boundaries that kill the log
+        # (level switch/restack, a mesh-path writeback, a blob restore, the
+        # meshlog store heal) retro-attach blobs to these entries while the
+        # history is still seekable (materialize_grid_blobs), so the
+        # dead-history fallback stays exact. The first step of a log roots
+        # its pre-state in the last boundary's snapshot.
         lib = engine.capi().lib
+        blob_before = session.multires_last_blob if session.grid_cursor == 1 else None
         # undoBytes is the whole history; report this step's delta.
         total = int(lib.GridStroke_undoBytes(session.grid_ptr))
         size = max(0, total - session.grid_undo_bytes_base)
         session.grid_undo_bytes_base = total
-        if blob_after is not None:
-            size += len(blob_after)
         key = _next_key
         _next_key += 1
         _pending[key] = (_GRID_TAG, ob.name, session.generation,
                          session.grid_generation, session.grid_cursor,
-                         blob_before, blob_after, session.grid_level)
+                         blob_before, None, session.grid_level)
         bpy.ops.object.custom_mode_undo_push(
             'EXEC_DEFAULT', message="Sculpt Stroke", state_id=key, size=size)
         return
@@ -124,6 +204,11 @@ def push(context, ob, session):
         # C4: snapshot the store (post-writeback, so this stroke is included);
         # the previous snapshot is this step's pre-state. Each blob is shared
         # with the neighbouring step, so count it once for the undo limiter.
+        # The writeback below is a boundary for any live grid history — give
+        # its steps their blobs first (this also re-roots multires_last_blob
+        # at the current state, so blob_before is the true pre-state even
+        # after a run of blob-less grids strokes).
+        materialize_grid_blobs(session)
         blob_before = session.multires_last_blob
         blob_after = convert.multires_store_blob(session)
         session.multires_last_blob = blob_after
@@ -223,7 +308,13 @@ def _decode_grid(context, ob, session, info, direction, is_final):
         return
     blob = blob_before if (direction < 0 and not is_final) else blob_after
     if blob is None:
+        print("SculptCore: grids undo step for {!r} has no snapshot "
+              "(history unrecoverable); step skipped".format(ob.name))
         return
+    # The restore kills whatever grid history is currently live (generation
+    # bump) — give its blob-less steps their snapshots first or a later redo
+    # back into them lands on the message above.
+    materialize_grid_blobs(session)
     if convert.multires_restore_blob(ob, session, blob, level):
         convert.flush(ob)
         _tag_view3d_redraw(context)
@@ -239,6 +330,7 @@ def _decode_multires_blob(context, ob, session, info, direction, is_final):
     blob = blob_before if (direction < 0 and not is_final) else blob_after
     if blob is None:
         return
+    materialize_grid_blobs(session)
     if convert.multires_restore_blob(ob, session, blob, level):
         convert.flush(ob)
         _tag_view3d_redraw(context)
@@ -310,7 +402,9 @@ def decode(context, ob, state_id, direction, is_final):
             # store still carries (mesh-path pushes fold at push time). The
             # mesh path self-heals at its next writeback, but the grids path
             # rebuilds its domain FROM the store — re-encode now so it can't
-            # resurrect the undone stroke.
+            # resurrect the undone stroke. The writeback is a boundary for
+            # any live grid history above this step; snapshot it first.
+            materialize_grid_blobs(session)
             engine.capi().lib.Multires_writeback(
                 session.multires_ptr, session.multires_active_level)
         convert.flush(ob)
@@ -323,10 +417,27 @@ def free(state_id):
     info = _pending.pop(state_id, None)
     if info is None:
         return
-    if info[0] is _ATTR_TAG or info[0] is _GRID_TAG:
-        # No meshlog entry to free; snapshots (and, for grid steps, the
-        # engine-side log — linear history, truncated by later re-attaches)
-        # go with the popped entry.
+    if info[0] is _ATTR_TAG:
+        # No meshlog entry to free; the snapshots go with the popped entry.
+        return
+    if info[0] is _GRID_TAG:
+        # Undo-limiter eviction truncates the engine log from the oldest end
+        # so its memory tracks the retained steps — but only when this entry
+        # IS the oldest of its live history: a redo-branch truncation frees
+        # *newer* steps (the engine's beginStep already dropped those).
+        _tag, object_name, generation, grid_gen, target, _bb, _ba, _level = info
+        session = engine.sessions.get(object_name)
+        if (session is None or session.grid_ptr is None
+                or session.generation != generation
+                or session.grid_generation != grid_gen
+                or target > session.grid_cursor):
+            return
+        for other in _pending.values():
+            if (other[0] is _GRID_TAG and other[1] == object_name
+                    and other[2] == generation and other[3] == grid_gen
+                    and other[4] < target):
+                return
+        engine.capi().lib.GridStroke_dropOldest(session.grid_ptr)
         return
     object_name, step_id, _target, generation, _bb, _ba, _level = info
     session = engine.sessions.get(object_name)

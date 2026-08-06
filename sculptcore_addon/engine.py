@@ -271,6 +271,8 @@ class _CApi:
         lib.GridStroke_undo.restype = ctypes.c_int
         lib.GridStroke_redo.argtypes = [ctypes.c_void_p]
         lib.GridStroke_redo.restype = ctypes.c_int
+        lib.GridStroke_dropOldest.argtypes = [ctypes.c_void_p]
+        lib.GridStroke_dropOldest.restype = ctypes.c_int
         lib.GridStroke_undoBytes.argtypes = [ctypes.c_void_p]
         lib.GridStroke_undoBytes.restype = ctypes.c_double
         lib.Multires_hasGridDomain.argtypes = [ctypes.c_void_p, ctypes.c_int]

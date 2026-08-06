@@ -216,3 +216,39 @@ flaked ~1-in-4 in one build, then passed 7+ consecutive runs; the check now
 prints the full hit on failure. Positions/moved-counts were bit-identical
 across those runs, so if it recurs the printed hit will say whether the
 raycast (tie on the center seam?) or the branch selection moved.
+
+## Blob-demotion addendum (2026-08-06)
+
+Per-stroke store blobs are demoted to **boundaries** (seams design §3): a
+grids step's undo payload is the GridStrokeLog alone; the events that kill a
+log (level switch/restack, mesh-path writeback, blob restore, the meshlog
+store heal, the below-top save dance) first retro-attach blobs to its
+blob-less steps via `undo.materialize_grid_blobs` — the log's undo/redo swap
+store blocks bit-exactly, so seeking the live history reproduces each step's
+store state, one serialize per step, once per boundary. The undo limiter now
+also truncates the engine log (`GridStrokeLog::dropOldest`, evicting the
+front applied step only) when it frees the oldest grid step.
+
+Bench (1M/L4, 19 strokes, vs the same-rig control of 2026-08-06):
+
+| | control | blob demotion |
+|---|---|---|
+| sculpt_phase_ms | 3244/3308/3410 | **2091/2209/2819** |
+| stroke_ms median | ~128 | **~72** |
+| undo memory | 99.7 MB | **0.7 MB** |
+| peak_z | 0.077474–6 | 0.077474–5 |
+
+The ~55 ms/stroke win exceeds the 17 ms serialize because the push also paid
+an ~8 MB `ctypes.string_at` copy + Python bytes retention per stroke. A
+pure-grids run now pushes zero blobs; histories that cross a boundary pay
+blobs for the pre-boundary steps only.
+
+**The crash the wiring test caught was not demotion** — it was a latent ABA
+bug the extdraw pressure-test predicted (its Finding 6): `GridStroke_sync`
+compared domain *pointers*, and a mesh-fold's drop + rebuild routinely
+reuses the same allocation, so the session kept a freed `GridTree *`. Any
+sculpt-after-fold could read freed memory (heap-layout-dependent, which is
+why the native suite and three probe scripts all passed while the full test
+crashed deterministically). Fixed with `Multires::domainGen_` — bumped on
+every domain build/drop, compared by sync; regression-gated in
+`test_grid_stroke.cc`.
