@@ -308,3 +308,66 @@ Day total at 1M/L4 (same-day control → now): sculpt_phase 3.3 → 1.9 s,
 stroke 128 → 64 ms, undo 99.7 → 0.7 MB, and enter carries no slot cost.
 Remaining enter is refiner + chain + domain fill (~200 ms of it the
 provider); further wins are domain-build parallelization territory.
+
+## Lattice-frame addendum (2026-08-08): enter 4.4 s → 2.1 s
+
+The "~200 ms of it the provider" estimate above was **wrong by an order of
+magnitude** — it was inferred, not measured. Measured headless at HEAD, enter
+was 4723 ms (first run) / 4389 ms, and env-gated engine timers put **2433 ms of
+that in `ensureBaseAndFrames`** — nearly all of it the F3 frame provider.
+Lesson: re-measure before trusting an inherited breakdown, and never quote a
+phase cost that was reasoned about rather than timed.
+
+Why it cost that much: `ensureBaseAndFrames` (and `ensureChain`'s disp branch,
+and `materialize`) each built a **throwaway `mesh::Mesh` of the whole level**
+purely so `displace::updateFramesAll` had something to run on, then read the
+`FRAME_*_ATTR` back into dense vectors and deleted the mesh. And
+`updateFramesRegion` is **deliberately serial** — Gauss-Seidel 1-ring normal
+smoothing plus the "4-fold-aware diffusion … the backend-parity anchor" — so
+parallelizing it was off the table: it would change results and break the
+documented cross-backend parity.
+
+Fix: switch the multires frame space to `Multires::parametricFrames()`, which
+the engine already had implemented and gated by `test_multires` (and which
+`displacementAndSubSurf.md` risk #2 already named as "the answer for
+multires"). It derives normal + tangent from the grid's own `(u,v)` lattice by
+central differences on the smoothed base — no mesh, only `+ - * / sqrt`, and
+embarrassingly parallel (now under `task::parallel_for`).
+
+**Encode and decode had to move together.** `storeDispFromPositions` already
+consumed the cached `frameNo/frameTa`, but `applyDisp` re-ran the provider
+internally off a mesh it was handed; switching one alone would have broken the
+round trip. `applyDisp` now takes the frame vectors instead of a `mesh::Mesh`,
+so both sides read one field by construction. `extractFrameAttrs` is gone (all
+three call sites with it).
+
+This is a **correctness fix that happens to be the perf fix**. The cross field
+must choose a representative from a 4-fold-symmetric tensor with nothing
+pinning that choice across rematerializations; `gateFrameStability` measures a
+provider tangent *reversing* (dot −0.999962) from a 0.01 cage nudge where the
+lattice frame holds at 0.999970. That defect is now off the production path.
+
+Results (1M/L4 headless, clean build):
+
+| phase | before | after |
+| --- | --- | --- |
+| `convert.enter` total | 4389 ms | **2104–2208 ms** |
+| `ensureBaseAndFrames` | 2433 ms | **26 ms** |
+
+Gates: ctest **125/125**; `test_grids_native.py`, plus the material-seed and
+slot-material headless checks, all 0 failures.
+
+Remaining enter is now dominated by `multires.py:build_engine` at **1470 ms**
+(≈70%), which is `Multires::init` → `Refiner::refine`. That one is not a quick
+win: `refineStep` builds a `mesh::Mesh` per level via `make_vertex`/`make_face`
+under dense-ordering asserts, so it is inherently sequential — parallelizing it
+is a redesign, not a tweak.
+
+**Open, flagged, deliberately not fixed:** `captureDetailToVdm` now straddles
+two frame spaces — it writes texels in the lattice frame while `vdm_bake` /
+`_promote` / `_splat` decode against the provider's `FRAME_*_ATTR`. The two
+agreed only while multires also used F3. It is dormant (no test, no addon
+caller, X4 stage 2 is work-in-progress), so it was **documented in the header
+rather than silently disabled** — quietly turning off a feature the user may be
+building on is the worse failure mode. Capture must convert, or the VDM path
+must adopt the lattice frame, before it is wired to a host.
