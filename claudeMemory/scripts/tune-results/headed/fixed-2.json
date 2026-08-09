@@ -1,0 +1,85 @@
+{
+  "label": "fixed#2",
+  "engine": "sculptcore",
+  "mode": "multires",
+  "grid": 64,
+  "level": 4,
+  "blender_version": "5.3.0",
+  "binary": "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+  "cpp_driver": false,
+  "subdivide_ms_total": 988.1156999908853,
+  "multires_levels": 4,
+  "surface_before": {
+    "verts": 1018081,
+    "peak_z": 0.0
+  },
+  "base_faces": 3969,
+  "sculpt_faces": 1016064,
+  "enter_mode_ms": 2046.1748000088846,
+  "brush": {
+    "name": "Draw",
+    "size": 50,
+    "spacing": 10,
+    "strength": 0.10000000149011612
+  },
+  "idle_view_ms": {
+    "n": 61,
+    "mean": 2.2426311479648575,
+    "median": 2.152000000933185,
+    "min": 1.464999993913807,
+    "p90": 3.0141999886836857,
+    "max": 3.5282000026199967
+  },
+  "idle_frame_ms": {
+    "n": 60,
+    "mean": 16.684805000113556,
+    "median": 16.728500006138347,
+    "min": 14.024200005223975,
+    "p90": 17.7236999879824,
+    "max": 19.63929999328684
+  },
+  "sculpt_phase_ms": 2287.171000003582,
+  "sculpt_frames": 102,
+  "cycle_ms": {
+    "n": 20,
+    "mean": 32.77689499955159,
+    "median": 27.58249999897089,
+    "min": 12.850800005253404,
+    "p90": 36.39199999452103,
+    "max": 138.24939999904018
+  },
+  "sculpt_view_ms": {
+    "n": 20,
+    "mean": 2.3094349991879426,
+    "median": 2.3385999957099557,
+    "min": 1.6195000061998144,
+    "p90": 2.9829999984940514,
+    "max": 3.10400000307709
+  },
+  "stroke_ms": {
+    "n": 20,
+    "mean": 76.22217999014538,
+    "median": 77.23449997138232,
+    "min": 0.0,
+    "p90": 91.48270000878256,
+    "max": 123.46320002689026
+  },
+  "dabs_per_stroke": {
+    "n": 20,
+    "mean": 40.0,
+    "median": 42,
+    "min": 0,
+    "p90": 43,
+    "max": 43
+  },
+  "strokes_finished": 19,
+  "undo_memory": 660729,
+  "surface_after": {
+    "verts": 1018081,
+    "peak_z": 0.11415363103151321
+  },
+  "memory": {
+    "peak_working_set": 2170646528,
+    "working_set": 1763975168
+  }
+}

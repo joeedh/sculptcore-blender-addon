@@ -1,0 +1,211 @@
+{
+ "scenes": [
+  {
+   "grid": 32,
+   "level": 5,
+   "base_faces": 961,
+   "dabs": 24,
+   "radius": 0.15,
+   "runs": [
+    {
+     "label": "auto",
+     "env": {},
+     "enter_ms": 1886.0959000012372,
+     "stats": {
+      "leaf_target": 2312,
+      "leaves": 481,
+      "draw_tri_target": 8059,
+      "draw_nodes": 246,
+      "verts": 986049,
+      "grids": 3844,
+      "grid_side": 16,
+      "slot_leaf_limit": 512
+     },
+     "moved_verts": 417351,
+     "dab_ms": {
+      "median": 0.6049500007065944,
+      "mean": 0.6648166654485976,
+      "min": 0.5429000011645257,
+      "max": 1.0121999948751181,
+      "n": 24
+     },
+     "refill_ms": {
+      "median": 0.454549997812137,
+      "mean": 1.0223124985107763,
+      "min": 0.4027999966638163,
+      "max": 13.225300004705787,
+      "n": 24
+     },
+     "stroke_ms": 40.49109993502498,
+     "repeat": 0
+    },
+    {
+     "label": "fixed",
+     "env": {
+      "SC_MR_AUTOTUNE": "0"
+     },
+     "enter_ms": 1820.7133000105387,
+     "stats": {
+      "leaf_target": 512,
+      "leaves": 961,
+      "draw_tri_target": 2048,
+      "draw_nodes": 961,
+      "verts": 986049,
+      "grids": 3844,
+      "grid_side": 16,
+      "slot_leaf_limit": 512
+     },
+     "moved_verts": 417351,
+     "dab_ms": {
+      "median": 0.5217500001890585,
+      "mean": 0.5966249997679066,
+      "min": 0.4819000023417175,
+      "max": 1.147200004197657,
+      "n": 24
+     },
+     "refill_ms": {
+      "median": 0.24655000015627593,
+      "mean": 0.7824125004844973,
+      "min": 0.21180001203902066,
+      "max": 12.918299995362759,
+      "n": 24
+     },
+     "stroke_ms": 33.096900006057695,
+     "repeat": 0
+    },
+    {
+     "label": "auto",
+     "env": {},
+     "enter_ms": 1791.765400004806,
+     "stats": {
+      "leaf_target": 2312,
+      "leaves": 481,
+      "draw_tri_target": 8059,
+      "draw_nodes": 246,
+      "verts": 986049,
+      "grids": 3844,
+      "grid_side": 16,
+      "slot_leaf_limit": 512
+     },
+     "moved_verts": 417351,
+     "dab_ms": {
+      "median": 0.589600000239443,
+      "mean": 0.6694541680190014,
+      "min": 0.5048000020906329,
+      "max": 1.0323000024072826,
+      "n": 24
+     },
+     "refill_ms": {
+      "median": 0.47820000327192247,
+      "mean": 1.0057624998201693,
+      "min": 0.35349999961908907,
+      "max": 12.60020000336226,
+      "n": 24
+     },
+     "stroke_ms": 40.2052000281401,
+     "repeat": 1
+    },
+    {
+     "label": "fixed",
+     "env": {
+      "SC_MR_AUTOTUNE": "0"
+     },
+     "enter_ms": 1870.301200004178,
+     "stats": {
+      "leaf_target": 512,
+      "leaves": 961,
+      "draw_tri_target": 2048,
+      "draw_nodes": 961,
+      "verts": 986049,
+      "grids": 3844,
+      "grid_side": 16,
+      "slot_leaf_limit": 512
+     },
+     "moved_verts": 417351,
+     "dab_ms": {
+      "median": 0.5036499933339655,
+      "mean": 0.5709416655008681,
+      "min": 0.4673999937949702,
+      "max": 1.0424999927636236,
+      "n": 24
+     },
+     "refill_ms": {
+      "median": 0.23559999681310728,
+      "mean": 0.7733833353995578,
+      "min": 0.20540000696200877,
+      "max": 13.068600004771724,
+      "n": 24
+     },
+     "stroke_ms": 32.26380002161022,
+     "repeat": 1
+    },
+    {
+     "label": "auto",
+     "env": {},
+     "enter_ms": 1854.6271999948658,
+     "stats": {
+      "leaf_target": 2312,
+      "leaves": 481,
+      "draw_tri_target": 8059,
+      "draw_nodes": 246,
+      "verts": 986049,
+      "grids": 3844,
+      "grid_side": 16,
+      "slot_leaf_limit": 512
+     },
+     "moved_verts": 417351,
+     "dab_ms": {
+      "median": 0.5865500061190687,
+      "mean": 0.6684875000549558,
+      "min": 0.5155999970156699,
+      "max": 1.1675999994622543,
+      "n": 24
+     },
+     "refill_ms": {
+      "median": 0.4801499962923117,
+      "mean": 1.0014875000100194,
+      "min": 0.3580000047804788,
+      "max": 12.681799998972565,
+      "n": 24
+     },
+     "stroke_ms": 40.07940000155941,
+     "repeat": 2
+    },
+    {
+     "label": "fixed",
+     "env": {
+      "SC_MR_AUTOTUNE": "0"
+     },
+     "enter_ms": 1921.6030000097817,
+     "stats": {
+      "leaf_target": 512,
+      "leaves": 961,
+      "draw_tri_target": 2048,
+      "draw_nodes": 961,
+      "verts": 986049,
+      "grids": 3844,
+      "grid_side": 16,
+      "slot_leaf_limit": 512
+     },
+     "moved_verts": 417351,
+     "dab_ms": {
+      "median": 0.5276000083540566,
+      "mean": 0.607224999233343,
+      "min": 0.46720000682398677,
+      "max": 1.0565999982645735,
+      "n": 24
+     },
+     "refill_ms": {
+      "median": 0.246899995545391,
+      "mean": 0.7860166673102261,
+      "min": 0.21600000036414713,
+      "max": 12.727000008453615,
+      "n": 24
+     },
+     "stroke_ms": 33.43779999704566,
+     "repeat": 2
+    }
+   ]
+  }
+ ]
+}

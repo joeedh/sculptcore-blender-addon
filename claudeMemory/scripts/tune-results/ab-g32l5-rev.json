@@ -1,0 +1,211 @@
+{
+ "scenes": [
+  {
+   "grid": 32,
+   "level": 5,
+   "base_faces": 961,
+   "dabs": 24,
+   "radius": 0.15,
+   "runs": [
+    {
+     "label": "fixed",
+     "env": {
+      "SC_MR_AUTOTUNE": "0"
+     },
+     "enter_ms": 2343.0205999902682,
+     "stats": {
+      "leaf_target": 512,
+      "leaves": 961,
+      "draw_tri_target": 2048,
+      "draw_nodes": 961,
+      "verts": 986049,
+      "grids": 3844,
+      "grid_side": 16,
+      "slot_leaf_limit": 512
+     },
+     "moved_verts": 417351,
+     "dab_ms": {
+      "median": 0.5974500018055551,
+      "mean": 0.6717291659394201,
+      "min": 0.5146000039530918,
+      "max": 1.3644999999087304,
+      "n": 24
+     },
+     "refill_ms": {
+      "median": 0.30634999711764976,
+      "mean": 0.8768708333567096,
+      "min": 0.23260001034941524,
+      "max": 13.848299990058877,
+      "n": 24
+     },
+     "stroke_ms": 37.16639998310711,
+     "repeat": 0
+    },
+    {
+     "label": "auto",
+     "env": {},
+     "enter_ms": 2297.5600000063423,
+     "stats": {
+      "leaf_target": 2312,
+      "leaves": 481,
+      "draw_tri_target": 8059,
+      "draw_nodes": 246,
+      "verts": 986049,
+      "grids": 3844,
+      "grid_side": 16,
+      "slot_leaf_limit": 512
+     },
+     "moved_verts": 417351,
+     "dab_ms": {
+      "median": 0.8635499980300665,
+      "mean": 0.8540916660422226,
+      "min": 0.5461999971885234,
+      "max": 2.104800005326979,
+      "n": 24
+     },
+     "refill_ms": {
+      "median": 0.723249999282416,
+      "mean": 1.523691666686015,
+      "min": 0.3909999941242859,
+      "max": 18.867799997678958,
+      "n": 24
+     },
+     "stroke_ms": 57.0667999854777,
+     "repeat": 0
+    },
+    {
+     "label": "fixed",
+     "env": {
+      "SC_MR_AUTOTUNE": "0"
+     },
+     "enter_ms": 2435.1299999980256,
+     "stats": {
+      "leaf_target": 512,
+      "leaves": 961,
+      "draw_tri_target": 2048,
+      "draw_nodes": 961,
+      "verts": 986049,
+      "grids": 3844,
+      "grid_side": 16,
+      "slot_leaf_limit": 512
+     },
+     "moved_verts": 417351,
+     "dab_ms": {
+      "median": 0.611449999269098,
+      "mean": 0.7145291662406331,
+      "min": 0.5101999995531514,
+      "max": 1.4102999994065613,
+      "n": 24
+     },
+     "refill_ms": {
+      "median": 0.2824000039254315,
+      "mean": 0.8759916672715917,
+      "min": 0.24380000832024962,
+      "max": 13.445400007185526,
+      "n": 24
+     },
+     "stroke_ms": 38.1725000042934,
+     "repeat": 1
+    },
+    {
+     "label": "auto",
+     "env": {},
+     "enter_ms": 2313.629900003434,
+     "stats": {
+      "leaf_target": 2312,
+      "leaves": 481,
+      "draw_tri_target": 8059,
+      "draw_nodes": 246,
+      "verts": 986049,
+      "grids": 3844,
+      "grid_side": 16,
+      "slot_leaf_limit": 512
+     },
+     "moved_verts": 417351,
+     "dab_ms": {
+      "median": 0.6173000001581386,
+      "mean": 0.7057291671420293,
+      "min": 0.5398999928729609,
+      "max": 1.288400002522394,
+      "n": 24
+     },
+     "refill_ms": {
+      "median": 0.5120500063640065,
+      "mean": 1.0791249994023626,
+      "min": 0.3620999923441559,
+      "max": 13.89980000385549,
+      "n": 24
+     },
+     "stroke_ms": 42.8364999970654,
+     "repeat": 1
+    },
+    {
+     "label": "fixed",
+     "env": {
+      "SC_MR_AUTOTUNE": "0"
+     },
+     "enter_ms": 1983.4056999970926,
+     "stats": {
+      "leaf_target": 512,
+      "leaves": 961,
+      "draw_tri_target": 2048,
+      "draw_nodes": 961,
+      "verts": 986049,
+      "grids": 3844,
+      "grid_side": 16,
+      "slot_leaf_limit": 512
+     },
+     "moved_verts": 417351,
+     "dab_ms": {
+      "median": 0.5782500011264347,
+      "mean": 0.6233166665576088,
+      "min": 0.47030000132508576,
+      "max": 1.2764999992214143,
+      "n": 24
+     },
+     "refill_ms": {
+      "median": 0.25319999986095354,
+      "mean": 0.8078416643305294,
+      "min": 0.20989999757148325,
+      "max": 12.972999989870004,
+      "n": 24
+     },
+     "stroke_ms": 34.347799941315316,
+     "repeat": 2
+    },
+    {
+     "label": "auto",
+     "env": {},
+     "enter_ms": 1957.5626000005286,
+     "stats": {
+      "leaf_target": 2312,
+      "leaves": 481,
+      "draw_tri_target": 8059,
+      "draw_nodes": 246,
+      "verts": 986049,
+      "grids": 3844,
+      "grid_side": 16,
+      "slot_leaf_limit": 512
+     },
+     "moved_verts": 417351,
+     "dab_ms": {
+      "median": 0.6461000011768192,
+      "mean": 0.7168416680845743,
+      "min": 0.5572000081883743,
+      "max": 1.1731999984476715,
+      "n": 24
+     },
+     "refill_ms": {
+      "median": 0.5129499986651354,
+      "mean": 1.050983334304571,
+      "min": 0.3839000128209591,
+      "max": 12.99450000806246,
+      "n": 24
+     },
+     "stroke_ms": 42.42780005733948,
+     "repeat": 2
+    }
+   ]
+  }
+ ]
+}

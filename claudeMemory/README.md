@@ -98,6 +98,15 @@ Working notes Claude maintains for this repository. See the top-level
   per-element undo capture vs native's in-place CCG grids), what was fixed, the
   two regressions only the full ctest sweep caught, and the ranked remainder — a
   grids-native brush path is the only item that closes the gap.
+- [research/multires-autotune.md](research/multires-autotune.md)
+  — deriving a multires level's three acceleration granularities from its size
+  instead of fixed constants (`engine/source/subdiv/multires_tuning.{h,cc}`,
+  reached by the `0` the addon already passed). The headless sweep rig, the
+  headed rig that exists because **the draw-node trade is invisible headless**
+  (refill cost is monotone in node size; the host's per-node-per-pass cost is
+  not measurable there), and the measured knees: leaf size tracks the cage-face
+  block and not the vert count (and is a wash either way), while quartering the
+  draw-node count halves viewport cost — 2.2 → 1.0 ms/frame at 1 M verts.
 - [research/grid-correspondence.md](research/grid-correspondence.md)
   — how the engine's multires grids line up with Blender's `CD_MDISPS`: the
   exact lattice transpose (an involution, so one table serves both directions),
