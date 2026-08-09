@@ -185,3 +185,13 @@ Working notes Claude maintains for this repository. See the top-level
   formulation; and that rollout, not per-dab accuracy, is the metric. Ends with a
   five-point minimum viable experiment whose only success criterion is inverting
   a known stroke, and a **do not re-propose** list.
+- [research/tbb-vs-litestl-parallel-for.md](research/tbb-vs-litestl-parallel-for.md)
+  — litestl's `task::parallel_for` (static band equipartition over its own
+  work-stealing pool) versus Blender's (a façade over `tbb::parallel_for` with
+  recursive splitting, `TaskSizeHints` and lazy threading), then an actual A/B: a
+  temporary `LITESTL_WITH_TBB` backend, gated by 125/125 native ctest and
+  measured 3v3 on the multires benchmark. **TBB lost** — ~4% on sculpt phase, ~5%
+  per stroke, a dead heat on enter-mode, and ~20× the run-to-run variance. The
+  scaffolding was reverted; the note records the exact patch, the caveats (shared
+  Blender arena, nesting sites left hand-flattened), and the one untested case
+  where TBB should still win.
