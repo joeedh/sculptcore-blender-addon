@@ -194,6 +194,23 @@ Working notes Claude maintains for this repository. See the top-level
   formulation; and that rollout, not per-dab accuracy, is the metric. Ends with a
   five-point minimum viable experiment whose only success criterion is inverting
   a known stroke, and a **do not re-propose** list.
+- [research/litestl-sbo-audit.md](research/litestl-sbo-audit.md)
+  — small-buffer-optimization audit of `util::Vector`/`Map`/`Set`/`OrderedSet`
+  across the multires and spatial-tree hot paths. The headline is not the
+  default sizes: `Vector<T, N>`'s inline buffer is **off by one**
+  (`ensure_size`'s guard is `<` where it should be `<=`, verified empirically),
+  so every tuned size holds `N-1` and every exact fit — a quad's 4 corners, a
+  face's 4 grids — spills. Beyond that, the real cost is fresh containers per
+  element rather than small ones: a heap allocation per coarse vertex in
+  `Refiner::refine` (`subdiv.cc:270`), three unreserved vectors per dirty leaf
+  per frame in `update_node_normals`, `clear_and_contract()` on ~20 KB tri lists
+  that are refilled immediately, and per-dab `filterNodes` buffers at SBO 4.
+  Tables of measured `sizeof`/inline capacities, eleven ranked findings with
+  file:line, the places already sized correctly (so they are not "fixed" into
+  regressions), and one adjacent quadratic scan in the grid undo log.
+  **All of it is applied** (§7), and §7.1 walks back the audit's own claim that
+  F8 was the biggest multires-enter win: an interleaved A/B puts it at ~1.6%,
+  inside the noise — plus the batching trap that first made it look like 1.9x.
 - [research/tbb-vs-litestl-parallel-for.md](research/tbb-vs-litestl-parallel-for.md)
   — litestl's `task::parallel_for` (static band equipartition over its own
   work-stealing pool) versus Blender's (a façade over `tbb::parallel_for` with
