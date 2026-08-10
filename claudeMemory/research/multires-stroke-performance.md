@@ -355,3 +355,15 @@ draw path is no longer the bottleneck. Residual GPU deltas, small and
 unchased: dispatch 0.57 vs 0.02 ms (116 vs 4 dispatches/frame) and ~2.3 ms
 drawcall spread across ~250 node draws vs native's finer batches.
 
+**End-to-end headed A/B, post-fix** (`bench_multires_sc.py`, 3 interleaved
+rounds per arm, same binary, vsync on — results in
+`claudeMemory/scripts/bench-sc/postvbo/`, gitignored): native sculpt_phase
+645/698/661 ms (mean 668), sculptcore 1924/1788/1784 ms (mean 1832) —
+**ratio ~2.7×**, from ~3.0× in the pre-fix batch. Sculptcore stroke operator
+time (invoke+modal) fell ~105 → **~68 ms/stroke** median; headed mode enter
+~2.1 s (matches the lattice-frames headless figure). Both arms read higher
+absolute than the pre-fix batch (native 520 → 668 ms) — the documented
+cross-batch invalidity on this box; cite the within-batch ratio and
+stroke_ms, not absolute sculpt_phase across batches. The remaining 2.7× is
+the per-dab Python/ctypes driver, consistent with the trace attribution.
+
