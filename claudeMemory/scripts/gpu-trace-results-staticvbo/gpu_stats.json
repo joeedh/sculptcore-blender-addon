@@ -1,0 +1,2861 @@
+{
+  "captures": [
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\native-native_frame153.rdc",
+      "api": "GraphicsAPI.OpenGL",
+      "actions": {
+        "Dispatch": 4,
+        "Clear": 18,
+        "Drawcall": 571,
+        "Copy": 3,
+        "Other": 1,
+        "Resolve": 10,
+        "Present": 1
+      },
+      "action_total": 608,
+      "draw_vertices": 6105159,
+      "draw_instances": 628,
+      "gpu_ms_by_kind": {
+        "Dispatch": 0.019600000000000003,
+        "Clear": 0.06708,
+        "Drawcall": 3.3222800000000032,
+        "Copy": 0.40976,
+        "Other": 0.40943,
+        "Resolve": 0.03708,
+        "Present": 4e-05
+      },
+      "gpu_ms_total": 4.265270000000003,
+      "top_actions": [
+        {
+          "name": "glFlush()",
+          "kind": "Other",
+          "ms": 0.40943,
+          "event": 2657
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.17372,
+          "event": 2436
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.11852000000000001,
+          "event": 2267
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.11752000000000001,
+          "event": 2435
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.10884,
+          "event": 2244
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.10292000000000001,
+          "event": 2291
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09428000000000002,
+          "event": 2654
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.08968000000000001,
+          "event": 2578
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.08856,
+          "event": 2571
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.08732000000000001,
+          "event": 2585
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07256000000000001,
+          "event": 2634
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07176,
+          "event": 3045
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.06888000000000001,
+          "event": 2323
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.06616,
+          "event": 2561
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.05684,
+          "event": 2522
+        }
+      ],
+      "label": "native"
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\native-native_frame154.rdc",
+      "api": "GraphicsAPI.OpenGL",
+      "actions": {
+        "Dispatch": 4,
+        "Clear": 20,
+        "Drawcall": 574,
+        "Copy": 2,
+        "Other": 1,
+        "Resolve": 10,
+        "Present": 1
+      },
+      "action_total": 612,
+      "draw_vertices": 6104219,
+      "draw_instances": 657,
+      "gpu_ms_by_kind": {
+        "Dispatch": 0.018240000000000003,
+        "Clear": 0.08543999999999999,
+        "Drawcall": 3.7067200000000025,
+        "Copy": 0.4210400000000001,
+        "Other": 0.47574000000000005,
+        "Resolve": 0.03936,
+        "Present": 4e-05
+      },
+      "gpu_ms_total": 4.746580000000003,
+      "top_actions": [
+        {
+          "name": "glFlush()",
+          "kind": "Other",
+          "ms": 0.47574000000000005,
+          "event": 2653
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.25716000000000006,
+          "event": 2432
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.17256000000000002,
+          "event": 2244
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.16388,
+          "event": 2431
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.10332000000000001,
+          "event": 2567
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09780000000000001,
+          "event": 2650
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09720000000000001,
+          "event": 2290
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09128,
+          "event": 2574
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09056,
+          "event": 2581
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07684,
+          "event": 2630
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07364000000000001,
+          "event": 3120
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.06856000000000001,
+          "event": 2557
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.06608,
+          "event": 2319
+        },
+        {
+          "name": "glClear(Depth = <1.000000>, Stencil = <0x00>)",
+          "kind": "Clear",
+          "ms": 0.06444,
+          "event": 2469
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.054880000000000005,
+          "event": 2266
+        }
+      ],
+      "label": "native"
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\native-native_frame155.rdc",
+      "api": "GraphicsAPI.OpenGL",
+      "actions": {
+        "Dispatch": 4,
+        "Clear": 18,
+        "Drawcall": 569,
+        "Copy": 2,
+        "Other": 1,
+        "Resolve": 10,
+        "Present": 1
+      },
+      "action_total": 605,
+      "draw_vertices": 6104199,
+      "draw_instances": 626,
+      "gpu_ms_by_kind": {
+        "Dispatch": 0.014320000000000003,
+        "Clear": 0.07756,
+        "Drawcall": 3.474280000000005,
+        "Copy": 0.2722,
+        "Other": 0.45487,
+        "Resolve": 0.036559999999999995,
+        "Present": 8e-05
+      },
+      "gpu_ms_total": 4.329870000000004,
+      "top_actions": [
+        {
+          "name": "glFlush()",
+          "kind": "Other",
+          "ms": 0.45487,
+          "event": 2653
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.16488,
+          "event": 2432
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.12108000000000001,
+          "event": 2244
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.10732000000000001,
+          "event": 2431
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.10420000000000001,
+          "event": 2650
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09952000000000001,
+          "event": 2290
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09616,
+          "event": 2567
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09388,
+          "event": 2574
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09292000000000002,
+          "event": 2581
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07672000000000001,
+          "event": 2630
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07192,
+          "event": 3041
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.06820000000000001,
+          "event": 2557
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.06296,
+          "event": 2518
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.062360000000000006,
+          "event": 2319
+        },
+        {
+          "name": "glClear(Depth = <1.000000>, Stencil = <0x00>)",
+          "kind": "Clear",
+          "ms": 0.05952,
+          "event": 2469
+        }
+      ],
+      "label": "native"
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\native-native_frame156.rdc",
+      "api": "GraphicsAPI.OpenGL",
+      "actions": {
+        "Dispatch": 4,
+        "Clear": 18,
+        "Drawcall": 569,
+        "Copy": 2,
+        "Other": 1,
+        "Resolve": 10,
+        "Present": 1
+      },
+      "action_total": 605,
+      "draw_vertices": 6104199,
+      "draw_instances": 626,
+      "gpu_ms_by_kind": {
+        "Dispatch": 0.015160000000000002,
+        "Clear": 0.0674,
+        "Drawcall": 4.116279999999996,
+        "Copy": 0.27336,
+        "Other": 0.5427700000000001,
+        "Resolve": 0.04160000000000001,
+        "Present": 8e-05
+      },
+      "gpu_ms_total": 5.056649999999996,
+      "top_actions": [
+        {
+          "name": "glFlush()",
+          "kind": "Other",
+          "ms": 0.5427700000000001,
+          "event": 2653
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.2116,
+          "event": 3041
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.192,
+          "event": 2290
+        },
+        {
+          "name": "glDrawElementsInstancedBaseVertexBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.17524,
+          "event": 3175
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.16820000000000002,
+          "event": 2650
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.15908,
+          "event": 2432
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.15408000000000002,
+          "event": 2244
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.11428,
+          "event": 2431
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.1094,
+          "event": 2581
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.0932,
+          "event": 2574
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.0906,
+          "event": 2630
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09056,
+          "event": 2567
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.08652,
+          "event": 2319
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.08024,
+          "event": 2557
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07884000000000001,
+          "event": 2518
+        }
+      ],
+      "label": "native"
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\native-native_frame157.rdc",
+      "api": "GraphicsAPI.OpenGL",
+      "actions": {
+        "Dispatch": 4,
+        "Clear": 18,
+        "Drawcall": 569,
+        "Copy": 2,
+        "Other": 1,
+        "Resolve": 10,
+        "Present": 1
+      },
+      "action_total": 605,
+      "draw_vertices": 6104199,
+      "draw_instances": 626,
+      "gpu_ms_by_kind": {
+        "Dispatch": 0.023160000000000004,
+        "Clear": 0.0796,
+        "Drawcall": 3.3024,
+        "Copy": 0.25488,
+        "Other": 0.44935,
+        "Resolve": 0.03808,
+        "Present": 8e-05
+      },
+      "gpu_ms_total": 4.14755,
+      "top_actions": [
+        {
+          "name": "glFlush()",
+          "kind": "Other",
+          "ms": 0.44935,
+          "event": 2653
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.15284,
+          "event": 2432
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.11368,
+          "event": 2244
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.10840000000000001,
+          "event": 2650
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.10204,
+          "event": 2431
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09224000000000002,
+          "event": 2290
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.08872000000000001,
+          "event": 2581
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.08832000000000001,
+          "event": 2574
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.08584,
+          "event": 2567
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07604000000000001,
+          "event": 2630
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07332000000000001,
+          "event": 3041
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.06668,
+          "event": 2557
+        },
+        {
+          "name": "glClear(Depth = <1.000000>, Stencil = <0x00>)",
+          "kind": "Clear",
+          "ms": 0.06436,
+          "event": 2469
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.06268,
+          "event": 2319
+        },
+        {
+          "name": "glDrawElementsInstancedBaseVertexBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.05288,
+          "event": 3175
+        }
+      ],
+      "label": "native"
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\native-native_frame158.rdc",
+      "api": "GraphicsAPI.OpenGL",
+      "actions": {
+        "Dispatch": 4,
+        "Clear": 18,
+        "Drawcall": 569,
+        "Copy": 2,
+        "Other": 1,
+        "Resolve": 10,
+        "Present": 1
+      },
+      "action_total": 605,
+      "draw_vertices": 6104199,
+      "draw_instances": 626,
+      "gpu_ms_by_kind": {
+        "Dispatch": 0.0222,
+        "Clear": 0.07664,
+        "Drawcall": 3.8140399999999994,
+        "Copy": 0.25516,
+        "Other": 0.46372,
+        "Resolve": 0.03812,
+        "Present": 8e-05
+      },
+      "gpu_ms_total": 4.66996,
+      "top_actions": [
+        {
+          "name": "glFlush()",
+          "kind": "Other",
+          "ms": 0.46372,
+          "event": 2653
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.18196,
+          "event": 2290
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.15912,
+          "event": 2650
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.1542,
+          "event": 2432
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.15000000000000002,
+          "event": 3041
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.14032,
+          "event": 2244
+        },
+        {
+          "name": "glDrawElementsInstancedBaseVertexBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.12652,
+          "event": 3175
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.10096000000000001,
+          "event": 2431
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09544000000000001,
+          "event": 2319
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09176000000000001,
+          "event": 2574
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09040000000000001,
+          "event": 2581
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09012,
+          "event": 2567
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07724,
+          "event": 2557
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.0762,
+          "event": 2630
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.06732,
+          "event": 2379
+        }
+      ],
+      "label": "native"
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\native-native_frame159.rdc",
+      "api": "GraphicsAPI.OpenGL",
+      "actions": {
+        "Dispatch": 4,
+        "Clear": 18,
+        "Drawcall": 569,
+        "Copy": 2,
+        "Other": 1,
+        "Resolve": 10,
+        "Present": 1
+      },
+      "action_total": 605,
+      "draw_vertices": 6104199,
+      "draw_instances": 626,
+      "gpu_ms_by_kind": {
+        "Dispatch": 0.0246,
+        "Clear": 0.07627999999999999,
+        "Drawcall": 4.942759999999999,
+        "Copy": 0.28048,
+        "Other": 0.65516,
+        "Resolve": 0.046599999999999996,
+        "Present": 0.00012000000000000002
+      },
+      "gpu_ms_total": 6.025999999999999,
+      "top_actions": [
+        {
+          "name": "glFlush()",
+          "kind": "Other",
+          "ms": 0.65516,
+          "event": 2653
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.17008,
+          "event": 2432
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.14684,
+          "event": 2290
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.14608000000000002,
+          "event": 2244
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.13563999999999998,
+          "event": 2650
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.11040000000000001,
+          "event": 2431
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09680000000000001,
+          "event": 2574
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09664,
+          "event": 3041
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09608,
+          "event": 2567
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09400000000000001,
+          "event": 2581
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09112,
+          "event": 2319
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.08272,
+          "event": 2630
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07392000000000001,
+          "event": 2557
+        },
+        {
+          "name": "glDrawElementsInstancedBaseVertexBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.06912,
+          "event": 3175
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.06804,
+          "event": 2266
+        }
+      ],
+      "label": "native"
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\native-native_frame160.rdc",
+      "api": "GraphicsAPI.OpenGL",
+      "actions": {
+        "Dispatch": 4,
+        "Clear": 18,
+        "Drawcall": 569,
+        "Copy": 2,
+        "Other": 1,
+        "Resolve": 10,
+        "Present": 1
+      },
+      "action_total": 605,
+      "draw_vertices": 6104199,
+      "draw_instances": 626,
+      "gpu_ms_by_kind": {
+        "Dispatch": 0.02272,
+        "Clear": 0.0816,
+        "Drawcall": 3.7292,
+        "Copy": 0.2796,
+        "Other": 0.7673300000000001,
+        "Resolve": 0.0482,
+        "Present": 8e-05
+      },
+      "gpu_ms_total": 4.92873,
+      "top_actions": [
+        {
+          "name": "glFlush()",
+          "kind": "Other",
+          "ms": 0.7673300000000001,
+          "event": 2719
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.16820000000000002,
+          "event": 2498
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.13532,
+          "event": 2310
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.11140000000000001,
+          "event": 2497
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.11140000000000001,
+          "event": 3107
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.1078,
+          "event": 2716
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.10772000000000001,
+          "event": 2356
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09236,
+          "event": 2640
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09168,
+          "event": 2647
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09028000000000001,
+          "event": 2633
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07664,
+          "event": 2385
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.0762,
+          "event": 2696
+        },
+        {
+          "name": "glDrawElementsInstancedBaseVertexBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07348,
+          "event": 3241
+        },
+        {
+          "name": "glClear(Depth = <1.000000>, Stencil = <0x00>)",
+          "kind": "Clear",
+          "ms": 0.06564,
+          "event": 2535
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.06524,
+          "event": 2623
+        }
+      ],
+      "label": "native"
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\native-native_frame161.rdc",
+      "api": "GraphicsAPI.OpenGL",
+      "actions": {
+        "Dispatch": 4,
+        "Clear": 18,
+        "Drawcall": 569,
+        "Copy": 2,
+        "Other": 1,
+        "Resolve": 10,
+        "Present": 1
+      },
+      "action_total": 605,
+      "draw_vertices": 6104199,
+      "draw_instances": 626,
+      "gpu_ms_by_kind": {
+        "Dispatch": 0.02156,
+        "Clear": 0.09364,
+        "Drawcall": 3.8063600000000015,
+        "Copy": 0.29096,
+        "Other": 0.7587200000000001,
+        "Resolve": 0.043480000000000005,
+        "Present": 8e-05
+      },
+      "gpu_ms_total": 5.014800000000001,
+      "top_actions": [
+        {
+          "name": "glFlush()",
+          "kind": "Other",
+          "ms": 0.7587200000000001,
+          "event": 2803
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.17736000000000002,
+          "event": 2582
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.13716000000000003,
+          "event": 2800
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.13692000000000001,
+          "event": 2440
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.13176,
+          "event": 2394
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.1136,
+          "event": 2581
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.1044,
+          "event": 2724
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09696,
+          "event": 2731
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09676,
+          "event": 2717
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09528,
+          "event": 2469
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.0804,
+          "event": 3191
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07808000000000001,
+          "event": 2780
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07748000000000001,
+          "event": 2707
+        },
+        {
+          "name": "glClear(Depth = <1.000000>, Stencil = <0x00>)",
+          "kind": "Clear",
+          "ms": 0.07676000000000001,
+          "event": 2619
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07264000000000001,
+          "event": 2668
+        }
+      ],
+      "label": "native"
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\native-native_frame162.rdc",
+      "api": "GraphicsAPI.OpenGL",
+      "actions": {
+        "Dispatch": 4,
+        "Clear": 18,
+        "Drawcall": 569,
+        "Copy": 2,
+        "Other": 1,
+        "Resolve": 10,
+        "Present": 1
+      },
+      "action_total": 605,
+      "draw_vertices": 6104199,
+      "draw_instances": 626,
+      "gpu_ms_by_kind": {
+        "Dispatch": 0.022119999999999997,
+        "Clear": 0.11772,
+        "Drawcall": 3.8149200000000003,
+        "Copy": 0.33716,
+        "Other": 1.6263100000000001,
+        "Resolve": 0.041440000000000005,
+        "Present": 8e-05
+      },
+      "gpu_ms_total": 5.95975,
+      "top_actions": [
+        {
+          "name": "glFlush()",
+          "kind": "Other",
+          "ms": 1.6263100000000001,
+          "event": 2815
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.20752,
+          "event": 2594
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.15876,
+          "event": 2406
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.12964,
+          "event": 2593
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.12096000000000001,
+          "event": 2452
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.117,
+          "event": 2736
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.11452000000000001,
+          "event": 2729
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.11352000000000001,
+          "event": 2812
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.10832,
+          "event": 2743
+        },
+        {
+          "name": "glClear(Depth = <1.000000>, Stencil = <0x00>)",
+          "kind": "Clear",
+          "ms": 0.10088000000000001,
+          "event": 2631
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.08472,
+          "event": 2792
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.08024,
+          "event": 2719
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07792,
+          "event": 2481
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07784,
+          "event": 3203
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.06172,
+          "event": 2680
+        }
+      ],
+      "label": "native"
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\native-native_frame163.rdc",
+      "api": "GraphicsAPI.OpenGL",
+      "actions": {
+        "Dispatch": 4,
+        "Clear": 18,
+        "Drawcall": 569,
+        "Copy": 2,
+        "Other": 1,
+        "Resolve": 10,
+        "Present": 1
+      },
+      "action_total": 605,
+      "draw_vertices": 6104199,
+      "draw_instances": 626,
+      "gpu_ms_by_kind": {
+        "Dispatch": 0.02196,
+        "Clear": 0.10528000000000001,
+        "Drawcall": 3.381200000000001,
+        "Copy": 0.314,
+        "Other": 0.46437,
+        "Resolve": 0.040760000000000005,
+        "Present": 8e-05
+      },
+      "gpu_ms_total": 4.32765,
+      "top_actions": [
+        {
+          "name": "glFlush()",
+          "kind": "Other",
+          "ms": 0.46437,
+          "event": 2809
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.20256000000000002,
+          "event": 2588
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.12384,
+          "event": 2400
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.11144,
+          "event": 2587
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.10244,
+          "event": 2723
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.10148000000000001,
+          "event": 2730
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09884000000000001,
+          "event": 2737
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09256,
+          "event": 2806
+        },
+        {
+          "name": "glClear(Depth = <1.000000>, Stencil = <0x00>)",
+          "kind": "Clear",
+          "ms": 0.09036000000000001,
+          "event": 2625
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.08884000000000002,
+          "event": 2713
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.08824000000000001,
+          "event": 2446
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07896,
+          "event": 2786
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07688,
+          "event": 3197
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.06064,
+          "event": 2475
+        },
+        {
+          "name": "glDrawElementsInstancedBaseVertexBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.05348,
+          "event": 3331
+        }
+      ],
+      "label": "native"
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\native-native_frame164.rdc",
+      "api": "GraphicsAPI.OpenGL",
+      "actions": {
+        "Dispatch": 4,
+        "Clear": 18,
+        "Drawcall": 569,
+        "Copy": 2,
+        "Other": 1,
+        "Resolve": 10,
+        "Present": 1
+      },
+      "action_total": 605,
+      "draw_vertices": 6104199,
+      "draw_instances": 626,
+      "gpu_ms_by_kind": {
+        "Dispatch": 0.02404,
+        "Clear": 0.07572,
+        "Drawcall": 3.3000400000000014,
+        "Copy": 0.25576,
+        "Other": 0.5595800000000001,
+        "Resolve": 0.03812,
+        "Present": 4e-05
+      },
+      "gpu_ms_total": 4.253300000000002,
+      "top_actions": [
+        {
+          "name": "glFlush()",
+          "kind": "Other",
+          "ms": 0.5595800000000001,
+          "event": 2809
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.15468,
+          "event": 2588
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.1092,
+          "event": 2400
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.10108,
+          "event": 2587
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09720000000000001,
+          "event": 2806
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09404,
+          "event": 2446
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09264000000000001,
+          "event": 2730
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.08984,
+          "event": 2723
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.08808,
+          "event": 2737
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07636000000000001,
+          "event": 2786
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07492000000000001,
+          "event": 3197
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.06508000000000001,
+          "event": 2475
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.06348000000000001,
+          "event": 2713
+        },
+        {
+          "name": "glClear(Depth = <1.000000>, Stencil = <0x00>)",
+          "kind": "Clear",
+          "ms": 0.0564,
+          "event": 2625
+        },
+        {
+          "name": "glDrawElementsInstancedBaseVertexBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.052160000000000005,
+          "event": 3331
+        }
+      ],
+      "label": "native"
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\sculptcore-sculptcore_frame153.rdc",
+      "api": "GraphicsAPI.OpenGL",
+      "actions": {
+        "Dispatch": 4,
+        "Clear": 18,
+        "Drawcall": 311,
+        "Copy": 3,
+        "Other": 1,
+        "Resolve": 10,
+        "Present": 1
+      },
+      "action_total": 348,
+      "draw_vertices": 6104384,
+      "draw_instances": 368,
+      "gpu_ms_by_kind": {
+        "Dispatch": 0.017759999999999998,
+        "Clear": 0.08268,
+        "Drawcall": 5.005639999999995,
+        "Copy": 0.3996,
+        "Other": 0.49978,
+        "Resolve": 0.036520000000000004,
+        "Present": 8e-05
+      },
+      "gpu_ms_total": 6.042059999999996,
+      "top_actions": [
+        {
+          "name": "glFlush()",
+          "kind": "Other",
+          "ms": 0.49978,
+          "event": 1682
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.18552,
+          "event": 1246
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.16,
+          "event": 1628
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.15660000000000002,
+          "event": 1391
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.15028,
+          "event": 2070
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.13648000000000002,
+          "event": 1199
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.12224,
+          "event": 1222
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.12076,
+          "event": 1390
+        },
+        {
+          "name": "glDrawElementsInstancedBaseVertexBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.11024,
+          "event": 2211
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09552000000000001,
+          "event": 1278
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09284,
+          "event": 1533
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09012,
+          "event": 1526
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09004000000000001,
+          "event": 1540
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07716,
+          "event": 1516
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07352,
+          "event": 1221
+        }
+      ],
+      "label": "sculptcore"
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\sculptcore-sculptcore_frame154.rdc",
+      "api": "GraphicsAPI.OpenGL",
+      "actions": {
+        "Clear": 28,
+        "Drawcall": 388,
+        "Dispatch": 116,
+        "Copy": 3,
+        "Other": 1,
+        "Resolve": 10,
+        "Present": 1
+      },
+      "action_total": 547,
+      "draw_vertices": 6105132,
+      "draw_instances": 673,
+      "gpu_ms_by_kind": {
+        "Clear": 0.08304,
+        "Drawcall": 8.058820000000011,
+        "Dispatch": 0.5709999999999998,
+        "Copy": 0.36316000000000004,
+        "Other": 0.01348,
+        "Resolve": 0.037520000000000005,
+        "Present": 8e-05
+      },
+      "gpu_ms_total": 9.127100000000013,
+      "top_actions": [
+        {
+          "name": "glDrawArraysIndirect(<24528, 1>)",
+          "kind": "Drawcall",
+          "ms": 1.57558,
+          "event": 2783
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.19024000000000002,
+          "event": 3428
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.17704,
+          "event": 4251
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.1628,
+          "event": 3807
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.15944,
+          "event": 3381
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.15560000000000002,
+          "event": 3570
+        },
+        {
+          "name": "glDrawElementsInstancedBaseVertexBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.14648000000000003,
+          "event": 4392
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.10500000000000001,
+          "event": 3404
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.10316,
+          "event": 3712
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.10256000000000001,
+          "event": 3569
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09484000000000001,
+          "event": 3457
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09380000000000001,
+          "event": 3719
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09064,
+          "event": 3705
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07756,
+          "event": 3695
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07432000000000001,
+          "event": 3403
+        }
+      ],
+      "label": "sculptcore"
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\sculptcore-sculptcore_frame155.rdc",
+      "api": "GraphicsAPI.OpenGL",
+      "actions": {
+        "Clear": 28,
+        "Drawcall": 388,
+        "Dispatch": 116,
+        "Copy": 3,
+        "Other": 1,
+        "Resolve": 10,
+        "Present": 1
+      },
+      "action_total": 547,
+      "draw_vertices": 6105132,
+      "draw_instances": 673,
+      "gpu_ms_by_kind": {
+        "Clear": 0.10732,
+        "Drawcall": 5.252559999999994,
+        "Dispatch": 0.6173200000000002,
+        "Copy": 0.396,
+        "Other": 0.017480000000000002,
+        "Resolve": 0.0414,
+        "Present": 8e-05
+      },
+      "gpu_ms_total": 6.432159999999993,
+      "top_actions": [
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.18448000000000003,
+          "event": 3570
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.13744,
+          "event": 3381
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.11628000000000001,
+          "event": 3807
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.11032,
+          "event": 3569
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.10120000000000001,
+          "event": 3404
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09852000000000001,
+          "event": 3428
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09844,
+          "event": 3719
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09836,
+          "event": 3705
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09724000000000001,
+          "event": 3712
+        },
+        {
+          "name": "glClear(Depth = <1.000000>, Stencil = <0x00>)",
+          "kind": "Clear",
+          "ms": 0.08220000000000001,
+          "event": 3607
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.08064,
+          "event": 3787
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07908000000000001,
+          "event": 4251
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07096,
+          "event": 3695
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.06336,
+          "event": 3457
+        },
+        {
+          "name": "glDrawElementsInstancedBaseVertexBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.057600000000000005,
+          "event": 4392
+        }
+      ],
+      "label": "sculptcore"
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\sculptcore-sculptcore_frame156.rdc",
+      "api": "GraphicsAPI.OpenGL",
+      "actions": {
+        "Clear": 28,
+        "Drawcall": 388,
+        "Dispatch": 116,
+        "Copy": 3,
+        "Other": 1,
+        "Resolve": 10,
+        "Present": 1
+      },
+      "action_total": 547,
+      "draw_vertices": 6105132,
+      "draw_instances": 673,
+      "gpu_ms_by_kind": {
+        "Clear": 0.10264000000000001,
+        "Drawcall": 6.052239999999993,
+        "Dispatch": 0.5769999999999998,
+        "Copy": 0.35816000000000003,
+        "Other": 0.0142,
+        "Resolve": 0.04108,
+        "Present": 8e-05
+      },
+      "gpu_ms_total": 7.145399999999992,
+      "top_actions": [
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.19668000000000002,
+          "event": 3428
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.16532000000000002,
+          "event": 3807
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.15996000000000002,
+          "event": 3570
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.15064,
+          "event": 4251
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.14479999999999998,
+          "event": 3381
+        },
+        {
+          "name": "glDrawElementsInstancedBaseVertexBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.12664000000000003,
+          "event": 4392
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.10132000000000001,
+          "event": 3569
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09936000000000002,
+          "event": 3457
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.09688000000000001,
+          "event": 3404
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09644000000000001,
+          "event": 3712
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09384,
+          "event": 3719
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.0932,
+          "event": 3705
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.08208,
+          "event": 3695
+        },
+        {
+          "name": "glClear(Depth = <1.000000>, Stencil = <0x00>)",
+          "kind": "Clear",
+          "ms": 0.07256000000000001,
+          "event": 3607
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07088,
+          "event": 3517
+        }
+      ],
+      "label": "sculptcore"
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\sculptcore-sculptcore_frame157.rdc",
+      "api": "GraphicsAPI.OpenGL",
+      "actions": {
+        "Clear": 28,
+        "Drawcall": 388,
+        "Dispatch": 116,
+        "Copy": 3,
+        "Other": 1,
+        "Resolve": 10,
+        "Present": 1
+      },
+      "action_total": 547,
+      "draw_vertices": 6105132,
+      "draw_instances": 673,
+      "gpu_ms_by_kind": {
+        "Clear": 0.09939999999999999,
+        "Drawcall": 5.256159999999997,
+        "Dispatch": 0.5082799999999998,
+        "Copy": 0.36244,
+        "Other": 0.013640000000000001,
+        "Resolve": 0.06788000000000001,
+        "Present": 0.00012000000000000002
+      },
+      "gpu_ms_total": 6.307919999999997,
+      "top_actions": [
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.16340000000000002,
+          "event": 3570
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.127,
+          "event": 4251
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.12376000000000002,
+          "event": 3381
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.10304,
+          "event": 3569
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.10288,
+          "event": 3428
+        },
+        {
+          "name": "glDrawElementsInstancedBaseVertexBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09896,
+          "event": 4392
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.096,
+          "event": 3404
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09580000000000001,
+          "event": 3807
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09528,
+          "event": 3705
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09408000000000001,
+          "event": 3712
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09128,
+          "event": 3719
+        },
+        {
+          "name": "glClear(Depth = <1.000000>, Stencil = <0x00>)",
+          "kind": "Clear",
+          "ms": 0.07448,
+          "event": 3607
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07408000000000001,
+          "event": 3787
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.06752000000000001,
+          "event": 3695
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.060360000000000004,
+          "event": 3457
+        }
+      ],
+      "label": "sculptcore"
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\sculptcore-sculptcore_frame158.rdc",
+      "api": "GraphicsAPI.OpenGL",
+      "actions": {
+        "Clear": 28,
+        "Drawcall": 388,
+        "Dispatch": 116,
+        "Copy": 3,
+        "Other": 1,
+        "Resolve": 10,
+        "Present": 1
+      },
+      "action_total": 547,
+      "draw_vertices": 6105132,
+      "draw_instances": 673,
+      "gpu_ms_by_kind": {
+        "Clear": 0.20605000000000007,
+        "Drawcall": 10.860880000000002,
+        "Dispatch": 0.8109599999999998,
+        "Copy": 0.36424,
+        "Other": 0.01752,
+        "Resolve": 0.040240000000000005,
+        "Present": 4e-05
+      },
+      "gpu_ms_total": 12.299930000000002,
+      "top_actions": [
+        {
+          "name": "glDrawArraysIndirect(<24528, 1>)",
+          "kind": "Drawcall",
+          "ms": 2.99786,
+          "event": 2931
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.16056,
+          "event": 3570
+        },
+        {
+          "name": "glDrawArraysIndirect(<24528, 1>)",
+          "kind": "Drawcall",
+          "ms": 0.13555,
+          "event": 2371
+        },
+        {
+          "name": "glDrawArraysIndirect(<24528, 1>)",
+          "kind": "Drawcall",
+          "ms": 0.13460000000000003,
+          "event": 2367
+        },
+        {
+          "name": "glDrawArraysIndirect(<24528, 1>)",
+          "kind": "Drawcall",
+          "ms": 0.13335000000000002,
+          "event": 2363
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.12964,
+          "event": 3381
+        },
+        {
+          "name": "glDrawArraysIndirect(<13440, 1>)",
+          "kind": "Drawcall",
+          "ms": 0.10695000000000002,
+          "event": 2359
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.10484,
+          "event": 3569
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.10256000000000001,
+          "event": 3712
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09896,
+          "event": 3428
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.09884000000000001,
+          "event": 3404
+        },
+        {
+          "name": "glDrawArraysIndirect(<24528, 1>)",
+          "kind": "Drawcall",
+          "ms": 0.09504000000000001,
+          "event": 2375
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09156000000000002,
+          "event": 3705
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09028000000000001,
+          "event": 3807
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.08916,
+          "event": 3719
+        }
+      ],
+      "label": "sculptcore"
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\sculptcore-sculptcore_frame159.rdc",
+      "api": "GraphicsAPI.OpenGL",
+      "actions": {
+        "Clear": 28,
+        "Drawcall": 388,
+        "Dispatch": 116,
+        "Copy": 3,
+        "Other": 1,
+        "Resolve": 10,
+        "Present": 1
+      },
+      "action_total": 547,
+      "draw_vertices": 6105132,
+      "draw_instances": 673,
+      "gpu_ms_by_kind": {
+        "Clear": 0.08344,
+        "Drawcall": 6.003999999999994,
+        "Dispatch": 0.52592,
+        "Copy": 0.36276,
+        "Other": 0.01584,
+        "Resolve": 0.040560000000000006,
+        "Present": 8e-05
+      },
+      "gpu_ms_total": 7.032599999999994,
+      "top_actions": [
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.19240000000000002,
+          "event": 3428
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.16344000000000003,
+          "event": 3570
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.16052000000000002,
+          "event": 3807
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.15784,
+          "event": 4251
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.15020000000000003,
+          "event": 3381
+        },
+        {
+          "name": "glDrawElementsInstancedBaseVertexBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.11668,
+          "event": 4392
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.10472,
+          "event": 3569
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.0946,
+          "event": 3404
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09108000000000001,
+          "event": 3457
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.08892000000000001,
+          "event": 3705
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.08848,
+          "event": 3712
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.08796000000000001,
+          "event": 3719
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07668,
+          "event": 3695
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.06824000000000001,
+          "event": 3787
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.06704,
+          "event": 3656
+        }
+      ],
+      "label": "sculptcore"
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\sculptcore-sculptcore_frame160.rdc",
+      "api": "GraphicsAPI.OpenGL",
+      "actions": {
+        "Clear": 28,
+        "Drawcall": 388,
+        "Dispatch": 116,
+        "Copy": 3,
+        "Other": 1,
+        "Resolve": 10,
+        "Present": 1
+      },
+      "action_total": 547,
+      "draw_vertices": 6105132,
+      "draw_instances": 673,
+      "gpu_ms_by_kind": {
+        "Clear": 0.08968,
+        "Drawcall": 6.595930000000005,
+        "Dispatch": 0.5411999999999999,
+        "Copy": 0.34796,
+        "Other": 0.01776,
+        "Resolve": 0.039080000000000004,
+        "Present": 4e-05
+      },
+      "gpu_ms_total": 7.631650000000006,
+      "top_actions": [
+        {
+          "name": "glDrawArraysIndirect(<24528, 1>)",
+          "kind": "Drawcall",
+          "ms": 1.55417,
+          "event": 2979
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.15108,
+          "event": 3570
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.11992,
+          "event": 3381
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.10148000000000001,
+          "event": 3428
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.10124,
+          "event": 3569
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.09564000000000002,
+          "event": 3404
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09488,
+          "event": 3807
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.08940000000000001,
+          "event": 3712
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.08864000000000001,
+          "event": 3719
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.08832000000000001,
+          "event": 3705
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07848000000000001,
+          "event": 4251
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.06612000000000001,
+          "event": 3787
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.0648,
+          "event": 3695
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.06340000000000001,
+          "event": 3457
+        },
+        {
+          "name": "glClear(Depth = <1.000000>, Stencil = <0x00>)",
+          "kind": "Clear",
+          "ms": 0.0582,
+          "event": 3607
+        }
+      ],
+      "label": "sculptcore"
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\sculptcore-sculptcore_frame161.rdc",
+      "api": "GraphicsAPI.OpenGL",
+      "actions": {
+        "Clear": 28,
+        "Drawcall": 388,
+        "Dispatch": 116,
+        "Copy": 3,
+        "Other": 1,
+        "Resolve": 10,
+        "Present": 1
+      },
+      "action_total": 547,
+      "draw_vertices": 6105132,
+      "draw_instances": 673,
+      "gpu_ms_by_kind": {
+        "Clear": 0.08728,
+        "Drawcall": 7.132040000000002,
+        "Dispatch": 0.57052,
+        "Copy": 0.34772000000000003,
+        "Other": 0.019920000000000004,
+        "Resolve": 0.03856,
+        "Present": 4e-05
+      },
+      "gpu_ms_total": 8.196080000000004,
+      "top_actions": [
+        {
+          "name": "glDrawArraysIndirect(<24528, 1>)",
+          "kind": "Drawcall",
+          "ms": 2.04228,
+          "event": 2923
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.15276000000000003,
+          "event": 3678
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.12488,
+          "event": 3489
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.1028,
+          "event": 3536
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.10020000000000001,
+          "event": 3677
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.09476000000000001,
+          "event": 3512
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09408000000000001,
+          "event": 3915
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.0906,
+          "event": 3820
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.08896,
+          "event": 3813
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.0872,
+          "event": 3827
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07443999999999999,
+          "event": 4359
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.06672,
+          "event": 3895
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.06476000000000001,
+          "event": 3803
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.06384,
+          "event": 3565
+        },
+        {
+          "name": "glClear(Depth = <1.000000>, Stencil = <0x00>)",
+          "kind": "Clear",
+          "ms": 0.058960000000000005,
+          "event": 3715
+        }
+      ],
+      "label": "sculptcore"
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\sculptcore-sculptcore_frame162.rdc",
+      "api": "GraphicsAPI.OpenGL",
+      "actions": {
+        "Clear": 28,
+        "Drawcall": 388,
+        "Dispatch": 116,
+        "Copy": 3,
+        "Other": 1,
+        "Resolve": 10,
+        "Present": 1
+      },
+      "action_total": 547,
+      "draw_vertices": 6105132,
+      "draw_instances": 673,
+      "gpu_ms_by_kind": {
+        "Clear": 0.0876,
+        "Drawcall": 5.136520000000001,
+        "Dispatch": 0.5669600000000001,
+        "Copy": 0.35944000000000004,
+        "Other": 0.020920000000000005,
+        "Resolve": 0.04268,
+        "Present": 8e-05
+      },
+      "gpu_ms_total": 6.214200000000001,
+      "top_actions": [
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.15208000000000002,
+          "event": 3726
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.11516,
+          "event": 3537
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.11044000000000001,
+          "event": 3725
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09976,
+          "event": 3584
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.09692,
+          "event": 3560
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09544000000000001,
+          "event": 3963
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09028000000000001,
+          "event": 3861
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.08844,
+          "event": 3875
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.08804000000000001,
+          "event": 3868
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.08188000000000001,
+          "event": 4407
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.06536,
+          "event": 3943
+        },
+        {
+          "name": "glDrawElementsInstancedBaseVertexBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.06528,
+          "event": 4548
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.06432,
+          "event": 3851
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.06212000000000001,
+          "event": 3613
+        },
+        {
+          "name": "glClear(Depth = <1.000000>, Stencil = <0x00>)",
+          "kind": "Clear",
+          "ms": 0.0566,
+          "event": 3763
+        }
+      ],
+      "label": "sculptcore"
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\sculptcore-sculptcore_frame163.rdc",
+      "api": "GraphicsAPI.OpenGL",
+      "actions": {
+        "Clear": 28,
+        "Drawcall": 388,
+        "Dispatch": 116,
+        "Copy": 3,
+        "Other": 1,
+        "Resolve": 10,
+        "Present": 1
+      },
+      "action_total": 547,
+      "draw_vertices": 6105132,
+      "draw_instances": 673,
+      "gpu_ms_by_kind": {
+        "Clear": 0.07752,
+        "Drawcall": 5.044959999999999,
+        "Dispatch": 0.5641599999999997,
+        "Copy": 0.34340000000000004,
+        "Other": 0.02124,
+        "Resolve": 0.03796,
+        "Present": 8e-05
+      },
+      "gpu_ms_total": 6.089319999999997,
+      "top_actions": [
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.15140000000000003,
+          "event": 3690
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.12432,
+          "event": 3501
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.10860000000000002,
+          "event": 3927
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.10300000000000001,
+          "event": 3689
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.09832,
+          "event": 3548
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.08916,
+          "event": 3832
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.08912,
+          "event": 3839
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.08900000000000001,
+          "event": 3524
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.08684,
+          "event": 3825
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07524,
+          "event": 4371
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.06796,
+          "event": 3907
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.06304000000000001,
+          "event": 3577
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.063,
+          "event": 3815
+        },
+        {
+          "name": "glDrawElementsInstancedBaseVertexBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.052840000000000005,
+          "event": 4512
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.04788,
+          "event": 3776
+        }
+      ],
+      "label": "sculptcore"
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\sculptcore-sculptcore_frame164.rdc",
+      "api": "GraphicsAPI.OpenGL",
+      "actions": {
+        "Clear": 28,
+        "Drawcall": 388,
+        "Dispatch": 116,
+        "Copy": 3,
+        "Other": 1,
+        "Resolve": 10,
+        "Present": 1
+      },
+      "action_total": 547,
+      "draw_vertices": 6105132,
+      "draw_instances": 673,
+      "gpu_ms_by_kind": {
+        "Clear": 0.08519999999999998,
+        "Drawcall": 5.028999999999998,
+        "Dispatch": 3.644110000000001,
+        "Copy": 0.35124,
+        "Other": 0.01752,
+        "Resolve": 0.04116000000000001,
+        "Present": 4e-05
+      },
+      "gpu_ms_total": 9.16827,
+      "top_actions": [
+        {
+          "name": "glDispatchCompute()",
+          "kind": "Dispatch",
+          "ms": 1.7557,
+          "event": 2342
+        },
+        {
+          "name": "glDispatchCompute()",
+          "kind": "Dispatch",
+          "ms": 1.2974500000000002,
+          "event": 543
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.15436,
+          "event": 3678
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.11488000000000001,
+          "event": 3489
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.10296000000000001,
+          "event": 3677
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.098,
+          "event": 3536
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.0942,
+          "event": 3915
+        },
+        {
+          "name": "glCopyImageSubData()",
+          "kind": "Copy",
+          "ms": 0.09392,
+          "event": 3512
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.08908,
+          "event": 3820
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.08800000000000001,
+          "event": 3827
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.08796000000000001,
+          "event": 3813
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.07840000000000001,
+          "event": 4359
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.06648,
+          "event": 3895
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.06544000000000001,
+          "event": 3803
+        },
+        {
+          "name": "glDrawArraysInstancedBaseInstance()",
+          "kind": "Drawcall",
+          "ms": 0.06308,
+          "event": 3565
+        }
+      ],
+      "label": "sculptcore"
+    }
+  ],
+  "renderdoc_version": "1.45"
+}

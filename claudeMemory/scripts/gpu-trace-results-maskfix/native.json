@@ -1,0 +1,122 @@
+{
+  "label": "native",
+  "engine": "native",
+  "mode": "multires",
+  "grid": 64,
+  "level": 4,
+  "blender_version": "5.3.0",
+  "binary": "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+  "cpp_driver": false,
+  "renderdoc": {
+    "version": "1.7.0",
+    "template": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\native-native"
+  },
+  "subdivide_ms_total": 1073.92050002818,
+  "multires_levels": 4,
+  "surface_before": {
+    "verts": 1018081,
+    "peak_z": 0.0
+  },
+  "base_faces": 3969,
+  "sculpt_faces": 1016064,
+  "enter_mode_ms": 162.37199999159202,
+  "brush": {
+    "name": "Draw",
+    "size": 50,
+    "spacing": 10,
+    "strength": 0.10000000149011612
+  },
+  "idle_view_ms": {
+    "n": 61,
+    "mean": 1.0822409855537727,
+    "median": 0.896700017619878,
+    "min": 0.6543000054080039,
+    "p90": 1.271499990252778,
+    "max": 5.403799994383007
+  },
+  "idle_frame_ms": {
+    "n": 60,
+    "mean": 4.729565000161529,
+    "median": 3.9123000169638544,
+    "min": 2.3398000048473477,
+    "p90": 7.440899993525818,
+    "max": 22.140300017781556
+  },
+  "sculpt_phase_ms": 7742.29770002421,
+  "sculpt_frames": 258,
+  "cycle_ms": {
+    "n": 176,
+    "mean": 11.799077274190495,
+    "median": 7.340600015595555,
+    "min": 1.1548000038601458,
+    "p90": 14.040899986866862,
+    "max": 87.30230000219308
+  },
+  "sculpt_view_ms": {
+    "n": 176,
+    "mean": 8.208321023299835,
+    "median": 3.946699987864122,
+    "min": 0.7189000025391579,
+    "p90": 5.350299994461238,
+    "max": 80.18369998899288
+  },
+  "undo_memory": 6675729,
+  "captures": [
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\native-native_frame153.rdc",
+      "timestamp": 1786362768
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\native-native_frame154.rdc",
+      "timestamp": 1786362769
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\native-native_frame155.rdc",
+      "timestamp": 1786362769
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\native-native_frame156.rdc",
+      "timestamp": 1786362770
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\native-native_frame157.rdc",
+      "timestamp": 1786362770
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\native-native_frame158.rdc",
+      "timestamp": 1786362770
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\native-native_frame159.rdc",
+      "timestamp": 1786362771
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\native-native_frame160.rdc",
+      "timestamp": 1786362771
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\native-native_frame161.rdc",
+      "timestamp": 1786362772
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\native-native_frame162.rdc",
+      "timestamp": 1786362772
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\native-native_frame163.rdc",
+      "timestamp": 1786362773
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\native-native_frame164.rdc",
+      "timestamp": 1786362774
+    }
+  ],
+  "surface_after": {
+    "verts": 1018081,
+    "peak_z": 0.010081222280859947
+  },
+  "memory": {
+    "peak_working_set": 2225631232,
+    "working_set": 2217619456
+  }
+}

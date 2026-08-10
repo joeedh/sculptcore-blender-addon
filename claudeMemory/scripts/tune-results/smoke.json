@@ -1,0 +1,147 @@
+{
+ "scenes": [
+  {
+   "grid": 33,
+   "level": 4,
+   "base_faces": 1024,
+   "dabs": 10,
+   "radius": 0.15,
+   "runs": [
+    {
+     "label": "auto",
+     "env": {},
+     "enter_ms": 544.9992999929236,
+     "stats": {
+      "leaf_target": 512,
+      "leaves": 512,
+      "draw_tri_target": 2048,
+      "draw_nodes": 256,
+      "verts": 263169,
+      "grids": 4096,
+      "grid_side": 8,
+      "slot_leaf_limit": 512
+     },
+     "moved_verts": 46280,
+     "dab_ms": {
+      "median": 0.32559999817749485,
+      "mean": 0.36576000275090337,
+      "min": 0.264899994363077,
+      "max": 0.6118000019341707,
+      "n": 10
+     },
+     "refill_ms": {
+      "median": 0.11209999502170831,
+      "mean": 0.4658299978473224,
+      "min": 0.10470001143403351,
+      "max": 3.5736999998334795,
+      "n": 10
+     },
+     "stroke_ms": 8.315900005982257,
+     "repeat": 0
+    },
+    {
+     "label": "fixed",
+     "env": {
+      "SC_MR_AUTOTUNE": "0"
+     },
+     "enter_ms": 549.4061000063084,
+     "stats": {
+      "leaf_target": 512,
+      "leaves": 512,
+      "draw_tri_target": 2048,
+      "draw_nodes": 256,
+      "verts": 263169,
+      "grids": 4096,
+      "grid_side": 8,
+      "slot_leaf_limit": 512
+     },
+     "moved_verts": 46280,
+     "dab_ms": {
+      "median": 0.36559999716700986,
+      "mean": 0.35955999774159864,
+      "min": 0.24839999969117343,
+      "max": 0.48669999523554,
+      "n": 10
+     },
+     "refill_ms": {
+      "median": 0.1434500009054318,
+      "mean": 0.4697700001997873,
+      "min": 0.1016000023810193,
+      "max": 3.3589999948162585,
+      "n": 10
+     },
+     "stroke_ms": 8.29329997941386,
+     "repeat": 0
+    },
+    {
+     "label": "leaf=2048",
+     "env": {
+      "SC_MR_LEAF_TARGET": "2048"
+     },
+     "enter_ms": 485.9683000104269,
+     "stats": {
+      "leaf_target": 2048,
+      "leaves": 148,
+      "draw_tri_target": 2048,
+      "draw_nodes": 256,
+      "verts": 263169,
+      "grids": 4096,
+      "grid_side": 8,
+      "slot_leaf_limit": 512
+     },
+     "moved_verts": 46280,
+     "dab_ms": {
+      "median": 0.32264999026665464,
+      "mean": 0.33759999787434936,
+      "min": 0.26679999427869916,
+      "max": 0.49279999802820385,
+      "n": 10
+     },
+     "refill_ms": {
+      "median": 0.17704999481793493,
+      "mean": 0.48697000020183623,
+      "min": 0.1024999946821481,
+      "max": 3.375999993295409,
+      "n": 10
+     },
+     "stroke_ms": 8.245699980761856,
+     "repeat": 0
+    },
+    {
+     "label": "tris=16384",
+     "env": {
+      "SC_MR_DRAW_TRIS": "16384"
+     },
+     "enter_ms": 517.7313000021968,
+     "stats": {
+      "leaf_target": 512,
+      "leaves": 512,
+      "draw_tri_target": 16384,
+      "draw_nodes": 32,
+      "verts": 263169,
+      "grids": 4096,
+      "grid_side": 8,
+      "slot_leaf_limit": 512
+     },
+     "moved_verts": 46280,
+     "dab_ms": {
+      "median": 0.33940000139409676,
+      "mean": 0.3371799990418367,
+      "min": 0.27180000324733555,
+      "max": 0.3997999883722514,
+      "n": 10
+     },
+     "refill_ms": {
+      "median": 0.5594000031123869,
+      "mean": 0.8831600003759377,
+      "min": 0.43590000132098794,
+      "max": 3.843999991659075,
+      "n": 10
+     },
+     "stroke_ms": 12.203399994177744,
+     "repeat": 0
+    }
+   ]
+  }
+ ]
+}

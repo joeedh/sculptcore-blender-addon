@@ -1,0 +1,53 @@
+{
+  "out": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\gpu_stats.json",
+  "captures": [
+    {
+      "label": "native",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\native-native_frame153.rdc"
+    },
+    {
+      "label": "native",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\native-native_frame155.rdc"
+    },
+    {
+      "label": "native",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\native-native_frame157.rdc"
+    },
+    {
+      "label": "native",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\native-native_frame159.rdc"
+    },
+    {
+      "label": "native",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\native-native_frame161.rdc"
+    },
+    {
+      "label": "native",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\native-native_frame163.rdc"
+    },
+    {
+      "label": "sculptcore",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\sculptcore-sculptcore_frame153.rdc"
+    },
+    {
+      "label": "sculptcore",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\sculptcore-sculptcore_frame155.rdc"
+    },
+    {
+      "label": "sculptcore",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\sculptcore-sculptcore_frame157.rdc"
+    },
+    {
+      "label": "sculptcore",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\sculptcore-sculptcore_frame159.rdc"
+    },
+    {
+      "label": "sculptcore",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\sculptcore-sculptcore_frame161.rdc"
+    },
+    {
+      "label": "sculptcore",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\sculptcore-sculptcore_frame163.rdc"
+    }
+  ]
+}

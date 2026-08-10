@@ -1,0 +1,139 @@
+{
+  "label": "sculptcore",
+  "engine": "sculptcore",
+  "mode": "multires",
+  "grid": 64,
+  "level": 4,
+  "blender_version": "5.3.0",
+  "binary": "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+  "cpp_driver": false,
+  "renderdoc": {
+    "version": "1.7.0",
+    "template": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\sculptcore-sculptcore"
+  },
+  "subdivide_ms_total": 1050.5714000028092,
+  "multires_levels": 4,
+  "surface_before": {
+    "verts": 1018081,
+    "peak_z": 0.0
+  },
+  "base_faces": 3969,
+  "sculpt_faces": 1016064,
+  "enter_mode_ms": 2210.2091000124346,
+  "brush": {
+    "name": "Draw",
+    "size": 50,
+    "spacing": 10,
+    "strength": 0.10000000149011612
+  },
+  "idle_view_ms": {
+    "n": 61,
+    "mean": 1.240009834634934,
+    "median": 1.130599994212389,
+    "min": 0.7364999910350889,
+    "p90": 1.5189000114332885,
+    "max": 8.499700023094192
+  },
+  "idle_frame_ms": {
+    "n": 60,
+    "mean": 4.830041666961431,
+    "median": 4.00919999810867,
+    "min": 2.7834000065922737,
+    "p90": 7.9740000073798,
+    "max": 13.739400019403547
+  },
+  "sculpt_phase_ms": 16205.400300008478,
+  "sculpt_frames": 258,
+  "cycle_ms": {
+    "n": 176,
+    "mean": 26.186831251007707,
+    "median": 18.267100007506087,
+    "min": 1.0970000002998859,
+    "p90": 56.62300001131371,
+    "max": 315.90449999202974
+  },
+  "sculpt_view_ms": {
+    "n": 176,
+    "mean": 6.454435797422775,
+    "median": 2.143299992894754,
+    "min": 0.7015000155661255,
+    "p90": 3.0735000036656857,
+    "max": 79.95839999057353
+  },
+  "stroke_ms": {
+    "n": 8,
+    "mean": 94.96556251542643,
+    "median": 105.79650002182461,
+    "min": 0.0,
+    "p90": 151.46539997658692,
+    "max": 151.46539997658692
+  },
+  "dabs_per_stroke": {
+    "n": 8,
+    "mean": 74.375,
+    "median": 85,
+    "min": 0,
+    "p90": 85,
+    "max": 85
+  },
+  "strokes_finished": 7,
+  "undo_memory": 28790065,
+  "captures": [
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\sculptcore-sculptcore_frame153.rdc",
+      "timestamp": 1786362793
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\sculptcore-sculptcore_frame154.rdc",
+      "timestamp": 1786362794
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\sculptcore-sculptcore_frame155.rdc",
+      "timestamp": 1786362796
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\sculptcore-sculptcore_frame156.rdc",
+      "timestamp": 1786362796
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\sculptcore-sculptcore_frame157.rdc",
+      "timestamp": 1786362797
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\sculptcore-sculptcore_frame158.rdc",
+      "timestamp": 1786362798
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\sculptcore-sculptcore_frame159.rdc",
+      "timestamp": 1786362798
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\sculptcore-sculptcore_frame160.rdc",
+      "timestamp": 1786362799
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\sculptcore-sculptcore_frame161.rdc",
+      "timestamp": 1786362800
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\sculptcore-sculptcore_frame162.rdc",
+      "timestamp": 1786362801
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\sculptcore-sculptcore_frame163.rdc",
+      "timestamp": 1786362802
+    },
+    {
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-maskfix\\captures\\sculptcore-sculptcore_frame164.rdc",
+      "timestamp": 1786362803
+    }
+  ],
+  "surface_after": {
+    "verts": 1018081,
+    "peak_z": 0.023756036534905434
+  },
+  "memory": {
+    "peak_working_set": 4273123328,
+    "working_set": 3271933952
+  }
+}

@@ -313,3 +313,45 @@ on either side, at any point in this work.
 - **Read `[phase]` blocks aggregated, never the tail.** The last-stroke dump is
   wildly unrepresentative — `ebPrologue` reads as 0.0039 ms/call there and is
   0.3193 ms/call aggregated.
+
+## Addendum 2026-08-10: GPU-side attribution (RenderDoc A/B)
+
+Same scene (grid 64 / L4, 1,016,064 faces), the GPU-trace harness
+(`claudeMemory/scripts/run_gpu_trace.mjs`, 12 captured frames per arm, GL
+backend, vsync off). Per-frame medians from RenderDoc counter analysis.
+
+**Fix 1 — mask-overlay double-draw, verified at draw-vertex parity.** The
+engine always advertised mask@2 and the fork's external overlay branch drew
+every batch unconditionally, so a maskless session drew the whole mesh twice.
+After gating both sides (engine `grids_nodes_get` on
+`Multires::maskChannelExists()`, fork `SculptBatch.has_mask/has_face_set` +
+per-batch skip in `overlay_sculpt.hh`):
+
+| per frame | native | sculptcore before | sculptcore after |
+|---|---|---|---|
+| draw_vertices | 6.104 M | 12.2 M | **6.105 M** (parity) |
+| under-capture cycle_ms | ~7.3 | 27.7 | 18.3 |
+
+**Finding 2 — residual per-drawcall gap at equal vertex count.** With the
+double-draw gone, sculptcore still burned 30.1 ms GPU vs native 5.1 ms/frame:
+~249 node draws of `glDrawArraysIndirect(<24528, 1>)` at 0.095–0.117 ms each
+vs native's `glDrawArraysInstancedBaseInstance` at ~0.0066 ms avg — **~14×
+per-drawcall**, uniform across nodes. Attribution: external-draw VBOs were
+created `GPU_USAGE_DYNAMIC` (→ `GL_DYNAMIC_DRAW`, which this AMD driver keeps
+host-visible: vertex fetch crosses PCIe every frame), while native's
+`draw_pbvh` buffers are `GPU_USAGE_STATIC` (device-local; host copy freed on
+upload, re-allocated per refill). Fixed in fork `draw_external.cc node_upload`:
+static usage + `GPU_vertbuf_data_alloc` per refill (draw_pbvh's pattern), and
+streams without a live source (neutral msk/fset, absent col/uv) are no longer
+refilled on data-only uploads — the device copy persists.
+
+**Verified** (same harness, `gpu-trace-results-staticvbo/`): sculptcore GPU
+total 30.14 → **7.15 ms**/frame (native 4.75), drawcall GPU 29.5 → 6.00 ms,
+per-drawcall ~14× → ~1.6× native, per-dab cycle 18.3 → 13.2 ms (native 7.4),
+draw-vertex parity intact. Viewport draw wall time during sculpt is now
+*faster* than native (2.15 vs 3.90 ms). The remaining cycle gap is the
+CPU-side per-dab driver cost, not the GPU: at 6.1M verts/frame the external
+draw path is no longer the bottleneck. Residual GPU deltas, small and
+unchased: dispatch 0.57 vs 0.02 ms (116 vs 4 dispatches/frame) and ~2.3 ms
+drawcall spread across ~250 node draws vs native's finer batches.
+

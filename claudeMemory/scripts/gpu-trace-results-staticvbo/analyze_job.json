@@ -1,0 +1,101 @@
+{
+  "out": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\gpu_stats.json",
+  "captures": [
+    {
+      "label": "native",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\native-native_frame153.rdc"
+    },
+    {
+      "label": "native",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\native-native_frame154.rdc"
+    },
+    {
+      "label": "native",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\native-native_frame155.rdc"
+    },
+    {
+      "label": "native",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\native-native_frame156.rdc"
+    },
+    {
+      "label": "native",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\native-native_frame157.rdc"
+    },
+    {
+      "label": "native",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\native-native_frame158.rdc"
+    },
+    {
+      "label": "native",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\native-native_frame159.rdc"
+    },
+    {
+      "label": "native",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\native-native_frame160.rdc"
+    },
+    {
+      "label": "native",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\native-native_frame161.rdc"
+    },
+    {
+      "label": "native",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\native-native_frame162.rdc"
+    },
+    {
+      "label": "native",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\native-native_frame163.rdc"
+    },
+    {
+      "label": "native",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\native-native_frame164.rdc"
+    },
+    {
+      "label": "sculptcore",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\sculptcore-sculptcore_frame153.rdc"
+    },
+    {
+      "label": "sculptcore",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\sculptcore-sculptcore_frame154.rdc"
+    },
+    {
+      "label": "sculptcore",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\sculptcore-sculptcore_frame155.rdc"
+    },
+    {
+      "label": "sculptcore",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\sculptcore-sculptcore_frame156.rdc"
+    },
+    {
+      "label": "sculptcore",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\sculptcore-sculptcore_frame157.rdc"
+    },
+    {
+      "label": "sculptcore",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\sculptcore-sculptcore_frame158.rdc"
+    },
+    {
+      "label": "sculptcore",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\sculptcore-sculptcore_frame159.rdc"
+    },
+    {
+      "label": "sculptcore",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\sculptcore-sculptcore_frame160.rdc"
+    },
+    {
+      "label": "sculptcore",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\sculptcore-sculptcore_frame161.rdc"
+    },
+    {
+      "label": "sculptcore",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\sculptcore-sculptcore_frame162.rdc"
+    },
+    {
+      "label": "sculptcore",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\sculptcore-sculptcore_frame163.rdc"
+    },
+    {
+      "label": "sculptcore",
+      "path": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\gpu-trace-results-staticvbo\\captures\\sculptcore-sculptcore_frame164.rdc"
+    }
+  ]
+}
