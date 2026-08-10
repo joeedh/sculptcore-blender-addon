@@ -367,3 +367,17 @@ cross-batch invalidity on this box; cite the within-batch ratio and
 stroke_ms, not absolute sculpt_phase across batches. The remaining 2.7× is
 the per-dab Python/ctypes driver, consistent with the trace attribution.
 
+**C++ stroke-driver toggle A/B (spacer-only adoption): a wash.** Same rig, 3
+interleaved rounds of `--engine sculptcore` with and without `--cpp-driver`
+(`bench-sc/cppdrv/`, gitignored): sculpt_phase means 1979 (py) vs 1971 (cpp)
+ms, stroke_ms medians 75.6 vs 76.5 — differences an order of magnitude under
+the noise floor, with `surface_after.peak_z` identical (the driver reproduces
+the Python spacer's dab placement). Conclusion: the spacer slice of the ~0.85
+ms/dab Python overhead is negligible, so enabling the toggle as it stands
+buys nothing. The driver runs as a *pure spacer* by design
+(`stroke_driver.py` docstring — every emitted sample is still re-raycast and
+applied host-side per dab). Closing the 2.7× means moving the whole per-dab
+loop (raycast + writeProps + `GridStroke_dab`) engine-side, which the
+adoption plan defers over the float32 `castRay` far-eye precision question —
+that is now the load-bearing design decision, not the spacing walk.
+
