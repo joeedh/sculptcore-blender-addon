@@ -4,7 +4,7 @@
 
 """
 Sidebar Tool-tab UI for the mode (Brush/Automasking/Symmetry/Dyntopo/
-Multires). Panels are gated by bl_context (the mode's idname, so they never
+Multires/Experimental). Panels are gated by bl_context (the mode's idname, so they never
 fight vanilla sculpt panels, whose context is ".sculpt_mode") and double as
 tool-header popovers through the custom-mode popover_group. They read the
 shared ``tool_settings.sculpt`` brush (brush-mapping decision 1). The
@@ -147,9 +147,7 @@ class SCULPTCORE_PT_dyntopo(bpy.types.Panel):
     """Vanilla VIEW3D_PT_sculpt_dyntopo's shape over Blender's own detail
     settings (which the stroke consumes via stroke.dyntopo_max_edge), plus
     the engine's remesh-cadence property. Omitted vs vanilla (allowlisted):
-    the sample-detail eyedropper and detail flood fill. It doubles as the
-    mode's dev panel — the Experimental section at the bottom is not dyntopo
-    state and is not gated on it."""
+    the sample-detail eyedropper and detail flood fill."""
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = _CATEGORY
@@ -203,11 +201,27 @@ class SCULPTCORE_PT_dyntopo(bpy.types.Panel):
         sub.prop(scene, "sculptcore_dyntopo_split_budget")
         sub.prop(scene, "sculptcore_dyntopo_collapse_budget")
 
-        # Off `col`: this is stroke-sampler state, live whether or not dyntopo
-        # is on.
-        layout.separator()
-        dev = layout.column(heading="Experimental")
-        dev.prop(scene, "sculptcore_cpp_stroke_driver")
+
+class SCULPTCORE_PT_experimental(bpy.types.Panel):
+    """The mode's dev panel: switches for engine paths still being validated
+    against the add-on's own. Each one is temporary — it goes away with the
+    path it replaces once that path is signed off."""
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = _CATEGORY
+    bl_context = _MODE_CONTEXT
+    bl_label = "Experimental"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    @classmethod
+    def poll(cls, context):
+        return _in_mode(context)
+
+    def draw(self, context):
+        layout = self.layout
+        layout.use_property_split = True
+        layout.use_property_decorate = False
+        layout.prop(context.scene, "sculptcore_cpp_stroke_driver")
 
 
 class SCULPTCORE_PT_boundary_uv(bpy.types.Panel):
@@ -316,6 +330,7 @@ _classes = (
     SCULPTCORE_PT_dyntopo,
     SCULPTCORE_PT_boundary_uv,
     SCULPTCORE_PT_multires,
+    SCULPTCORE_PT_experimental,
 )
 
 
