@@ -33,6 +33,32 @@ Working notes Claude maintains for this repository. See the top-level
   on *every* session (not just grids), the parity harness found and got fixed a
   NaN in the engine's `crToBezier`, and the in-viewport A/B checklist is still
   the sign-off gate.
+- [design/cpp-dab-loop.md](design/cpp-dab-loop.md)
+  — **Pressure-tested and revised 2026-08-10; not yet implemented.** Moving
+  the per-dab loop into the engine (`StrokeRunner` + flat `StrokeRun_*`
+  c-api), superseding the adoption plan's "sampler only" scope. The
+  four-lens adversarial pass reshaped it: the v1 "0.85 ms/dab removable"
+  headline was a stale pre-VBO-fix quotient (honest slice 0.2–0.33 ms/dab,
+  16–28 ms/stroke; ratio 2.7× → ~2.0–2.3×, floor ~1.8×), the ray section was rewritten to a
+  verbatim `view3d_utils` port (the shipped ortho ray *is* far-pushed; the
+  view matrix must ride the payload), two mid-stroke domain-fold UAFs got
+  generation guards, cancel/error contracts were added (never `_end` on
+  cancel; never mid-stroke Python fallback), the toggle is a NEW property
+  (old one deleted, not repurposed), and a cheaper variant B (numpy math +
+  batched capi calls, ~100 lines, 70–85% of the win) is recommended first.
+  §12 has the full finding table.
+- [research/non-operator-wall-attribution.md](research/non-operator-wall-attribution.md)
+  — **P-b resolved 2026-08-10: the ~28.7 ms/stroke of sc wall outside the
+  stroke operator is NOT a lever.** A span-timeline instrument
+  (`scripts/bench_multires_sc.py --wall-trace` + `scripts/analyze_walltrace.mjs`)
+  shows steady-state non-op wall is the single vsync-blocked present per
+  stroke (~15–18 ms) that native pays identically, plus a one-time
+  strokes-1–2 warm-up transient (~150 ms) and ~1 ms/stroke of draw. WM
+  dispatch between modal calls is ~0; depsgraph eval+handlers ~0.25 ms.
+  Also corrects two bench misreadings: `cycle_ms` spans push → the
+  *previous* content's present (events are handled the pass after the
+  push), and `sculpt_frames` is cumulative (the sculpt phase presents one
+  frame per stroke). Dab-loop implementation unblocked.
 - [plans/vertex-group-weights-attribute.md](plans/vertex-group-weights-attribute.md)
   — giving the engine ownership of Blender vertex-group weights as a sparse
   `AttrType::WEIGHTS` column (32-bit index into an interned, refcounted,

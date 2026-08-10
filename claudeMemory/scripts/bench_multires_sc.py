@@ -100,6 +100,11 @@ def parse_args():
     parser.add_argument("--paced-stroke", action="store_true",
                         help="Push one event per main-loop pass so every dab gets its own frame. "
                              "Required for a meaningful GPU trace -- see push_stroke's docstring")
+    parser.add_argument("--wall-trace", action="store_true",
+                        help="Record a timestamped span timeline (operator calls, draws, depsgraph "
+                             "evaluations, bench steps) for the sculpt phase, to attribute wall "
+                             "time that sits outside the operator. Works for both engines; the "
+                             "per-operator-call spans are SculptCore-only (native's modal is C++)")
     return parser.parse_args(argv)
 
 
@@ -251,6 +256,8 @@ class Timing:
             self.view_ms.append((now - self.pre) * 1000.0)
             if self.prev_post:
                 self.frame_ms.append((now - self.prev_post) * 1000.0)
+        if WALL is not None:
+            WALL.add("draw", self.pre, now)
         self.prev_post = now
         self.post = now
         self.frames += 1
@@ -262,6 +269,85 @@ class Timing:
 
 
 TIMING = Timing()
+
+
+class WallTrace:
+    """Raw span timeline for the sculpt phase.
+
+    Each record is ``[kind, t_ms, dur_ms]`` with ``t_ms`` relative to the base
+    stamped when the sculpt phase starts. Kinds:
+
+    - ``push``       a stroke's event burst entered the queue (dur 0)
+    - ``step``       the bench timer callback ran (dur = its own body)
+    - ``op:invoke`` / ``op:modal``  one operator call (SculptCore only)
+    - ``draw``       PRE_VIEW -> POST_PIXEL of one 3D view redraw
+    - ``dgeval``     depsgraph_update_pre -> _post bracket: the C-side
+                     evaluation plus every post handler
+    - ``dg``         the addon's own _on_depsgraph_update body
+
+    The gaps between these spans are the unattributed wall time -- WM event
+    dispatch, non-view3d drawing, buffer swap / vsync, and main-loop plumbing.
+    """
+
+    def __init__(self):
+        self.records = []
+        self.enabled = False
+        self.base = 0.0
+        self._dg_pre = 0.0
+        self._orig_dg = None
+
+    def add(self, kind, t_start, t_end):
+        if self.enabled:
+            self.records.append([kind, (t_start - self.base) * 1000.0,
+                                 (t_end - t_start) * 1000.0])
+
+    def start(self):
+        self.base = time.perf_counter()
+        self.enabled = True
+
+    def install(self):
+        bpy.app.handlers.depsgraph_update_pre.append(self._on_dg_pre)
+        bpy.app.handlers.depsgraph_update_post.append(self._on_dg_post)
+        try:
+            from sculptcore_addon import handlers as sc_handlers
+        except ImportError:
+            return
+        orig = sc_handlers._on_depsgraph_update
+        trace = self
+
+        # Swap the registered handler entry itself: the handler list holds a
+        # direct reference, so rebinding the module attribute alone would not
+        # reroute calls.
+        def dg_wrapper(scene, depsgraph=None):
+            t = time.perf_counter()
+            try:
+                return orig(scene, depsgraph)
+            finally:
+                trace.add("dg", t, time.perf_counter())
+
+        handler_list = bpy.app.handlers.depsgraph_update_post
+        if orig in handler_list:
+            handler_list[handler_list.index(orig)] = dg_wrapper
+            self._orig_dg = (handler_list, dg_wrapper, orig)
+
+    def _on_dg_pre(self, scene, depsgraph=None):
+        self._dg_pre = time.perf_counter()
+
+    def _on_dg_post(self, scene, depsgraph=None):
+        self.add("dgeval", self._dg_pre, time.perf_counter())
+
+    def restore(self):
+        for handler_list, fn in ((bpy.app.handlers.depsgraph_update_pre, self._on_dg_pre),
+                                 (bpy.app.handlers.depsgraph_update_post, self._on_dg_post)):
+            if fn in handler_list:
+                handler_list.remove(fn)
+        if self._orig_dg is not None:
+            handler_list, wrapper, orig = self._orig_dg
+            if wrapper in handler_list:
+                handler_list[handler_list.index(wrapper)] = orig
+
+
+WALL = WallTrace() if ARGS.wall_trace else None
 
 
 def stats(samples):
@@ -305,12 +391,17 @@ class OpProbe:
         # `_orig=orig` default leaves NULL slots in that tuple and segfaults
         # CPython. Capture through a closure factory instead.
         def make_wrapper(orig, is_invoke):
+            kind = "op:invoke" if is_invoke else "op:modal"
+
             def wrapper(self, context, event):
                 t = time.perf_counter()
                 try:
                     return orig(self, context, event)
                 finally:
-                    probe.op_ms += (time.perf_counter() - t) * 1000.0
+                    now = time.perf_counter()
+                    probe.op_ms += (now - t) * 1000.0
+                    if WALL is not None:
+                        WALL.add(kind, t, now)
                     if is_invoke:
                         probe.running = True
                     dabs = getattr(self, "_dab_count", None)
@@ -648,6 +739,15 @@ class Bench:
         self.t_phase = time.perf_counter()
 
     def step(self):
+        t_step = time.perf_counter()
+        try:
+            result = self._step_guarded()
+        finally:
+            if WALL is not None:
+                WALL.add("step", t_step, time.perf_counter())
+        return result
+
+    def _step_guarded(self):
         try:
             now = time.perf_counter()
             if now - self.last_log > 5.0:
@@ -691,6 +791,8 @@ class Bench:
                 for tracer in (TRACE, FUNCS, CAPI):
                     if tracer is not None:
                         tracer.enabled = True
+                if WALL is not None:
+                    WALL.start()
                 self.enter("sculpt")
             return YIELD
 
@@ -761,6 +863,8 @@ class Bench:
         TIMING.collect = True
         self.t_push = time.perf_counter()
         push_stroke(self.ctx["window"], points)
+        if WALL is not None:
+            WALL.add("push", self.t_push, self.t_push)
         self.count += 1
         self.pending = True
         self.tag()
@@ -820,6 +924,10 @@ class Bench:
             if tracer is not None:
                 tracer.enabled = False
                 RESULT[key] = tracer.report()
+        if WALL is not None:
+            WALL.enabled = False
+            RESULT["wall_trace"] = [[k, round(t, 3), round(d, 3)]
+                                    for k, t, d in WALL.records]
         if PROBE is not None:
             RESULT["stroke_ms"] = stats(self.op_ms)
             RESULT["dabs_per_stroke"] = stats(self.dabs)
@@ -885,7 +993,7 @@ def process_memory():
 
 def finish():
     RESULT["memory"] = process_memory()
-    for hook in (PROBE, TRACE, FUNCS, CAPI):
+    for hook in (PROBE, TRACE, FUNCS, CAPI, WALL):
         if hook is not None:
             try:
                 hook.restore()
@@ -944,6 +1052,8 @@ def main():
     for tracer in (TRACE, FUNCS, CAPI):
         if tracer is not None:
             tracer.install()
+    if WALL is not None:
+        WALL.install()
 
     bpy.types.SpaceView3D.draw_handler_add(TIMING.on_pre, (), 'WINDOW', 'PRE_VIEW')
     bpy.types.SpaceView3D.draw_handler_add(TIMING.on_post, (), 'WINDOW', 'POST_PIXEL')
