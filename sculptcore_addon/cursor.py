@@ -9,7 +9,7 @@ paint-cursor mechanism — the region redraws on every mouse move while the
 mode is active; coordinates arrive in region pixel space).
 """
 
-from . import engine
+from . import engine, mapping
 
 _shader = None
 _batch = None
@@ -56,8 +56,9 @@ def draw(context, x, y):
     brush = sculpt.brush
     if brush is None:
         return
-    unified = sculpt.unified_paint_settings
-    radius = (unified.size if unified.use_unified_size else brush.size) * _size_scale
+    # Pixel *radius* (Brush.size is a diameter) — #paint_cursor.cc scales the
+    # vanilla cursor by BKE_brush_radius_get too, so the ring matches the dab.
+    radius = mapping.pixel_radius(sculpt, brush) * _size_scale
 
     try:
         import gpu

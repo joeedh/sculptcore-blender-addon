@@ -767,8 +767,7 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
             # stroke; RELATIVE/BRUSH reduce to `factor * world_radius`,
             # re-applied per remesh dab (the radius is depth-dependent).
             sculpt_settings = context.tool_settings.sculpt
-            unified = sculpt_settings.unified_paint_settings
-            pixel_radius = unified.size if unified.use_unified_size else self.brush.size
+            pixel_radius = mapping.pixel_radius(sculpt_settings, self.brush)
             if sculpt_settings.detail_type_method in {'CONSTANT', 'MANUAL'}:
                 l_max = dyntopo_max_edge(sculpt_settings, ob, 0.0, pixel_radius,
                                          context.preferences.system.pixel_size)
@@ -891,10 +890,10 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
                     symmetry.reflect(self._anchor_normal, sign),
                     self._anchor_radius, accum_add=True)
         else:
-            pixel_size = unified.size if unified.use_unified_size else self.brush.size
+            pixel_r = mapping.pixel_radius(context.tool_settings.sculpt, self.brush)
             # Vanilla spacing is a percentage of the brush *diameter*:
             # radius * spacing / 50 (#paint_space_stroke_spacing).
-            step = max(self.brush.spacing, 1) / 50.0 * pixel_size
+            step = max(self.brush.spacing, 1) / 50.0 * pixel_r
             coord = (event.mouse_region_x, event.mouse_region_y)
             # Remember the last-move state so the trailing spline segment can be
             # flushed on release (the release event carries no spline context).
@@ -908,7 +907,7 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
                 stroke_driver.push_view(self._driver, context)
                 stroke_driver.push_event(
                     self._driver, coord, region_h, pressure=event.pressure,
-                    invert=invert, radius=pixel_size,
+                    invert=invert, radius=pixel_r,
                     spacing=max(self.brush.spacing, 1) / 100.0)
                 for dab in stroke_driver.poll_dabs(self._driver, region_h):
                     # Pressure and invert come from the driver: it interpolates
@@ -1396,12 +1395,11 @@ def _pixel_to_world_length(context, position, pixel_len):
 
 
 def _world_radius(context, brush, position):
-    """Object-space dab radius from the brush's pixel size at the dab
+    """Object-space dab radius from the brush's pixel radius at the dab
     location."""
-    unified = context.tool_settings.sculpt.unified_paint_settings
-    pixel_size = unified.size if unified.use_unified_size else brush.size
-    length = _pixel_to_world_length(context, position, pixel_size)
-    return length or (brush.unprojected_size or 1.0)
+    sculpt = context.tool_settings.sculpt
+    length = _pixel_to_world_length(context, position, mapping.pixel_radius(sculpt, brush))
+    return length or (mapping.unprojected_radius(brush) or 1.0)
 
 
 def register():

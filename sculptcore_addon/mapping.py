@@ -482,6 +482,34 @@ def overlap_attenuation(bl_brush):
     return 1.0 / peak if peak > 0.0 else 1.0
 
 
+def pixel_radius(sculpt, bl_brush):
+    """The dab radius in screen pixels — the port of #BKE_brush_radius_get.
+
+    ``Brush.size`` is a **diameter**: ``DNA_brush_types.h`` documents
+    ``unprojected_size`` as "diameter of the brush in Blender units", both RNA
+    properties are ``PROP_DISTANCE_DIAMETER``, and ``versioning_500.cc`` doubles
+    the field when reading pre-5.0 files. Native sculpt never reads it raw —
+    every consumer (``paint_stroke.cc``'s ``pixel_radius``, the spacing walk,
+    ``paint_cursor.cc``) goes through ``BKE_brush_radius_get()``, which halves
+    it. Taking ``.size`` for a radius makes every dab twice as wide as vanilla's
+    and so covers four times the area.
+    """
+    size = unified_size(sculpt, bl_brush)
+    return size / 2.0
+
+
+def unified_size(sculpt, bl_brush):
+    """The brush's pixel *diameter*, honouring the unified-size override."""
+    unified = sculpt.unified_paint_settings
+    return unified.size if unified.use_unified_size else bl_brush.size
+
+
+def unprojected_radius(bl_brush):
+    """Object-space fallback radius when a dab centre projects off-screen.
+    ``unprojected_size`` is a diameter too (#BKE_brush_unprojected_radius_get)."""
+    return bl_brush.unprojected_size / 2.0
+
+
 def apply_dab_state(bl_brush, unified, sc_brush, *, world_radius, invert,
                     strength_scale=1.0, strength_override=None,
                     allow_invert=True):
