@@ -264,6 +264,26 @@ class _CApi:
         lib.GridStroke_dab.argtypes = (
             [ctypes.c_void_p, ctypes.c_int] + [ctypes.c_float] * 6 + [ctypes.c_int])
         lib.GridStroke_dab.restype = ctypes.c_int
+        # Batched spaced-dab path (C++ dab loop, scene toggle): one raycast
+        # call + one dab call per pointer event instead of per dab.
+        u8p = np.ctypeslib.ndpointer(dtype=np.uint8, flags="C_CONTIGUOUS")
+        lib.GridStroke_castBatch.argtypes = [
+            ctypes.c_void_p, ctypes.c_int, f32p, f32p, u8p]
+        lib.GridStroke_castBatch.restype = ctypes.c_int
+        lib.GridStroke_dabBatch.argtypes = [
+            ctypes.c_void_p, ctypes.c_int, ctypes.c_int, f32p,
+            ctypes.c_float, ctypes.c_int, ctypes.c_float, ctypes.c_int,
+            f32p, ctypes.c_int]
+        lib.GridStroke_dabBatch.restype = ctypes.c_int
+        lib.MeshStroke_castBatch.argtypes = [
+            ctypes.c_void_p, ctypes.c_int, f32p, f32p, u8p]
+        lib.MeshStroke_castBatch.restype = ctypes.c_int
+        lib.MeshStroke_dabBatch.argtypes = [
+            ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p,
+            ctypes.c_int, ctypes.c_int, f32p,
+            ctypes.c_float, ctypes.c_int, ctypes.c_float, ctypes.c_int,
+            ctypes.c_float, f32p, ctypes.c_int]
+        lib.MeshStroke_dabBatch.restype = ctypes.c_int
         lib.GridStroke_end.argtypes = [ctypes.c_void_p]
         lib.GridStroke_end.restype = None
         lib.GridStroke_canUndo.argtypes = [ctypes.c_void_p]

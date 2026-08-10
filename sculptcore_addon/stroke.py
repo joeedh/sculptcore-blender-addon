@@ -10,9 +10,10 @@ Dabs are spaced along the 2D mouse path (interval = pixel radius x spacing /
 50 — vanilla's percentage-of-diameter semantics, residual carried across
 segments) and each spaced point is projected onto the surface, so stroke
 density is independent of both the mouse event rate and the surface deforming
-under the stroke. Two samplers implement that spacing identically: the Python
-StrokeSpacer below, and the engine's BrushStrokeDriver behind the
-``sculptcore_cpp_stroke_driver`` scene toggle (see ``stroke_driver``).
+under the stroke. The spacing walk is the Python StrokeSpacer below; behind
+the ``sculptcore_cpp_dab_loop`` scene toggle the emitted points of a plain
+spaced stroke are then resolved and applied engine-side, batched per pointer
+event (``_apply_batch``), instead of looped per dab through Python.
 The viewport updates through the external draw provider; the Mesh ID is
 written back lazily by the mode's flush callback (memfile encode / save /
 render), keeping dabs and stroke release free of the full Mesh write. The
@@ -23,7 +24,7 @@ is scriptable end-to-end.
 
 import bpy
 
-from . import (brush_policy, convert, cursor, engine, mapping, stroke_driver, stroke_math,
+from . import (brush_policy, convert, cursor, engine, mapping, stroke_math,
                symmetry, texture, undo)
 
 
@@ -711,13 +712,6 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         # Dab spacing along the stroke path (engine StrokeSpacer semantics:
         # interval = world radius x spacing fraction). Grab-class ignores it.
         self._spacer = StrokeSpacer()
-        # A/B: the engine's sampler in place of the spacer above. Only the
-        # spaced-dab path has one — grab anchors itself and anchored/drag-dot
-        # drive the preview API, neither of which walks a spline.
-        self._driver = None
-        if (not self._grab_class and not self._preview_method
-                and getattr(context.scene, "sculptcore_cpp_stroke_driver", False)):
-            self._driver = stroke_driver.make_driver()
         # Trailing-flush state, refreshed on every move (see _dab_at); defaults
         # cover a commit with no intervening move.
         self._last_invert = False
@@ -788,6 +782,31 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         elif smooth_factor > 0.0:
             self._program = build_program(self.session, self.kernel, smooth_factor)
 
+        # A/B (design/cpp-dab-loop.md, variant B): run the per-dab loop of a
+        # plain spaced stroke engine-side, batched per pointer event. Python
+        # keeps the spacer walk and ray synthesis; everything the flat batch
+        # cannot express — grab anchoring, preview dabs, snake hook's walking
+        # tip, multi-pass smooth, programs (autosmooth), dyntopo — stays on
+        # the per-dab path above.
+        self._batch = (not self._grab_class and not self._preview_method
+                       and not self._snake_hook and not self._smooth_stroke
+                       and self._program is None and self._dyntopo is None
+                       and getattr(scene, "sculptcore_cpp_dab_loop", False))
+        # Set when a batch call returns the engine's stroke-dead sentinel
+        # (stale grids domain); invoke/modal tear the stroke down through
+        # _finish rather than falling back mid-stroke.
+        self._engine_dead = False
+        if self._batch:
+            import numpy as np
+            self._mirror_flat = np.ascontiguousarray(
+                np.array(self._mirror_signs, dtype=np.float32).reshape(-1))
+            # The engine-side node filter widens to the kernel's field radius,
+            # same as brush_policy.filter_radius with no drag; latching never
+            # applies here (grab-class is excluded from the batch path).
+            self._filter_mul = (
+                float(_ensure_brush(self.session).unboundedExtent)
+                if brush_policy.for_kernel(self.kernel).unbounded else 1.0)
+
         # Anchored refuses a stroke that starts off the surface — checked before
         # opening the undo step, so a refusal leaves no empty step behind.
         if self._preview_method and self._stroke_method == 'ANCHORED':
@@ -831,13 +850,20 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         stroke_begin(self.session, has_dyntopo=self._dyntopo is not None,
                      accumulate=accumulate, anchored_grab=self._grab_class,
                      grids_kernel=grids_kernel)
-        context.window_manager.modal_handler_add(self)
-        # First dab at the invoke location.
+        # First dab at the invoke location — before the modal handler is
+        # registered, so an engine-refused first batch can still bail out with
+        # a plain CANCELLED return.
         self._publish_cursor_pressure(event.pressure)
         if self._preview_method:
             self._dab_preview(context, event)
         else:
             self._dab_at(context, event)
+            if self._engine_dead:
+                self.report({'WARNING'},
+                            "SculptCore: engine refused the stroke (stale "
+                            "multires domain); stroke cancelled")
+                return self._finish(context, 'CANCELLED')
+        context.window_manager.modal_handler_add(self)
         return {'RUNNING_MODAL'}
 
     def _dab_at(self, context, event):
@@ -900,22 +926,12 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
             self._last_invert = invert
             self._last_pressure = event.pressure
             self._last_spacing = step
-            if self._driver is not None:
-                # SCREEN mode walks spacing * 2 * radius, so the spacing
-                # fraction is /100 against the pixel radius, not /50.
-                region_h = context.region.height
-                stroke_driver.push_view(self._driver, context)
-                stroke_driver.push_event(
-                    self._driver, coord, region_h, pressure=event.pressure,
-                    invert=invert, radius=pixel_r,
-                    spacing=max(self.brush.spacing, 1) / 100.0)
-                for dab in stroke_driver.poll_dabs(self._driver, region_h):
-                    # Pressure and invert come from the driver: it interpolates
-                    # pressure along the segment, where the spacer path can
-                    # only reuse the arriving event's.
-                    self._apply_spaced_dab(context, dab.screen, dab.invert, dab.pressure)
+            points = self._spacer.add(coord, step)
+            if self._batch:
+                if points and not self._engine_dead:
+                    self._apply_batch(context, points, invert, event.pressure)
             else:
-                for point in self._spacer.add(coord, step):
+                for point in points:
                     self._apply_spaced_dab(context, point, invert, event.pressure)
 
         self._mid_redraw(context)
@@ -1108,22 +1124,92 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
                 snake_delta=(None if snake_delta is None
                              else symmetry.reflect(snake_delta, sign)))
 
+    def _apply_batch(self, context, points, invert, pressure):
+        """The C++ dab loop (``sculptcore_cpp_dab_loop``): resolve and apply
+        every spacer-emitted point of one pointer event in two flat engine
+        calls — a batch raycast and a dab batch — instead of one Python
+        round-trip per dab. Ray synthesis and the post-cast world radius use
+        the exact math of ``_apply_spaced_dab``; the engine side runs the same
+        prop-write / device-refill / apply / symmetry cycle per dab (see
+        ``GridStroke_dabBatch`` / ``MeshStroke_dabBatch``). A negative return
+        is the engine's stroke-dead sentinel (stale grids domain, §7 of the
+        design): flag it and let invoke/modal tear the stroke down — never
+        fall back to the Python path mid-stroke."""
+        import numpy as np
+
+        session = self.session
+        lib = engine.capi().lib
+        n = len(points)
+        rays = np.empty((n, 6), dtype=np.float32)
+        for i, point in enumerate(points):
+            origin, direction = _ray_origin_dir(context, point)
+            rays[i, 0:3] = origin
+            rays[i, 3:6] = direction
+        hits = np.zeros((n, 6), dtype=np.float32)
+        hit_mask = np.zeros(n, dtype=np.uint8)
+        grids = bool(session.last_stroke_grids and session.grid_ptr)
+        if grids:
+            hit_count = lib.GridStroke_castBatch(
+                session.grid_ptr, n, rays, hits, hit_mask)
+        else:
+            hit_count = lib.MeshStroke_castBatch(
+                session.tree().ptr, n, rays, hits, hit_mask)
+        if hit_count < 0:
+            self._engine_dead = True
+            return
+        if hit_count == 0:
+            return
+        # Per logical dab: the depth-dependent world radius (the one per-dab
+        # quantity Python still owns — it needs the region/view matrices) and
+        # the pivot fold, primaries only, as the per-dab path does.
+        dabs = np.empty((hit_count, 7), dtype=np.float32)
+        row = 0
+        for i in range(n):
+            if not hit_mask[i]:
+                continue
+            position = (float(hits[i, 0]), float(hits[i, 1]), float(hits[i, 2]))
+            self._track_pivot(position)
+            dabs[row, 0:6] = hits[i]
+            dabs[row, 6] = _world_radius(context, self.brush, position)
+            row += 1
+        # Strength/invert exactly as mapping.apply_dab_state folds them; both
+        # are constant across the event's batch (pressure reaches strength
+        # through the engine's device dynamics, not this scalar).
+        unified = context.tool_settings.sculpt.unified_paint_settings
+        strength = (unified.strength if unified.use_unified_strength
+                    else self.brush.strength) * self._overlap
+        sc_invert = bool(invert) ^ bool(self.brush.direction == 'SUBTRACT')
+        self._dab_count += hit_count * (1 + len(self._mirror_signs))
+        if grids:
+            moved = lib.GridStroke_dabBatch(
+                session.grid_ptr, int(self.kernel), hit_count, dabs,
+                strength, int(sc_invert), pressure, int(self._use_pressure),
+                self._mirror_flat, len(self._mirror_signs))
+        else:
+            moved = lib.MeshStroke_dabBatch(
+                _ensure_executor(session).ptr, session.tree().ptr,
+                session.mesh().ptr, _ensure_brush(session).ptr,
+                int(self.kernel), hit_count, dabs,
+                strength, int(sc_invert), pressure, int(self._use_pressure),
+                self._filter_mul, self._mirror_flat, len(self._mirror_signs))
+        if moved < 0:
+            self._engine_dead = True
+
     def _finish(self, context, status):
         ob = context.active_object
         cursor.set_size_scale(1.0)
         # On commit, flush the trailing spline segment held back by the
         # 1-segment lookahead (right-clamped); cancel drops it.
         if status == 'FINISHED' and not self._grab_class:
-            if self._driver is not None:
-                for dab in stroke_driver.flush_dabs(self._driver, context.region.height):
-                    self._apply_spaced_dab(context, dab.screen, dab.invert, dab.pressure)
+            points = self._spacer.flush(self._last_spacing)
+            if self._batch:
+                if points and not self._engine_dead:
+                    self._apply_batch(context, points, self._last_invert,
+                                      self._last_pressure)
             else:
-                for point in self._spacer.flush(self._last_spacing):
+                for point in points:
                     self._apply_spaced_dab(context, point, self._last_invert,
                                            self._last_pressure)
-        if self._driver is not None:
-            self._driver.dispose()
-            self._driver = None
         stroke_end(self.session)
         # Deferred write-back: with the draw provider active the viewport only
         # needs its GPU buffers; the Mesh ID syncs on demand through the
@@ -1137,7 +1223,8 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         # push its delta-undo step regardless of finish vs cancel.
         undo.push(context, ob, self.session)
         self._publish_pivot(context, ob)
-        context.area.tag_redraw()
+        if context.area:  # absent on cancel() teardown (window close)
+            context.area.tag_redraw()
         return {status}
 
     def _preview_apply_image(self, center, normal, world_radius, extend,
@@ -1281,7 +1368,8 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
             # A rolled-back preview left the mesh as the stroke found it, so it
             # gets no say in the pivot.
             self._publish_pivot(context, ob)
-        context.area.tag_redraw()
+        if context.area:  # absent on cancel() teardown (window close)
+            context.area.tag_redraw()
         return {'FINISHED' if commit else 'CANCELLED'}
 
     def _publish_cursor_pressure(self, pressure):
@@ -1300,6 +1388,11 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
                 self._dab_preview(context, event)
             else:
                 self._dab_at(context, event)
+                if self._engine_dead:
+                    self.report({'WARNING'},
+                                "SculptCore: engine refused the stroke (stale "
+                                "multires domain); stroke cancelled")
+                    return self._finish(context, 'CANCELLED')
             return {'RUNNING_MODAL'}
         if event.type == 'LEFTMOUSE' and event.value == 'RELEASE':
             if self._preview_method:
@@ -1310,6 +1403,16 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
                 return self._finish_preview(context, commit=False)
             return self._finish(context, 'CANCELLED')
         return {'RUNNING_MODAL'}
+
+    def cancel(self, context):
+        """System-side teardown — window close or a forced modal cancel, where
+        no release event will ever arrive. Same rollback path as ESC (the undo
+        step still lands for whatever dabs applied); Blender ignores the
+        return value here."""
+        if self._preview_method:
+            self._finish_preview(context, commit=False)
+        else:
+            self._finish(context, 'CANCELLED')
 
 
 def _ray_origin_dir(context, coord):

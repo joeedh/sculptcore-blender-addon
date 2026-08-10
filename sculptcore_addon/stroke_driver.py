@@ -7,9 +7,11 @@ The engine's C++ ``BrushStrokeDriver`` as the addon's stroke sampler.
 
 Owns the driver object and the Blender -> driver view conversion; nothing else
 in the addon should know about ``setViewRow`` conventions or the driver's
-top-left screen origin. The addon feeds raw pointer events in and gets evenly
-spaced dab points back out, replacing ``StrokeSpacer`` + ``stroke_math``
-(scene toggle ``sculptcore_cpp_stroke_driver``; see ``stroke._dab_at``).
+top-left screen origin. Raw pointer events go in and evenly spaced dab points
+come back out, replacing ``StrokeSpacer`` + ``stroke_math``. No longer wired
+into the stroke operator (the C++ dab loop batches the spacer's own points
+instead — ``stroke._apply_batch``); kept as the parity harness for the
+engine's sampler.
 
 Two conventions differ from Blender and are absorbed here:
 

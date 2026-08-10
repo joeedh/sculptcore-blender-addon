@@ -51,9 +51,15 @@ native ≈ 13 busy + ~16 present. Post-dab-loop: sc op busy ≈ 32 (engine dabs)
 + ~13 (`_finish`: undo push, draw refresh, pivot — kept) + invoke/begin ≈
 ~48, wall ≈ ~64 vs native ~30.
 
-- **(P-a)** re-profile the per-dab Python slice post-VBO-fix (the rig
-  exists; hours, not days) — firms up the 16–28 ms bound before code is
-  written. Still open.
+- **(P-a)** ~~re-profile the per-dab Python slice post-VBO-fix~~ — **DONE
+  2026-08-10** (`--engine-trace --profile` run,
+  `bench-sc/walltrace/wt-sc-trace-r1.json`): removable slice lands at
+  **~20–28 ms/stroke**, the upper half of the bound. Structure per stroke:
+  `apply_dab` 26 ms of which ~21 is the engine dab (kept); bpy RNA reads
+  ~9 ms; raycast ~6 ms over 151 spaced samples (44% miss — batch casting
+  covers misses too); curve eval ~4 ms; `_apply_spaced_dab`/dab-state
+  bodies ~8 ms. Kept work confirmed kept: `stroke_end` 7.3,
+  `draw_refresh` 8.4, `_mid_redraw` ~5, undo ~1 ms/stroke.
 - **(P-b)** ~~attribute the 28.7 ms/stroke non-operator wall~~ — **DONE
   2026-08-10, not a lever** (vsync present shared with native + warm-up
   transient). Dab-loop implementation is unblocked.

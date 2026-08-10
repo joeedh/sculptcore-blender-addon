@@ -80,7 +80,7 @@ def parse_args():
     parser.add_argument("--stroke-steps", type=int, default=20, help="Move events per stroke")
     parser.add_argument("--undo-steps", type=int, default=8, help="Cap the undo stack")
     parser.add_argument("--cpp-driver", action="store_true",
-                        help="Enable the sculptcore_cpp_stroke_driver scene toggle (SculptCore only)")
+                        help="Enable the sculptcore_cpp_dab_loop scene toggle (SculptCore only)")
     parser.add_argument("--profile", action="store_true",
                         help="cProfile the sculpt phase (SculptCore only; Python-side cost)")
     parser.add_argument("--engine-trace", action="store_true",
@@ -202,7 +202,7 @@ def enter_mode(engine):
         bpy.ops.object.mode_set(mode='SCULPT')
     else:
         if ARGS.cpp_driver:
-            bpy.context.scene.sculptcore_cpp_stroke_driver = True
+            bpy.context.scene.sculptcore_cpp_dab_loop = True
         bpy.ops.object.custom_mode_toggle(mode_id="sculptcore.sculpt")
         ob = bpy.context.active_object
         if ob.mode != 'CUSTOM' or ob.custom_mode != "sculptcore.sculpt":

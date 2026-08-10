@@ -221,7 +221,7 @@ class SCULPTCORE_PT_experimental(bpy.types.Panel):
         layout = self.layout
         layout.use_property_split = True
         layout.use_property_decorate = False
-        layout.prop(context.scene, "sculptcore_cpp_stroke_driver")
+        layout.prop(context.scene, "sculptcore_cpp_dab_loop")
 
 
 class SCULPTCORE_PT_boundary_uv(bpy.types.Panel):

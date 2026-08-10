@@ -126,13 +126,14 @@ def register():
         max=0.25,
         subtype='FACTOR',
     )
-    # A/B switch while the C++ sampler is validated against the Python one
-    # (stroke_driver, plans/cpp-stroke-driver-adoption). Off until sign-off,
-    # after which the Python spacer and this toggle both go away.
-    bpy.types.Scene.sculptcore_cpp_stroke_driver = bpy.props.BoolProperty(
-        name="C++ Stroke Driver",
-        description="Space dabs with the engine's BrushStrokeDriver instead of "
-                    "the add-on's Python spacer (experimental)",
+    # A/B switch while the engine-side dab loop is validated against the
+    # per-dab Python path (design/cpp-dab-loop.md variant B). Off until
+    # sign-off, after which the per-dab Python path and this toggle go away.
+    bpy.types.Scene.sculptcore_cpp_dab_loop = bpy.props.BoolProperty(
+        name="C++ Dab Loop",
+        description="Run the per-dab raycast/apply loop of plain spaced "
+                    "strokes in the engine, batched per pointer event, "
+                    "instead of per dab through Python (experimental)",
         default=False,
     )
 
@@ -150,4 +151,4 @@ def unregister():
     del bpy.types.Scene.sculptcore_dyntopo_collapse_budget
     del bpy.types.Scene.sculptcore_reproject_uvs
     del bpy.types.Scene.sculptcore_uv_margin
-    del bpy.types.Scene.sculptcore_cpp_stroke_driver
+    del bpy.types.Scene.sculptcore_cpp_dab_loop
