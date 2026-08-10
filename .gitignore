@@ -16,3 +16,7 @@ __pycache__/
 # Raw bench output (JSON per run); the rig is committed, the samples are not.
 /claudeMemory/scripts/bench-results*/
 /claudeMemory/scripts/bench-sc/
+
+# GPU-trace A/B output: the JSON summaries are committed, the RenderDoc
+# captures they were derived from (~4-8 MB per .rdc) are not.
+/claudeMemory/scripts/gpu-trace-results*/captures/

@@ -44,6 +44,7 @@ multires evaluates to CCG grids so vertex counts are read in object mode).
 
 import importlib
 import json
+import os
 import sys
 import time
 import traceback
@@ -88,6 +89,17 @@ def parse_args():
                              "plus the C++ work cProfile cannot see into.")
     parser.add_argument("--timeout", type=float, default=900.0,
                         help="Abort and write partial results after this many seconds")
+    parser.add_argument("--gpu-trace", type=int, default=0, metavar="N",
+                        help="Capture N frames with RenderDoc during the sculpt phase. Requires "
+                             "launching under 'renderdoccmd capture'; fails loudly if not hooked")
+    parser.add_argument("--trace-after-strokes", type=int, default=3,
+                        help="Warm strokes to run before the capture is armed, so first-use GPU "
+                             "buffer and shader creation is not what gets traced")
+    parser.add_argument("--capture-dir", default="",
+                        help="Directory to write .rdc captures into (default: beside --out)")
+    parser.add_argument("--paced-stroke", action="store_true",
+                        help="Push one event per main-loop pass so every dab gets its own frame. "
+                             "Required for a meaningful GPU trace -- see push_stroke's docstring")
     return parser.parse_args(argv)
 
 
@@ -508,6 +520,30 @@ class CApiTrace(FuncTrace):
 
 CAPI = CApiTrace() if (ARGS.engine_trace and ARGS.engine == "sculptcore") else None
 
+# Set by connect_capture() when --gpu-trace is on; None otherwise.
+CAPTURE = None
+
+
+def connect_capture():
+    """Attach to the RenderDoc hook, or raise.
+
+    Called before the scene is built so a run that was launched without
+    ``renderdoccmd capture`` fails in a second rather than after a minute of
+    multires subdivision. gpu_trace lives beside this script; Blender's
+    ``--python`` does set ``__file__``, unlike qrenderdoc's embedded exec.
+    """
+    global CAPTURE
+
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import gpu_trace
+
+    CAPTURE = gpu_trace.Capture.connect()
+    out_dir = ARGS.capture_dir or os.path.join(os.path.dirname(os.path.abspath(ARGS.out)), "captures")
+    prefix = "{}-{}".format(ARGS.label or "bench", ARGS.engine)
+    template = CAPTURE.configure(out_dir, prefix)
+    RESULT["renderdoc"] = {"version": "{}.{}.{}".format(*CAPTURE.version), "template": template}
+    log("RenderDoc {}.{}.{} hooked; captures -> {}".format(*(CAPTURE.version + (template,))))
+
 
 # ---------------------------------------------------------------------------
 # Event-driven stroke
@@ -529,6 +565,20 @@ def stroke_points(ctx, num_steps, flip):
     return [start + delta * i for i in range(num_steps)]
 
 
+def stroke_events(points):
+    """The ``(type, value, point)`` sequence for one press / move.../release stroke."""
+    first, last = points[0], points[-1]
+    events = [('MOUSEMOVE', 'NOTHING', first), ('LEFTMOUSE', 'PRESS', first)]
+    events.extend(('MOUSEMOVE', 'NOTHING', point) for point in points[1:])
+    events.append(('LEFTMOUSE', 'RELEASE', last))
+    return events
+
+
+def push_event(window, event):
+    kind, value, point = event
+    window.event_simulate(type=kind, value=value, x=int(point.x), y=int(point.y))
+
+
 def push_stroke(window, points):
     """One press / move.../release burst into the window's event queue.
 
@@ -536,14 +586,16 @@ def push_stroke(window, points):
     that follows is the one the whole stroke dirtied. event_simulate appends via
     WM_event_add (not wm_event_add_mousemove), so no move is demoted to
     INBETWEEN_MOUSEMOVE -- both engines see every sample.
+
+    That single-pass property is what makes this the right shape for throughput
+    (it is why ``sculpt_phase_ms`` is honest) and the *wrong* shape for a GPU
+    trace: a whole stroke collapses into roughly one redraw, so a capture sees
+    one frame carrying twenty dabs' worth of deferred work rather than the
+    per-dab frames a real stroke produces. ``--paced-stroke`` pushes these same
+    events one per main-loop pass instead, which is what the trace mode uses.
     """
-    first = points[0]
-    window.event_simulate(type='MOUSEMOVE', value='NOTHING', x=int(first.x), y=int(first.y))
-    window.event_simulate(type='LEFTMOUSE', value='PRESS', x=int(first.x), y=int(first.y))
-    for point in points[1:]:
-        window.event_simulate(type='MOUSEMOVE', value='NOTHING', x=int(point.x), y=int(point.y))
-    last = points[-1]
-    window.event_simulate(type='LEFTMOUSE', value='RELEASE', x=int(last.x), y=int(last.y))
+    for event in stroke_events(points):
+        push_event(window, event)
 
 
 # ---------------------------------------------------------------------------
@@ -568,6 +620,24 @@ class Bench:
         self.t_phase = self.t_start
         self.last_log = 0.0
         self.profiler = None
+
+        # Paced-stroke cursor: None until the first stroke is built, then the
+        # remaining events of the stroke in flight.
+        self.events = None
+
+        self.capture_armed = False
+        self.captures_before = 0
+        self.drain_passes = 0
+        # Never arm more frames than the post-warmup strokes will actually
+        # present: TriggerMultiFrameCapture takes the next N presents whatever
+        # they contain, so an over-long arm spills onto idle frames and quietly
+        # averages non-sculpt frames into the trace.
+        per_stroke_frames = (ARGS.stroke_steps + 2) if ARGS.paced_stroke else 1
+        available = max(0, ARGS.strokes - ARGS.trace_after_strokes) * per_stroke_frames
+        self.capture_target = min(ARGS.gpu_trace, available)
+        if ARGS.gpu_trace and self.capture_target < ARGS.gpu_trace:
+            log("clamped --gpu-trace {} -> {} (only {} stroke frames follow warmup)".format(
+                ARGS.gpu_trace, self.capture_target, available))
 
     def tag(self):
         self.ctx["region"].tag_redraw()
@@ -625,61 +695,156 @@ class Bench:
             return YIELD
 
         if self.phase == "sculpt":
-            if self.pending:
-                if TIMING.post > self.t_push:
-                    self.cycle_ms.append((TIMING.post - self.t_push) * 1000.0)
-                    if PROBE is not None:
-                        ms, dabs = PROBE.take()
-                        self.op_ms.append(ms)
-                        self.dabs.append(dabs)
-                    self.pending = False
-                else:
-                    self.tag()
-                    return YIELD
+            if ARGS.paced_stroke:
+                return self._step_sculpt_paced()
+            return self._step_sculpt_burst()
 
-            if self.count >= ARGS.strokes:
-                TIMING.collect = False
-                if self.profiler is not None:
-                    self.profiler.disable()
-                    RESULT["profile"] = format_profile(self.profiler)
-                # Engine-agnostic throughput: cycle_ms only spans the leading
-                # edge of a stroke (push -> first redraw), and stroke_ms needs
-                # the operator probe, which native sculpt has no equivalent of.
-                RESULT["sculpt_phase_ms"] = (time.perf_counter() - self.t_phase) * 1000.0
-                RESULT["sculpt_frames"] = TIMING.frames
-                RESULT["cycle_ms"] = stats(self.cycle_ms)
-                RESULT["sculpt_view_ms"] = stats(TIMING.view_ms)
-                for key, tracer in (("engine_trace", TRACE), ("func_trace", FUNCS),
-                                    ("capi_trace", CAPI)):
-                    if tracer is not None:
-                        tracer.enabled = False
-                        RESULT[key] = tracer.report()
-                if PROBE is not None:
-                    RESULT["stroke_ms"] = stats(self.op_ms)
-                    RESULT["dabs_per_stroke"] = stats(self.dabs)
-                    RESULT["strokes_finished"] = PROBE.finished
-                RESULT["undo_memory"] = bpy.app.memory_usage_undo()
-                # Read the surface in object mode: multires displacement lives in
-                # the grids, and the base cage stays flat by design.
-                leave_mode(ARGS.engine)
-                RESULT["surface_after"] = surface_state()
-                log("after: verts={} peak_z={:.5f}".format(
-                    RESULT["surface_after"]["verts"], RESULT["surface_after"]["peak_z"]))
-                self.enter("done")
-                return YIELD
-
-            points = stroke_points(self.ctx, ARGS.stroke_steps, self.flip)
-            self.flip = not self.flip
-            TIMING.collect = True
-            self.t_push = time.perf_counter()
-            push_stroke(self.ctx["window"], points)
-            self.count += 1
-            self.pending = True
+        if self.phase == "drain_capture":
+            # Safety net only: TriggerMultiFrameCapture is armed with a frame
+            # count the remaining strokes are guaranteed to cover (see
+            # arm_capture), so this normally exits on the first pass. If it ever
+            # has to spin, the frames it captures are idle ones and the log line
+            # below is the warning that the trace is polluted.
+            self.drain_passes += 1
+            written = CAPTURE.num_captures() - self.captures_before
+            if written >= self.capture_target or self.drain_passes > 240:
+                if written < self.capture_target:
+                    log("WARNING: capture drained on idle frames -- got {}/{}".format(
+                        written, self.capture_target))
+                return self._finalize()
             self.tag()
             return YIELD
 
         finish()
         return None
+
+    # -- sculpt phase -------------------------------------------------------
+
+    def arm_capture(self):
+        """Arm the RenderDoc capture once the engine is warm.
+
+        Deliberately not at stroke 0: the first stroke pays for lazy GPU buffer
+        creation and shader compilation in both engines, and tracing that
+        measures startup rather than steady-state sculpting.
+        """
+        if CAPTURE is None or self.capture_armed or not self.capture_target:
+            return
+        if self.count < ARGS.trace_after_strokes:
+            return
+        self.captures_before = CAPTURE.num_captures()
+        CAPTURE.set_title("{} {} grid={} level={}".format(
+            ARGS.label or "bench", ARGS.engine, ARGS.grid, ARGS.level))
+        CAPTURE.trigger_multi(self.capture_target)
+        self.capture_armed = True
+        log("armed RenderDoc capture: {} frames from stroke {}".format(
+            self.capture_target, self.count))
+
+    def _step_sculpt_burst(self):
+        if self.pending:
+            if TIMING.post > self.t_push:
+                self.cycle_ms.append((TIMING.post - self.t_push) * 1000.0)
+                if PROBE is not None:
+                    ms, dabs = PROBE.take()
+                    self.op_ms.append(ms)
+                    self.dabs.append(dabs)
+                self.pending = False
+            else:
+                self.tag()
+                return YIELD
+
+        if self.count >= ARGS.strokes:
+            return self._finish_sculpt()
+
+        self.arm_capture()
+        points = stroke_points(self.ctx, ARGS.stroke_steps, self.flip)
+        self.flip = not self.flip
+        TIMING.collect = True
+        self.t_push = time.perf_counter()
+        push_stroke(self.ctx["window"], points)
+        self.count += 1
+        self.pending = True
+        self.tag()
+        return YIELD
+
+    def _step_sculpt_paced(self):
+        """One event per main-loop pass, so every dab gets its own frame.
+
+        ``wm_event_do_handlers`` drains the queue once per pass, so a single
+        queued event is handled alone and the redraw that follows belongs to
+        that dab. ``cycle_ms`` is therefore per-dab latency in this mode rather
+        than per-stroke -- which is both what an interactive stroke feels like
+        and what makes each captured frame attributable to one dab.
+        """
+        if self.pending:
+            if TIMING.post <= self.t_push:
+                self.tag()
+                return YIELD
+            self.cycle_ms.append((TIMING.post - self.t_push) * 1000.0)
+            self.pending = False
+
+        if not self.events:
+            if self.events is not None:
+                # The stroke just drained; PROBE accumulates across its events.
+                self.count += 1
+                if PROBE is not None:
+                    ms, dabs = PROBE.take()
+                    self.op_ms.append(ms)
+                    self.dabs.append(dabs)
+            if self.count >= ARGS.strokes:
+                return self._finish_sculpt()
+            self.arm_capture()
+            self.events = stroke_events(stroke_points(self.ctx, ARGS.stroke_steps, self.flip))
+            self.flip = not self.flip
+
+        TIMING.collect = True
+        self.t_push = time.perf_counter()
+        push_event(self.ctx["window"], self.events.pop(0))
+        self.pending = True
+        self.tag()
+        return YIELD
+
+    def _finish_sculpt(self):
+        TIMING.collect = False
+        if self.profiler is not None:
+            self.profiler.disable()
+            RESULT["profile"] = format_profile(self.profiler)
+        # Engine-agnostic throughput: cycle_ms only spans the leading
+        # edge of a stroke (push -> first redraw), and stroke_ms needs
+        # the operator probe, which native sculpt has no equivalent of.
+        RESULT["sculpt_phase_ms"] = (time.perf_counter() - self.t_phase) * 1000.0
+        RESULT["sculpt_frames"] = TIMING.frames
+        RESULT["cycle_ms"] = stats(self.cycle_ms)
+        RESULT["sculpt_view_ms"] = stats(TIMING.view_ms)
+        for key, tracer in (("engine_trace", TRACE), ("func_trace", FUNCS),
+                            ("capi_trace", CAPI)):
+            if tracer is not None:
+                tracer.enabled = False
+                RESULT[key] = tracer.report()
+        if PROBE is not None:
+            RESULT["stroke_ms"] = stats(self.op_ms)
+            RESULT["dabs_per_stroke"] = stats(self.dabs)
+            RESULT["strokes_finished"] = PROBE.finished
+
+        # Stay in the mode while captures are still outstanding: leaving it
+        # would draw (and capture) object-mode frames.
+        if CAPTURE is not None and self.capture_armed:
+            self.enter("drain_capture")
+            return YIELD
+        return self._finalize()
+
+    def _finalize(self):
+        RESULT["undo_memory"] = bpy.app.memory_usage_undo()
+        if CAPTURE is not None:
+            RESULT["captures"] = CAPTURE.captures()[self.captures_before:]
+            log("wrote {} captures".format(len(RESULT["captures"])))
+        # Read the surface in object mode: multires displacement lives in
+        # the grids, and the base cage stays flat by design.
+        leave_mode(ARGS.engine)
+        RESULT["surface_after"] = surface_state()
+        log("after: verts={} peak_z={:.5f}".format(
+            RESULT["surface_after"]["verts"], RESULT["surface_after"]["peak_z"]))
+        self.enter("done")
+        return YIELD
 
 
 def format_profile(profiler, limit=40):
@@ -745,6 +910,9 @@ def finish():
 def main():
     if not (bpy.app.use_event_simulate if hasattr(bpy.app, "use_event_simulate") else True):
         raise RuntimeError("run Blender with --enable-event-simulate")
+
+    if ARGS.gpu_trace:
+        connect_capture()
 
     bpy.context.preferences.edit.undo_steps = ARGS.undo_steps
     # A cursor overlay redraw per mouse move would be timed as stroke cost in one
