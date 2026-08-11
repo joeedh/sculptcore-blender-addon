@@ -28,7 +28,34 @@
   extdraw block is mode-agnostic, so the whole suite passes under
   `SC_GRIDS_INDEXED=0` too.
 
-**Status: Stages 1–2 implemented (2026-08-10); Stage 3 measurement pending.** Written 2026-08-10 from code reading of
+## Stage-3 results (2026-08-10) — all gates passed
+
+Interleaved RenderDoc A/B (two rounds of native→sculptcore, 12 frames/arm,
+1M faces at L4, OpenGL, paced stroke):
+
+- **Call type**: the grid nodes draw as `glDrawElementsIndirect` with
+  RenderDoc's `Indexed` action flag set (verified per-drawcall from a raw
+  capture dump, not from `top_actions` — the indexed grid draws are cheap
+  enough that they mostly *drop out* of the analyzer's per-frame top-15,
+  which is dominated by unrelated `glDrawArrays*` overlay/scene draws; the
+  aggregate "draw vertices" column also cannot distinguish the modes, since
+  an indexed node's index count equals the old soup's corner count).
+- **GPU frame (median)**: sculptcore **4.10 / 4.04 ms** vs native
+  **4.75 / 4.78 ms** across the two rounds (drawcall GPU 3.16 vs 3.86/3.77) —
+  the sculptcore arm now *beats* native by ~0.7 ms, versus the pre-plan +1 ms
+  deficit. The ≲0.3 ms gate is passed with the sign flipped; the <0.5 ms
+  keep-on-memory-grounds decision point is moot.
+- **peak_z**: bit-identical between the soup DLL and the indexed DLL under
+  the identical headless-driven bench (`0.013884586282074451` =
+  `0x1.c6f85a0000000p-7`, 1018081 verts, 5 strokes).
+- **stroke_ms**: no regression — median 48.2 → 46.0 ms, per-dab cycle
+  16.2 → 12.4 ms (same bench pair; small n, direction confirmed by the
+  interleaved trace's per-dab cycle 7.3 native vs 3.2–3.5 sculptcore).
+
+`SC_GRIDS_INDEXED=0` remains the rollback lever. Stage 4 (draw-node autotune
+re-sweep) stays optional.
+
+**Status: Stages 1–3 complete (2026-08-10); indexed draws are on by default.** Written 2026-08-10 from code reading of
 engine `GridDrawSource`, the extdraw ABI on both sides of the repo seam, the
 fork's `draw_external.cc` upload path, and native `draw_pbvh.cc`'s grid index
 buffers. Everything cited was read in source at the given lines; the few
