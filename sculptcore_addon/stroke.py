@@ -848,26 +848,18 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         # plain spaced stroke engine-side, batched per pointer event. Python
         # keeps the spacer walk and ray synthesis; everything the flat batch
         # cannot express — grab anchoring, preview dabs, snake hook's walking
-        # tip, multi-pass smooth, programs (autosmooth), dyntopo — stays on
-        # the per-dab path above.
-        self._batch = (not self._grab_class and not self._preview_method
-                       and not self._snake_hook and not self._smooth_stroke
-                       and self._program is None and self._dyntopo is None
-                       and getattr(scene, "sculptcore_cpp_dab_loop", False))
+        # tip, multi-pass smooth, dyntopo — stays on the per-dab path above.
+        # Programs are batchable on grids only (S4), which isn't known until
+        # stroke_begin resolves the domain, so the final gate lands below.
+        self._batch_want = (not self._grab_class and not self._preview_method
+                            and not self._snake_hook and not self._smooth_stroke
+                            and self._dyntopo is None
+                            and getattr(scene, "sculptcore_cpp_dab_loop", False))
+        self._batch = False
         # Set when a batch call returns the engine's stroke-dead sentinel
         # (stale grids domain); invoke/modal tear the stroke down through
         # _finish rather than falling back mid-stroke.
         self._engine_dead = False
-        if self._batch:
-            import numpy as np
-            self._mirror_flat = np.ascontiguousarray(
-                np.array(self._mirror_signs, dtype=np.float32).reshape(-1))
-            # The engine-side node filter widens to the kernel's field radius,
-            # same as brush_policy.filter_radius with no drag; latching never
-            # applies here (grab-class is excluded from the batch path).
-            self._filter_mul = (
-                float(_ensure_brush(self.session).unboundedExtent)
-                if brush_policy.for_kernel(self.kernel).unbounded else 1.0)
 
         # Anchored refuses a stroke that starts off the surface — checked before
         # opening the undo step, so a refusal leaves no empty step behind.
@@ -917,6 +909,21 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         stroke_begin(self.session, has_dyntopo=self._dyntopo is not None,
                      accumulate=accumulate, anchored_grab=self._grab_class,
                      grids_kernel=grids_kernel)
+        # Final batch gate: a program stroke batches only when it landed on
+        # the grids path (GridStroke_dabBatchProgram); mesh+program stays
+        # per-dab until S5.
+        self._batch = self._batch_want and (
+            self._program is None or bool(self.session.last_stroke_grids))
+        if self._batch:
+            import numpy as np
+            self._mirror_flat = np.ascontiguousarray(
+                np.array(self._mirror_signs, dtype=np.float32).reshape(-1))
+            # The engine-side node filter widens to the kernel's field radius,
+            # same as brush_policy.filter_radius with no drag; latching never
+            # applies here (grab-class is excluded from the batch path).
+            self._filter_mul = (
+                float(_ensure_brush(self.session).unboundedExtent)
+                if brush_policy.for_kernel(self.kernel).unbounded else 1.0)
         # First dab at the invoke location — before the modal handler is
         # registered, so an engine-refused first batch can still bail out with
         # a plain CANCELLED return.
@@ -1259,7 +1266,12 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
                     else self.brush.strength) * self._overlap
         sc_invert = bool(invert) ^ bool(self.brush.direction == 'SUBTRACT')
         self._dab_count += hit_count * (1 + len(self._mirror_signs))
-        if grids:
+        if grids and self._program is not None:
+            moved = lib.GridStroke_dabBatchProgram(
+                session.grid_ptr, self._program.ptr, hit_count, dabs,
+                strength, int(sc_invert), pressure, int(self._use_pressure),
+                self._mirror_flat, len(self._mirror_signs))
+        elif grids:
             moved = lib.GridStroke_dabBatch(
                 session.grid_ptr, int(self.kernel), hit_count, dabs,
                 strength, int(sc_invert), pressure, int(self._use_pressure),

@@ -281,6 +281,13 @@ class _CApi:
             ctypes.c_float, ctypes.c_int, ctypes.c_float, ctypes.c_int,
             f32p, ctypes.c_int]
         lib.GridStroke_dabBatch.restype = ctypes.c_int
+        # Program variant of the dab batch: a BrushProgram pointer instead of
+        # a tool id (autosmooth's [main, BSMOOTH] in the C++ dab loop).
+        lib.GridStroke_dabBatchProgram.argtypes = [
+            ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int, f32p,
+            ctypes.c_float, ctypes.c_int, ctypes.c_float, ctypes.c_int,
+            f32p, ctypes.c_int]
+        lib.GridStroke_dabBatchProgram.restype = ctypes.c_int
         lib.MeshStroke_castBatch.argtypes = [
             ctypes.c_void_p, ctypes.c_int, f32p, f32p, u8p]
         lib.MeshStroke_castBatch.restype = ctypes.c_int
