@@ -27,6 +27,38 @@ import bpy
 from . import (brush_policy, convert, cursor, engine, mapping, stroke_math,
                symmetry, texture, undo)
 
+# Frames presented in any 3D viewport, counted by a draw handler that lives
+# only while a stroke runs (see _draw_counter_push/_pop). The mid-stroke
+# refresh cadence gates on it: a refresh whose predecessor no frame has
+# consumed yet is pure waste — the provider re-fills the same dirty nodes and
+# only the fill current at draw time is ever uploaded. Wall-clock (30 Hz)
+# alone over-refreshes exactly when it hurts: event floods and frame-bound
+# heavy scenes.
+_frames_presented = 0
+_draw_counter_handle = None
+_draw_counter_strokes = 0
+
+
+def _on_viewport_draw():
+    global _frames_presented
+    _frames_presented += 1
+
+
+def _draw_counter_push():
+    global _draw_counter_handle, _draw_counter_strokes
+    _draw_counter_strokes += 1
+    if _draw_counter_handle is None:
+        _draw_counter_handle = bpy.types.SpaceView3D.draw_handler_add(
+            _on_viewport_draw, (), 'WINDOW', 'POST_PIXEL')
+
+
+def _draw_counter_pop():
+    global _draw_counter_handle, _draw_counter_strokes
+    _draw_counter_strokes = max(0, _draw_counter_strokes - 1)
+    if _draw_counter_strokes == 0 and _draw_counter_handle is not None:
+        bpy.types.SpaceView3D.draw_handler_remove(_draw_counter_handle, 'WINDOW')
+        _draw_counter_handle = None
+
 
 def _float3(mgr, x, y, z):
     v = mgr.construct("litestl::math::float3")
@@ -621,6 +653,11 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
             return {'CANCELLED'}
 
         self._last_flush = 0.0
+        # Gate closed at stroke start: the first refresh waits for the frame
+        # the invoke's own tag_redraw requests (≤ one frame period), keeping
+        # the invariant one refresh per presented frame from dab one.
+        self._flush_frame = _frames_presented
+        _draw_counter_push()
         self._dab_count = 0
         # Object-space running sum of this stroke's dab centers; written to
         # Paint.stroke_pivot (world space) at stroke end so the viewport orbits
@@ -816,6 +853,7 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
             if a_hit is None:
                 self.report({'WARNING'},
                             "SculptCore: anchored stroke must start on the surface")
+                _draw_counter_pop()
                 return {'CANCELLED'}
             self._anchor = a_hit[0]
             self._anchor_normal = a_hit[1]
@@ -943,7 +981,13 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         where the viewport draws the Mesh itself."""
         import time
         now = time.monotonic()
-        if now - self._last_flush > 1.0 / 30.0:
+        # Cadence: wall-clock throttle AND a frame consumed the last refresh.
+        # Above 30 fps the frame gate never engages (a frame always presents
+        # between two 33 ms throttle passes); it sheds refreshes only when
+        # events outrun frames — event floods and frame-bound heavy scenes —
+        # where a refill no frame reads is provably wasted work.
+        if (now - self._last_flush > 1.0 / 30.0
+                and _frames_presented != self._flush_frame):
             # Deferred grids normals resolve at the same cadence the provider
             # re-uploads, so shading and geometry stay in step.
             if self.session.last_stroke_grids and self.session.grid_ptr:
@@ -953,6 +997,7 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
             else:
                 convert.flush(context.active_object)
             self._last_flush = now
+            self._flush_frame = _frames_presented
         context.area.tag_redraw()
 
     def _track_pivot(self, position):
@@ -1197,6 +1242,7 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
 
     def _finish(self, context, status):
         ob = context.active_object
+        _draw_counter_pop()
         cursor.set_size_scale(1.0)
         # On commit, flush the trailing spline segment held back by the
         # 1-segment lookahead (right-clamped); cancel drops it.
@@ -1351,6 +1397,7 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         pushes an undo step; cancel rolls it back and pushes nothing (the mesh
         is left exactly as the stroke began)."""
         ob = context.active_object
+        _draw_counter_pop()
         cursor.set_size_scale(1.0)
         executor = _ensure_executor(self.session)
         if executor.previewActive():
