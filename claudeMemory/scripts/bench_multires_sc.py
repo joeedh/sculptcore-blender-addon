@@ -98,7 +98,10 @@ def parse_args():
     parser.add_argument("--level", type=int, default=4, help="Multires subdivision depth")
     parser.add_argument("--mode", choices=("multires", "mesh"), default="multires",
                         help="'mesh' is the control: the same vertex count with no multires stack")
-    parser.add_argument("--brush", default="Draw", help="Essentials brush asset name")
+    parser.add_argument("--brush", default="Clay",
+                        help="Essentials brush asset name. Clay is the default because it is the "
+                             "user-reported gap scenario: its default autosmooth routes the "
+                             "SculptCore stroke through the program (mesh-materialized) path")
     parser.add_argument("--brush-size", type=int, default=50, help="Brush radius in pixels")
     parser.add_argument("--warmup", type=int, default=20, help="Frames to discard before each phase")
     parser.add_argument("--idle-frames", type=int, default=60, help="Frames to time with no edits")
@@ -257,8 +260,13 @@ def prepare_brush(name, size):
         asset_library_type='ESSENTIALS',
         relative_asset_identifier='brushes/essentials_brushes-mesh_sculpt.blend/Brush/' + name)
     brush = bpy.context.tool_settings.sculpt.brush
+    if brush is None or brush.name != name:
+        raise RuntimeError("asset_activate left {!r} active, wanted {!r}".format(
+            None if brush is None else brush.name, name))
     # Small deformation so repeated strokes do not reshape the test object, and a
     # pinned size/spacing so both engines lay down the same number of dabs.
+    # Everything else -- autosmooth above all -- keeps the asset's defaults: the
+    # whole point of benching Clay is the pipeline its default autosmooth picks.
     brush.strength = 0.1
     brush.size = size
     brush.spacing = 10
@@ -266,7 +274,8 @@ def prepare_brush(name, size):
     unified.use_unified_size = False
     unified.use_unified_strength = False
     RESULT["brush"] = {"name": name, "size": brush.size, "spacing": brush.spacing,
-                       "strength": brush.strength}
+                       "strength": brush.strength,
+                       "auto_smooth_factor": getattr(brush, "auto_smooth_factor", None)}
 
 
 # ---------------------------------------------------------------------------
@@ -745,7 +754,9 @@ class Bench:
         self.flip = False
         self.finished_base = 0
         self._primed_strength = 0.0
+        self._primed_autosmooth = None
         self._prime_frames = 0
+        self._brush_ready = False
 
         self.capture_armed = False
         self.captures_before = 0
@@ -802,6 +813,13 @@ class Bench:
     def _step(self):
         if self.phase == "warmup_idle":
             self.tag()
+            if not self._brush_ready and TIMING.frames >= 1:
+                # brush.asset_activate is a silent no-op at --python script
+                # time in a headed session -- it returns without switching and
+                # the factory Draw brush stays active (headless it works).
+                # Activate from inside the event loop, after a frame has run.
+                prepare_brush(ARGS.brush, ARGS.brush_size)
+                self._brush_ready = True
             if TIMING.frames >= ARGS.warmup:
                 # The first simulated viewport click of a headed session is
                 # swallowed (same family as the swallowed splash click), which
@@ -811,6 +829,11 @@ class Bench:
                 brush = bpy.context.tool_settings.sculpt.brush
                 self._primed_strength = brush.strength
                 brush.strength = 0.0
+                # Autosmooth is NOT scaled by the main strength: a Clay priming
+                # dab would still relax geometry. Zero it for the click too.
+                self._primed_autosmooth = getattr(brush, "auto_smooth_factor", None)
+                if self._primed_autosmooth:
+                    brush.auto_smooth_factor = 0.0
                 center = stroke_points(self.ctx, 2, False)[0]
                 push_event(self.ctx["window"], 'MOUSEMOVE', 'NOTHING', center)
                 push_event(self.ctx["window"], 'LEFTMOUSE', 'PRESS', center)
@@ -822,7 +845,10 @@ class Bench:
         if self.phase == "prime":
             self.tag()
             if TIMING.frames >= self._prime_frames + 5:
-                bpy.context.tool_settings.sculpt.brush.strength = self._primed_strength
+                brush = bpy.context.tool_settings.sculpt.brush
+                brush.strength = self._primed_strength
+                if self._primed_autosmooth:
+                    brush.auto_smooth_factor = self._primed_autosmooth
                 if PROBE is not None:
                     RESULT["priming_click_landed"] = PROBE.finished > 0
                 TIMING.reset()
@@ -1130,9 +1156,9 @@ def main():
     enter_mode(ARGS.engine)
     RESULT["enter_mode_ms"] = (time.perf_counter() - t) * 1000.0
     log("entered {} mode in {:.0f} ms".format(ARGS.engine, RESULT["enter_mode_ms"]))
-    # After the mode is entered, not before: ToolSettings.sculpt has no active
-    # brush until BKE_paint_init has run, so tool_settings.sculpt.brush is None.
-    prepare_brush(ARGS.brush, ARGS.brush_size)
+    # The brush is prepared from the first warmup tick, not here: at script
+    # time brush.asset_activate is a silent no-op in a headed session, and
+    # ToolSettings.sculpt has no active brush until BKE_paint_init has run.
 
     if PROBE is not None:
         PROBE.install()

@@ -33,7 +33,7 @@ function parseArgs() {
   const out = {
     blender: "C:/dev/blender/build_windows_x64_clang_RelWithDebInfo/bin/blender.exe",
     grid: 64, level: 4, repeats: 2, strokes: 12,
-    eventHz: 200, strokeSecs: 1.2, gapSecs: 0.3, brushSize: 50,
+    eventHz: 200, strokeSecs: 1.2, gapSecs: 0.3, brush: "Clay", brushSize: 50,
     mode: "multires", vsync: "on", engines: "native,sculptcore",
     timeout: 900,
     outDir: path.join(HERE, "stroke-bench-results"),
@@ -69,7 +69,8 @@ for (let rep = 0; rep < ARGS.repeats; rep++) {
       "--grid", String(ARGS.grid), "--level", String(ARGS.level),
       "--mode", ARGS.mode, "--strokes", String(ARGS.strokes),
       "--event-hz", String(ARGS.eventHz), "--stroke-secs", String(ARGS.strokeSecs),
-      "--gap-secs", String(ARGS.gapSecs), "--brush-size", String(ARGS.brushSize),
+      "--gap-secs", String(ARGS.gapSecs), "--brush", ARGS.brush,
+      "--brush-size", String(ARGS.brushSize),
     ], {encoding: "utf8", timeout: ARGS.timeout * 1000});
     if (res.status !== 0 || !fs.existsSync(out)) {
       console.log(`FAILED (exit ${res.status})`);
