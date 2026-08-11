@@ -126,15 +126,15 @@ def register():
         max=0.25,
         subtype='FACTOR',
     )
-    # A/B switch while the engine-side dab loop is validated against the
-    # per-dab Python path (design/cpp-dab-loop.md variant B). Off until
-    # sign-off, after which the per-dab Python path and this toggle go away.
+    # Signed off 2026-08-10 (design/cpp-dab-loop.md §13) and default on; the
+    # toggle stays as the rollback switch until the per-dab Python path is
+    # retired.
     bpy.types.Scene.sculptcore_cpp_dab_loop = bpy.props.BoolProperty(
         name="C++ Dab Loop",
         description="Run the per-dab raycast/apply loop of plain spaced "
                     "strokes in the engine, batched per pointer event, "
-                    "instead of per dab through Python (experimental)",
-        default=False,
+                    "instead of per dab through Python",
+        default=True,
     )
 
 

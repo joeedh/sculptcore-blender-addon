@@ -505,3 +505,11 @@ Python. None of that is per-dab ctypes driver cost: **the "~3× is per-dab
 Python/ctypes driver cost" attribution in the perf-gap memory is now
 falsified** — the next levers are the redraw path and per-hit helpers, not
 deeper batching of the dab loop.
+
+**Sign-off (2026-08-10)**: user reviewed these results and directed "keep and
+make it default on" — `sculptcore_cpp_dab_loop` now defaults to **True**, and
+the toggle stays as the rollback switch until the per-dab Python path is
+retired (future work, not yet authorized). `bench_multires_sc.py
+--cpp-driver` became a tri-state (`--cpp-driver` / `--no-cpp-driver` /
+omitted = as shipped) so the Python arm stays expressible now that a plain
+run is the batch arm.
