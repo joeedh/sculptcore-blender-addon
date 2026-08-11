@@ -180,6 +180,16 @@ def grids_capable(session, brush_type):
     return bool(engine.capi().lib.GridStroke_supported(int(brush_type)))
 
 
+def program_grids_capable(session, main_kernel):
+    """Whether an autosmooth program ``[main_kernel, BSMOOTH]`` can run
+    grids-native: both entries must pass ``grids_capable`` (the BSMOOTH check
+    carries the ``sculptcore_grids_programs`` kill switch, so switching it off
+    restores the pre-plan mesh-path routing for program strokes too)."""
+    if not grids_capable(session, main_kernel):
+        return False
+    return grids_capable(session, _bsmooth_kernel_id)
+
+
 def _grid_session(session):
     """The engine grids stroke session for the active multires level, created
     lazily and recreated on level change (a session binds one level). None
@@ -512,6 +522,14 @@ def apply_dab_program(session, program, center, normal, radius, kernel=None):
     program's main kernel, used only to size the node filter (the chained
     BSMOOTH is never unbounded)."""
     import sculptcore
+
+    if session.last_stroke_grids:
+        # Grids-native program dab: one engine call runs every entry over one
+        # shared node query (the engine widens it to the entries' field radii).
+        return engine.capi().lib.GridStroke_dabProgram(
+            session.grid_ptr, program.ptr,
+            center[0], center[1], center[2],
+            normal[0], normal[1], normal[2])
 
     mgr = engine.manager()
     executor = _ensure_executor(session)
@@ -884,11 +902,15 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
                       or (not kernel_toggle and
                           self.brush.sculpt_brush_type in mapping.FORCE_ACCUMULATE))
         # Grids-native dispatch (multires W1): plain dab/grab strokes of
-        # roster kernels skip the materialized-mesh hot path entirely. The
-        # program (autosmooth), preview and snake-hook flows stay mesh-path.
+        # roster kernels skip the materialized-mesh hot path entirely, and so
+        # do autosmooth programs when every entry is grids-capable (E2; dyntopo
+        # never coexists with multires, so a program here is autosmooth's).
+        # Preview and snake-hook flows stay mesh-path.
         grids_kernel = None
-        if (self.session.multires_ptr is not None and self._program is None
-                and not self._preview_method and not self._snake_hook):
+        if (self.session.multires_ptr is not None
+                and not self._preview_method and not self._snake_hook
+                and (self._program is None
+                     or program_grids_capable(self.session, self.kernel))):
             grids_kernel = self.kernel
         # The grab-class path is the anchored one (fixed region at the stroke
         # start, absolute cursor drag); every other path dabs along the stroke.

@@ -264,6 +264,12 @@ class _CApi:
         lib.GridStroke_dab.argtypes = (
             [ctypes.c_void_p, ctypes.c_int] + [ctypes.c_float] * 6 + [ctypes.c_int])
         lib.GridStroke_dab.restype = ctypes.c_int
+        # Composite-program dab (autosmooth's [main, BSMOOTH]): a BrushProgram
+        # pointer instead of a tool id; no grabAdd — grab-class entries are
+        # unsupported in grids programs.
+        lib.GridStroke_dabProgram.argtypes = (
+            [ctypes.c_void_p, ctypes.c_void_p] + [ctypes.c_float] * 6)
+        lib.GridStroke_dabProgram.restype = ctypes.c_int
         # Batched spaced-dab path (C++ dab loop, scene toggle): one raycast
         # call + one dab call per pointer event instead of per dab.
         u8p = np.ctypeslib.ndpointer(dtype=np.uint8, flags="C_CONTIGUOUS")
