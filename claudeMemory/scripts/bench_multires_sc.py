@@ -18,24 +18,50 @@ Run it as::
 
 ``--enable-event-simulate`` is mandatory; without it ``event_simulate`` raises.
 
-Metric
-------
-``cycle_ms`` -- wall time from pushing one stroke's events to the ``POST_PIXEL``
-of the frame that follows. Blender's main loop is
-``do_notifiers (bpy timers) -> do_handlers (our events) -> draw``, so pushing
-from a timer callback means a single pass covers input handling *and* the
-redraw the edit dirtied. That is the number the user feels, and it is the only
-one both engines can report identically.
+The stroke model
+----------------
+Events are generated against the *wall clock*, not the frame clock: a stroke is
+``--stroke-secs`` of samples at ``--event-hz`` along the viewport diagonal, and
+a timer that runs once per main-loop pass pushes every sample whose timestamp
+has come due. When a frame stalls, no pass runs, samples accrue, and the next
+pass pushes the backlog at once -- exactly how a real device queue behaves.
+All but the newest sample of a backlog are pushed as ``INBETWEEN_MOUSEMOVE``,
+mirroring ``wm_event_add_mousemove``'s demotion of stale queued moves (which
+``event_simulate`` bypasses -- it appends via ``WM_event_add``). Consequences
+that are *supposed* to show up here, because they show up live: a slow frame
+costs input samples demoted to inbetweens; native samples inbetweens for path
+fidelity while the SculptCore modal currently ignores them; every presented
+frame during a stroke pays the mid-stroke flush and viewport draw.
+
+This replaced a burst-mode bench (whole stroke pushed in one pass, consumed in
+~one frame) whose ``cycle_ms``/``sculpt_phase_ms`` were honest *throughput*
+numbers but under-sampled per-event and per-frame costs by 10-100x against
+interactive use, and hid exactly the gap users feel.
+
+Metrics
+-------
+``stroke_frame_ms`` -- interval between presented frames while a stroke is in
+flight (pooled over all strokes; median/p90/max). This is the perceptual
+smoothness number and the headline A/B metric; both engines report it
+identically. The first frame of each stroke is excluded (its interval spans
+the inter-stroke gap).
+
+``latency_ms`` -- at each presented stroke frame, wall time since the newest
+move event pushed before that frame's handlers ran: input-to-present lag,
+including queue wait.
+
+``stroke_wall_ms`` -- press push to the first presented frame after release,
+per stroke. ``frames_per_stroke`` and the ``events`` counters (moves,
+inbetweens pushed) say how the stroke was delivered and consumed.
 
 ``sculpt_phase_ms`` / ``sculpt_frames`` -- wall time and frame count for the
-whole 20-stroke sculpt phase. ``cycle_ms`` only spans a stroke's leading edge,
-so it saturates at the vsync quantum and hides per-dab cost; this is the
-throughput number, and both engines report it identically.
+whole sculpt phase, gaps included (kept for cross-run continuity; the gap makes
+it a weaker A/B number than stroke_wall_ms).
 
-``stroke_ms`` is the operator's own time, summed over invoke + every modal call.
-SculptCore's is measured by wrapping the Python operator; native sculpt's modal
-is C++ and cannot be wrapped, so for ``--engine native`` this key is absent and
-``cycle_ms`` is the comparison.
+``stroke_ms`` is the operator's own busy time, summed over invoke + every modal
+call, per stroke. SculptCore's is measured by wrapping the Python operator;
+native sculpt's modal is C++ and cannot be wrapped, so for ``--engine native``
+this key is absent and the frame/latency/wall metrics are the comparison.
 
 See bench_multires_native.py for the event-loop traps this inherits (timer state
 machine, tag from the timer not the draw handler, no whole ``context.copy()``,
@@ -76,8 +102,15 @@ def parse_args():
     parser.add_argument("--brush-size", type=int, default=50, help="Brush radius in pixels")
     parser.add_argument("--warmup", type=int, default=20, help="Frames to discard before each phase")
     parser.add_argument("--idle-frames", type=int, default=60, help="Frames to time with no edits")
-    parser.add_argument("--strokes", type=int, default=20, help="Timed strokes")
-    parser.add_argument("--stroke-steps", type=int, default=20, help="Move events per stroke")
+    parser.add_argument("--strokes", type=int, default=12, help="Timed strokes")
+    parser.add_argument("--event-hz", type=float, default=200.0,
+                        help="Input sample rate the synthesized device generates at (tablets and "
+                             "gaming mice sit at 125-266 Hz)")
+    parser.add_argument("--stroke-secs", type=float, default=1.2,
+                        help="Wall-clock duration of each stroke; speed follows from the fixed "
+                             "viewport-diagonal path length")
+    parser.add_argument("--gap-secs", type=float, default=0.3,
+                        help="Pause between strokes (stroke-end work settles; a real user's lift)")
     parser.add_argument("--undo-steps", type=int, default=8, help="Cap the undo stack")
     parser.add_argument("--cpp-driver", action=argparse.BooleanOptionalAction, default=None,
                         help="Force the sculptcore_cpp_dab_loop scene toggle on (--cpp-driver) or "
@@ -99,9 +132,6 @@ def parse_args():
                              "buffer and shader creation is not what gets traced")
     parser.add_argument("--capture-dir", default="",
                         help="Directory to write .rdc captures into (default: beside --out)")
-    parser.add_argument("--paced-stroke", action="store_true",
-                        help="Push one event per main-loop pass so every dab gets its own frame. "
-                             "Required for a meaningful GPU trace -- see push_stroke's docstring")
     parser.add_argument("--wall-trace", action="store_true",
                         help="Record a timestamped span timeline (operator calls, draws, depsgraph "
                              "evaluations, bench steps) for the sculpt phase, to attribute wall "
@@ -117,6 +147,9 @@ RESULT = {
     "mode": ARGS.mode,
     "grid": ARGS.grid,
     "level": ARGS.level,
+    "event_hz": ARGS.event_hz,
+    "stroke_secs": ARGS.stroke_secs,
+    "gap_secs": ARGS.gap_secs,
     "blender_version": ".".join(str(v) for v in bpy.app.version),
     "binary": bpy.app.binary_path,
     "cpp_driver": ARGS.cpp_driver,
@@ -248,7 +281,11 @@ class Timing:
         self.frames = 0
         self.view_ms = []
         self.frame_ms = []
+        self.latency_ms = []
         self.collect = False
+        # Stamped by the bench at every move push; on_post reads it to turn a
+        # presented frame into an input-to-present latency sample.
+        self.last_push = 0.0
 
     def on_pre(self):
         self.pre = time.perf_counter()
@@ -259,6 +296,8 @@ class Timing:
             self.view_ms.append((now - self.pre) * 1000.0)
             if self.prev_post:
                 self.frame_ms.append((now - self.prev_post) * 1000.0)
+            if self.last_push:
+                self.latency_ms.append((now - self.last_push) * 1000.0)
         if WALL is not None:
             WALL.add("draw", self.pre, now)
         self.prev_post = now
@@ -268,7 +307,9 @@ class Timing:
     def reset(self):
         self.view_ms = []
         self.frame_ms = []
+        self.latency_ms = []
         self.prev_post = 0.0
+        self.last_push = 0.0
 
 
 TIMING = Timing()
@@ -280,7 +321,7 @@ class WallTrace:
     Each record is ``[kind, t_ms, dur_ms]`` with ``t_ms`` relative to the base
     stamped when the sculpt phase starts. Kinds:
 
-    - ``push``       a stroke's event burst entered the queue (dur 0)
+    - ``push``       one or more due events entered the queue (dur 0)
     - ``step``       the bench timer callback ran (dur = its own body)
     - ``op:invoke`` / ``op:modal``  one operator call (SculptCore only)
     - ``draw``       PRE_VIEW -> POST_PIXEL of one 3D view redraw
@@ -374,7 +415,8 @@ def stats(samples):
 #
 # The Python operator's methods are looked up on the class at call time, so
 # wrapping them here needs no addon change. Native sculpt's modal is C++ and has
-# no equivalent -- which is why cycle_ms, not stroke_ms, is the A/B metric.
+# no equivalent -- which is why the frame/latency metrics, not stroke_ms, are
+# the A/B numbers.
 
 class OpProbe:
     def __init__(self):
@@ -640,11 +682,11 @@ def connect_capture():
 
 
 # ---------------------------------------------------------------------------
-# Event-driven stroke
+# Wall-clock stroke
 # ---------------------------------------------------------------------------
 
-def stroke_points(ctx, num_steps, flip):
-    """Window-space points sweeping the viewport diagonal.
+def stroke_points(ctx, num_samples, flip):
+    """Window-space samples sweeping the viewport diagonal at constant speed.
 
     event_simulate takes *window* coordinates; region.x/y is the region's origin
     inside the window. The sweep is inset so every sample lands on the object.
@@ -655,47 +697,21 @@ def stroke_points(ctx, num_steps, flip):
     end = Vector((region.x + region.width - inset_x, region.y + region.height - inset_y))
     if flip:
         start, end = end, start
-    delta = (end - start) / (num_steps - 1)
-    return [start + delta * i for i in range(num_steps)]
+    delta = (end - start) / (num_samples - 1)
+    return [start + delta * i for i in range(num_samples)]
 
 
-def stroke_events(points):
-    """The ``(type, value, point)`` sequence for one press / move.../release stroke."""
-    first, last = points[0], points[-1]
-    events = [('MOUSEMOVE', 'NOTHING', first), ('LEFTMOUSE', 'PRESS', first)]
-    events.extend(('MOUSEMOVE', 'NOTHING', point) for point in points[1:])
-    events.append(('LEFTMOUSE', 'RELEASE', last))
-    return events
-
-
-def push_event(window, event):
-    kind, value, point = event
+def push_event(window, kind, value, point):
     window.event_simulate(type=kind, value=value, x=int(point.x), y=int(point.y))
-
-
-def push_stroke(window, points):
-    """One press / move.../release burst into the window's event queue.
-
-    All of it is handled in a single ``wm_event_do_handlers`` pass, so the frame
-    that follows is the one the whole stroke dirtied. event_simulate appends via
-    WM_event_add (not wm_event_add_mousemove), so no move is demoted to
-    INBETWEEN_MOUSEMOVE -- both engines see every sample.
-
-    That single-pass property is what makes this the right shape for throughput
-    (it is why ``sculpt_phase_ms`` is honest) and the *wrong* shape for a GPU
-    trace: a whole stroke collapses into roughly one redraw, so a capture sees
-    one frame carrying twenty dabs' worth of deferred work rather than the
-    per-dab frames a real stroke produces. ``--paced-stroke`` pushes these same
-    events one per main-loop pass instead, which is what the trace mode uses.
-    """
-    for event in stroke_events(points):
-        push_event(window, event)
 
 
 # ---------------------------------------------------------------------------
 # Phase machine
 # ---------------------------------------------------------------------------
 
+# The step timer returns 0.0 always: one callback per main-loop pass. During a
+# stroke that is the whole point -- the pusher must get a chance to run (and
+# catch up) exactly as often as the event loop itself spins, no more, no less.
 YIELD = 0.0
 
 
@@ -704,33 +720,46 @@ class Bench:
         self.ctx = ctx
         self.phase = "warmup_idle"
         self.count = 0
-        self.cycle_ms = []
-        self.op_ms = []
-        self.dabs = []
-        self.pending = False
-        self.t_push = 0.0
-        self.flip = False
         self.t_start = time.perf_counter()
         self.t_phase = self.t_start
         self.last_log = 0.0
         self.profiler = None
 
-        # Paced-stroke cursor: None until the first stroke is built, then the
-        # remaining events of the stroke in flight.
-        self.events = None
+        # Per-stroke accumulators.
+        self.stroke_wall_ms = []
+        self.frames_per_stroke = []
+        self.op_ms = []
+        self.dabs = []
+        self.moves_pushed = 0
+        self.inbetween_pushed = 0
+
+        # In-flight stroke state ("gap" -> "stroking" -> "settling").
+        self.stroke_state = "gap"
+        self.samples = None
+        self.num_samples = max(2, int(round(ARGS.event_hz * ARGS.stroke_secs)))
+        self.pushed = 0
+        self.t_press = 0.0
+        self.t_release = 0.0
+        self.t_next_stroke = 0.0
+        self.frames_at_press = 0
+        self.flip = False
+        self.finished_base = 0
+        self._primed_strength = 0.0
+        self._prime_frames = 0
 
         self.capture_armed = False
         self.captures_before = 0
         self.drain_passes = 0
-        # Never arm more frames than the post-warmup strokes will actually
+        # Never arm more frames than the post-warmup strokes can plausibly
         # present: TriggerMultiFrameCapture takes the next N presents whatever
         # they contain, so an over-long arm spills onto idle frames and quietly
-        # averages non-sculpt frames into the trace.
-        per_stroke_frames = (ARGS.stroke_steps + 2) if ARGS.paced_stroke else 1
-        available = max(0, ARGS.strokes - ARGS.trace_after_strokes) * per_stroke_frames
+        # averages non-sculpt frames into the trace. Stroke frame counts vary
+        # here (that is the regime), so clamp against a floor of 15 fps -- a
+        # stroke presenting slower than that is itself the finding.
+        available = int(max(0, ARGS.strokes - ARGS.trace_after_strokes) * ARGS.stroke_secs * 15.0)
         self.capture_target = min(ARGS.gpu_trace, available)
         if ARGS.gpu_trace and self.capture_target < ARGS.gpu_trace:
-            log("clamped --gpu-trace {} -> {} (only {} stroke frames follow warmup)".format(
+            log("clamped --gpu-trace {} -> {} (>= {} stroke frames follow warmup at 15 fps)".format(
                 ARGS.gpu_trace, self.capture_target, available))
 
     def tag(self):
@@ -774,6 +803,28 @@ class Bench:
         if self.phase == "warmup_idle":
             self.tag()
             if TIMING.frames >= ARGS.warmup:
+                # The first simulated viewport click of a headed session is
+                # swallowed (same family as the swallowed splash click), which
+                # would turn stroke 0 into a no-op. Spend a sacrificial click
+                # here, at zero strength so that if it *does* land it deforms
+                # nothing -- the operator still runs, which is the priming.
+                brush = bpy.context.tool_settings.sculpt.brush
+                self._primed_strength = brush.strength
+                brush.strength = 0.0
+                center = stroke_points(self.ctx, 2, False)[0]
+                push_event(self.ctx["window"], 'MOUSEMOVE', 'NOTHING', center)
+                push_event(self.ctx["window"], 'LEFTMOUSE', 'PRESS', center)
+                push_event(self.ctx["window"], 'LEFTMOUSE', 'RELEASE', center)
+                self._prime_frames = TIMING.frames
+                self.enter("prime")
+            return YIELD
+
+        if self.phase == "prime":
+            self.tag()
+            if TIMING.frames >= self._prime_frames + 5:
+                bpy.context.tool_settings.sculpt.brush.strength = self._primed_strength
+                if PROBE is not None:
+                    RESULT["priming_click_landed"] = PROBE.finished > 0
                 TIMING.reset()
                 TIMING.collect = True
                 self.enter("idle")
@@ -796,20 +847,22 @@ class Bench:
                         tracer.enabled = True
                 if WALL is not None:
                     WALL.start()
+                if PROBE is not None:
+                    PROBE.take()  # discard the priming click's op time
+                    self.finished_base = PROBE.finished
+                self.t_next_stroke = time.perf_counter()
                 self.enter("sculpt")
             return YIELD
 
         if self.phase == "sculpt":
-            if ARGS.paced_stroke:
-                return self._step_sculpt_paced()
-            return self._step_sculpt_burst()
+            return self._step_sculpt()
 
         if self.phase == "drain_capture":
-            # Safety net only: TriggerMultiFrameCapture is armed with a frame
-            # count the remaining strokes are guaranteed to cover (see
-            # arm_capture), so this normally exits on the first pass. If it ever
-            # has to spin, the frames it captures are idle ones and the log line
-            # below is the warning that the trace is polluted.
+            # Safety net only: the arm was clamped against a conservative
+            # frames-per-stroke floor (see __init__), so this normally exits on
+            # the first pass. If it ever has to spin, the frames it captures are
+            # idle ones and the log line below is the warning that the trace is
+            # polluted.
             self.drain_passes += 1
             written = CAPTURE.num_captures() - self.captures_before
             if written >= self.capture_target or self.drain_passes > 240:
@@ -844,70 +897,96 @@ class Bench:
         log("armed RenderDoc capture: {} frames from stroke {}".format(
             self.capture_target, self.count))
 
-    def _step_sculpt_burst(self):
-        if self.pending:
-            if TIMING.post > self.t_push:
-                self.cycle_ms.append((TIMING.post - self.t_push) * 1000.0)
-                if PROBE is not None:
-                    ms, dabs = PROBE.take()
-                    self.op_ms.append(ms)
-                    self.dabs.append(dabs)
-                self.pending = False
-            else:
-                self.tag()
-                return YIELD
+    def _step_sculpt(self):
+        """One pass of the wall-clock stroke machine.
 
-        if self.count >= ARGS.strokes:
-            return self._finish_sculpt()
+        ``stroking`` pushes every sample whose device timestamp has come due
+        since the last pass. On a smooth run that is one or two per pass; after
+        a stalled frame it is the whole backlog at once -- the device queue
+        model. All but the newest of a backlog go in as INBETWEEN_MOUSEMOVE,
+        which is what ``wm_event_add_mousemove`` would have demoted them to had
+        they arrived from a real device (event_simulate's WM_event_add path
+        skips that logic). Native sculpt samples inbetweens into the stroke
+        path; the SculptCore modal currently drops them -- a real parity gap
+        this bench is supposed to expose, not paper over.
 
-        self.arm_capture()
-        points = stroke_points(self.ctx, ARGS.stroke_steps, self.flip)
-        self.flip = not self.flip
-        TIMING.collect = True
-        self.t_push = time.perf_counter()
-        push_stroke(self.ctx["window"], points)
-        if WALL is not None:
-            WALL.add("push", self.t_push, self.t_push)
-        self.count += 1
-        self.pending = True
-        self.tag()
-        return YIELD
-
-    def _step_sculpt_paced(self):
-        """One event per main-loop pass, so every dab gets its own frame.
-
-        ``wm_event_do_handlers`` drains the queue once per pass, so a single
-        queued event is handled alone and the redraw that follows belongs to
-        that dab. ``cycle_ms`` is therefore per-dab latency in this mode rather
-        than per-stroke -- which is both what an interactive stroke feels like
-        and what makes each captured frame attributable to one dab.
+        No tag_redraw during a stroke: the stroke operator dirties the region
+        itself, and forcing extra frames here would fake a redraw cadence
+        neither engine produces for a real user.
         """
-        if self.pending:
-            if TIMING.post <= self.t_push:
-                self.tag()
-                return YIELD
-            self.cycle_ms.append((TIMING.post - self.t_push) * 1000.0)
-            self.pending = False
+        now = time.perf_counter()
+        window = self.ctx["window"]
 
-        if not self.events:
-            if self.events is not None:
-                # The stroke just drained; PROBE accumulates across its events.
-                self.count += 1
-                if PROBE is not None:
-                    ms, dabs = PROBE.take()
-                    self.op_ms.append(ms)
-                    self.dabs.append(dabs)
+        if self.stroke_state == "gap":
+            if now < self.t_next_stroke:
+                return YIELD
             if self.count >= ARGS.strokes:
                 return self._finish_sculpt()
             self.arm_capture()
-            self.events = stroke_events(stroke_points(self.ctx, ARGS.stroke_steps, self.flip))
+            self.samples = stroke_points(self.ctx, self.num_samples, self.flip)
             self.flip = not self.flip
+            TIMING.collect = True
+            # The first frame interval of this stroke would span the gap;
+            # zeroing prev_post makes on_post skip it.
+            TIMING.prev_post = 0.0
+            self.frames_at_press = TIMING.frames
+            self.t_press = time.perf_counter()
+            # Hover move first so the press lands with a cursor position, as a
+            # real press does.
+            push_event(window, 'MOUSEMOVE', 'NOTHING', self.samples[0])
+            push_event(window, 'LEFTMOUSE', 'PRESS', self.samples[0])
+            TIMING.last_push = self.t_press
+            if WALL is not None:
+                WALL.add("push", self.t_press, self.t_press)
+            self.pushed = 1
+            self.stroke_state = "stroking"
+            return YIELD
 
-        TIMING.collect = True
-        self.t_push = time.perf_counter()
-        push_event(self.ctx["window"], self.events.pop(0))
-        self.pending = True
-        self.tag()
+        if self.stroke_state == "stroking":
+            due = min(self.num_samples - 1, int((now - self.t_press) * ARGS.event_hz))
+            if due >= self.pushed:
+                t_push = time.perf_counter()
+                for i in range(self.pushed, due + 1):
+                    kind = 'MOUSEMOVE' if i == due else 'INBETWEEN_MOUSEMOVE'
+                    push_event(window, kind, 'NOTHING', self.samples[i])
+                    if i == due:
+                        self.moves_pushed += 1
+                    else:
+                        self.inbetween_pushed += 1
+                TIMING.last_push = t_push
+                if WALL is not None:
+                    WALL.add("push", t_push, t_push)
+                self.pushed = due + 1
+            if self.pushed >= self.num_samples:
+                push_event(window, 'LEFTMOUSE', 'RELEASE', self.samples[-1])
+                self.t_release = time.perf_counter()
+                self.stroke_state = "settling"
+            return YIELD
+
+        # settling: the release is in the queue; the stroke is over once the
+        # operator has finished (SculptCore; native's C++ modal is invisible,
+        # so a presented frame after the release stands in) and that frame --
+        # the one carrying stroke_end / undo-push cost -- has been presented.
+        op_done = PROBE is None or not PROBE.running
+        frame_done = TIMING.post > self.t_release
+        if not (op_done and frame_done):
+            # Normally the stroke-end redraw arrives by itself; if nothing has
+            # presented for a while the queue went quiet (e.g. a cancelled
+            # stroke tagged nothing) -- nudge, or settle waits for the timeout.
+            if now - self.t_release > 0.3:
+                self.tag()
+            return YIELD
+
+        TIMING.collect = False
+        self.stroke_wall_ms.append((TIMING.post - self.t_press) * 1000.0)
+        self.frames_per_stroke.append(TIMING.frames - self.frames_at_press)
+        if PROBE is not None:
+            ms, dabs = PROBE.take()
+            self.op_ms.append(ms)
+            self.dabs.append(dabs)
+        self.count += 1
+        self.t_next_stroke = time.perf_counter() + ARGS.gap_secs
+        self.stroke_state = "gap"
         return YIELD
 
     def _finish_sculpt(self):
@@ -915,13 +994,18 @@ class Bench:
         if self.profiler is not None:
             self.profiler.disable()
             RESULT["profile"] = format_profile(self.profiler)
-        # Engine-agnostic throughput: cycle_ms only spans the leading
-        # edge of a stroke (push -> first redraw), and stroke_ms needs
-        # the operator probe, which native sculpt has no equivalent of.
         RESULT["sculpt_phase_ms"] = (time.perf_counter() - self.t_phase) * 1000.0
         RESULT["sculpt_frames"] = TIMING.frames
-        RESULT["cycle_ms"] = stats(self.cycle_ms)
+        RESULT["stroke_frame_ms"] = stats(TIMING.frame_ms)
+        RESULT["latency_ms"] = stats(TIMING.latency_ms)
         RESULT["sculpt_view_ms"] = stats(TIMING.view_ms)
+        RESULT["stroke_wall_ms"] = stats(self.stroke_wall_ms)
+        RESULT["frames_per_stroke"] = stats(self.frames_per_stroke)
+        RESULT["events"] = {
+            "per_stroke": self.num_samples,
+            "moves": self.moves_pushed,
+            "inbetween": self.inbetween_pushed,
+        }
         for key, tracer in (("engine_trace", TRACE), ("func_trace", FUNCS),
                             ("capi_trace", CAPI)):
             if tracer is not None:
@@ -934,7 +1018,7 @@ class Bench:
         if PROBE is not None:
             RESULT["stroke_ms"] = stats(self.op_ms)
             RESULT["dabs_per_stroke"] = stats(self.dabs)
-            RESULT["strokes_finished"] = PROBE.finished
+            RESULT["strokes_finished"] = PROBE.finished - self.finished_base
 
         # Stay in the mode while captures are still outstanding: leaving it
         # would draw (and capture) object-mode frames.

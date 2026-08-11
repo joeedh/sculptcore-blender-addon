@@ -46,7 +46,7 @@
 // engine defaults to BrushBackend::Cpp, so SculptCore's sculpting is CPU-side
 // today: these captures are a *draw path* A/B -- the external draw provider
 // against Blender's PBVH draw -- not a comparison of sculpt kernels. Wall-clock
-// numbers in the same JSON (cycle_ms, sculpt_phase_ms) remain the headline
+// numbers in the same JSON (stroke_frame_ms, latency_ms) remain the headline
 // figures, and they are inflated for both arms by the capture hook.
 
 import { spawnSync } from "node:child_process";
@@ -65,7 +65,8 @@ function parseArgs() {
     level: 4,
     frames: 12,
     strokes: 8,
-    strokeSteps: 20,
+    eventHz: 200,
+    strokeSecs: 1.2,
     traceAfter: 3,
     mode: "multires",
     backend: "opengl",
@@ -74,8 +75,8 @@ function parseArgs() {
     timeout: 1800,
   };
   const argv = process.argv.slice(2);
-  const numeric = new Set(["grid", "level", "frames", "strokes", "strokeSteps", "traceAfter", "timeout"]);
-  const alias = { "stroke-steps": "strokeSteps", "trace-after": "traceAfter" };
+  const numeric = new Set(["grid", "level", "frames", "strokes", "eventHz", "strokeSecs", "traceAfter", "timeout"]);
+  const alias = { "event-hz": "eventHz", "stroke-secs": "strokeSecs", "trace-after": "traceAfter" };
   for (let i = 0; i < argv.length; i++) {
     const raw = argv[i].replace(/^--/, "");
     const key = alias[raw] || raw;
@@ -120,8 +121,8 @@ function runArm(engine) {
     "--python-exit-code", "1", "--python", BENCH, "--",
     "--out", jsonPath, "--label", engine, "--engine", engine,
     "--grid", String(args.grid), "--level", String(args.level), "--mode", args.mode,
-    "--strokes", String(args.strokes), "--stroke-steps", String(args.strokeSteps),
-    "--paced-stroke",
+    "--strokes", String(args.strokes),
+    "--event-hz", String(args.eventHz), "--stroke-secs", String(args.strokeSecs),
     "--gpu-trace", String(args.frames),
     "--trace-after-strokes", String(args.traceAfter),
     "--capture-dir", captureDir,
@@ -142,7 +143,7 @@ function runArm(engine) {
   }
   const result = JSON.parse(readFileSync(jsonPath, "utf8"));
   const captures = result.captures || [];
-  process.stdout.write(`    ${captures.length} captures, cycle_ms median ${(result.cycle_ms?.median ?? NaN).toFixed(2)}\n`);
+  process.stdout.write(`    ${captures.length} captures, stroke_frame_ms median ${(result.stroke_frame_ms?.median ?? NaN).toFixed(2)}\n`);
   if (result.error) process.stdout.write(`    ERROR: ${String(result.error).split("\n").slice(-3).join(" ")}\n`);
   return result;
 }
@@ -220,7 +221,7 @@ const first = runs.get(names[0]);
 process.stdout.write(
   `GPU TRACE: ${(first.sculpt_faces ?? 0).toLocaleString()} faces` +
   `${args.mode === "multires" ? ` at level ${first.level}` : ""}, ` +
-  `paced stroke, ${args.frames} frames/arm, ${args.backend}\n`);
+  `${args.eventHz} Hz x ${args.strokeSecs} s strokes, ${args.frames} frames/arm, ${args.backend}\n`);
 process.stdout.write("=".repeat(84) + "\n\n");
 
 let header = pad("per captured frame (median)", 36);
@@ -251,7 +252,8 @@ process.stdout.write("\n");
 let wallHeader = pad("wall clock (ms, under capture)", 36);
 for (const name of names) wallHeader += padLeft(name, 16);
 process.stdout.write(wallHeader + "\n" + "-".repeat(wallHeader.length) + "\n");
-for (const [key, label] of [["cycle_ms", "per-dab cycle (push -> redrawn)"],
+for (const [key, label] of [["stroke_frame_ms", "frame interval during stroke"],
+                            ["latency_ms", "input -> present latency"],
                             ["sculpt_view_ms", "viewport draw during sculpt"],
                             ["idle_view_ms", "viewport draw, no edit"]]) {
   let line = pad(`  ${label}`, 36);
