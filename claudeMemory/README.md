@@ -18,6 +18,15 @@ Working notes Claude maintains for this repository. See the top-level
 
 ## Index
 
+- [plans/program-grids-routing.md](plans/program-grids-routing.md)
+  — routing brush programs (Clay's `[main, BSMOOTH]` autosmooth, and programs
+  in general) onto the grids path and the C++ batch driver: BSMOOTH-on-grids
+  via a zero-filled vclass binding (exact parity — multires sessions carry no
+  boundary flags), `applyProgram` with store-level override rollback,
+  region-restricted co_prev refresh, per-arm symbol-gated batch variants,
+  kill switch `sculptcore_grids_programs`. Pressure-tested 2026-08-11 by
+  three adversarial lenses (2 KILLs repaired: unsatisfiable vclass oracle,
+  batch-gate staging contradiction; §9 has the log). Not yet implemented.
 - [plans/indexed-grid-draws.md](plans/indexed-grid-draws.md)
   — indexed draw buffers for multires grids in the external-draw path: shared
   lattice-row vertex streams + a per-node index buffer generated once at
