@@ -297,6 +297,12 @@ class _CApi:
             ctypes.c_float, ctypes.c_int, ctypes.c_float, ctypes.c_int,
             ctypes.c_float, f32p, ctypes.c_int]
         lib.MeshStroke_dabBatch.restype = ctypes.c_int
+        lib.MeshStroke_dabBatchProgram.argtypes = [
+            ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p,
+            ctypes.c_void_p, ctypes.c_int, f32p,
+            ctypes.c_float, ctypes.c_int, ctypes.c_float, ctypes.c_int,
+            ctypes.c_float, f32p, ctypes.c_int]
+        lib.MeshStroke_dabBatchProgram.restype = ctypes.c_int
         lib.GridStroke_end.argtypes = [ctypes.c_void_p]
         lib.GridStroke_end.restype = None
         lib.GridStroke_canUndo.argtypes = [ctypes.c_void_p]
