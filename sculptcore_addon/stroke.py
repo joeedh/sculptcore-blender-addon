@@ -151,9 +151,10 @@ def _ensure_executor(session):
     return session.executor
 
 
-# Cached MASK kernel id: the binding enum introspection walks descriptors and
-# costs ~20 ms — far too much per stroke.
+# Cached MASK/BSMOOTH kernel ids: the binding enum introspection walks
+# descriptors and costs ~20 ms — far too much per stroke.
 _mask_kernel_id = None
+_bsmooth_kernel_id = None
 
 
 def grids_capable(session, brush_type):
@@ -161,14 +162,20 @@ def grids_capable(session, brush_type):
     session + engine roster kernel). MASK is held back for now: the addon's
     mask truth is the slot mesh's column (flood fills, CD_GRID_PAINT_MASK
     import), and a grids mask stroke would write the store channel the host
-    doesn't read back yet."""
-    global _mask_kernel_id
+    doesn't read back yet. BSMOOTH rides the ``sculptcore_grids_programs``
+    kill switch: off restores the pre-plan mesh-path routing."""
+    global _mask_kernel_id, _bsmooth_kernel_id
     if not session.multires_ptr:
         return False
     if _mask_kernel_id is None:
         mgr = engine.manager()
-        _mask_kernel_id = int(mgr.get("sculptcore::brush::SculptBrushes").items['MASK'])
+        items = mgr.get("sculptcore::brush::SculptBrushes").items
+        _mask_kernel_id = int(items['MASK'])
+        _bsmooth_kernel_id = int(items['BSMOOTH'])
     if int(brush_type) == _mask_kernel_id:
+        return False
+    if (int(brush_type) == _bsmooth_kernel_id
+            and not getattr(bpy.context.scene, "sculptcore_grids_programs", True)):
         return False
     return bool(engine.capi().lib.GridStroke_supported(int(brush_type)))
 

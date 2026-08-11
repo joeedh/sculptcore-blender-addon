@@ -136,6 +136,16 @@ def register():
                     "instead of per dab through Python",
         default=True,
     )
+    # The program-grids-routing kill switch (plans/program-grids-routing.md):
+    # spans every stage of that plan, so one toggle restores the pre-plan
+    # routing (BSMOOTH and brush programs back to the materialized-mesh path).
+    bpy.types.Scene.sculptcore_grids_programs = bpy.props.BoolProperty(
+        name="Grids Programs",
+        description="Run brush programs (autosmooth) and the boundary-aware "
+                    "smooth grids-native on multires, instead of per dab "
+                    "through Python on the materialized mesh",
+        default=True,
+    )
 
 
 def unregister():
@@ -152,3 +162,4 @@ def unregister():
     del bpy.types.Scene.sculptcore_reproject_uvs
     del bpy.types.Scene.sculptcore_uv_margin
     del bpy.types.Scene.sculptcore_cpp_dab_loop
+    del bpy.types.Scene.sculptcore_grids_programs
