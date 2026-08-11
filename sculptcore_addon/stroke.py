@@ -998,7 +998,12 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
                 convert.flush(context.active_object)
             self._last_flush = now
             self._flush_frame = _frames_presented
-        context.area.tag_redraw()
+        # Region, not area: area.tag_redraw() would redraw every region of the
+        # View3D area per event -- header, toolbar, sidebar and the brush asset
+        # shelf, whose preview icons re-upload and re-mip ~10 textures a frame
+        # (immDrawPixels creates them from scratch). Native sculpt tags only
+        # the drawing region; match it.
+        context.region.tag_redraw()
 
     def _track_pivot(self, position):
         """Fold one logical dab's object-space center into the stroke's running

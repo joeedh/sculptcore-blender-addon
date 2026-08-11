@@ -124,6 +124,17 @@ Working notes Claude maintains for this repository. See the top-level
   per-element undo capture vs native's in-place CCG grids), what was fixed, the
   two regressions only the full ctest sweep caught, and the ranked remainder — a
   grids-native brush path is the only item that closes the gap.
+- [research/redraw-path-attribution.md](research/redraw-path-attribution.md)
+  — what the ~14 ms/stroke "redraw machinery" slice actually is (~96 % engine
+  CPU: deferred normals + draw-node soup refill), and the frame-consumption
+  gate on `_mid_redraw` that cut `stroke_ms` −15 % by refusing refreshes no
+  frame will ever present.
+- [research/redraw-gpu-pipeline-ab.md](research/redraw-gpu-pipeline-ab.md)
+  — RenderDoc A/B of the full redraw pipeline, native vs SculptCore (1M/L4):
+  the +50 % GPU frame split into non-indexed grid soup (+1.5 ms, engine item)
+  and the `area.tag_redraw()` → brush-asset-shelf mip churn (~1.2 ms GPU +
+  region-draw CPU; fixed to `region.tag_redraw()`), the interleaved-replay
+  methodology, and the per-dab cycle numbers before/after.
 - [research/multires-autotune.md](research/multires-autotune.md)
   — deriving a multires level's three acceleration granularities from its size
   instead of fixed constants (`engine/source/subdiv/multires_tuning.{h,cc}`,
