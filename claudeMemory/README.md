@@ -18,6 +18,15 @@ Working notes Claude maintains for this repository. See the top-level
 
 ## Index
 
+- [plans/indexed-grid-draws.md](plans/indexed-grid-draws.md)
+  — indexed draw buffers for multires grids in the external-draw path: shared
+  lattice-row vertex streams + a per-node index buffer generated once at
+  partition build, ABI v2→3 (null indices = soup fallback and rollback lever),
+  fork-side IBO in the node cache. Pressure-tested 2026-08-10: **BUILD WITH
+  AMENDMENTS** — `GPU_indexbuf_build_from_memory` takes the *primitive* count
+  (passing indices_num reads 3× out of bounds), and the smoke test must assert
+  `bl_draw_provider != "0"` in Stage 1 (a version-skewed engine/fork pair
+  currently ships silently drawing the base cage). Not yet implemented.
 - [plans/cpp-stroke-driver-adoption.md](plans/cpp-stroke-driver-adoption.md)
   — replacing the addon's Python stroke sampler (`StrokeSpacer` + `stroke_math`
   + per-dab raycasting) with the engine's C++ `BrushStrokeDriver`: phased by
