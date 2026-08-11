@@ -1,6 +1,34 @@
 # Indexed draw buffers for multires grids (external-draw path) — PLAN
 
-**Status: plan only, not implemented.** Written 2026-08-10 from code reading of
+## Implementation notes (2026-08-10, Stages 1–2)
+
+- **Amendment 2 landed with a different mechanism than its literal wording.**
+  The prescribed smoke-test assertion `mode.bl_draw_provider != "0"` is
+  unimplementable instance-free: RNA string getters need a live `PointerRNA`
+  (class-attribute access on `bpy.types.*` does not go through RNA —
+  `pyrna_struct_getattro` consults RNA properties only on instances,
+  `bpy_rna.cc:4826-4856`), no RNA collection exposes registered
+  ObjectModeTypes, and entering the mode on a bare CI runner risks
+  GPU-dependent failure. The equivalent *failing* check built instead:
+  - The engine provider struct leads with `int abi_version`, readable via
+    ctypes from the `sc_external_draw_provider()` address.
+  - The fork gained a new read-only RNA property
+    `ObjectModeType.bl_draw_provider_abi_version` whose **default** carries
+    `BKE_EXTERNAL_DRAW_ABI_VERSION` and is readable instance-free via
+    `bl_rna.properties[...].default`.
+  - `smoke_test_package.py` fails on: null provider, missing property (fork
+    predates the bump), or version mismatch. The addon's `register()` does
+    the same comparison up front (console warning, skips handing over a
+    skewed provider), and `enter()` does a one-time `bl_draw_provider`
+    readback (instance reads do hit the RNA getter) as belt-and-braces
+    against silent rejection on forks predating the property.
+- Stage 2 followed §3 as written; the per-span local base is recomputed
+  during the fill walk (the OPEN question's "recompute" option). The
+  kill-switch env is read once in the ctor; the updated `test_grid_stroke`
+  extdraw block is mode-agnostic, so the whole suite passes under
+  `SC_GRIDS_INDEXED=0` too.
+
+**Status: Stages 1–2 implemented (2026-08-10); Stage 3 measurement pending.** Written 2026-08-10 from code reading of
 engine `GridDrawSource`, the extdraw ABI on both sides of the repo seam, the
 fork's `draw_external.cc` upload path, and native `draw_pbvh.cc`'s grid index
 buffers. Everything cited was read in source at the given lines; the few
