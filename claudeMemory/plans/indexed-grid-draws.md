@@ -52,10 +52,18 @@ Interleaved RenderDoc A/B (two rounds of native→sculptcore, 12 frames/arm,
   16.2 → 12.4 ms (same bench pair; small n, direction confirmed by the
   interleaved trace's per-dab cycle 7.3 native vs 3.2–3.5 sculptcore).
 
-`SC_GRIDS_INDEXED=0` remains the rollback lever. Stage 4 (draw-node autotune
-re-sweep) stays optional.
+`SC_GRIDS_INDEXED=0` remains the rollback lever.
 
-**Status: Stages 1–3 complete (2026-08-10); indexed draws are on by default.** Written 2026-08-10 from code reading of
+**Stage 4 ran and closed with no change**: interleaved headed sweep
+(`run_tuning_headed.mjs`, 1M/L4, 2 reps) of `auto` vs `tris=32768` vs
+`tris=131072` under the indexed fill — `auto` wins or ties everywhere
+(stroke 48.5/48.9 ms vs 49.4–54.9; the larger nodes trade ~0.15 ms of
+sculpt_view for more per-stroke dirty-node refill). The 2.2×-viewport
+draw-node target survives the indexed cost model; keep the autotune as is.
+Raw table: scratchpad `stage4-tune/results/summary.json` (2026-08-10 run).
+
+**Status: all stages complete (2026-08-10); indexed draws are on by default,
+draw-node autotune unchanged.** Written 2026-08-10 from code reading of
 engine `GridDrawSource`, the extdraw ABI on both sides of the repo seam, the
 fork's `draw_external.cc` upload path, and native `draw_pbvh.cc`'s grid index
 buffers. Everything cited was read in source at the given lines; the few
