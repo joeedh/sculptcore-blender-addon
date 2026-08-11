@@ -46,6 +46,7 @@ class SculptCoreMode(bpy.types.ObjectModeType):
     bl_use_sculpt_paint = True
 
     def enter(self, context, ob):
+        _check_draw_provider(self)
         convert.enter(ob)
 
     def exit(self, context, ob):
@@ -67,6 +68,27 @@ class SculptCoreMode(bpy.types.ObjectModeType):
         cursor.draw(context, x, y)
 
 
+# Decimal address of the provider register() handed the mode, or None when the
+# engine was unavailable. Lets enter() detect a silently-rejected registration.
+_expected_draw_provider = None
+_draw_provider_checked = False
+
+
+def _check_draw_provider(mode):
+    """One-time readback of the registered mode's draw provider (first enter is
+    the earliest point a live RNA instance exists to read it through). "0" with
+    a provider registered means Blender silently rejected it — the viewport is
+    drawing the flush-to-Mesh fallback (for multires: the base cage)."""
+    global _draw_provider_checked
+    if _draw_provider_checked or _expected_draw_provider is None:
+        return
+    _draw_provider_checked = True
+    if mode.bl_draw_provider == "0":
+        print("SculptCore: WARNING: the external draw provider was rejected by this "
+              "Blender (bl_draw_provider reads back \"0\") — engine/Blender external-draw "
+              "ABI skew? The viewport is showing fallback geometry, not the engine's.")
+
+
 def register():
     props.register()
     engine_props.register()
@@ -78,7 +100,25 @@ def register():
     # engine is unavailable the mode still registers and falls back to the
     # flush-to-Mesh draw path.
     try:
-        SculptCoreMode.bl_draw_provider = str(int(engine.capi().lib.sc_external_draw_provider()))
+        provider = int(engine.capi().lib.sc_external_draw_provider())
+        # The provider struct leads with its abi_version; Blender rejects any
+        # version other than the one it was built against, *silently* (the RNA
+        # string setter cannot report). Compare up front and name both numbers,
+        # instead of shipping a viewport that quietly draws fallback geometry.
+        import ctypes
+        engine_abi = ctypes.cast(ctypes.c_void_p(provider),
+                                 ctypes.POINTER(ctypes.c_int)).contents.value
+        abi_prop = bpy.types.ObjectModeType.bl_rna.properties.get("bl_draw_provider_abi_version")
+        if abi_prop is not None and abi_prop.default != engine_abi:
+            print("SculptCore: WARNING: external-draw ABI skew — the engine's provider is "
+                  "v{:d} but this Blender expects v{:d}; using the flush-to-Mesh draw path "
+                  "(rebuild the older side)".format(engine_abi, abi_prop.default))
+        else:
+            # An old fork predates the version property; register anyway and let
+            # the enter()-time readback catch a rejection.
+            SculptCoreMode.bl_draw_provider = str(provider)
+            global _expected_draw_provider
+            _expected_draw_provider = provider
     except Exception as ex:
         print("SculptCore: external draw provider unavailable ({!r}); "
               "using the flush-to-Mesh draw path".format(ex))

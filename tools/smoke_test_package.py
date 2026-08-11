@@ -27,6 +27,9 @@ build step stayed green:
   machine — a build-machine path that happens to exist, a system OpenMP
   runtime — is exactly the bug ``fetch-blender-dist.mjs``'s ``fixLibLinkage()``
   exists to prevent, and it is invisible wherever the libs were built.
+* **Registrable.**  The engine provider's external-draw ABI version must match
+  the one this Blender expects.  A skewed fork/engine pair fails nothing else:
+  registration is refused silently and the viewport draws fallback geometry.
 * **Complete.**  Every kernel the brush table names must be in the engine's
   enum.  A package whose libs were built without this repo's ``brushes/*.sbrush``
   (``--kernels-extra``) is missing ``NUDGE`` and nothing else notices.
@@ -139,6 +142,38 @@ def check_environment():
                  "tested".format(var, os.environ[var]))
 
 
+def check_draw_provider(capi):
+    """The external draw provider is registrable against this Blender.
+
+    A package whose engine and Blender were built against different
+    external-draw ABI versions still passes every other check here: the fork
+    silently rejects the provider at registration (the RNA string setter cannot
+    report), and the mode then draws the flush-to-Mesh fallback — for multires,
+    the base cage. The provider struct leads with its ``abi_version``; Blender
+    exposes the version it expects as the ``bl_draw_provider_abi_version``
+    property default, readable without a mode instance."""
+    import ctypes
+
+    provider = capi.lib.sc_external_draw_provider()
+    if not provider:
+        fail("sc_external_draw_provider() returned null — the mode has no draw provider "
+             "to register")
+        return
+    engine_abi = ctypes.cast(ctypes.c_void_p(provider),
+                             ctypes.POINTER(ctypes.c_int)).contents.value
+    abi_prop = bpy.types.ObjectModeType.bl_rna.properties.get("bl_draw_provider_abi_version")
+    if abi_prop is None:
+        fail("this Blender's ObjectModeType has no bl_draw_provider_abi_version — it "
+             "predates the external-draw ABI the engine was built for; the provider is "
+             "silently rejected and the viewport draws fallback geometry")
+        return
+    if abi_prop.default != engine_abi:
+        fail("external-draw ABI skew: the engine's provider reports v{:d} but this Blender "
+             "expects v{:d}; registration is silently refused and the viewport draws "
+             "fallback geometry (repackage with matching fork/engine builds)".format(
+                 engine_abi, abi_prop.default))
+
+
 def check_startup_engine():
     """The engine was reachable during the add-on's own registration.
 
@@ -168,6 +203,7 @@ def main():
     # layer calls, which fails loudly on a library missing an export.
     manager = engine.manager()
     capi = engine.capi()
+    check_draw_provider(capi)
 
     import sculptcore
     pkg_file = os.path.abspath(sculptcore.__file__)
