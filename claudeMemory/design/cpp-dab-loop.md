@@ -450,3 +450,58 @@ per-dab live reads of `bl_brush.strength` are frozen at `setStroke`
 (mutation mid-stroke only possible via timers/second window — accepted);
 stale `_flush_multires` comment at `convert.py:1898` describes removed
 fold behavior as current — fix when touching.
+
+## 13. Validation results (2026-08-10, task #4 — variant B as landed)
+
+Everything below ran against engine 8b8bc3a + addon b6bb0e8 staged into the
+dev fork build (`build_windows_x64_clang_RelWithDebInfo`).
+
+**Correctness**
+
+- `test_batch_dab.py` (headless smoke, all four entry points direct): 17/17.
+- `test_batch_parity.py` (batch vs shipping Python cycle, identical dab
+  sequence, X-mirror on the mesh arm): mesh arm **bit-exact** (max |Δ| = 0.0);
+  grids arm max |Δ| = 1.19e-07 — inside the grids executor's own
+  run-to-run thread noise (two identical Python-arm runs differ by the same
+  ~1 ULP; the mesh executor is run-deterministic, the grids one is not, so
+  only the mesh arm may gate bit-exact).
+- Engine ctest sweep: **125/125 passed** — including the four historically
+  env-dependent names (`test_live_stroke`, `test_bsmooth`,
+  `test_automask_gpu`, `test_spatial_boundary_normals`).
+- `test_stroke_cancel.py` (headed, event-simulate): ESC mid-stroke keeps the
+  applied dabs and the session survives (a follow-up stroke sculpts); quitting
+  Blender with the modal live runs the new `cancel()` teardown without a
+  traceback. Harness traps discovered: the splash *and* the first viewport
+  click are each swallowed (the bench's `strokes_finished=19/20`,
+  `dabs min=0` is the same loss), and an idle viewport stops drawing, so a
+  draw-count warmup gate must `tag_redraw()` itself.
+
+**Perf — interleaved headed A/B at 1M faces / L4** (4 alternating pairs,
+`bench_multires_sc.py`, sculptcore engine both arms, toggle off vs on;
+medians of per-run medians):
+
+| metric | Python loop | C++ batch | delta |
+|---|---|---|---|
+| `stroke_ms` median | 67.6 | 59.6 | **−11.8 %** |
+| `stroke_ms` mean | 65.1 | 57.2 | −12.2 % |
+| `sculpt_phase_ms` | 1755 | 1590 | −9.4 % |
+| `cycle_ms` median | 15.6 | 19.0 | +21 % (vsync-quantized leading edge, noise) |
+
+`--engine-trace` confirms the removed traffic: the per-dab prop cycle
+(`writeProps`/`pushDeviceInput`/`clearDeviceInputs`, 1605 calls/run ≈
+1 ms/stroke of pure marshalling) drops to zero engine-side; the raw
+`lib.*Batch` calls are invisible to that tracer. cProfile on the batch arm
+puts `_apply_batch` at ~29 ms/stroke *tottime* — but that bucket contains the
+two opaque ctypes batch calls, i.e. mostly the ~21 ms/stroke of engine dab
+work §1 always said stays. True Python residue there (ray synthesis loop,
+`_world_radius`, `_track_pivot`, numpy assembly) is ~6–8 ms/stroke.
+
+**Reading vs §11's 16–28 ms prediction**: the measured win (~8 ms/stroke) is
+the *bottom* of the predicted band minus the new per-event overhead the
+prediction ignored. The remaining stroke time is engine dab execution
+(~21 ms), redraw machinery (`draw_refresh` ~8.6 + `_mid_redraw` ~5.7 +
+`stroke_end` ~7.2 ms), the spacer walk (~4 ms), and per-hit helpers still in
+Python. None of that is per-dab ctypes driver cost: **the "~3× is per-dab
+Python/ctypes driver cost" attribution in the perf-gap memory is now
+falsified** — the next levers are the redraw path and per-hit helpers, not
+deeper batching of the dab loop.
