@@ -24,17 +24,45 @@ Constants:
 | builds repo | `joeedh/sculptblender-builds` |
 | deps repo | `joeedh/sculptcore-deps` |
 
-Poll long-running work with a **backgrounded** bash loop (`run_in_background:
-true`), never a foreground `sleep`. Example shape:
+## Watching a run (both builds are hours long — get this right)
+
+Use a **persistent `Monitor`**, not a backgrounded Bash loop. A `run_in_background`
+loop is killed at turn boundaries — observed dying after 30 min, and on the next
+two attempts after a *single* iteration — so the watch silently stops while the
+run keeps going and you learn nothing until you happen to poll by hand. `Monitor`
+with `persistent: true` survives the full ~2.5 h. Never foreground-`sleep` either;
+the harness blocks `sleep N; <check>` chains outright.
 
 ```sh
+prev=""
 while :; do
-  s=$(gh run view <id> --repo <repo> --json status,conclusion -q '.status+" "+(.conclusion//"")')
-  echo "$(date -u +%H:%M) $s"
-  case "$s" in completed*) break;; esac
-  sleep 180
+  cur=$(gh run view <id> --repo <repo> --json status,conclusion,jobs \
+        -q '(.status+"/"+(if (.conclusion//"")=="" then "running" else .conclusion end))+" | "+([.jobs[]|.name+"="+(if (.conclusion//"")=="" then .status else .conclusion end)]|join(", "))' 2>&1 || echo "poll-error")
+  if [ "$cur" != "$prev" ]; then echo "$(date -u +%H:%M) $cur"; prev="$cur"; fi
+  case "$cur" in completed/*) echo "TERMINAL: $cur"; break;; esac
+  sleep 300
 done
 ```
+
+Three things that shape gets right:
+
+- **`gh` returns `conclusion` as `""`, not `null`, for anything unfinished**, so
+  jq's `//` fallback never fires — `(.conclusion // .status)` renders every job
+  blank. Test the empty string explicitly, as above. (Terminal detection still
+  works with the naive version, which is what makes the bug easy to miss.)
+- **Emit only on change.** One notification per state transition, not one per
+  poll — a 2.5 h run at 300 s polls is ~30 messages of pure noise otherwise.
+- **Cover every terminal state**, not just success: matching `completed/*` and
+  printing the whole job list means a `failure`/`cancelled` wakes you the same
+  way a success does. A filter that watches only for the happy path is silent
+  through a failure, and silence is indistinguishable from "still running".
+
+Stop the monitor with `TaskStop` if you need to restart it with a fixed query.
+
+This applies to **watching a run over time**. A one-shot command that exits on
+its own — the LFS push in Phase 4, waiting for a cancel to settle — is still fine
+as Bash `run_in_background`; it ends in seconds-to-minutes and gives you a single
+completion notification. The turn-boundary kill only bites open-ended loops.
 
 ## Phase 0 — Preflight
 
@@ -86,7 +114,46 @@ raced a push would otherwise be polled to completion for the wrong commit.
 Poll to completion. All three matrix jobs must be `success`; if any failed,
 stop and report — do not package a partial build.
 
+A green build is not automatically packageable: `master` will have moved during
+those ~2.5 h. Phase 3's precondition re-checks it before anything is dispatched.
+
 ## Phase 3 — Package
+
+### Precondition: re-read `origin/master` and check the ABI pairing
+
+Do this immediately before dispatching, **not** at Phase 0. The fork build takes
+~2.5 h and both refs move during it — a build can be superseded by a commit that
+did not exist when it was dispatched, so a sha you validated earlier proves
+nothing now.
+
+```sh
+git -C <addon> fetch origin master -q && git -C <addon> rev-parse origin/master
+```
+
+Packaging pairs the **fork build** with the **addon + engine submodule at
+`origin/master`**. Those move independently, and a green fork build does not mean
+the pair agrees on the **external-draw ABI**. Nothing in either workflow checks
+this. Verify by hand that the fork sha you are about to pin carries the ABI the
+engine submodule was bumped to:
+
+```sh
+git -C <fork> grep -l bl_draw_provider_abi_version <fork-sha>   # empty = too old
+git -C <addon> rev-parse origin/master:engine                   # then read its log for extdraw bumps
+```
+
+If the addon side bumped the extdraw ABI and the fork sha lacks the property,
+**stop — do not package.** Blender rejects a mismatched provider *silently*: the
+result is a base-cage viewport with no engine geometry, and the addon takes its
+"fork predates the property, register anyway" path rather than erroring. The
+auto-triggered smoke test fails the release too, so the run can only waste its
+CI. Rebuild the fork at a tip that has the property.
+
+Fork extdraw commits and engine extdraw commits land as **matched pairs** authored
+minutes apart; an unpaired one is a rebuild trigger. Not every skew is fatal —
+an engine change that merely stops *advertising* a slot (an older fork fills
+neutral zeros) costs perf, not correctness. A **version** bump is the hard break.
+
+### Dispatch
 
 ```sh
 gh workflow run build-packages.yml --repo joeedh/sculptcore-blender-addon \
@@ -97,7 +164,9 @@ gh workflow run build-packages.yml --repo joeedh/sculptcore-blender-addon \
 `blender_branch`", which can silently package a Blender that predates the fork
 change being shipped. Other inputs, all optional: `blender_branch`, `config`
 (`RelWithDebInfo`|`Release`), `tag` (default `build-<UTC date>-<short sha>`),
-`prerelease` (default true). Pass them only if the user asked for them.
+`prerelease` (default **false** — GitHub's `/releases/latest` skips pre-releases
+entirely, so marking one keeps it off the stable download links). Pass them only
+if the user asked for them.
 
 Resolve the run id from the command's output URL, verify its `headSha` is the
 addon repo's `origin/master`, then poll. Jobs: `Prepare release`, the three
@@ -166,5 +235,7 @@ Report: run URLs, the release tag and its assets with sizes, per-job durations
 | Packaging can't download the fork artifacts | `BUILDS_TOKEN` secret — needs `actions:read` on `joeedh/blender` and `contents:write` on `joeedh/sculptblender-builds`. The default `GITHUB_TOKEN` is repo-scoped and cannot. |
 | Addon reports `kernel 'NUDGE' missing from engine enum` | Engine libs built without `--kernels-extra ../brushes`. |
 | Phase 1 finds a green run whose artifacts are expired | Treat as no build; dispatch a fresh one. |
+| Packaged viewport shows the base cage / no engine geometry; smoke test fails on null provider or missing `bl_draw_provider_abi_version` | External-draw ABI skew: the pinned fork build predates the ABI the engine submodule was bumped to. Blender rejects the provider silently. Rebuild the fork at a tip carrying the property — see the Phase 3 precondition. |
+| The fork build you just waited 2.5 h for is already superseded | Normal: `master` moves during the build. Re-read `origin/master` at Phase 3 and re-check the ABI pairing before dispatching. Nothing is salvageable from the stale build if the ABI moved. |
 
 Background: `CLAUDE.md` § *Packaging CI* in this repo.
