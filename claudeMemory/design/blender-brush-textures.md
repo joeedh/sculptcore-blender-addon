@@ -2,6 +2,12 @@
 
 **Status:** design, not implemented. Written 2026-08-02 against addon `e04cd57`,
 the engine submodule as vendored, and the fork's `custom-object-modes` branch.
+Re-verified 2026-08-12 against addon `9cf9225` / engine `007d0bd`: every code
+claim below still holds (line numbers refreshed), with **one architectural
+change under it** — the default stroke path is now a per-event C++ dab batch,
+not a Python per-dab loop, which moves the per-dab matrix push for
+`VIEW`/`RANDOM`/`AREA` from "addon only" into engine work. See the dated notes
+in §3, §6 and §8.
 
 **Headline.** The transport is already built and mostly correct: the addon bakes
 a Blender `Texture` to a grayscale tile, the engine carries it as a brush
@@ -30,8 +36,8 @@ shorter list than it first appears.
 | `sculptcore_addon/texture.py:87` | `apply_texture()` — pushes the tile via `Brush::setTexture`, sets `coord_space` from a `map_mode` lookup, sets `tex_repeat = 1.0`. |
 | `sculptcore_addon/texture.py:108` | `apply_render_matrix()` — pushes `rv3d.perspective_matrix` into `CommandExecutor::setRenderMatrix`. |
 | `sculptcore_addon/handlers.py:89` | Depsgraph invalidation of the bake cache. |
-| `sculptcore_addon/stroke.py:539` | Bind point — once per stroke. |
-| `sculptcore_addon/ui.py:78` | Reports "Texture mapping not supported by the engine" for unmapped modes. |
+| `sculptcore_addon/stroke.py:747` | Bind point — once per stroke. |
+| `sculptcore_addon/ui.py:81` | Reports "Texture mapping not supported by the engine" for unmapped modes. |
 | `sculptcore_addon/keymap.py:92` | Ctrl-F radial control bound to `texture_slot.angle`; `brush.stencil_control` on RMB. |
 
 ### Engine
@@ -39,20 +45,21 @@ shorter list than it first appears.
 | Where | What |
 |---|---|
 | `brush/brush.h:78` | `TexCoordSpace` — `Global`, `ViewPlane`, `ViewRepeat`, `StrokeCurved`, `Projected`. |
-| `brush/brush.h:212` | `tex_width` / `tex_height` / `tex_pixels` / `coord_space` / `tex_repeat` on `Brush`. |
-| `brush/brush.h:724` | `sampleTexBilinear` — bilinear, **clamp-to-edge**, returns `1.0` with nothing bound. |
-| `brush/brush_command.h:340` | `sampleBrushTex(co, no)` — the coord-space switch. |
-| `brush/brush_command.h:381` | `sampleViewUv` — `uv = (renderMatrix · co).xy / w · 0.5 + 0.5`. |
-| `kernels/ir/intrinsics.cc:81` | The `sampleBrushTex` DSL intrinsic; lowered by four backends. |
-| `brush/compute_layout.h:59`, `gpu_marshal.cc:186` | `render_matrix` in the per-dab ctx uniform block. |
+| `brush/brush.h:217` | `tex_width` / `tex_height` / `tex_pixels` / `coord_space` / `tex_repeat` on `Brush`. |
+| `brush/brush.h:725` | `sampleTexBilinear` — bilinear, **clamp-to-edge**, returns `1.0` with nothing bound. |
+| `brush/brush_command.h:349` | `sampleBrushTex(co, no)` — the coord-space switch. |
+| `brush/brush_command.h:394` | `sampleViewUv` — `uv = (renderMatrix · co).xy / w · 0.5 + 0.5`. |
+| `brush/kernels/ir/intrinsics.cc:76` | The `sampleBrushTex` DSL intrinsic; lowered by four backends. |
+| `brush/compute_layout.h:59`, `gpu_marshal.cc:189` | `render_matrix` in the per-dab ctx uniform block. |
 
 Sampling kernels: `draw`, `sharp`, `layerdraw` (engine) and `nudge` (this repo's
 `brushes/`). Every other kernel ignores the texture entirely.
 
 `renderMatrix` has exactly one consumer — `sampleViewUv`. Nothing else in the
 engine reads it (checked across `source/`, excluding the emitters and the debug
-app, which only thread it through). **That makes it free to repurpose as a
-general texture-mapping matrix.**
+app, which only thread it through; re-checked 2026-08-12 — still true after the
+C++ stroke-driver and dab-batch work, neither of which touches it). **That
+makes it free to repurpose as a general texture-mapping matrix.**
 
 ### The bake is faithful
 
@@ -135,7 +142,7 @@ compute the equivalents itself. It already has all the inputs:
   strokes and randomized for `RANDOM` (`BKE_brush_randomize_texture_coords`,
   `brush.cc:1453` — note it multiplies the random by `pixel_radius`).
 - `pixel_radius` — brush radius × the size-pressure curve value; the addon
-  already bakes that LUT (`stroke.py:531`).
+  already bakes that LUT (`stroke.py:736`).
 - `brush_rotation` — rake: `atan2(dy, dx) + π/2`, updated only once the mouse
   has moved at least `paint_rake_rotation_spacing` (capped at 4 px before the
   stroke starts), otherwise held (`paint.cc:2007`). ~15 lines to reproduce.
@@ -200,8 +207,17 @@ AREA     M = translate(ofs.xy) · scale(size.xy) · brush_local_mat · Mobj
 `plane_offset` is a pre-translation on all of them. Symmetry is a
 post-multiplied mirror: Blender flips the *sample point* back to primary space
 (`sculpt.cc:2506`), so `M_pass = M_primary · symm_rot_inv · flip`. The addon
-already executes each mirror image as its own dab (`symmetry.py`), so each pass
-simply pushes its own matrix.
+executes each mirror image as its own dab (`symmetry.py`), so on the Python
+per-dab path each pass simply pushes its own matrix.
+
+**2026-08-12:** that per-pass push only exists on the Python path. The default
+stroke path is now the C++ dab batch (`stroke.py:1209` `_apply_batch`, scene
+toggle `sculptcore_cpp_dab_loop`, default on since 2026-08-10), where symmetry
+mirrors are applied *inside* the engine batch call from `_mirror_flat` — Python
+never sees the mirror passes. The mirror matrix therefore has to be composed
+engine-side there (the engine knows the mirror signs; `symm_rot_inv · flip` is
+the same per-sign composition Python would do). See §6 defect 3 for the per-dab
+half of the same problem.
 
 Everything above is `mathutils` arithmetic on data the addon already has.
 
@@ -211,10 +227,16 @@ Everything above is `mathutils` arithmetic on data the addon already has.
 
 ### 4.1 The texture reaches only four kernels
 
+> **Implemented (engine, 2026-08-12).** The multiply is folded into all four
+> `strength()` helpers (C++ `CommandCtx::strength`, WGSL/CUDA-HIP/OpenCL
+> `brush_strength`); `draw`/`layerdraw`/`sharp` dropped their explicit calls,
+> and `kelvinlet` (the only `@unbounded` kernel today — pose is not) gained an
+> explicit `sampleBrushTex` multiply beside `unbounded_window()`.
+
 Blender applies the texture through `SCULPT_brush_strength_factor`, which nearly
 every brush calls. SculptCore has the same choke point: the `strength()`
 intrinsic (`intrinsics.cc:44`), which lowers to `ctx.strength()` in C++
-(`brush_command.h:290`) and a `brush_strength()` helper in each of WGSL, CUDA and
+(`brush_command.h:295`) and a `brush_strength()` helper in each of WGSL, CUDA and
 OpenCL. Folding the texture multiply into those four helpers gives every kernel
 texture support at once, and is bit-identical when nothing is bound
 (`sampleTexBilinear` returns `1.0`).
@@ -224,10 +246,13 @@ Two care points:
 - The four kernels that call `sampleBrushTex` explicitly must drop the call, or
   they double-multiply. `texdraw.sbrush` uses its own inline `texture` block and
   is unaffected.
-- Kernels with unbounded support are documented as *not* allowed to call
-  `strength()` (`intrinsics.cc:40` — the field is its own falloff). Those —
-  kelvinlet, pose, and anything else `@unbounded` — need an explicit
-  `sampleBrushTex` call to stay in parity.
+- Kernels with unbounded support are *not* allowed to call `strength()`
+  (`intrinsics.cc:42` — the field is its own falloff; sema now enforces that an
+  `@unbounded` kernel calls `unbounded_window()` instead, `intrinsics.cc:61`).
+  Those — kelvinlet, pose, and anything else `@unbounded` — need an explicit
+  `sampleBrushTex` call to stay in parity. Note also the `masks()` /
+  `automasks()` split beside `strength()` (`intrinsics.cc:47`): the texture
+  multiply belongs in `strength()` (it is spatial), not in the mask helpers.
 
 This is the single change that buys the most.
 
@@ -336,6 +361,35 @@ Neither §4.3's volume bake nor the callback should be built as if it were the
 destination. The callback is a stopgap with a known ceiling; the compiler is
 where this ends up.
 
+**2026-08-12: this section now has a concrete engine-side plan** —
+`engine/documentation/plans/texture-scripts.md` (standalone `.stex` texture
+units, milestones T1–T5). It keeps this section's structure (DSL textures
+canonical, host sampler as the stopgap — T4 registers a `blender_tex` ctypes
+sampler) but supersedes two mechanisms sketched above: the runtime CPU side is
+a **C99 emitter JIT'd with embedded libtcc**, not a SPIR-V
+interpreter/transpiler (and only textures compile at runtime — brushes stay
+compile-time, so emitter parity stays gate-verified rather than
+by-construction); and the "fixed library selected by uniform" stepping stone is
+dropped for a name-keyed precompiled registry plus a `Brush::texture_program`
+checked first inside `sampleBrushTex` (the seam demanded below, honored
+exactly). It adds two requirements this section missed: `grad()` must
+propagate through texture scripts and host samplers (chain rule / synthesized
+central differences, T2), and the ctypes sampler is per-thread-unsafe against
+the multithreaded CPU executor (flagged there for the T4 addon slice).
+
+The seam this note previously left open — scripts getting raw object-space
+`p` with no access to the §3 mapping — is now resolved in that plan's
+"Map-mode seam" section: a texture-scope `mapPoint(p)` intrinsic returning
+`(M·p).xyz / (M·p).w`, i.e. Blender's texture coordinate directly (the
+bitmap path's `0.5·c + 0.5` remap stays internal to `sampleViewUv`), with
+the matrix threaded as a pure argument (`TexEvalCtx`) rather than ctx
+access, an exact quotient-rule autodiff dual, and `renderMatrix` shared as
+the single mapping source for both consumers. The §3 per-mode recipes apply
+to scripts unchanged; `TILED` repeat and `STENCIL` clip become script logic
+(`fract()` / bounds check), leaving §4.2's `tex_extend` bitmap-path-only.
+Per-dab/per-mirror matrix composition remains P2 work and feeds both
+consumers through the same matrix.
+
 **What this asks of the work in §8 today:** nothing, except that the texture
 lookup stay behind the `sampleBrushTex` intrinsic seam so a compiled sampler can
 replace the tile fetch without touching a single kernel. It already does — which
@@ -377,17 +431,37 @@ one change rather than three.
 Independent of the design above, three things are wrong today:
 
 1. **`apply_render_matrix` pushes the wrong matrix** (`texture.py:117`). Engine
-   coordinates are *object* space — `stroke.py:1143` converts world → object on
+   coordinates are *object* space — `stroke.py:1527` converts world → object on
    the way in — but the pushed matrix is the bare `rv3d.perspective_matrix`. It
    needs `rv3d.perspective_matrix @ ob.matrix_world`, the composition
    `gestures.py:38` already gets right. Any object with a non-identity transform
    gets a mis-projected texture in `TILED` / `STENCIL` today.
 2. **`texture_slot.angle` is bound but never read.** `keymap.py:92` gives it a
    Ctrl-F radial control; nothing consumes it, so the interaction is a no-op.
-3. **The matrix is pushed once per stroke** (`stroke.py:540`). `VIEW`, `AREA`
+3. **The matrix is pushed once per stroke** (`stroke.py:749`). `VIEW`, `AREA`
    and `RANDOM` all change per dab (`tex_mouse`, `brush_local_mat`, the random
    angle), and each symmetry image needs its own. It has to move to the dab
-   path. Cost is 16 floats per dab through the existing bound-vector marshal.
+   path.
+
+   **2026-08-12 — "the dab path" is no longer a Python loop.** As written this
+   defect assumed one Python round-trip per dab, where pushing 16 floats
+   through the bound-vector marshal is cheap and trivial. Since 2026-08-10 the
+   default path for plain spaced strokes is the C++ dab batch: `_apply_batch`
+   (`stroke.py:1209`) resolves a whole pointer event in one
+   `MeshStroke_dabBatch` / `GridStroke_dabBatch` (or `*_dabBatchProgram` for
+   autosmooth program strokes, S4/S5) call, over a 7-float-per-dab record
+   (hit pos, hit normal, world radius), with symmetry expanded engine-side.
+   Python round-trips per dab only on what the batch cannot express — grab
+   anchoring, preview dabs, snake hook, multi-pass smooth, dyntopo
+   (`stroke.py:852`) — and the toggle comment (`props.py:129`) says the Python
+   path is slated for retirement, so the design must target the batch. That
+   means: stroke-constant matrices (`TILED`, `STENCIL`) stay a single
+   pre-batch push and remain addon-only; per-dab matrices (`VIEW`, `RANDOM`,
+   `AREA` rake / random / motion-aligned `brush_local_mat`) need the batch
+   record extended (e.g. +16 floats per dab, or the few scalars — `tex_mouse`,
+   angle — the engine composes into a matrix itself), and the per-mirror
+   composition of §3 done engine-side. That is engine work, moving those
+   modes out of P1 (§8).
 
 Also worth a second look: the existing `VIEW_PLANE → Projected` and
 `STENCIL → ViewPlane` choices in `_COORD_SPACE` are not the modes' Blender
@@ -415,23 +489,32 @@ a placed, clipped rectangle). Both are superseded by §3.
 
 ## 8. Suggested phasing
 
-**P1 — addon only, no engine rebuild.** Fix the object-matrix bug; move the push
-to the dab path; build the per-dab matrix for `VIEW` / `TILED` / `STENCIL` /
-`AREA` / `RANDOM` including angle, scale, offset, rake, random, stencil
-placement, bias and symmetry; zero guard ring on the bake for `STENCIL`; image
-fast path and the `session_uid` cache key. This is the bulk of the parity win
-and needs nothing from the engine.
+**P1 — addon only, no engine rebuild.** Fix the object-matrix bug; build the
+stroke-constant matrix for `TILED` / `STENCIL` including angle, scale, offset,
+stencil placement and bias; zero guard ring on the bake for `STENCIL`; image
+fast path and the `session_uid` cache key.
 
-**P2 — engine.** Texture folded into `strength()` (plus explicit calls in the
-`@unbounded` kernels), `tex_extend`. One submodule change, four emitters, a
-DLL rebuild and re-vendor.
+*(2026-08-12: P1 originally also covered the per-dab modes — "move the push to
+the dab path" — because the dab path was a Python loop. With the C++ dab batch
+now the default (§6 defect 3), per-dab matrices for `VIEW` / `RANDOM` / `AREA`
+plus rake, random and per-mirror composition require the batch ABI to carry
+them, so they move to P2. What stays in P1 is exactly what is constant across
+a stroke.)*
+
+**P2 — engine.** Per-dab mapping through the dab batch: extend the batch
+record (or pass the scalars the engine composes itself) for `VIEW` / `RANDOM` /
+`AREA`, with the §3 mirror composition done engine-side. Texture folded into
+`strength()` (plus explicit calls in the `@unbounded` kernels), `tex_extend`.
+One submodule change, four emitters, a DLL rebuild and re-vendor.
 
 **P3 — optional.** Cursor overlay; RGB textures.
 
 **Not scheduled.** 3D map mode (§4.3), and behind it the procedural-texture
 question (§4.4). When it is taken up, it is taken up as DSL texture nodes, not
 as a volume bake — with a host-sampler callback as an interim correctness escape
-hatch if one is needed sooner.
+hatch if one is needed sooner. *(2026-08-12: the engine-side plan for exactly
+that now exists — `engine/documentation/plans/texture-scripts.md`; see the note
+in §4.4 for what it supersedes here and the map-mode seam it leaves open.)*
 
 ### Validating it
 
