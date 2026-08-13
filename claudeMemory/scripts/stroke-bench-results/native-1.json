@@ -1,0 +1,101 @@
+{
+  "label": "native#1",
+  "engine": "native",
+  "mode": "multires",
+  "grid": 64,
+  "level": 4,
+  "event_hz": 200.0,
+  "stroke_secs": 1.2,
+  "gap_secs": 0.3,
+  "blender_version": "5.3.0",
+  "binary": "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+  "cpp_driver": null,
+  "subdivide_ms_total": 1015.943500038702,
+  "multires_levels": 4,
+  "surface_before": {
+    "verts": 1018081,
+    "peak_z": 0.0
+  },
+  "base_faces": 3969,
+  "sculpt_faces": 1016064,
+  "enter_mode_ms": 135.11939998716116,
+  "brush": {
+    "name": "Clay",
+    "size": 50,
+    "spacing": 10,
+    "strength": 0.10000000149011612,
+    "auto_smooth_factor": 0.25
+  },
+  "idle_view_ms": {
+    "n": 61,
+    "mean": 0.8493803220144549,
+    "median": 0.8403999963775277,
+    "min": 0.3268999862484634,
+    "p90": 1.1102999560534954,
+    "max": 1.583400007802993
+  },
+  "idle_frame_ms": {
+    "n": 60,
+    "mean": 16.659566666930914,
+    "median": 16.702799999620765,
+    "min": 14.053400023840368,
+    "p90": 17.627099994570017,
+    "max": 17.967200023122132
+  },
+  "sculpt_phase_ms": 18445.091700006742,
+  "sculpt_frames": 641,
+  "stroke_frame_ms": {
+    "n": 458,
+    "mean": 24.678706768854404,
+    "median": 16.79690001765266,
+    "min": 14.788199972826988,
+    "p90": 25.44540003873408,
+    "max": 368.6512000276707
+  },
+  "latency_ms": {
+    "n": 470,
+    "mean": 15.953716170538138,
+    "median": 14.32839996414259,
+    "min": 5.028099985793233,
+    "p90": 18.761900020763278,
+    "max": 51.25909997150302
+  },
+  "sculpt_view_ms": {
+    "n": 470,
+    "mean": 1.3209225534352453,
+    "median": 1.278500014450401,
+    "min": 0.7931999862194061,
+    "p90": 1.6154000186361372,
+    "max": 2.6767999515868723
+  },
+  "stroke_wall_ms": {
+    "n": 12,
+    "mean": 1234.4243750024664,
+    "median": 1234.7258999943733,
+    "min": 1231.959500000812,
+    "p90": 1235.9069000231102,
+    "max": 1236.0125000122935
+  },
+  "frames_per_stroke": {
+    "n": 12,
+    "mean": 39.166666666666664,
+    "median": 40,
+    "min": 27,
+    "p90": 43,
+    "max": 43
+  },
+  "events": {
+    "per_stroke": 240,
+    "moves": 861,
+    "inbetween": 2007
+  },
+  "undo_memory": 9440032,
+  "surface_after": {
+    "verts": 1018081,
+    "peak_z": 0.008192869834601879
+  },
+  "memory": {
+    "peak_working_set": 1285738496,
+    "working_set": 1213079552
+  }
+}
