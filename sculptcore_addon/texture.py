@@ -6,13 +6,19 @@
 Brush textures (brush-mapping Phase 2).
 
 Bakes a Blender ``Texture`` datablock to the engine's grayscale texture and
-binds it per stroke: ``Texture.evaluate`` sampled over an N x N grid on
-``[-1, 1]^2`` (the intensity channel, matching Blender's own brush-texture
-sampling), cached by texture name, invalidated when the depsgraph reports the
-Texture changed. ``texture_slot.map_mode`` selects the engine
-``TexCoordSpace``; the screen-pinned modes (Tiled / Stencil) additionally
-need the stroke operator to push the region's perspective matrix
-(``setRenderMatrix``) so the engine can perspective-project to viewport UV.
+binds it per stroke. Procedural textures go through ``Texture.evaluate``
+sampled over an N x N grid on ``[-1, 1]^2`` (the engine's Global tile spans
+the same world square, wrapped beyond it); image textures are read straight
+from ``Image.pixels`` — ``evaluate()`` with interpolation on returns the
+whole-image average for images, and its intensity channel is a constant —
+reduced to linear-light luminance. Bakes are cached by texture name and
+invalidated when the depsgraph reports the Texture (or any Image) changed.
+``texture_slot.map_mode`` selects the engine ``TexCoordSpace``; the
+screen-pinned modes (Tiled / Stencil) additionally need the stroke operator
+to push the region's perspective matrix (``setRenderMatrix``) so the engine
+can perspective-project to viewport UV. Tiled parity: Blender tiles at one
+texture per ``2 * start_pixel_radius`` screen pixels, expressed engine-side
+as ``tex_repeat`` tiles per viewport height.
 """
 
 import bpy
@@ -36,7 +42,11 @@ _COORD_SPACE = {
     'STENCIL': 1,     # ViewPlane (screen-pinned)
 }
 
-# Texture name -> flat row-major grayscale list (BAKE_SIZE^2 floats).
+# Image bakes keep the image's own resolution up to this cap per axis (the
+# engine samples bilinearly from whatever w x h it is handed).
+IMAGE_BAKE_MAX = 512
+
+# Texture name -> (width, height, flat row-major grayscale list).
 _cache = {}
 
 
@@ -49,31 +59,83 @@ def invalidate(name=None):
 
 
 def invalidate_from_depsgraph(depsgraph):
-    """Called from the depsgraph handler: drop bakes of updated Textures."""
+    """Called from the depsgraph handler: drop bakes of updated Textures.
+    An Image edit does not report its user Textures, so any Image update
+    drops the whole cache (rebakes are cheap and stroke-start only)."""
     for update in depsgraph.updates:
+        if isinstance(update.id, bpy.types.Image):
+            _cache.clear()
+            return
         if isinstance(update.id, bpy.types.Texture):
             _cache.pop(update.id.name, None)
 
 
 def _bake(tex):
-    """Row-major grayscale bake of `tex` over [-1, 1]^2 (z = 0). The
-    intensity channel (`tin`, evaluate()[3]) matches what Blender's brush
-    sampling uses for non-color textures."""
-    pixels = _cache.get(tex.name)
-    if pixels is not None:
-        return pixels
+    """Grayscale bake of `tex`: ``(width, height, row-major floats)``, or
+    None for an image texture with no loadable pixels."""
+    baked = _cache.get(tex.name)
+    if baked is not None:
+        return baked
+    if tex.type == 'IMAGE':
+        baked = _bake_image(tex)
+    else:
+        baked = _bake_procedural(tex)
+    if baked is not None:
+        _cache[tex.name] = baked
+    return baked
+
+
+def _bake_procedural(tex):
+    """Evaluate() bake over [-1, 1]^2 (z = 0). For grayscale sources the
+    intensity channel (`tin`, evaluate()[3]) matches Blender's own brush
+    sampling; color-ramped and inherently-RGB procedurals use linear-light
+    luminance of the color instead (tin stays the pre-ramp intensity)."""
     n = BAKE_SIZE
     evaluate = tex.evaluate
+    use_rgb = getattr(tex, "use_color_ramp", False) or tex.type == 'MAGIC'
     pixels = [0.0] * (n * n)
     inv = 2.0 / (n - 1)
     idx = 0
     for j in range(n):
         y = j * inv - 1.0
         for i in range(n):
-            pixels[idx] = evaluate((i * inv - 1.0, y, 0.0))[3]
+            v = evaluate((i * inv - 1.0, y, 0.0))
+            if use_rgb:
+                pixels[idx] = 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2]
+            else:
+                pixels[idx] = v[3]
             idx += 1
-    _cache[tex.name] = pixels
-    return pixels
+    return (n, n, pixels)
+
+
+def _bake_image(tex):
+    """Direct-pixel bake of an image texture: linear-light luminance of the
+    buffer, downsampled by striding past IMAGE_BAKE_MAX. ``Image.pixels``
+    row 0 is the bottom row, matching engine v=0, so no flip. Byte buffers
+    arrive display-encoded and are linearized for parity with what
+    ``RE_texture_evaluate`` feeds native brushes; float buffers are already
+    linear. Returns None when the image has no pixels (caller unbinds)."""
+    import numpy as np
+
+    img = tex.image
+    if img is None:
+        return None
+    w, h = img.size
+    if w <= 0 or h <= 0 or len(img.pixels) < w * h * 4:
+        return None
+    buf = np.empty(w * h * 4, dtype=np.float32)
+    img.pixels.foreach_get(buf)
+    rgb = buf.reshape(h, w, 4)[:, :, :3]
+    if not img.is_float and img.colorspace_settings.name == 'sRGB':
+        rgb = np.where(rgb <= 0.04045, rgb / 12.92,
+                       ((rgb + 0.055) / 1.055) ** 2.4)
+    lum = rgb @ np.array([0.2126, 0.7152, 0.0722], dtype=np.float32)
+    if w > IMAGE_BAKE_MAX or h > IMAGE_BAKE_MAX:
+        ys = np.linspace(0, h - 1, min(h, IMAGE_BAKE_MAX)).round().astype(int)
+        xs = np.linspace(0, w - 1, min(w, IMAGE_BAKE_MAX)).round().astype(int)
+        lum = lum[np.ix_(ys, xs)]
+        h, w = lum.shape
+    return (w, h, lum.astype(np.float32).ravel().tolist())
 
 
 def needs_render_matrix(bl_brush):
@@ -84,25 +146,46 @@ def needs_render_matrix(bl_brush):
             and slot is not None and slot.map_mode in {'TILED', 'STENCIL'})
 
 
-def apply_texture(bl_brush, sc_brush):
+def apply_texture(bl_brush, sc_brush, context=None):
     """Bind (or clear) the engine brush texture for a stroke. Unmapped
-    map modes clear so the kernels' sampleBrushTex is a no-op 1.0."""
+    map modes (and image textures with no pixels) clear so the kernels'
+    sampleBrushTex is a no-op 1.0. ``context`` sizes the Tiled repeat;
+    without it Tiled falls back to one tile per viewport height."""
     import sculptcore
 
     tex = bl_brush.texture if bl_brush else None
     coord_space = None
     if tex is not None and bl_brush.texture_slot is not None:
         coord_space = _COORD_SPACE.get(bl_brush.texture_slot.map_mode)
-    if tex is None or coord_space is None:
+    baked = _bake(tex) if tex is not None and coord_space is not None else None
+    if baked is None:
         sc_brush.clearTexture()
         return
 
+    width, height, pixels = baked
     mgr = engine.manager()
-    pixels = _bake(tex)
     with sculptcore.construct_from_items(mgr, mgr.get("float"), pixels) as vec:
-        sc_brush.setTexture(BAKE_SIZE, BAKE_SIZE, vec)
+        sc_brush.setTexture(width, height, vec)
     sc_brush.coord_space = coord_space
-    sc_brush.tex_repeat = 1.0
+    sc_brush.tex_repeat = _tile_repeat(bl_brush, context)
+
+
+def _tile_repeat(bl_brush, context):
+    """Engine ``tex_repeat`` (tiles per viewport height) for the stroke.
+    Blender's Tiled mode samples screen pixels divided by the stroke-start
+    pixel radius, with the texture spanning [-1, 1] — one tile per
+    ``2 * pixel_radius`` pixels — so repeat = region_height / (2 * radius).
+    Non-Tiled modes (and headless/unknown regions) use 1.0."""
+    if bl_brush.texture_slot.map_mode != 'TILED' or context is None:
+        return 1.0
+    region = context.region
+    if region is None or region.height <= 0:
+        return 1.0
+    from . import mapping
+    radius = mapping.pixel_radius(context.tool_settings.sculpt, bl_brush)
+    if radius <= 0.0:
+        return 1.0
+    return region.height / (2.0 * radius)
 
 
 # --------------------------------------------------------------------------
