@@ -1,3 +1,4 @@
+/keys
 # Vendored engine runtime staged by the build (ctypes package + native DLLs).
 # This is a build product mirrored in from engine/; never committed.
 /sculptcore_addon/lib/
