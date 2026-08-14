@@ -6,9 +6,14 @@
 // lattice value noise, amplitude halved and frequency doubled per octave,
 // hard noise = |2n - 1|, normalized by the amplitude sum; then Blender's
 // bright/contrast fold and the optional color ramp (uploaded as a 256-entry
-// luminance LUT). The noise basis is the classic fract(sin(dot)) lattice
-// hash - visually equivalent to Blender's bases, not bit-identical, and
-// noise_basis variants are not distinguished.
+// luminance LUT). The noise basis is the engine's builtin `vnoise` host
+// sampler (integer-hash lattice value noise, native CPU code + a WGSL twin
+// for the splice) - visually equivalent to Blender's bases, not
+// bit-identical, and noise_basis variants are not distinguished. The basis
+// lives engine-side because the tcc CPU JIT does not optimize: a DSL-inlined
+// hash cost ~9x the native sampler per octave.
+
+sampler float vnoise(float3 p);
 
 texture BlenderClouds {
   param float scale = 4.0;                    // 1 / noise_scale
@@ -26,36 +31,16 @@ texture BlenderClouds {
   param ramp shape;
 
   float eval(float3 p, float3 n) {
-    float3 q = float3((p.x * sx + ox) * scale,
-                      (p.y * sy + oy) * scale,
-                      (p.z * sz + oz) * scale);
+    float qx = (p.x * sx + ox) * scale;
+    float qy = (p.y * sy + oy) * scale;
+    float qz = (p.z * sz + oz) * scale;
     float sum = 0.0;
     float amp = 1.0;
     float tot = 0.0;
     float fs = 1.0;
-    for (float o = 0.0; o < 8.5; o = o + 1.0) {
-      if (o > depth) {
-        continue;
-      }
-      float3 c = float3(q.x * fs, q.y * fs, q.z * fs);
-      float3 b = float3(floor(c.x), floor(c.y), floor(c.z));
-      float fx = c.x - b.x;
-      float fy = c.y - b.y;
-      float fz = c.z - b.z;
-      float ux = fx * fx * (3.0 - 2.0 * fx);
-      float uy = fy * fy * (3.0 - 2.0 * fy);
-      float uz = fz * fz * (3.0 - 2.0 * fz);
-      float3 k = float3(12.9898, 78.233, 37.719);
-      float h000 = fract(sin(dot(b, k)) * 43758.5453);
-      float h100 = fract(sin(dot(b + float3(1.0, 0.0, 0.0), k)) * 43758.5453);
-      float h010 = fract(sin(dot(b + float3(0.0, 1.0, 0.0), k)) * 43758.5453);
-      float h110 = fract(sin(dot(b + float3(1.0, 1.0, 0.0), k)) * 43758.5453);
-      float h001 = fract(sin(dot(b + float3(0.0, 0.0, 1.0), k)) * 43758.5453);
-      float h101 = fract(sin(dot(b + float3(1.0, 0.0, 1.0), k)) * 43758.5453);
-      float h011 = fract(sin(dot(b + float3(0.0, 1.0, 1.0), k)) * 43758.5453);
-      float h111 = fract(sin(dot(b + float3(1.0, 1.0, 1.0), k)) * 43758.5453);
-      float t = mix(mix(mix(h000, h100, ux), mix(h010, h110, ux), uy),
-                    mix(mix(h001, h101, ux), mix(h011, h111, ux), uy), uz);
+    float dmax = depth + 0.5;
+    for (float o = 0.0; o < dmax; o = o + 1.0) {
+      float t = vnoise(float3(qx * fs, qy * fs, qz * fs));
       if (hard > 0.5) {
         t = abs(2.0 * t - 1.0);
       }
