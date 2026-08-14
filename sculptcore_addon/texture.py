@@ -105,6 +105,65 @@ def apply_texture(bl_brush, sc_brush):
     sc_brush.tex_repeat = 1.0
 
 
+# --------------------------------------------------------------------------
+# Host samplers (texture scripts): Python-backed procedural fields callable
+# from .stex sources as `sampler float <name>(float3 p[, float3 n]);`.
+
+# name -> (fn thunk, grad thunk or None). The engine stores the raw function
+# pointers, so the ctypes CFUNCTYPE objects must stay referenced until the
+# sampler is unregistered — dropping them frees the trampolines and the next
+# stroke calls freed memory.
+_live_samplers = {}
+
+
+def register_sampler(name, fn, grad=None, wgsl="", fd_step=1.0e-3):
+    """Register (or update in place) an engine host sampler backed by Python
+    callables. ``fn((px, py, pz), (nx, ny, nz)) -> float`` is required.
+    ``grad(p, n) -> (value, gx, gy, gz)`` is optional; without it the engine
+    synthesizes central differences with step ``fd_step`` (six extra ``fn``
+    taps per gradient). ``wgsl`` optionally supplies the GPU body (it must
+    define ``fn hs_<name>(p: vec3f, n: vec3f) -> f32``); left empty the
+    sampler is CPU-only and every texture calling it loses its GPU path.
+
+    Updating an existing name swaps what bound programs call without a
+    recompile. The callbacks run per evaluated vertex under the GIL — keep
+    them trivial; the 128x128 bake (apply_texture) remains the fast path for
+    anything expressible as a Blender Texture. Returns True on success."""
+    capi = engine.capi()
+
+    fn_thunk = capi.SAMPLER_FN(
+        lambda user, p, n: fn((p[0], p[1], p[2]), (n[0], n[1], n[2])))
+    grad_thunk = capi.SAMPLER_GRAD_FN(0)
+    if grad is not None:
+        def _grad(user, p, n, out):
+            out[0], out[1], out[2], out[3] = grad(
+                (p[0], p[1], p[2]), (n[0], n[1], n[2]))
+        grad_thunk = capi.SAMPLER_GRAD_FN(_grad)
+
+    ok = capi.lib.sc_host_sampler_register(
+        name.encode("utf-8"), fn_thunk, grad_thunk, None,
+        wgsl.encode("utf-8"), fd_step)
+    if ok:
+        _live_samplers[name] = (fn_thunk, grad_thunk)
+    return bool(ok)
+
+
+def unregister_sampler(name):
+    """Clear the named sampler's callbacks engine-side (bound programs read
+    0.0 from then on; later compiles against it fail), then release the
+    keep-alive thunks. Returns True if the sampler existed."""
+    ok = engine.capi().lib.sc_host_sampler_unregister(name.encode("utf-8"))
+    _live_samplers.pop(name, None)
+    return bool(ok)
+
+
+def clear_samplers():
+    """Addon-unregister teardown: unregister every Python-backed sampler so
+    the engine never holds pointers into a module about to be freed."""
+    for name in list(_live_samplers):
+        unregister_sampler(name)
+
+
 def apply_render_matrix(context, executor):
     """Push the region's perspective matrix (world -> NDC) into the executor
     for ViewPlane/ViewRepeat UV. Flat 16 floats, row-major rows appended in

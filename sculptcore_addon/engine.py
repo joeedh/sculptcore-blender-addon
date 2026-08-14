@@ -334,6 +334,20 @@ class _CApi:
             + [f32p, ctypes.POINTER(ctypes.c_int)])
         lib.GridTree_castRay.restype = ctypes.c_int
 
+        # Host samplers (texture scripts): registry-global, keyed by name.
+        # fn(user, p[3], n[3]) -> float; fn_grad(user, p[3], n[3], out[4])
+        # writes {value, gx, gy, gz}. texture.py owns the CFUNCTYPE keep-alive
+        # (the engine holds the raw thunk pointers until unregister).
+        f32cp = ctypes.POINTER(ctypes.c_float)
+        self.SAMPLER_FN = ctypes.CFUNCTYPE(ctypes.c_float, ctypes.c_void_p, f32cp, f32cp)
+        self.SAMPLER_GRAD_FN = ctypes.CFUNCTYPE(None, ctypes.c_void_p, f32cp, f32cp, f32cp)
+        lib.sc_host_sampler_register.argtypes = [
+            ctypes.c_char_p, self.SAMPLER_FN, self.SAMPLER_GRAD_FN,
+            ctypes.c_void_p, ctypes.c_char_p, ctypes.c_float]
+        lib.sc_host_sampler_register.restype = ctypes.c_int
+        lib.sc_host_sampler_unregister.argtypes = [ctypes.c_char_p]
+        lib.sc_host_sampler_unregister.restype = ctypes.c_int
+
         self.lib = lib
 
 

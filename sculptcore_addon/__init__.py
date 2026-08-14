@@ -23,7 +23,7 @@ bl_info = {
 
 import bpy
 
-from . import convert, cursor, engine, engine_props, gestures, handlers, keymap, menus, ops, props, stroke, tools, ui, undo, vanilla_panels
+from . import convert, cursor, engine, engine_props, gestures, handlers, keymap, menus, ops, props, stroke, texture, tools, ui, undo, vanilla_panels
 
 
 class SculptCoreMode(bpy.types.ObjectModeType):
@@ -149,5 +149,8 @@ def unregister():
     stroke.unregister()
     engine_props.unregister()
     props.unregister()
+    # Python-backed host samplers hold ctypes trampolines the engine calls;
+    # drop them before this module (and its keep-alive dict) goes away.
+    texture.clear_samplers()
     engine.free_all_sessions()
     undo.reset()
