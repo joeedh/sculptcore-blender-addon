@@ -744,7 +744,7 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
             use_size=use_size and not self._smooth_stroke)
         # Brush texture (Phase 2): bind or clear per stroke; view-pinned
         # mappings also need the current perspective matrix.
-        texture.apply_texture(self.brush, sc_brush, context)
+        texture.apply_texture(self.brush, sc_brush, context, session=self.session)
         if texture.needs_render_matrix(self.brush):
             texture.apply_render_matrix(context, _ensure_executor(self.session))
         # Stroke-constant brush settings, including the falloff/cavity curve

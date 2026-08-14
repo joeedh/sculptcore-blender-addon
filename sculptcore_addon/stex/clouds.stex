@@ -1,0 +1,74 @@
+// Blender "Clouds" as a runtime texture program: 3D-mapped brush strokes
+// evaluate this at the true sculpt-space point (CPU JIT, GPU-spliceable),
+// so the pattern is infinite instead of a tiled [-1,1]^2 bake.
+//
+// Structure mirrors BLI_noise_generic_turbulence: depth+1 octaves of [0,1]
+// lattice value noise, amplitude halved and frequency doubled per octave,
+// hard noise = |2n - 1|, normalized by the amplitude sum; then Blender's
+// bright/contrast fold and the optional color ramp (uploaded as a 256-entry
+// luminance LUT). The noise basis is the classic fract(sin(dot)) lattice
+// hash - visually equivalent to Blender's bases, not bit-identical, and
+// noise_basis variants are not distinguished.
+
+texture BlenderClouds {
+  param float scale = 4.0;                    // 1 / noise_scale
+  param float depth = 2.0 @range(0.0, 8.0);   // extra octaves (Blender noise_depth)
+  param float hard = 0.0 @range(0.0, 1.0);    // noise_type == HARD_NOISE
+  param float bright = 1.0;                   // Texture.intensity
+  param float contrast = 1.0;
+  param float use_ramp = 0.0 @range(0.0, 1.0);
+  param float sx = 1.0;                       // texture_slot.scale
+  param float sy = 1.0;
+  param float sz = 1.0;
+  param float ox = 0.0;                       // texture_slot.offset
+  param float oy = 0.0;
+  param float oz = 0.0;
+  param ramp shape;
+
+  float eval(float3 p, float3 n) {
+    float3 q = float3((p.x * sx + ox) * scale,
+                      (p.y * sy + oy) * scale,
+                      (p.z * sz + oz) * scale);
+    float sum = 0.0;
+    float amp = 1.0;
+    float tot = 0.0;
+    float fs = 1.0;
+    for (float o = 0.0; o < 8.5; o = o + 1.0) {
+      if (o > depth) {
+        continue;
+      }
+      float3 c = float3(q.x * fs, q.y * fs, q.z * fs);
+      float3 b = float3(floor(c.x), floor(c.y), floor(c.z));
+      float fx = c.x - b.x;
+      float fy = c.y - b.y;
+      float fz = c.z - b.z;
+      float ux = fx * fx * (3.0 - 2.0 * fx);
+      float uy = fy * fy * (3.0 - 2.0 * fy);
+      float uz = fz * fz * (3.0 - 2.0 * fz);
+      float3 k = float3(12.9898, 78.233, 37.719);
+      float h000 = fract(sin(dot(b, k)) * 43758.5453);
+      float h100 = fract(sin(dot(b + float3(1.0, 0.0, 0.0), k)) * 43758.5453);
+      float h010 = fract(sin(dot(b + float3(0.0, 1.0, 0.0), k)) * 43758.5453);
+      float h110 = fract(sin(dot(b + float3(1.0, 1.0, 0.0), k)) * 43758.5453);
+      float h001 = fract(sin(dot(b + float3(0.0, 0.0, 1.0), k)) * 43758.5453);
+      float h101 = fract(sin(dot(b + float3(1.0, 0.0, 1.0), k)) * 43758.5453);
+      float h011 = fract(sin(dot(b + float3(0.0, 1.0, 1.0), k)) * 43758.5453);
+      float h111 = fract(sin(dot(b + float3(1.0, 1.0, 1.0), k)) * 43758.5453);
+      float t = mix(mix(mix(h000, h100, ux), mix(h010, h110, ux), uy),
+                    mix(mix(h001, h101, ux), mix(h011, h111, ux), uy), uz);
+      if (hard > 0.5) {
+        t = abs(2.0 * t - 1.0);
+      }
+      sum = sum + t * amp;
+      tot = tot + amp;
+      amp = amp * 0.5;
+      fs = fs * 2.0;
+    }
+    float v = sum / tot;
+    v = clamp((v - 0.5) * contrast + bright - 0.5, 0.0, 1.0);
+    if (use_ramp > 0.5) {
+      v = shape.sample(v);
+    }
+    return v;
+  }
+}

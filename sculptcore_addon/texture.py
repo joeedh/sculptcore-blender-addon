@@ -213,6 +213,117 @@ def _bake_image(img, buf, w, h):
     return (w, h, np.ascontiguousarray(lum, dtype=np.float32).ravel())
 
 
+# --------------------------------------------------------------------------
+# Script routing: procedural types with a .stex implementation evaluate at
+# the true sculpt-space 3D point on the engine (runtime CPU JIT; the source
+# is GPU-spliceable too) instead of tiling a 2D [-1, 1]^2 bake. Routed only
+# for map_mode '3D' - the screen-pinned/projected modes are 2D by nature,
+# where the bake is already exact.
+
+# tex.type -> .stex file under sculptcore_addon/stex/.
+_SCRIPT_TYPES = {'CLOUDS': "clouds.stex"}
+_script_sources = {}
+_script_warned = set()
+
+
+def _script_source(tex_type):
+    src = _script_sources.get(tex_type)
+    if src is None and tex_type in _SCRIPT_TYPES:
+        import os
+        path = os.path.join(os.path.dirname(__file__), "stex",
+                            _SCRIPT_TYPES[tex_type])
+        with open(path, "r", encoding="utf-8") as f:
+            src = f.read()
+        _script_sources[tex_type] = src
+    return src
+
+
+def _script_params(tex, bl_brush):
+    """The .stex param values for `tex` (names must match the script's
+    `param` decls). Scalar params update through the live slab - no
+    recompile on a slider drag."""
+    slot = bl_brush.texture_slot
+    ns = tex.noise_scale
+    return {
+        "scale": 1.0 / ns if ns > 1.0e-6 else 1.0,
+        "depth": float(tex.noise_depth),
+        "hard": 0.0 if tex.noise_type == 'SOFT_NOISE' else 1.0,
+        "bright": tex.intensity,
+        "contrast": tex.contrast,
+        "use_ramp": 1.0 if tex.use_color_ramp else 0.0,
+        "sx": slot.scale[0], "sy": slot.scale[1], "sz": slot.scale[2],
+        "ox": slot.offset[0], "oy": slot.offset[1], "oz": slot.offset[2],
+    }
+
+
+def _ramp_lut(tex):
+    """The color ramp as 256 linear-light luminance samples (the engine ramp
+    param is scalar; brush sampling only consumes intensity)."""
+    import numpy as np
+
+    evaluate = tex.color_ramp.evaluate
+    lut = np.empty(256, dtype=np.float32)
+    for i in range(256):
+        c = evaluate(i / 255.0)
+        lut[i] = 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]
+    return lut
+
+
+def _apply_script(bl_brush, tex, sc_brush, session):
+    """Bind `tex` as a runtime texture program on the session's brush.
+    Compiles once per session per texture type (the source is static;
+    settings ride the param slab), then pushes params + ramp per stroke.
+    Returns False - caller falls back to the bake - when the type has no
+    script or the engine can't compile (no CPU JIT)."""
+    import sculptcore
+    from sculptcore import _descriptors
+
+    src = _script_source(tex.type)
+    if src is None or session is None:
+        return False
+    mgr = engine.manager()
+    if session.tex_script_type != tex.type:
+        data = src.encode("utf-8")
+        # setTextureScript takes Vector<char>; plain char registers as "int8"
+        # in the reflection registry (source is ASCII, so sign is moot).
+        with sculptcore.construct_from_items(mgr, mgr.get("int8"), data) as vec:
+            ok = sc_brush.setTextureScript(vec)
+        if not ok:
+            if tex.type not in _script_warned:
+                _script_warned.add(tex.type)
+                err = _descriptors.read_litestl_string(
+                    sc_brush.texture_script_error.ptr)
+                print("sculptcore: texture script for {:s} failed: {:s}".format(
+                    tex.type, err))
+            session.tex_script_type = None
+            return False
+        idx = {}
+        for i in range(sc_brush.textureParamCount()):
+            # `name` marshals as a bound util::string view, not a Python str.
+            entry = sc_brush.queriedTextureParamEntry(i)
+            idx[_descriptors.read_litestl_string(entry.name.ptr)] = i
+        session.tex_script_type = tex.type
+        session.tex_script_param_index = idx
+    idx = session.tex_script_param_index
+    for name, val in _script_params(tex, bl_brush).items():
+        sc_brush.setTextureParamAt(idx[name], float(val))
+    if tex.use_color_ramp and tex.color_ramp is not None:
+        lut = _ramp_lut(tex)
+        with sculptcore.construct_from_items(mgr, mgr.get("float"), ()) as vec:
+            vec.resize(lut.size)
+            vec.numpy()[:] = lut
+            sc_brush.setTextureRampAt(idx["shape"], vec)
+    # A bound program takes precedence over the bitmap; drop the stale bake.
+    sc_brush.clearTexture()
+    return True
+
+
+def _clear_script(sc_brush, session):
+    if session is not None and session.tex_script_type is not None:
+        sc_brush.clearTextureScript()
+        session.tex_script_type = None
+
+
 def needs_render_matrix(bl_brush):
     """Whether the brush's texture mapping reads ctx.renderMatrix
     (view-pinned UV)."""
@@ -221,17 +332,25 @@ def needs_render_matrix(bl_brush):
             and slot is not None and slot.map_mode in {'TILED', 'STENCIL'})
 
 
-def apply_texture(bl_brush, sc_brush, context=None):
-    """Bind (or clear) the engine brush texture for a stroke. Unmapped
-    map modes (and image textures with no pixels) clear so the kernels'
-    sampleBrushTex is a no-op 1.0. ``context`` sizes the Tiled repeat;
-    without it Tiled falls back to one tile per viewport height."""
+def apply_texture(bl_brush, sc_brush, context=None, session=None):
+    """Bind (or clear) the engine brush texture for a stroke. Procedurals
+    with a .stex implementation route as texture programs when 3D-mapped
+    (infinite extent; needs ``session`` for the compile cache); everything
+    else takes the bitmap bake. Unmapped map modes (and image textures with
+    no pixels) clear so the kernels' sampleBrushTex is a no-op 1.0.
+    ``context`` sizes the Tiled repeat; without it Tiled falls back to one
+    tile per viewport height."""
     import sculptcore
 
     tex = bl_brush.texture if bl_brush else None
+    slot = bl_brush.texture_slot if bl_brush else None
     coord_space = None
-    if tex is not None and bl_brush.texture_slot is not None:
-        coord_space = _COORD_SPACE.get(bl_brush.texture_slot.map_mode)
+    if tex is not None and slot is not None:
+        coord_space = _COORD_SPACE.get(slot.map_mode)
+        if slot.map_mode == '3D' and _apply_script(bl_brush, tex, sc_brush,
+                                                   session):
+            return
+    _clear_script(sc_brush, session)
     baked = _bake(tex) if tex is not None and coord_space is not None else None
     if baked is None:
         sc_brush.clearTexture()

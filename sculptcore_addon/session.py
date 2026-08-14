@@ -43,6 +43,12 @@ class Session:
         # were last loaded with, so a stroke that changes none of them skips the
         # re-upload — each entry is a separate marshalled call (see mapping).
         "curve_cache",
+        # Which Blender texture type's .stex program brush_obj currently has
+        # compiled + bound (None = no program), and its param-name -> manifest
+        # index map. Settings ride the param slab, so a stroke only recompiles
+        # when the type changes (see texture._apply_script).
+        "tex_script_type",
+        "tex_script_param_index",
         # Per-session undo history (wired to the executor as executor.meshLog);
         # each stroke is one step. Drives Tier-2 delta undo (see undo.py).
         "meshlog",
@@ -154,6 +160,8 @@ class Session:
         self.mesh_obj = None
         self.brush_obj = None
         self.curve_cache = {}
+        self.tex_script_type = None
+        self.tex_script_param_index = None
         self.executor = None
         self.meshlog = None
         self.meshlog_cursor = 0
