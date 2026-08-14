@@ -14,9 +14,12 @@ whole-image average for images, and its intensity channel is a constant —
 reduced to linear-light luminance. Bakes are cached by texture name plus a
 fingerprint of the texture's settings (brush textures are not part of the
 evaluated depsgraph, so no update handler fires when the user edits them —
-the fingerprint is compared at stroke start instead); the depsgraph handler
-still drops the cache on Image updates, which change pixels without
-changing any setting.
+the fingerprint is compared at stroke start instead). Settings cannot see
+pixel edits, and a brush-only image is not in the depsgraph either, so image
+bakes additionally re-read the buffer every stroke start and compare a fast
+numpy digest — reload, external edit and in-Blender paint all invalidate
+without any notifier. (Single-element ``Image.pixels[i]`` access rebuilds
+the whole RNA array per access — only ``foreach_get`` is usable here.)
 ``texture_slot.map_mode`` selects the engine ``TexCoordSpace``; the
 screen-pinned modes (Tiled / Stencil) additionally need the stroke operator
 to push the region's perspective matrix (``setRenderMatrix``) so the engine
@@ -50,7 +53,8 @@ _COORD_SPACE = {
 # engine samples bilinearly from whatever w x h it is handed).
 IMAGE_BAKE_MAX = 512
 
-# Texture name -> (settings fingerprint, (width, height, np.float32 pixels)).
+# Texture name -> (settings fingerprint, image pixel digest or None,
+# (width, height, np.float32 pixels)).
 _cache = {}
 
 
@@ -94,26 +98,34 @@ def _fingerprint(tex):
     img = getattr(tex, "image", None)
     if img is not None:
         vals.append((img.name_full, tuple(img.size), img.is_float,
-                     img.colorspace_settings.name))
+                     img.colorspace_settings.name, img.filepath_raw,
+                     img.source, img.has_data, img.is_dirty))
     return tuple(vals)
 
 
 def _bake(tex):
     """Grayscale bake of `tex`: ``(width, height, np.float32 pixels)``, or
-    None for an image texture with no loadable pixels. Cached per texture
-    name until the settings fingerprint changes."""
+    None for an image texture with no loadable pixels. Procedurals are
+    cached per texture name until the settings fingerprint changes; image
+    textures also re-read their pixel buffer and rebake when its digest
+    moved (settings can't see a reload or a paint stroke)."""
     fp = _fingerprint(tex)
     entry = _cache.get(tex.name)
-    if entry is not None and entry[0] == fp:
-        return entry[1]
     if tex.type == 'IMAGE':
-        baked = _bake_image(tex)
-    else:
-        baked = _bake_procedural(tex)
-    if baked is not None:
-        _cache[tex.name] = (fp, baked)
-    else:
-        _cache.pop(tex.name, None)
+        buf, w, h = _image_pixels(tex)
+        if buf is None:
+            _cache.pop(tex.name, None)
+            return None
+        digest = _digest(buf)
+        if entry is not None and entry[0] == fp and entry[1] == digest:
+            return entry[2]
+        baked = _bake_image(tex.image, buf, w, h)
+        _cache[tex.name] = (fp, digest, baked)
+        return baked
+    if entry is not None and entry[0] == fp:
+        return entry[2]
+    baked = _bake_procedural(tex)
+    _cache[tex.name] = (fp, None, baked)
     return baked
 
 
@@ -142,23 +154,52 @@ def _bake_procedural(tex):
     return (n, n, pixels)
 
 
-def _bake_image(tex):
+def _image_pixels(tex):
+    """The image's full float RGBA buffer as ``(np.float32 array, w, h)``,
+    or ``(None, 0, 0)`` when there are no pixels to read. A file image whose
+    load failed (missing file, or a ``//`` path in a not-yet-saved .blend)
+    keeps ``has_data`` False and Blender will not retry by itself; there is
+    no buffer to lose in that state, so force a reload attempt — the path
+    may have become resolvable since (e.g. the file was saved)."""
+    import numpy as np
+
+    img = tex.image
+    if img is None:
+        return None, 0, 0
+    if (not img.has_data and img.filepath
+            and img.source in {'FILE', 'SEQUENCE', 'MOVIE', 'TILED'}):
+        try:
+            img.reload()
+        except RuntimeError:
+            pass
+    w, h = img.size
+    if w <= 0 or h <= 0 or len(img.pixels) < w * h * 4:
+        return None, 0, 0
+    buf = np.empty(w * h * 4, dtype=np.float32)
+    img.pixels.foreach_get(buf)
+    return buf, w, h
+
+
+def _digest(buf):
+    """Order-sensitive sample of the raw pixel buffer (bit view, strided by
+    a prime): cheap enough for every stroke start, dense enough that any
+    visible edit lands on samples."""
+    import numpy as np
+
+    bits = buf.view(np.int32)[::97]
+    return (buf.size, int(bits.sum(dtype=np.int64)),
+            int(np.bitwise_xor.reduce(bits)) if bits.size else 0)
+
+
+def _bake_image(img, buf, w, h):
     """Direct-pixel bake of an image texture: linear-light luminance of the
     buffer, downsampled by striding past IMAGE_BAKE_MAX. ``Image.pixels``
     row 0 is the bottom row, matching engine v=0, so no flip. Byte buffers
     arrive display-encoded and are linearized for parity with what
     ``RE_texture_evaluate`` feeds native brushes; float buffers are already
-    linear. Returns None when the image has no pixels (caller unbinds)."""
+    linear."""
     import numpy as np
 
-    img = tex.image
-    if img is None:
-        return None
-    w, h = img.size
-    if w <= 0 or h <= 0 or len(img.pixels) < w * h * 4:
-        return None
-    buf = np.empty(w * h * 4, dtype=np.float32)
-    img.pixels.foreach_get(buf)
     rgb = buf.reshape(h, w, 4)[:, :, :3]
     if not img.is_float and img.colorspace_settings.name == 'sRGB':
         rgb = np.where(rgb <= 0.04045, rgb / 12.92,
