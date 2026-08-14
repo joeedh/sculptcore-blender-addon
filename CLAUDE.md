@@ -44,6 +44,10 @@ sculptcore_addon/        The addon package Blender loads (bl_info; registers the
   engine.py              Single load point for the `sculptcore` ctypes package + DLL.
   convert.py             Mesh <-> engine conversion (enter/exit/flush/refresh).
   stroke.py, ops.py ...  Stroke operator, brush mapping, gestures, undo, UI, keymap.
+  texture.py             Brush-texture bridge: 2D bakes, runtime .stex programs, samplers.
+  stex/                  Texture scripts the engine compiles at runtime (clouds.stex);
+                         3D-mapped procedurals route here instead of the 2D bake.
+                         See engine/documentation/textureScripts.md.
   lib/                   Vendored engine runtime (ctypes pkg + DLLs). Build product; gitignored.
 brushes/                 Addon-authored .sbrush kernels compiled into the DLL at build
                          time (engine "extra kernel dirs"); see brushes/README.md.
