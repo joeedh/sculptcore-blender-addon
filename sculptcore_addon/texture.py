@@ -11,8 +11,12 @@ sampled over an N x N grid on ``[-1, 1]^2`` (the engine's Global tile spans
 the same world square, wrapped beyond it); image textures are read straight
 from ``Image.pixels`` — ``evaluate()`` with interpolation on returns the
 whole-image average for images, and its intensity channel is a constant —
-reduced to linear-light luminance. Bakes are cached by texture name and
-invalidated when the depsgraph reports the Texture (or any Image) changed.
+reduced to linear-light luminance. Bakes are cached by texture name plus a
+fingerprint of the texture's settings (brush textures are not part of the
+evaluated depsgraph, so no update handler fires when the user edits them —
+the fingerprint is compared at stroke start instead); the depsgraph handler
+still drops the cache on Image updates, which change pixels without
+changing any setting.
 ``texture_slot.map_mode`` selects the engine ``TexCoordSpace``; the
 screen-pinned modes (Tiled / Stencil) additionally need the stroke operator
 to push the region's perspective matrix (``setRenderMatrix``) so the engine
@@ -46,7 +50,7 @@ _COORD_SPACE = {
 # engine samples bilinearly from whatever w x h it is handed).
 IMAGE_BAKE_MAX = 512
 
-# Texture name -> (width, height, flat row-major grayscale list).
+# Texture name -> (settings fingerprint, (width, height, np.float32 pixels)).
 _cache = {}
 
 
@@ -70,18 +74,46 @@ def invalidate_from_depsgraph(depsgraph):
             _cache.pop(update.id.name, None)
 
 
+def _fingerprint(tex):
+    """Hashable snapshot of every scalar/enum setting on the texture (plus
+    its color ramp and image identity). Brush textures see no depsgraph
+    updates, so cache validity is decided by comparing this at stroke
+    start — a type switch, slider drag or image swap all change it."""
+    vals = [tex.type]
+    for prop in tex.bl_rna.properties:
+        if prop.type not in {'BOOLEAN', 'INT', 'FLOAT', 'ENUM'}:
+            continue
+        v = getattr(tex, prop.identifier)
+        if getattr(prop, "is_array", False):
+            v = tuple(v)
+        vals.append(v)
+    ramp = getattr(tex, "color_ramp", None)
+    if getattr(tex, "use_color_ramp", False) and ramp is not None:
+        for el in ramp.elements:
+            vals.append((el.position, tuple(el.color)))
+    img = getattr(tex, "image", None)
+    if img is not None:
+        vals.append((img.name_full, tuple(img.size), img.is_float,
+                     img.colorspace_settings.name))
+    return tuple(vals)
+
+
 def _bake(tex):
-    """Grayscale bake of `tex`: ``(width, height, row-major floats)``, or
-    None for an image texture with no loadable pixels."""
-    baked = _cache.get(tex.name)
-    if baked is not None:
-        return baked
+    """Grayscale bake of `tex`: ``(width, height, np.float32 pixels)``, or
+    None for an image texture with no loadable pixels. Cached per texture
+    name until the settings fingerprint changes."""
+    fp = _fingerprint(tex)
+    entry = _cache.get(tex.name)
+    if entry is not None and entry[0] == fp:
+        return entry[1]
     if tex.type == 'IMAGE':
         baked = _bake_image(tex)
     else:
         baked = _bake_procedural(tex)
     if baked is not None:
-        _cache[tex.name] = baked
+        _cache[tex.name] = (fp, baked)
+    else:
+        _cache.pop(tex.name, None)
     return baked
 
 
@@ -90,10 +122,12 @@ def _bake_procedural(tex):
     intensity channel (`tin`, evaluate()[3]) matches Blender's own brush
     sampling; color-ramped and inherently-RGB procedurals use linear-light
     luminance of the color instead (tin stays the pre-ramp intensity)."""
+    import numpy as np
+
     n = BAKE_SIZE
     evaluate = tex.evaluate
     use_rgb = getattr(tex, "use_color_ramp", False) or tex.type == 'MAGIC'
-    pixels = [0.0] * (n * n)
+    pixels = np.empty(n * n, dtype=np.float32)
     inv = 2.0 / (n - 1)
     idx = 0
     for j in range(n):
@@ -135,7 +169,7 @@ def _bake_image(tex):
         xs = np.linspace(0, w - 1, min(w, IMAGE_BAKE_MAX)).round().astype(int)
         lum = lum[np.ix_(ys, xs)]
         h, w = lum.shape
-    return (w, h, lum.astype(np.float32).ravel().tolist())
+    return (w, h, np.ascontiguousarray(lum, dtype=np.float32).ravel())
 
 
 def needs_render_matrix(bl_brush):
@@ -164,7 +198,11 @@ def apply_texture(bl_brush, sc_brush, context=None):
 
     width, height, pixels = baked
     mgr = engine.manager()
-    with sculptcore.construct_from_items(mgr, mgr.get("float"), pixels) as vec:
+    # Bulk fill through the vector's zero-copy numpy view: per-item
+    # construct_from_items marshalling is ~1.4 s for a 512^2 bake.
+    with sculptcore.construct_from_items(mgr, mgr.get("float"), ()) as vec:
+        vec.resize(pixels.size)
+        vec.numpy()[:] = pixels
         sc_brush.setTexture(width, height, vec)
     sc_brush.coord_space = coord_space
     sc_brush.tex_repeat = _tile_repeat(bl_brush, context)
