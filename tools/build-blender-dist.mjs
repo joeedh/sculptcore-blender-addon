@@ -50,7 +50,10 @@ const ENGINE = path.join(REPO, 'engine')
 const ADDON_SRC = path.join(REPO, 'sculptcore_addon')
 const VERIFY_PY = path.join(TOOLS, 'verify_addon.py')
 const ADDON_MODULE = 'sculptcore_addon'
-const EXE = process.platform === 'win32' ? 'blender.exe' : 'blender'
+// Other addons this repo ships. Plain Python packages: staged the same way and
+// enabled by the same marker, but with no engine runtime vendored into them.
+const EXTRA_ADDON_MODULES = ['brush_save_reminder']
+const EXE =process.platform === 'win32' ? 'blender.exe' : 'blender'
 
 // --- tiny arg parser -------------------------------------------------------
 
@@ -113,9 +116,10 @@ function ensureDir(d) { fs.mkdirSync(d, { recursive: true }) }
 // `persistent=True` (a preferences reload does not unload it). So the install
 // is sculpt-mode-by-default while reading and writing the user's *global*
 // config like any other Blender — no portable config, no baked userpref.
-function writeAlwaysEnable(addonsCoreDir, module) {
+function writeAlwaysEnable(addonsCoreDir, modules) {
   const marker = path.join(addonsCoreDir, '.always_enable')
-  fs.writeFileSync(marker, `# Add-ons this install always enables (Blender fork: addon_utils).\n${module}\n`)
+  const lines = [].concat(modules).map((m) => `${m}\n`).join('')
+  fs.writeFileSync(marker, `# Add-ons this install always enables (Blender fork: addon_utils).\n${lines}`)
   return marker
 }
 
@@ -241,6 +245,11 @@ async function main() {
   if (opts.help) { console.log(USAGE); return }
 
   if (!fs.existsSync(path.join(ADDON_SRC, '__init__.py'))) fail(`addon package missing at ${ADDON_SRC}`)
+  for (const module of EXTRA_ADDON_MODULES) {
+    if (!fs.existsSync(path.join(REPO, module, '__init__.py'))) {
+      fail(`addon package missing at ${path.join(REPO, module)}`)
+    }
+  }
   if (!fs.existsSync(path.join(ENGINE, 'make.mjs'))) {
     fail(`engine submodule missing at ${ENGINE} — run: git submodule update --init`)
   }
@@ -283,6 +292,13 @@ async function main() {
   fs.rmSync(addonDst, { recursive: true, force: true })
   copyTree(ADDON_SRC, addonDst, new Set(['lib', '__pycache__', '.mypy_cache']))
 
+  for (const module of EXTRA_ADDON_MODULES) {
+    const dst = path.join(path.dirname(addonDst), module)
+    log(`staging addon -> ${dst}`)
+    fs.rmSync(dst, { recursive: true, force: true })
+    copyTree(path.join(REPO, module), dst, new Set(['__pycache__', '.mypy_cache']))
+  }
+
   // 4. Vendor the engine runtime into the addon's lib/ (builds the DLL too,
   //    unless --skip-engine). `bundle <dir>` stages into <dir>/sculptcore.
   ensureEngineReady()
@@ -323,7 +339,7 @@ async function main() {
   //    fork's addon_utils reads at startup, then prove it headlessly.
   //    --factory-startup means the check owes nothing to any userpref.
   removeStalePortableDir(installDir)
-  const marker = writeAlwaysEnable(path.dirname(addonDst), ADDON_MODULE)
+  const marker = writeAlwaysEnable(path.dirname(addonDst), [ADDON_MODULE, ...EXTRA_ADDON_MODULES])
   log(`marking always-enabled -> ${marker}`)
   const verifyStatus = run(
     path.join(installDir, EXE),

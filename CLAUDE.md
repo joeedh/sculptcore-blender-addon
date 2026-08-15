@@ -26,8 +26,11 @@ This addon is one of three coupled repositories:
   see [claudeMemory/research/grid-correspondence.md](./claudeMemory/research/grid-correspondence.md)),
   and `Mesh.vertex_group_data_get`/`_set` (bulk CSR read/write of the whole
   `MDeformVert` table — the addon's vertex-group bridge would otherwise be a
-  Python loop over every vertex and influence). It knows nothing about
-  SculptCore. A stock Blender without these changes cannot load this addon's
+  Python loop over every vertex and influence), the vetoable
+  `bpy.app.handlers.quit_pre` callback (a handler returning true cancels the
+  quit — the only hook that runs while a quit can still be stopped) and
+  `bpy.ops.brush.asset_save_all()` (every other brush-asset operator saves the
+  *active* brush only). It knows nothing about SculptCore. A stock Blender without these changes cannot load this addon's
   mode.
 - **This repo** (`sculptcore-blender-addon`) — the addon Python
   (`sculptcore_addon/`) plus the engine as a submodule (`engine/`) and the
@@ -49,6 +52,11 @@ sculptcore_addon/        The addon package Blender loads (bl_info; registers the
                          3D-mapped procedurals route here instead of the 2D bake.
                          See engine/documentation/textureScripts.md.
   lib/                   Vendored engine runtime (ctypes pkg + DLLs). Build product; gitignored.
+brush_save_reminder/     A second, standalone addon (shares nothing with the above): warns on
+                         quit about brush assets with unsaved changes, which neither the file
+                         save nor Blender's own quit prompt covers. Needs two fork additions —
+                         `bpy.app.handlers.quit_pre` and `bpy.ops.brush.asset_save_all()`.
+                         See brush_save_reminder/README.md.
 brushes/                 Addon-authored .sbrush kernels compiled into the DLL at build
                          time (engine "extra kernel dirs"); see brushes/README.md.
 engine/                  SculptCore engine (git submodule). Builds sculptcore_capi.dll.
@@ -115,14 +123,14 @@ The chain (`node tools/build-blender-dist.mjs --help` for the full option list):
    with `--build-dir`.
 2. Pick the install folder: a clean mirror at `--dist DIR`, or the build's
    `bin/` in place (default, fast for dev).
-3. Copy `sculptcore_addon/` into `<install>/<ver>/scripts/addons_core/` (fresh;
-   `lib/` excluded). Blender 5.x only scans `scripts/addons_core` in an install
+3. Copy `sculptcore_addon/` and `brush_save_reminder/` into
+   `<install>/<ver>/scripts/addons_core/` (fresh; `lib/` excluded). Blender 5.x only scans `scripts/addons_core` in an install
    tree, not the legacy `scripts/addons`.
 4. Vendor the engine runtime into the addon's `lib/` via the engine's own
    `node make.mjs bundle <lib> ` (builds the DLL too; `--skip-engine` restages
    existing outputs only).
 5. Write `<install>/<ver>/scripts/addons_core/.always_enable` (one module name
-   per line) so the mode is on at startup, then verify it headlessly
+   per line — both addons) so the mode is on at startup, then verify it headlessly
    (`--background --factory-startup --python tools/verify_addon.py`).
 
    **Enabled-by-default without owning the user config.** The fork's

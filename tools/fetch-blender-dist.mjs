@@ -98,6 +98,9 @@ const ENGINE = path.join(REPO, 'engine')
 const ADDON_SRC = path.join(REPO, 'sculptcore_addon')
 const VERIFY_PY = path.join(TOOLS, 'verify_addon.py')
 const ADDON_MODULE = 'sculptcore_addon'
+// Other addons this repo ships: staged and enabled the same way, but with no
+// engine runtime vendored into them.
+const EXTRA_ADDON_MODULES = ['brush_save_reminder']
 const PKG_ROOT = path.join(ENGINE, 'python', 'sculptcore')
 
 // runner.os values GitHub uses, keyed by our lowercase platform token.
@@ -301,10 +304,22 @@ function findVersionDirInTar(tarPath) {
 // config at all — it reads and writes the machine's global Blender config, like
 // any other install.  (The previous approach shipped a portable
 // `userpref.blend`, which meant the package owned *every* user resource.)
-function writeAlwaysEnable(addonsCoreDir, module) {
+function writeAlwaysEnable(addonsCoreDir, modules) {
   const marker = path.join(addonsCoreDir, '.always_enable')
-  fs.writeFileSync(marker, `# Add-ons this install always enables (Blender fork: addon_utils).\n${module}\n`)
+  const lines = [].concat(modules).map((m) => `${m}\n`).join('')
+  fs.writeFileSync(marker, `# Add-ons this install always enables (Blender fork: addon_utils).\n${lines}`)
   return marker
+}
+
+// Stage the repo's other addons (plain Python packages, no engine runtime) into
+// the same addons_core directory. Returns their archive-relative member paths.
+function stageExtraAddons(addonsCoreDir) {
+  for (const module of EXTRA_ADDON_MODULES) {
+    const dst = path.join(addonsCoreDir, module)
+    fs.rmSync(dst, { recursive: true, force: true })
+    copyTree(path.join(REPO, module), dst, new Set(['__pycache__', '.mypy_cache']))
+  }
+  return EXTRA_ADDON_MODULES
 }
 
 // Copy the ctypes package + fetched libs into <addon>/lib/sculptcore.
@@ -525,6 +540,11 @@ async function main() {
   if (opts.help) { console.log(USAGE); return }
 
   if (!fs.existsSync(path.join(ADDON_SRC, '__init__.py'))) fail(`addon package missing at ${ADDON_SRC}`)
+  for (const module of EXTRA_ADDON_MODULES) {
+    if (!fs.existsSync(path.join(REPO, module, '__init__.py'))) {
+      fail(`addon package missing at ${path.join(REPO, module)}`)
+    }
+  }
   if (!fs.existsSync(path.join(PKG_ROOT, '_capi.py'))) {
     fail(`engine ctypes package missing at ${PKG_ROOT} — run: git submodule update --init`)
   }
@@ -607,16 +627,18 @@ async function main() {
         const stage = path.join(tmpRoot, `stage-${p}`)
         fs.rmSync(stage, { recursive: true, force: true })
         const addonDst = path.join(stage, ...relVer.split('/'), 'scripts', 'addons_core', ADDON_MODULE)
-        log(`staging addon -> ${relVer}/scripts/addons_core/${ADDON_MODULE} (in ${tarPath})`)
+        const addonsCore = `${relVer}/scripts/addons_core`
+        const extras = stageExtraAddons(path.dirname(addonDst))
+        log(`staging addons -> ${addonsCore}/{${[ADDON_MODULE, ...extras].join(',')}} (in ${tarPath})`)
         copyTree(ADDON_SRC, addonDst, new Set(['lib', '__pycache__', '.mypy_cache']))
         log(`vendoring engine runtime (${p} libs + local ctypes package)…`)
         vendorRuntime(addonDst, libsDl, p)
 
-        const addonsCore = `${relVer}/scripts/addons_core`
-        const members = [`./${addonsCore}/${ADDON_MODULE}`]
+
+        const members = [ADDON_MODULE, ...extras].map((m) => `./${addonsCore}/${m}`)
         let enabled = 'skipped'
         if (opts.enable) {
-          writeAlwaysEnable(path.dirname(addonDst), ADDON_MODULE)
+          writeAlwaysEnable(path.dirname(addonDst), [ADDON_MODULE, ...extras])
           members.push(`./${addonsCore}/.always_enable`)
           enabled = 'marked'
         }
@@ -636,6 +658,7 @@ async function main() {
       log(`staging addon -> ${addonDst}`)
       fs.rmSync(addonDst, { recursive: true, force: true })
       copyTree(ADDON_SRC, addonDst, new Set(['lib', '__pycache__', '.mypy_cache']))
+      stageExtraAddons(path.dirname(addonDst))
 
       // 4. Vendor the ctypes package + fetched libs.
       log(`vendoring engine runtime (${p} libs + local ctypes package)…`)
@@ -651,7 +674,8 @@ async function main() {
       //    of whatever is in this machine's global Blender config.
       let enabled = 'skipped'
       if (opts.enable) {
-        const marker = writeAlwaysEnable(path.dirname(addonDst), ADDON_MODULE)
+        const marker = writeAlwaysEnable(path.dirname(addonDst),
+          [ADDON_MODULE, ...EXTRA_ADDON_MODULES])
         log(`marking always-enabled -> ${marker}`)
         enabled = 'marked'
         if (p === hostOs) {

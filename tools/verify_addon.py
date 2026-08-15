@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-"""Verify that an assembled install comes up with the SculptCore addon enabled.
+"""Verify that an assembled install comes up with this repo's addons enabled.
 
 Run headless by the staging tools once the ``.always_enable`` marker has been
 written next to the addon (see ``build-blender-dist.mjs`` / ``fetch-blender-
@@ -24,18 +24,23 @@ import addon_utils
 import bpy
 
 MODULE = "sculptcore_addon"
+# The other add-ons an install ships; enabled the same way, by the same marker.
+MODULES = (MODULE, "brush_save_reminder")
 
 failures = []
 
-if not addon_utils.check(MODULE)[1]:
-    failures.append("{!r} is not enabled".format(MODULE))
+for module in MODULES:
+    if not addon_utils.check(module)[1]:
+        failures.append("{!r} is not enabled".format(module))
 
 # Only meaningful against the factory preferences: a developer's own global
 # config may legitimately still list the addon from a manual enable long ago
 # (harmless — `_initialize_once` skips a prefs entry that is always-enabled).
 if bpy.app.factory_startup:
-    if MODULE in {addon.module for addon in bpy.context.preferences.addons}:
-        failures.append("{!r} leaked into the user preferences".format(MODULE))
+    listed = {addon.module for addon in bpy.context.preferences.addons}
+    for module in MODULES:
+        if module in listed:
+            failures.append("{!r} leaked into the user preferences".format(module))
 
 # Registration actually ran (not just the module import): the stroke operator is
 # the addon's most load-bearing class. `bpy.ops` cannot be probed for this —
@@ -43,10 +48,13 @@ if bpy.app.factory_startup:
 # unregistered class is genuinely absent from `bpy.types`.
 if not hasattr(bpy.types, "SCULPTCORE_OT_brush_stroke"):
     failures.append("sculptcore.brush_stroke operator is not registered")
+if not hasattr(bpy.types, "BRUSHSAVE_OT_quit_dialog"):
+    failures.append("brush_save_reminder.quit_dialog operator is not registered")
 
 if failures:
     for msg in failures:
         sys.stderr.write("verify_addon: FAILED: {:s}\n".format(msg))
     sys.exit(1)
 
-print("verify_addon: {!r} enabled by default (no userpref)".format(MODULE))
+print("verify_addon: {:s} enabled by default (no userpref)"
+      .format(", ".join(repr(module) for module in MODULES)))
