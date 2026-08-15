@@ -21,6 +21,7 @@ texture BlenderClouds {
   param float hard = 0.0 @range(0.0, 1.0);    // noise_type == HARD_NOISE
   param float bright = 1.0;                   // Texture.intensity
   param float contrast = 1.0;
+  param float no_clamp = 1.0 @range(0.0, 1.0); // not Texture.use_clamp
   param float use_ramp = 0.0 @range(0.0, 1.0);
   param float sx = 1.0;                       // texture_slot.scale
   param float sy = 1.0;
@@ -31,9 +32,18 @@ texture BlenderClouds {
   param ramp shape;
 
   float eval(float3 p, float3 n) {
-    float qx = (p.x * sx + ox) * scale;
-    float qy = (p.y * sy + oy) * scale;
-    float qz = (p.z * sz + oz) * scale;
+    // Placement, verbatim from RE_texture_evaluate (texture_procedural.cc
+    // :1061-1080): texvec[i] = size[i] * (vec[i] + ofs[i]) — offset *before*
+    // scale. (The projx/y/z swizzle in that same block is identity here:
+    // MTex defaults to PROJ_X/Y/Z (DNA_texture_types.h:315) and TextureSlot
+    // RNA exposes no way to change it, so a brush slot never permutes axes.)
+    // The +1 is BLI_noise_generic_turbulence's own, applied to the default
+    // basis *before* the 1/noisesize divide (noise_c.cc:1244-1258); the
+    // Musgrave path has no such offset, so it belongs here and not in the
+    // sampler.
+    float qx = ((p.x + ox) * sx + 1.0) * scale;
+    float qy = ((p.y + oy) * sy + 1.0) * scale;
+    float qz = ((p.z + oz) * sz + 1.0) * scale;
     float sum = 0.0;
     float amp = 1.0;
     float tot = 0.0;
@@ -49,8 +59,14 @@ texture BlenderClouds {
       amp = amp * 0.5;
       fs = fs * 2.0;
     }
-    float v = sum / tot;
-    v = clamp((v - 0.5) * contrast + bright - 0.5, 0.0, 1.0);
+    // BRICONT (texture_common.h:15-25): the bright/contrast fold always
+    // runs, but the [0,1] clamp only when TEX_NO_CLAMP is *clear* — and new
+    // textures ship with it set (DNA_texture_types.h:396), so the default is
+    // unclamped. Blender's tin legitimately leaves [0,1] there.
+    float v = (sum / tot - 0.5) * contrast + bright - 0.5;
+    if (no_clamp < 0.5) {
+      v = clamp(v, 0.0, 1.0);
+    }
     if (use_ramp > 0.5) {
       v = shape.sample(v);
     }

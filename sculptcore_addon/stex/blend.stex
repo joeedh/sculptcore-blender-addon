@@ -1,0 +1,89 @@
+// Blender "Blend" as a runtime texture program: 3D-mapped brush strokes
+// evaluate this at the true sculpt-space point (CPU JIT, GPU-spliceable),
+// so the gradient follows the surface in space instead of tiling a [-1,1]^2
+// bake.
+//
+// Verbatim from `blend()` (texture_procedural.cc:55-110), which contains no
+// noise at all - every progression is a closed form of the placed
+// coordinate, so this one is pointwise-exact against Blender, not merely
+// visually equivalent (see tools/verify_texture_parity.py, mode='point').
+
+texture BlenderBlend {
+  // Texture.progression, as its DNA stype: LINEAR 0, QUADRATIC 1, EASING 2,
+  // DIAGONAL 3, SPHERICAL 4, QUADRATIC_SPHERE 5, RADIAL 6
+  // (DNA_texture_types.h:188-194).
+  param float stype = 0.0 @range(0.0, 6.0);
+  param float flip = 0.0 @range(0.0, 1.0);    // use_flip_axis == 'VERTICAL'
+  param float bright = 1.0;                   // Texture.intensity
+  param float contrast = 1.0;
+  param float no_clamp = 1.0 @range(0.0, 1.0); // not Texture.use_clamp
+  param float use_ramp = 0.0 @range(0.0, 1.0);
+  param float sx = 1.0;                       // texture_slot.scale
+  param float sy = 1.0;
+  param float sz = 1.0;
+  param float ox = 0.0;                       // texture_slot.offset
+  param float oy = 0.0;
+  param float oz = 0.0;
+  param ramp shape;
+
+  float eval(float3 p, float3 n) {
+    // Placement per RE_texture_evaluate (texture_procedural.cc:1061-1080):
+    // offset *before* scale. No noisesize divide and no basis offset here -
+    // both belong to BLI_noise_generic_turbulence, which blend() never calls.
+    float qx = (p.x + ox) * sx;
+    float qy = (p.y + oy) * sy;
+    float qz = (p.z + oz) * sz;
+    float x = qx;
+    float y = qy;
+    if (flip > 0.5) {
+      x = qy;
+      y = qx;
+    }
+    float t = 0.0;
+    if (stype < 0.5) {                        // Linear
+      t = (1.0 + x) * 0.5;
+    } else if (stype < 1.5) {                 // Quadratic
+      t = (1.0 + x) * 0.5;
+      if (t < 0.0) {
+        t = 0.0;
+      } else {
+        t = t * t;
+      }
+    } else if (stype < 2.5) {                 // Easing
+      t = (1.0 + x) * 0.5;
+      if (t <= 0.0) {
+        t = 0.0;
+      } else if (t >= 1.0) {
+        t = 1.0;
+      } else {
+        float s = t * t;
+        t = 3.0 * s - 2.0 * s * t;
+      }
+    } else if (stype < 3.5) {                 // Diagonal
+      t = (2.0 + x + y) * 0.25;
+    } else if (stype > 5.5) {                 // Radial
+      // Blender tests TEX_RAD before falling through to the sphere pair, so
+      // this arm has to come before them even though 6 > 5.
+      t = atan2(y, x) / 6.283185307179586 + 0.5;
+    } else {                                  // Spherical / Quadratic Sphere
+      // z comes straight from the placed coordinate: the flip swaps x and y
+      // only, and x*x + y*y is symmetric under that swap anyway.
+      t = 1.0 - sqrt(x * x + y * y + qz * qz);
+      t = max(t, 0.0);
+      if (stype > 4.5) {
+        t = t * t;
+      }
+    }
+    // BRICONT (texture_common.h:15-25): the bright/contrast fold always runs,
+    // the [0,1] clamp only when TEX_NO_CLAMP is *clear* - and new textures
+    // ship with it set (DNA_texture_types.h:396), so unclamped is the default.
+    float v = (t - 0.5) * contrast + bright - 0.5;
+    if (no_clamp < 0.5) {
+      v = clamp(v, 0.0, 1.0);
+    }
+    if (use_ramp > 0.5) {
+      v = shape.sample(v);
+    }
+    return v;
+  }
+}

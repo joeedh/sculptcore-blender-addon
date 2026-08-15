@@ -1,0 +1,115 @@
+// Blender "Marble" as a runtime texture program: 3D-mapped brush strokes
+// evaluate this at the true sculpt-space point (CPU JIT, GPU-spliceable),
+// so the veining is infinite instead of a tiled [-1,1]^2 bake.
+//
+// Verbatim from `marble_int` (texture_procedural.cc:236-286): a linear ramp
+// along x+y+z, perturbed by `turbulence` octaves of noise, folded through a
+// waveform and then sharpened by one or two square roots. The noise basis is
+// the engine's builtin `vnoise` rather than BLI_noise (see clouds.stex for
+// why), so this is visually equivalent, not bit-identical - graded as a
+// distribution by tools/verify_texture_parity.py.
+//
+// As in Wood, noise_scale reaches only the noise: `marble_int` builds
+// `5*(x+y+z)` from the raw placed coordinate and BLI_noise_generic_turbulence
+// does the 1/noisesize divide itself (noise_c.cc:1247-1253).
+
+sampler float vnoise(float3 p);
+
+texture BlenderMarble {
+  // Texture.marble_type, as its DNA stype: SOFT 0, SHARP 1, SHARPER 2
+  // (DNA_texture_types.h:181-183).
+  param float stype = 0.0 @range(0.0, 2.0);
+  // Texture.noise_basis_2, the waveform: SIN 0, SAW 1, TRI 2 (:160-162).
+  param float wf = 0.0 @range(0.0, 2.0);
+  param float scale = 4.0;                    // 1 / noise_scale
+  param float depth = 2.0 @range(0.0, 8.0);   // extra octaves (noise_depth)
+  param float turb = 5.0;                     // Texture.turbulence
+  param float hard = 0.0 @range(0.0, 1.0);    // noise_type == HARD_NOISE
+  param float bright = 1.0;                   // Texture.intensity
+  param float contrast = 1.0;
+  param float no_clamp = 1.0 @range(0.0, 1.0); // not Texture.use_clamp
+  param float use_ramp = 0.0 @range(0.0, 1.0);
+  param float sx = 1.0;                       // texture_slot.scale
+  param float sy = 1.0;
+  param float sz = 1.0;
+  param float ox = 0.0;                       // texture_slot.offset
+  param float oy = 0.0;
+  param float oz = 0.0;
+  param ramp shape;
+
+  float eval(float3 p, float3 n) {
+    // Placement per RE_texture_evaluate (texture_procedural.cc:1061-1080):
+    // offset *before* scale. The +1 and the 1/noisesize divide belong to the
+    // turbulence call alone, so they appear in the octave loop and nowhere
+    // else.
+    float qx = (p.x + ox) * sx;
+    float qy = (p.y + oy) * sy;
+    float qz = (p.z + oz) * sz;
+
+    // BLI_noise_generic_turbulence: depth+1 octaves, amplitude halved and
+    // frequency doubled each time, normalized by the amplitude sum.
+    float nx = (qx + 1.0) * scale;
+    float ny = (qy + 1.0) * scale;
+    float nz = (qz + 1.0) * scale;
+    float sum = 0.0;
+    float amp = 1.0;
+    float tot = 0.0;
+    float fs = 1.0;
+    float dmax = depth + 0.5;
+    for (float o = 0.0; o < dmax; o = o + 1.0) {
+      float t = vnoise(float3(nx * fs, ny * fs, nz * fs));
+      if (hard > 0.5) {
+        t = abs(2.0 * t - 1.0);
+      }
+      sum = sum + t * amp;
+      tot = tot + amp;
+      amp = amp * 0.5;
+      fs = fs * 2.0;
+    }
+
+    float a = 5.0 * (qx + qy + qz) + turb * (sum / tot);
+
+    // tex_sin / tex_saw / tex_tri (texture_procedural.cc:154-181), all three
+    // mapping into [0,1] - which is what makes the sharpening roots below safe.
+    float v = 0.5 + 0.5 * sin(a);
+    if (wf > 0.5) {
+      if (wf < 1.5) {                           // Saw
+        // tex_saw, operation for operation - see wood.stex for why the
+        // shorter spellings of "reduce modulo 2pi" are not equivalent here.
+        float tau = 6.283185307179586;
+        float u = a / tau;
+        float k = floor(u);
+        if (u < 0.0) {
+          if (abs(k - u) > 0.0) {
+            k = k + 1.0;
+          }
+        }
+        float m = a - k * tau;
+        if (m < 0.0) {
+          m = m + tau;
+        }
+        v = m / tau;
+      } else {                                  // Tri
+        float u = a * 0.15915494309189535;
+        v = 1.0 - 2.0 * abs(floor(u + 0.5) - u);
+      }
+    }
+    // Sharp takes one square root, Sharper two (:277-282).
+    if (stype > 0.5) {
+      v = sqrt(v);
+      if (stype > 1.5) {
+        v = sqrt(v);
+      }
+    }
+
+    // BRICONT (texture_common.h:15-25); see clouds.stex for the clamp gate.
+    v = (v - 0.5) * contrast + bright - 0.5;
+    if (no_clamp < 0.5) {
+      v = clamp(v, 0.0, 1.0);
+    }
+    if (use_ramp > 0.5) {
+      v = shape.sample(v);
+    }
+    return v;
+  }
+}

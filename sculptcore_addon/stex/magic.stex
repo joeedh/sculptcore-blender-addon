@@ -1,0 +1,130 @@
+// Blender "Magic" as a runtime texture program: 3D-mapped brush strokes
+// evaluate this at the true sculpt-space point (CPU JIT, GPU-spliceable),
+// so the pattern is infinite instead of a tiled [-1,1]^2 bake.
+//
+// Verbatim from `magic()` (texture_procedural.cc:290-361), which contains no
+// noise at all - just a fixed sin/cos cascade - so this one is pointwise-exact
+// against Blender, not merely visually equivalent (see
+// tools/verify_texture_parity.py, mode='point').
+//
+// Magic is the one ported type that reports TEX_RGB, so the brush path
+// (RE_texture_evaluate, :1096-1098) discards its `tin` and takes
+// luminance(trgba) instead. That means the whole of BRICONTRGB - the
+// per-channel factors, the *lower-only* clamp, and the HSV saturation
+// round-trip - has to run here before the collapse to one float.
+
+texture BlenderMagic {
+  param float depth = 2.0 @range(0.0, 10.0);  // Texture.noise_depth
+  param float turb = 1.0;                     // Texture.turbulence / 5
+  param float bright = 1.0;                   // Texture.intensity
+  param float contrast = 1.0;
+  param float no_clamp = 1.0 @range(0.0, 1.0); // not Texture.use_clamp
+  param float use_ramp = 0.0 @range(0.0, 1.0);
+  param float rfac = 1.0;                     // Texture.factor_red
+  param float gfac = 1.0;
+  param float bfac = 1.0;
+  param float sat = 1.0;                      // Texture.saturation
+  param float sx = 1.0;                       // texture_slot.scale
+  param float sy = 1.0;
+  param float sz = 1.0;
+  param float ox = 0.0;                       // texture_slot.offset
+  param float oy = 0.0;
+  param float oz = 0.0;
+  param ramp shape;
+
+  float eval(float3 p, float3 n) {
+    // Placement per RE_texture_evaluate (texture_procedural.cc:1061-1080):
+    // offset *before* scale. No noisesize divide and no basis offset - magic()
+    // never touches BLI_noise.
+    float px = (p.x + ox) * sx;
+    float py = (p.y + oy) * sy;
+    float pz = (p.z + oz) * sz;
+
+    float x = sin((px + py + pz) * 5.0);
+    float y = cos((-px + py - pz) * 5.0);
+    float z = -cos((-px - py + pz) * 5.0);
+    // The cascade unrolls Blender's nested `if (n > k)` ladder; each depth
+    // adds one more feedback term, so the arms must stay in this exact order.
+    if (depth > 0.5) {
+      x = x * turb;
+      y = y * turb;
+      z = z * turb;
+      y = -cos(x - y + z) * turb;
+      if (depth > 1.5) {
+        x = cos(x - y - z) * turb;
+        if (depth > 2.5) {
+          z = sin(-x - y - z) * turb;
+          if (depth > 3.5) {
+            x = -cos(-x + y - z) * turb;
+            if (depth > 4.5) {
+              y = -sin(-x + y + z) * turb;
+              if (depth > 5.5) {
+                y = -cos(-x + y + z) * turb;
+                if (depth > 6.5) {
+                  x = cos(x + y + z) * turb;
+                  if (depth > 7.5) {
+                    z = sin(x + y - z) * turb;
+                    if (depth > 8.5) {
+                      x = -cos(-x - y + z) * turb;
+                      if (depth > 9.5) {
+                        y = -sin(x - y + z) * turb;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    if (abs(turb) > 0.0) {
+      float d = turb * 2.0;
+      x = x / d;
+      y = y / d;
+      z = z / d;
+    }
+    float cr = 0.5 - x;
+    float cg = 0.5 - y;
+    float cb = 0.5 - z;
+    // The color band, when there is one, is fed the *pre*-BRICONTRGB average
+    // (multitex applies it after the type function, on texres->tin, which
+    // magic() set at :355 and BRICONTRGB never touches) and replaces the
+    // color outright.
+    float tin = (cr + cg + cb) * 0.3333333333333333;
+    if (use_ramp > 0.5) {
+      return shape.sample(tin);
+    }
+    // BRICONTRGB (texture_common.h:27-63). Note the clamp is *lower only* -
+    // unlike BRICONT there is no upper bound - and it runs only when
+    // TEX_NO_CLAMP is clear, which on a fresh texture it is not.
+    cr = rfac * ((cr - 0.5) * contrast + bright - 0.5);
+    cg = gfac * ((cg - 0.5) * contrast + bright - 0.5);
+    cb = bfac * ((cb - 0.5) * contrast + bright - 0.5);
+    if (no_clamp < 0.5) {
+      cr = max(cr, 0.0);
+      cg = max(cg, 0.0);
+      cb = max(cb, 0.0);
+    }
+    // Scaling HSV saturation by k, at fixed H and V, is exactly the affine
+    // map c -> V + k*(c - V) with V = max(r,g,b): it fixes the max channel,
+    // sends the min to V - k*(V - min), and preserves (mid-min)/(max-min),
+    // which is all hue is. So the rgb_to_hsv/hsv_to_rgb round trip Blender
+    // does collapses to three lerps, and at sat == 1 it is the identity -
+    // no need to branch on it the way the macro does.
+    float mx = max(max(cr, cg), cb);
+    cr = mx + sat * (cr - mx);
+    cg = mx + sat * (cg - mx);
+    cb = mx + sat * (cb - mx);
+    // Blender re-clamps after saturation only for sat > 1; for sat <= 1 the
+    // lerp of non-negative channels toward a non-negative max cannot go
+    // negative, so clamping unconditionally here matches either way.
+    if (no_clamp < 0.5) {
+      cr = max(cr, 0.0);
+      cg = max(cg, 0.0);
+      cb = max(cb, 0.0);
+    }
+    // IMB_colormanagement_get_luminance, Rec.709 working space.
+    return 0.2126729 * cr + 0.7151522 * cg + 0.0721750 * cb;
+  }
+}

@@ -1,0 +1,118 @@
+// Blender "Wood" as a runtime texture program: 3D-mapped brush strokes
+// evaluate this at the true sculpt-space point (CPU JIT, GPU-spliceable),
+// so the grain is infinite instead of a tiled [-1,1]^2 bake.
+//
+// Verbatim from `wood_int` (texture_procedural.cc:184-231). Two of its four
+// wood types - Bands and Rings - call no noise at all, so those are graded
+// pointwise against Blender (tools/verify_texture_parity.py, the BANDS/RINGS
+// variant); Band Noise and Ring Noise substitute the engine's `vnoise` for
+// BLI_noise and are graded as a distribution, like clouds.stex.
+//
+// Note what the noise scale does and does not reach: `wood_int` hands the raw
+// placed coordinate to the waveform and only BLI_noise_generic_noise divides
+// by noisesize (noise_c.cc:1198-1203). So the bands stay put as noise_scale
+// moves - the scale re-grains the perturbation, not the grain.
+
+sampler float vnoise(float3 p);
+
+texture BlenderWood {
+  // Texture.wood_type, as its DNA stype: BANDS 0, RINGS 1, BANDNOISE 2,
+  // RINGNOISE 3 (DNA_texture_types.h:167-170).
+  param float stype = 0.0 @range(0.0, 3.0);
+  // Texture.noise_basis_2, the waveform: SIN 0, SAW 1, TRI 2 (:160-162).
+  param float wf = 0.0 @range(0.0, 2.0);
+  param float scale = 4.0;                    // 1 / noise_scale
+  param float turb = 5.0;                     // Texture.turbulence
+  param float hard = 0.0 @range(0.0, 1.0);    // noise_type == HARD_NOISE
+  param float bright = 1.0;                   // Texture.intensity
+  param float contrast = 1.0;
+  param float no_clamp = 1.0 @range(0.0, 1.0); // not Texture.use_clamp
+  param float use_ramp = 0.0 @range(0.0, 1.0);
+  param float sx = 1.0;                       // texture_slot.scale
+  param float sy = 1.0;
+  param float sz = 1.0;
+  param float ox = 0.0;                       // texture_slot.offset
+  param float oy = 0.0;
+  param float oz = 0.0;
+  param ramp shape;
+
+  float eval(float3 p, float3 n) {
+    // Placement per RE_texture_evaluate (texture_procedural.cc:1061-1080):
+    // offset *before* scale. The +1 and the 1/noisesize divide belong to the
+    // noise call alone (noise_c.cc:1190-1203), so they appear inside the
+    // vnoise() argument below and nowhere else.
+    float qx = (p.x + ox) * sx;
+    float qy = (p.y + oy) * sy;
+    float qz = (p.z + oz) * sz;
+
+    // The waveform argument. Blender's four arms differ only in which form
+    // they build and whether a noise term is added, and only the noisy pair
+    // pays for a sampler call.
+    float a = 0.0;
+    if (stype < 0.5) {                          // Bands
+      a = (qx + qy + qz) * 10.0;
+    } else if (stype < 1.5) {                   // Rings
+      a = sqrt(qx * qx + qy * qy + qz * qz) * 20.0;
+    } else {                                    // Band Noise / Ring Noise
+      float t = vnoise(float3((qx + 1.0) * scale,
+                              (qy + 1.0) * scale,
+                              (qz + 1.0) * scale));
+      if (hard > 0.5) {
+        t = abs(2.0 * t - 1.0);
+      }
+      if (stype < 2.5) {                        // Band Noise
+        a = (qx + qy + qz) * 10.0 + turb * t;
+      } else {                                  // Ring Noise
+        a = sqrt(qx * qx + qy * qy + qz * qz) * 20.0 + turb * t;
+      }
+    }
+
+    // tex_sin / tex_saw / tex_tri (texture_procedural.cc:154-181), all three
+    // mapping into [0,1].
+    float v = 0.5 + 0.5 * sin(a);
+    if (wf > 0.5) {
+      if (wf < 1.5) {                           // Saw
+        // Transcribed operation for operation, because the obvious
+        // simplifications are not equivalent in float. Wood drives |a| into
+        // the hundreds, where reducing modulo 2pi cancels away four bits or
+        // so, and the residue is the whole answer:
+        //   - fract(a / 2pi) drifts ~1e-5, because the quotient has already
+        //     lost the low bits the fraction needs;
+        //   - a - floor(a/2pi)*2pi still drifts ~3e-6 against Blender, which
+        //     truncates toward zero and wraps the negative remainder back up
+        //     afterwards - same period, different rounding.
+        // int() truncating toward zero is why floor() alone will not do: a
+        // negative non-integral quotient rounds up.
+        float tau = 6.283185307179586;
+        float u = a / tau;
+        float k = floor(u);
+        if (u < 0.0) {
+          if (abs(k - u) > 0.0) {
+            k = k + 1.0;
+          }
+        }
+        float m = a - k * tau;
+        if (m < 0.0) {
+          m = m + tau;
+        }
+        v = m / tau;
+      } else {                                  // Tri
+        // tex_tri, by contrast, really does scale by 1/2pi first (:178).
+        float u = a * 0.15915494309189535;
+        v = 1.0 - 2.0 * abs(floor(u + 0.5) - u);
+      }
+    }
+
+    // BRICONT (texture_common.h:15-25): the bright/contrast fold always runs,
+    // the [0,1] clamp only when TEX_NO_CLAMP is *clear* - and new textures
+    // ship with it set (DNA_texture_types.h:396), so unclamped is the default.
+    v = (v - 0.5) * contrast + bright - 0.5;
+    if (no_clamp < 0.5) {
+      v = clamp(v, 0.0, 1.0);
+    }
+    if (use_ramp > 0.5) {
+      v = shape.sample(v);
+    }
+    return v;
+  }
+}

@@ -77,8 +77,9 @@ class SCULPTCORE_PT_brush_engine(bpy.types.Panel):
 
         if brush.texture is not None:
             from . import texture as texture_mod
-            if brush.texture_slot.map_mode not in texture_mod._COORD_SPACE:
-                layout.label(text="Texture mapping not supported by the engine", icon='INFO')
+            note = texture_mod.mapping_note(brush)
+            if note is not None:
+                layout.label(text=note, icon='INFO')
 
 
 class SCULPTCORE_PT_automasking(bpy.types.Panel):

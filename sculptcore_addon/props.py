@@ -146,6 +146,16 @@ def register():
                     "through Python on the materialized mesh",
         default=True,
     )
+    # The texture-script kill switch (plans/blender-texture-system-port.md
+    # 1.5): a ported .stex that compiles and is wrong has no other backstop,
+    # since _apply_script falls back to the 2D bake only on compile failure.
+    bpy.types.Scene.sculptcore_texture_scripts = bpy.props.BoolProperty(
+        name="Texture Scripts",
+        description="Evaluate 3D-mapped procedural brush textures as runtime "
+                    "texture programs at the true sculpt-space point, instead "
+                    "of tiling a baked 2D image",
+        default=True,
+    )
 
 
 def unregister():
@@ -163,3 +173,4 @@ def unregister():
     del bpy.types.Scene.sculptcore_uv_margin
     del bpy.types.Scene.sculptcore_cpp_dab_loop
     del bpy.types.Scene.sculptcore_grids_programs
+    del bpy.types.Scene.sculptcore_texture_scripts

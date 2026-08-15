@@ -1,0 +1,74 @@
+// Blender "Stucci" as a runtime texture program: 3D-mapped brush strokes
+// evaluate this at the true sculpt-space point (CPU JIT, GPU-spliceable),
+// so the surface is infinite instead of a tiled [-1,1]^2 bake.
+//
+// Verbatim from `stucci` (texture_procedural.cc:366-398): one noise field
+// sampled twice, the second time with z pushed by an offset the first one
+// modulates. The basis is the engine's builtin `vnoise` rather than BLI_noise
+// (see clouds.stex for why), so this is visually equivalent, not
+// bit-identical - graded as a distribution by tools/verify_texture_parity.py.
+//
+// Stucci is the one ported type with **no BRICONT**: `stucci()` returns
+// straight after `max(tin, 0)` and nothing downstream folds in bright or
+// contrast (RE_texture_evaluate only collapses RGB, :1096-1098). So this
+// script deliberately declares no bright/contrast/no_clamp params - a Stucci
+// texture ignores those sliders in Blender too, and reproducing that is the
+// port's job. The color ramp still applies: multitex runs the band on `tin`
+// after the type function either way (:790-797).
+
+sampler float vnoise(float3 p);
+
+texture BlenderStucci {
+  // Texture.stucci_type, as its DNA stype: PLASTIC 0, WALL_IN 1, WALL_OUT 2
+  // (DNA_texture_types.h:199-201).
+  param float stype = 0.0 @range(0.0, 2.0);
+  param float scale = 4.0;                    // 1 / noise_scale
+  param float turb = 5.0;                     // Texture.turbulence
+  param float hard = 0.0 @range(0.0, 1.0);    // noise_type == HARD_NOISE
+  param float use_ramp = 0.0 @range(0.0, 1.0);
+  param float sx = 1.0;                       // texture_slot.scale
+  param float sy = 1.0;
+  param float sz = 1.0;
+  param float ox = 0.0;                       // texture_slot.offset
+  param float oy = 0.0;
+  param float oz = 0.0;
+  param ramp shape;
+
+  float eval(float3 p, float3 n) {
+    // Placement per RE_texture_evaluate (texture_procedural.cc:1061-1080):
+    // offset *before* scale, then the noise call's own +1 and 1/noisesize
+    // (noise_c.cc:1190-1203). The z offset below is added to the *placed*
+    // coordinate, ahead of both.
+    float qx = (p.x + ox) * sx;
+    float qy = (p.y + oy) * sy;
+    float qz = (p.z + oz) * sz;
+
+    float nx = (qx + 1.0) * scale;
+    float ny = (qy + 1.0) * scale;
+
+    float b2 = vnoise(float3(nx, ny, (qz + 1.0) * scale));
+    if (hard > 0.5) {
+      b2 = abs(2.0 * b2 - 1.0);
+    }
+    // Plastic displaces z by a constant; both wall types square the first
+    // sample into it, which is what puts the dimples/ridges where the noise
+    // already is.
+    float ofs = turb / 200.0;                   // :382, a divide not a scale
+    if (stype > 0.5) {
+      ofs = ofs * b2 * b2;
+    }
+
+    float v = vnoise(float3(nx, ny, (qz + ofs + 1.0) * scale));
+    if (hard > 0.5) {
+      v = abs(2.0 * v - 1.0);
+    }
+    if (stype > 1.5) {                          // Wall Out
+      v = 1.0 - v;
+    }
+    v = max(v, 0.0);
+    if (use_ramp > 0.5) {
+      v = shape.sample(v);
+    }
+    return v;
+  }
+}
