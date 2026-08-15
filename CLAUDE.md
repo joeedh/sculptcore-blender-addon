@@ -265,6 +265,12 @@ dispatched `tag`), unpacks it on a clean runner of the target OS, and launches
 Blender against `tools/verify_addon.py` (enabled?) and
 `tools/smoke_test_package.py` (does the engine load, and from where?).
 
+A third step, `tools/verify_texture_parity.py`, grades the shipped `.stex`
+texture programs against Blender's own texture evaluation — the only job where a
+Blender and the engine coexist, and the copy it grades is the one users get. It
+also covers what the other two cannot see: a `.stex` that ships in the archive
+but no longer compiles against the vendored DLL.
+
 Triggered manually, and automatically on a successful **Build packages** run
 (`workflow_run`) — packaging un-drafts the release in its `finalize` job, so by
 then the assets are the "most recent".

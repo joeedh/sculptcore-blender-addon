@@ -23,6 +23,11 @@
 # that every engine library the process maps resolves inside the add-on's
 # vendored `lib/sculptcore/` — so a system copy silently satisfying the load
 # fails the job rather than hiding in it.
+#
+# `tools/verify_texture_parity.py` rides along last, grading the shipped `.stex`
+# texture programs against Blender's own texture evaluation.  It is here because
+# this is the only job in which a Blender and the engine coexist, and because the
+# copy it grades is the one users get.
 name: Smoke-test packages
 
 on:
@@ -218,6 +223,22 @@ jobs:
         run: |
           '${{ steps.exe.outputs.exe }}' --background --factory-startup \
             --python-exit-code 1 --python tools/smoke_test_package.py
+
+      # Half three: the ported .stex texture programs still agree with Blender's
+      # own texture evaluation. This is the only place in CI where a Blender and
+      # the engine exist together, which is what a parity check needs — and the
+      # packaged add-on is the copy users get, so grading *it* is the point
+      # rather than a coincidence of where a runner was available.
+      #
+      # It compiles each script through the engine's tcc JIT, so it also covers
+      # the one failure mode the two checks above cannot see: a .stex that ships
+      # in the archive but no longer compiles against the vendored DLL.
+      # Tolerances are measured worst-observed values with headroom, not
+      # asserted ones, so a failure here is a number that moved.
+      - name: Verify texture-script parity
+        run: |
+          '${{ steps.exe.outputs.exe }}' --background --factory-startup \
+            --python-exit-code 1 --python tools/verify_texture_parity.py -- --verbose
 
       - name: Summary
         if: always()
