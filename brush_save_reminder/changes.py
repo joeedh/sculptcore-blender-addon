@@ -12,6 +12,8 @@ question that flag does not: *where would saving it go?*  A brush from the
 essentials library cannot be written back — Blender saves a copy into a
 writable user library instead, which is why the dialog's save button warns that
 builtins get duplicated.
+
+*Which* settings changed is `diff.py`'s job; the report below asks it.
 """
 
 import os
@@ -136,7 +138,11 @@ def copy_target_library():
 
 
 def _brush_settings(brush):
-    """A compact snapshot of the settings most likely to be what was changed."""
+    """A compact snapshot of the settings most likely to be what was changed.
+
+    The fallback for when the on-disk copy cannot be read back, so there is no
+    diff to print — see `diff.py`.
+    """
     rows = [
         # `size` is a diameter in Blender 5.x, not a radius.
         ("Size", "{:d} px".format(brush.size)),
@@ -157,9 +163,14 @@ def _brush_settings(brush):
 
 def summary_text(entries=None):
     """The report the "Show me what changed" button drops into a text block."""
+    from . import diff as diff_module
+
     if entries is None:
         entries = describe_all()
 
+    # Reads each asset file back to compare against; deliberately done here and
+    # not when the dialog is built, so putting the dialog up stays instant.
+    diffs = diff_module.diff_all(entries)
     target = copy_target_library()
     lines = []
     lines.append("Brush assets with unsaved changes")
@@ -168,9 +179,9 @@ def summary_text(entries=None):
     lines.append("{:d} brush asset(s) have been edited this session and would be lost on quit."
                  .format(len(entries)))
     lines.append("")
-    lines.append("Blender records that a brush changed, not which settings changed, so what")
-    lines.append("follows is each brush's current state and where saving it would put it —")
-    lines.append("not a diff against the copy on disk.")
+    lines.append("Each brush is compared against the copy still on disk in its asset library,")
+    lines.append("so what follows is the settings that differ — old value on the left, the")
+    lines.append("value this session would save on the right.")
     lines.append("")
 
     num_copies = sum(1 for entry in entries if entry["disposition"] == SAVE_AS_COPY)
@@ -203,9 +214,22 @@ def summary_text(entries=None):
         else:
             lines.append("   On save:     cannot be saved (no writable asset library)")
         lines.append("")
-        lines.append("   Current settings")
-        for label, value in _brush_settings(entry["brush"]):
-            lines.append("     {:<20s} {:s}".format(label + ":", str(value)))
+
+        brush_diff = diffs.get(entry["name"])
+        if brush_diff is None or not brush_diff.available:
+            reason = brush_diff.reason if brush_diff is not None else "it could not be compared"
+            lines.append("   Changed settings could not be worked out — {:s}.".format(reason))
+            lines.append("   Its current settings instead:")
+            for label, value in _brush_settings(entry["brush"]):
+                lines.append("     {:<26s} {:s}".format(label + ":", str(value)))
+        elif not brush_diff.rows:
+            lines.append("   No setting differs from the copy on disk.  Blender flags a brush as")
+            lines.append("   changed on any edit, including one that was undone or set back by")
+            lines.append("   hand; saving it is harmless, and so is not saving it.")
+        else:
+            lines.append("   Changed settings ({:d})".format(len(brush_diff.rows)))
+            for label, old, new in brush_diff.rows:
+                lines.append("     {:<26s} {:s}  ->  {:s}".format(label + ":", old, new))
         lines.append("")
 
     lines.append("-" * 78)

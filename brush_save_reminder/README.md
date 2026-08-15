@@ -31,12 +31,40 @@ a dialog:
   warning you cannot dismiss is worse than no warning. Delete the operator and
   its button in `ops.py` to drop it.
 
-The report is identity and disposition, not a diff: Blender records only *that*
-a brush changed, so for each brush it lists the library it came from, the asset
-file, the catalog, the paint modes it applies to, whether saving updates it in
-place or copies it, and a snapshot of its current settings. (A true diff would
-mean appending the on-disk asset with `bpy.data.libraries.load`, which adds
-datablocks and dirties the file — at quit time, exactly the wrong trade.)
+For each brush the report gives its identity and disposition — the library it
+came from, the asset file, the catalog, the paint modes it applies to, and
+whether saving updates it in place or copies it — followed by **the settings
+that actually differ from the copy on disk**, old value on the left and the
+value this session would save on the right.
+
+Blender itself records only *that* a brush changed, so the diff comes from
+reading the asset back and comparing it property by property (`diff.py`). The
+read goes through **`bpy.data.temp_data()`**, a throwaway Main discarded when
+the block exits: appending the original into `bpy.data` would work too, but it
+adds datablocks and dirties the file at the exact moment the user is being asked
+whether to quit. Details worth knowing:
+
+- It walks the brush's RNA, following pointer properties (the texture slots,
+  the per-mode settings structs, `sculptcore`) up to three levels down, with
+  purpose-built comparisons for curve mappings (their points) and colour ramps
+  (their stops), plus the asset metadata — description, author, license,
+  copyright, catalog and tags.
+- `size` and `unprojected_size` are one radius in two units that Blender keeps
+  in step, so only the one the brush is driven by (per `use_locked_size`) is
+  reported — unless it is the sole change, which would otherwise read as
+  "nothing changed".
+- Enums whose item list is built from the paint mode in context (the texture
+  slot's mapping) read back as `""` when the stored value is not in that list,
+  which says nothing about whether it changed; those are skipped rather than
+  reported as a bogus change.
+- If the asset file is gone, the brush was renamed out of it, or the read fails,
+  that brush falls back to a snapshot of its current settings with the reason
+  stated. A report is never worth failing a quit over.
+- The diff runs when the button is pressed, not when the dialog is built, so
+  putting the dialog up stays instant.
+
+A brush can be flagged as changed with nothing differing — Blender tags on any
+edit, including one later undone — and the report says so plainly.
 
 It is standalone: it shares no code with `sculptcore_addon` and works in a plain
 sculpt/paint session.
@@ -72,4 +100,5 @@ the console, and does nothing.
 |---|---|
 | `__init__.py` | `bl_info`, the `quit_pre` handler, register/unregister, `request_quit()` |
 | `changes.py` | which brushes are dirty, where saving them goes, the report text |
+| `diff.py` | the on-disk asset read-back and the property-by-property comparison |
 | `ops.py` | the dialog and its four actions |
