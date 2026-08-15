@@ -229,6 +229,37 @@ Working notes Claude maintains for this repository. See the top-level
   the matrix is pushed per stroke where three modes need it per dab — plus the
   Blender-side quirks parity has to mirror (AREA's inverted bias sign, sculpt
   reading `mtex` not `mask_mtex`, `PaintRuntime` being invisible to RNA).
+- [plans/blender-texture-system-port.md](plans/blender-texture-system-port.md)
+  — **rev 2 (2026-08-14) after an adversarial pressure test; Parts 0-3 now
+  implemented.** Porting Blender's legacy procedural textures to `.stex`. Rev 1 did
+  not survive review and rev 2 records why, so the dead ends stay dead: the
+  oracle it specified (`Texture.evaluate(p)[0]`) returns **constant 0.0** for 9
+  of 10 types — intensity is `[3]`, which `_bake_procedural` already knew — and
+  the brush's real path (`RE_texture_evaluate`) overwrites `tin` with luminance
+  for RGB types; `TEX_NOISE` is a thread-RNG draw that ignores its coordinate
+  entirely, so it cannot be ported *or* parity-tested; the new transcendental
+  intrinsics need **four** edit sites, not two, because the texture JIT is
+  `-nostdlib` with five hand-bound libm symbols; and the WGSL twins (the
+  largest line item) are unreachable — `gpu_brush_c_api.cc:77` refuses any
+  brush carrying a texture program, and `gpuAvailable` never parses the string.
+  Bit-exactness is **rejected** as the target (§5.1) and the `NTREE_TEXTURE`
+  compiler is **cut** (§5.2 — node trees already bake correctly through
+  Blender's own evaluator for all 2D map modes; the gap is 3D-only behind a
+  toggle absent from the Texture properties UI), leaving two ~20-line fixes.
+  **Landed:** the `clouds.stex` placement-order and unconditional-clamp fixes,
+  the map-mode defects from `design/blender-brush-textures.md` §6, the
+  `evalTextureAt` parity harness (`tools/verify_texture_parity.py`, now a third
+  step in `smoke-test-packages.yml`), the end-to-end stroke check
+  (`scripts/test_texture_stroke.py`), and Magic/Blend/Wood/Marble/Stucci — six
+  of ten types now route to a `.stex` instead of a 2D bake. §2.1's two "as landed" blocks are the ones to read
+  before adding a seventh: what a `mode='point'` case can and cannot grade, why
+  `noise_scale` does not scale Wood/Marble/Stucci's pattern, why `tex_saw`
+  needs an operation-for-operation transcription, and why the worst-case
+  statistic trims outliers. **Deferred:** §2.2's Musgrave/Voronoi/
+  DistortedNoise and §2.3's WGSL twins, both against stated demand only.
+  §6 lists what the pressure test confirmed (all 10 types and
+  MUSGRAVE survive; `NTREE_TEXTURE` has 34 node types and is not deprecated;
+  `noise_c.cc` has no `double`, so float32 is not a blocker).
 - [research/gpu-brush-evaluation-in-blender.md](research/gpu-brush-evaluation-in-blender.md)
   — how the engine's GPU brush stack could drive strokes under the addon: the
   existing marshal/dispatch seams, engine-owned wgpu vs. compute on Blender's
