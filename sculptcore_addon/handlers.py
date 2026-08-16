@@ -103,9 +103,38 @@ def _reconcile():
             engine.sessions.pop(name).free()
 
 
+def _resync_foreign_states():
+    """Rebuild any session whose object came back carrying data the engine no
+    longer mirrors.
+
+    Custom-undo modes own their data while active: memfile steps pushed
+    in-mode hold a Mesh the engine has already run past (strokes do not write
+    back), so an undo that restores one must leave the live state alone —
+    which is why ed_undo.cc skips the generic ``refresh`` for this mode. The
+    exception is a step written right after an operator edited the data
+    underneath the mode (the multires ops, which the fork brackets with
+    flush + refresh): there the data *is* the engine's own, and returning to
+    that step — a redo past the operator — means rebuilding from it, since no
+    engine-side step describes the state. ``Object.custom_mode_state`` is the
+    marker that tells the two apart; the session records the value it was
+    rebuilt at, and every engine change clears both (undo.engine_diverged)."""
+    from . import convert
+
+    for name in list(engine.sessions):
+        session = engine.sessions[name]
+        ob = bpy.data.objects.get(name)
+        if ob is None:
+            continue
+        state = ob.custom_mode_state
+        if state and state != session.data_state:
+            convert.refresh(ob, claim_state=False)
+            _tag_view3d_redraw()
+
+
 @persistent
 def _on_undo_redo(scene, depsgraph=None):
     _reconcile()
+    _resync_foreign_states()
 
 
 @persistent

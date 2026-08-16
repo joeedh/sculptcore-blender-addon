@@ -157,6 +157,17 @@ def materialize_grid_blobs(session):
         session.multires_last_blob = current
 
 
+def engine_diverged(ob, session):
+    """Note that the engine state has moved past the object's data. Strokes do
+    not write back, so this is the normal state of a live session; the point is
+    that any undo step written from here on carries data the engine does *not*
+    mirror, and an undo returning to it must leave the live state alone. Only
+    a rebuild from the data (convert.refresh) claims the opposite."""
+    session.data_state = 0
+    if ob is not None and ob.custom_mode_state:
+        ob.custom_mode_state = 0
+
+
 def _tag_view3d_redraw(context):
     window_manager = (context or bpy.context).window_manager
     for window in window_manager.windows:
@@ -168,6 +179,7 @@ def _tag_view3d_redraw(context):
 def push(context, ob, session):
     """Record one undo step for the stroke just ended on ``ob``'s session."""
     global _next_key
+    engine_diverged(ob, session)
     if session.last_stroke_grids:
         # Grids-native stroke: one GridStrokeLog step, no meshlog entry and no
         # per-stroke store blob — the log's block swaps ARE the undo payload
@@ -231,6 +243,7 @@ def push_attr(context, ob, session, message, kind, attr, blob_before, blob_after
     _ATTR_KINDS key, ``attr`` the engine column name (bytes), blobs the raw
     column bytes."""
     global _next_key
+    engine_diverged(ob, session)
     key = _next_key
     _next_key += 1
     if attr == convert._SC_MASK:
@@ -351,6 +364,23 @@ def decode(context, ob, state_id, direction, is_final):
     info = _pending.get(state_id)
     if info is None:
         return
+    if ob.custom_mode_state != session.data_state:
+        # The memfile step this decode rides on carries data from a different
+        # vintage than the session was built at: an operator edited the object
+        # underneath the mode (the multires ops, which the fork brackets with
+        # flush + refresh), and the undo just put the other version back.
+        # Rebuild from it *before* replaying engine state on top, or the step's
+        # snapshot lands on the wrong base cage — multires_base_apply moves the
+        # cage, so a stroke restored against the post-apply cage doubles its
+        # displacement.
+        convert.refresh(ob, claim_state=False)
+        session = engine.sessions.get(ob.name)
+        if session is None:
+            return
+    # The seek moves the engine off whatever data state it last mirrored, so
+    # the object's data stops being the engine's own (the decode's own flush
+    # re-asserts the engine onto the Mesh).
+    engine_diverged(ob, session)
     if info[0] is _ATTR_TAG:
         _decode_attr(context, ob, session, info, direction, is_final)
         return

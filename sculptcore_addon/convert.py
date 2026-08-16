@@ -195,22 +195,30 @@ def enter(ob):
 
 def _eval_multires_top(ob, md, level):
     """Blender's displaced top-level surface in subdiv-vertex order, plus the
-    depsgraph it was read through. `md.levels` is restored, but the modifier's
-    viewport display is left ON for the caller to deal with: enter has to
-    remember the pre-mode value before suppressing it, a mid-session restack
-    only has to suppress it again."""
+    depsgraph it was read through. `md.levels`/`md.sculpt_levels` are restored,
+    but the modifier's viewport display is left ON for the caller to deal with:
+    enter has to remember the pre-mode value before suppressing it, a
+    mid-session restack only has to suppress it again.
+
+    Both level properties are pinned because the modifier evaluates at whichever
+    one `multires_get_level()` picks, and this mode is one of the sculpt-paint
+    custom modes it answers with `sculptlvl` for (the same branch vanilla sculpt
+    mode takes)."""
     import bpy
     import numpy as np
 
     prev_levels = md.levels
+    prev_sculpt_levels = md.sculpt_levels
     md.show_viewport = True
     md.levels = level
+    md.sculpt_levels = level
     depsgraph = bpy.context.evaluated_depsgraph_get()
     depsgraph.update()
     eval_mesh = ob.evaluated_get(depsgraph).data
     top = np.empty(len(eval_mesh.vertices) * 3, dtype=np.float64)
     eval_mesh.vertices.foreach_get("co", top)
     md.levels = prev_levels
+    md.sculpt_levels = prev_sculpt_levels
     return top.reshape(-1, 3), depsgraph
 
 
@@ -1994,18 +2002,36 @@ def exit_(ob):
         session.free()
 
 
-def refresh(ob):
+def refresh(ob, claim_state=True):
     """Foreign undo replaced the Mesh data: rebuild the engine mesh from the
-    (new) Mesh ID; stale engine handles are detectable via the generation."""
+    (new) Mesh ID; stale engine handles are detectable via the generation.
+
+    ``claim_state`` marks the object's data as the engine's own by bumping
+    ``Object.custom_mode_state`` (see handlers._resync_foreign_states): an
+    undo step written after this rebuild carries data the engine mirrors, so
+    returning to that step means rebuilding from it rather than keeping the
+    live state. The undo handler's own rebuilds pass False — they adopt the
+    state they just restored instead of minting a new one."""
     session = engine.sessions.get(ob.name)
     if session is None:
         return
     generation = session.generation + 1
     was_multires = session.multires_ptr is not None
     prev_show = session.multires_show_viewport
+    # Freeing the session kills the grid stroke log, so this is one of the
+    # boundaries undo.py's blob demotion names: the pushed grids steps carry no
+    # snapshots of their own, and after the rebuild their history is
+    # unreachable. Serialize them now, while the log can still be seeked, or
+    # every stroke below this point becomes an undo that reports "history
+    # unrecoverable" and does nothing.
+    from . import undo
+    undo.materialize_grid_blobs(session)
     session.free()
+    if claim_state:
+        ob.custom_mode_state = ob.custom_mode_state + 1
     new_session = enter(ob)
     new_session.generation = generation
+    new_session.data_state = ob.custom_mode_state
     if was_multires and new_session.multires_ptr:
         # Mid-mode the modifier is already suppressed, so the re-enter recorded
         # False as the restore state; keep the original pre-enter state (an

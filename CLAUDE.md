@@ -21,6 +21,10 @@ This addon is one of three coupled repositories:
   changes that make Python-registered custom object modes possible:
   `OB_MODE_CUSTOM`, the `bpy.types.ObjectModeType` RNA type, custom-mode undo,
   the external draw provider hooks, the multires reshape API,
+  `Object.custom_mode_state` (a counter a custom mode bumps when it rebuilds
+  its live state from the object's data, so it can tell an undo step whose
+  data it already mirrors from one whose data it does not — see
+  `sculptcore_addon/handlers.py::_resync_foreign_states`),
   `Object.multires_grid_vert_indices` (which grid sample is which subdivided
   vertex — the pairing every reshape walk computes internally and none exposed;
   see [claudeMemory/research/grid-correspondence.md](./claudeMemory/research/grid-correspondence.md)),

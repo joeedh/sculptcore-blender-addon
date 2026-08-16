@@ -138,6 +138,13 @@ class Session:
         # columns are index-keyed, so a changed block list means re-seeding
         # (convert._reconcile_shape_keys). Empty for keyless meshes.
         "shape_key_names",
+        # The value of ``Object.custom_mode_state`` this session's engine state
+        # mirrors, or 0 while the engine has run ahead of the Mesh (the normal
+        # case — strokes do not write back). Set when a foreign edit forces a
+        # rebuild from the Mesh (convert.refresh) and cleared by every engine
+        # change; handlers compare it against the object's own value after an
+        # undo to spot a step whose data the engine no longer mirrors.
+        "data_state",
         # Engine UVs diverged from the Blender mesh (UV-project op, UV
         # reprojection): every flush writes the engine `uv` column back into
         # the active UV map. Sticky for the session — undo decodes re-flush.
@@ -193,6 +200,7 @@ class Session:
         self.custom_normal_creep_warned = False
         self.shape_key_names = []
         self.uv_dirty = False
+        self.data_state = 0
         self._freed = False
 
     def mesh(self):
