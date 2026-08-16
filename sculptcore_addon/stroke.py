@@ -38,6 +38,11 @@ _frames_presented = 0
 _draw_counter_handle = None
 _draw_counter_strokes = 0
 
+# Pointer motion the stroke acts on. INBETWEEN_MOUSEMOVE is a backlog sample
+# that the window manager demoted rather than discarded, so it carries a real
+# position, pressure and tilt (see the modal handler).
+_MOVE_EVENT_TYPES = {'MOUSEMOVE', 'INBETWEEN_MOUSEMOVE'}
+
 
 def _on_viewport_draw():
     global _frames_presented
@@ -936,7 +941,10 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         context.window_manager.modal_handler_add(self)
         return {'RUNNING_MODAL'}
 
-    def _dab_at(self, context, event):
+    def _dab_at(self, context, event, redraw=True):
+        """Apply the stroke at one pointer sample. `redraw` off skips the
+        viewport tail — used for the backlog samples of one event batch, which
+        are sculpted but not individually presented (see ``modal``)."""
         paint = context.tool_settings.sculpt
         unified = paint.unified_paint_settings
         # The keymap sets INVERT for Ctrl-LMB; live Ctrl also inverts so the
@@ -1004,7 +1012,8 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
                 for point in points:
                     self._apply_spaced_dab(context, point, invert, event.pressure)
 
-        self._mid_redraw(context)
+        if redraw:
+            self._mid_redraw(context)
 
     def _mid_redraw(self, context):
         """Throttled mid-stroke refresh: the draw provider needs only its GPU
@@ -1478,12 +1487,31 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         cursor.set_size_scale(scale)
 
     def modal(self, context, event):
-        if event.type == 'MOUSEMOVE':
-            self._publish_cursor_pressure(event.pressure)
+        if event.type in _MOVE_EVENT_TYPES:
+            # Blender never drops a queued pointer sample: when moves pile up
+            # behind a busy main thread it retypes all but the newest of the run
+            # to INBETWEEN_MOUSEMOVE (#wm_event_add_mousemove) and delivers them
+            # all. Ignoring the inbetweens made the stroke jump straight to the
+            # newest position, discarding exactly the hand motion the spacer
+            # would have dabbed along -- the harder the scene, the more of the
+            # stroke went missing. Native sculpt consumes them too, skipping
+            # only the paint-cursor update (#paint_stroke_modal).
+            live = event.type == 'MOUSEMOVE'
+            # Preview and grab-class strokes re-base from the stroke start on
+            # every input (a rolled-back provisional dab; an anchored absolute
+            # drag), so only the newest sample can survive -- applying the
+            # backlog would be overwritten work, not extra fidelity.
+            if not live and (self._preview_method or self._grab_class):
+                return {'RUNNING_MODAL'}
+            if live:
+                self._publish_cursor_pressure(event.pressure)
             if self._preview_method:
                 self._dab_preview(context, event)
             else:
-                self._dab_at(context, event)
+                # The backlog is sculpted but not presented per sample: the run
+                # always ends on a live MOUSEMOVE, which carries the redraw for
+                # the whole batch.
+                self._dab_at(context, event, redraw=live)
                 if self._engine_dead:
                     self.report({'WARNING'},
                                 "SculptCore: engine refused the stroke (stale "

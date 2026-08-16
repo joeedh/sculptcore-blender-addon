@@ -65,6 +65,27 @@ Working notes Claude maintains for this repository. See the top-level
   (old one deleted, not repurposed), and a cheaper variant B (numpy math +
   batched capi calls, ~100 lines, 70–85% of the win) is recommended first.
   §12 has the full finding table.
+- [design/off-thread-stroke.md](design/off-thread-stroke.md)
+  — **S0 shipped 2026-08-16 and closed the problem; §4 onward SHELVED**
+  (declined, kept as the costed option — reviving it needs latency numbers,
+  not this document's sampling argument). Was about moving the
+  stroke consumer off the main thread so the main thread only collects
+  pointer events, plus a viewport preview of the pending stroke path. Both
+  headline answers invert the premise: events **cannot** be collected off
+  the main thread (macOS forbids it; Win32 message queues are per-thread —
+  `GHOST_SystemWin32.cc:440`), and the design needs **no fork change**,
+  because on a pen under Windows the samples are already arriving intact
+  (Wintab queues 500 packets, `GHOST_Wintab.cc:90`; Blender *demotes* backlog
+  moves to `INBETWEEN_MOUSEMOVE` rather than discarding them,
+  `wm_event_system.cc:5868`) and `stroke.py`'s `modal()` dropped every one of
+  them — the ~15-line S0 fix has since landed (spaced-dab strokes only;
+  preview and grab re-base per input so a backlog sample there is overwritten
+  work). With fidelity now bought by S0, threading would buy only
+  responsiveness — never throughput (the dab is already node-parallel) — which
+  is why it was shelved. Gated on [design/cpp-dab-loop.md](design/cpp-dab-loop.md)
+  Variant A: a Python worker would contend for the GIL with the very modal
+  handler it is trying to keep fast. Bulk of the work is the extdraw
+  double-buffer + generation counter (§6.1); dyntopo and grab excluded in v1.
 - [research/non-operator-wall-attribution.md](research/non-operator-wall-attribution.md)
   — **P-b resolved 2026-08-10: the ~28.7 ms/stroke of sc wall outside the
   stroke operator is NOT a lever.** A span-timeline instrument
