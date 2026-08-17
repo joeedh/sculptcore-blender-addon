@@ -811,24 +811,46 @@ def clear_samplers():
         unregister_sampler(name)
 
 
-def apply_render_matrix(context, executor):
-    """Push the object -> clip matrix into the executor for
-    ViewPlane/ViewRepeat UV. Flat 16 floats, row-major rows appended in
-    order — the same element order the mat4 assignment consumes.
+def render_matrix_flat(context):
+    """The object -> clip matrix as flat 16 floats, row-major rows appended in
+    order — the same element order the mat4 assignment consumes. None when the
+    context has no 3D region or object to build it from.
 
     Engine coordinates are *object* space (stroke.py converts world -> object
     on the way in), so this is ``rv3d.perspective_matrix @ ob.matrix_world``,
     the same composition gestures.py:38 uses to project verts. Pushing the
     bare perspective matrix mis-projected every screen-pinned texture on a
     transformed object."""
-    import sculptcore
-
     rv3d = context.region_data
     ob = context.active_object
     if rv3d is None or ob is None:
-        return
+        return None
     mat = rv3d.perspective_matrix @ ob.matrix_world
-    flat = [mat[r][c] for r in range(4) for c in range(4)]
+    return [mat[r][c] for r in range(4) for c in range(4)]
+
+
+def apply_render_matrix(context, executor):
+    """Push the object -> clip matrix into the executor for
+    ViewPlane/ViewRepeat UV (mesh path: the executor is the reflected
+    object)."""
+    import sculptcore
+
+    flat = render_matrix_flat(context)
+    if flat is None:
+        return
     mgr = engine.manager()
     with sculptcore.construct_from_items(mgr, mgr.get("float"), flat) as vec:
         executor.setRenderMatrix(vec)
+
+
+def apply_render_matrix_grids(context, grid_ptr):
+    """The grids-path twin of apply_render_matrix: a grid session is a raw
+    c-api pointer with no reflected executor, so the matrix goes through the
+    GridStroke_setRenderMatrix export instead."""
+    import numpy as np
+
+    flat = render_matrix_flat(context)
+    if flat is None:
+        return
+    engine.capi().lib.GridStroke_setRenderMatrix(
+        grid_ptr, np.asarray(flat, dtype=np.float32))

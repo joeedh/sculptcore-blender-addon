@@ -129,7 +129,8 @@ Working notes Claude maintains for this repository. See the top-level
   is believed. Kills the tasklist's **E7** and restores **1.4**'s original
   merge-policy claim.
 - [plans/grid-domain-attributes.md](plans/grid-domain-attributes.md)
-  — **plan, rev 2 (pressure-tested); P0a + P0b landed 2026-08-17.** Per-grid-element vertex and
+  — **plan, rev 2 (pressure-tested); P0a–P0d landed 2026-08-17 — every engine
+  brush roster is gone, P1 next.** Per-grid-element vertex and
   face attribute domains, and the deletion of every hand-written switch that
   gates which brushes may run. Capability becomes a computed join of the
   DSL-reflected attr manifest against grid storage policy, so no brush is
@@ -148,6 +149,16 @@ Working notes Claude maintains for this repository. See the top-level
   to the cage), that an `AttrRef` can alias store memory (it is a paged
   container), that `supportsBrush` can die first (`makeFaceIter` is `abort()`),
   and that four rosters exist (fourteen do).
+- [plans/multires-attribute-subdivision.md](plans/multires-attribute-subdivision.md)
+  — **landed 2026-08-16.** How UVs, colors and face sets reach the viewport on
+  the grids draw path: the engine subdivides them from the *cage* onto the grid
+  samples (`subdiv/grid_attrs.{h,cc}`) — ptex-bilinear for generic attributes,
+  Catmull-Clark face-varying (welded UV cage + limit mask) for UV maps, keyed on
+  the modifier's `uv_smooth`. Carries the host-capability policy that decides
+  which per-grid-element layers a host may persist (Blender: the scalar mask,
+  nothing else), leaving everything non-TEMP derived-from-cage. Records the
+  measured parity against Blender's own evaluation and the one place the two
+  legitimately differ.
 - [plans/multires-grids-native-brush-path.md](plans/multires-grids-native-brush-path.md)
   — **engine phases G1–G4 executed 2026-08-04** (see the results doc below);
   Blender wiring still open. The direct grids editing path that closes the

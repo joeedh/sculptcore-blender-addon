@@ -1,7 +1,10 @@
 # Grid-element attribute domains + de-gating the brush rosters
 
-**Status:** plan, rev 2 — **P0a + P0b landed** (engine `080d0ac`, 2026-08-17);
-P0c next. Engine work in `engine/source/{subdiv,brush}`, addon work in
+**Status:** plan, rev 2 — **P0a–P0d landed** (engine `080d0ac` / `182dc4e` /
+`0a18195`, 2026-08-17); P1 next. Every brush roster in the engine is gone: what
+runs on grids is now decided by each kernel's own def (no face stage, every
+declared attr layer bindable), so P1–P5 widen a predicate rather than editing a
+switch. Engine work in `engine/source/{subdiv,brush}`, addon work in
 `sculptcore_addon/`. No Blender-fork change required (verified, §11).
 
 **Goal, in the user's words:** *"the goal is to eliminate any switch statements
@@ -540,22 +543,43 @@ across both `csr` values and both accum modes. `graddraw.sbrush` claims no
 `@tool` and is deliberately absent from the registry. `sbrush-verify` is
 unchanged, `pinch`'s pre-existing stale golden included; ctest 134/134.
 
-**P0c — `@fulltopo` + `brushNeedsLiveLinks`.** Separate because a wrong answer
+**P0c — `@fulltopo` + `brushNeedsLiveLinks`. DONE** (engine `182dc4e`).
+Separate because a wrong answer
 drops link pages mid-stroke: a heap-layout-dependent UAF, the failure class whose
 postmortem here reads *"the native suite and three probe scripts all passed while
 the full test crashed deterministically"*. It has **zero** current coverage.
 *Gates:* an old-vs-new truth table over all 23 ids, written **before** the
 predicate changes; a dyntopo stroke A/B.
+`tests/test_brush_live_links.cc` carries the truth table (`@fulltopo` = {19
+FEATURE_ALIGN, 21 ENHANCE}, `usesForNeighbor` = {6 SMOOTH, 15 BSMOOTH, 18
+COLORSMOOTH, 19 FEATURE_ALIGN}); the extras golden needed the same
+NbrSource-parameterized `createExtraBrush` P0d later generalized, and the
+bsmooth-segfault teeth-check confirmed the predicate is load-bearing.
 
-**P0d — grids roster.** Delete `createCommandSwitch` on grids; `supportsBrush`
-becomes `!brushHasFaceStage(id)`. Snake hook, texdraw, texgrad go native.
-`wingscrape` does **not** — it has a `host void computeWings()` stage and
-`grid_executor.h` never calls `execHost` (which the mesh path does at `:764`);
-add that call, or exclude it explicitly.
-*Gates:* snake-hook and wingscrape strokes A/B'd grids-vs-slot with a stated eps
-(smooth-class is never bit-exact here — 6e-8/3.4e-2 per
-`grids-native-brush-path-results.md:40-45`; use the split gate form from
-`program-grids-routing.md:352-360`); UVs and colour still draw on both.
+**P0d — grids roster. DONE** (engine `0a18195`). Landed wider than written:
+`supportsBrush` is not `!brushHasFaceStage(id)` but a conjunction of *def facts*
+— the generated dispatch declines face-stage kernels structurally
+(`if constexpr (!TYPES::supportsFaceStages)`), and a local `attrBindable`
+declines every kernel whose declared attr layer has no grid storage. That second
+term is exactly the hook P1/P2 widen, so no roster survives the change.
+Newly grids-native: pose, texdraw, wingscrape, snakehook, texgrad. Still
+declined: polygroup (face stage) plus color, colorsmooth, feature_align,
+layerdraw, enhance (attr layers).
+`wingscrape` **did** go native: `grid_executor.h` now calls `execHost` like the
+mesh path, which was a latent correctness bug of its own — kelvinlet was already
+routed here with its parameter clamp silently skipped.
+*Gates met:* `test_grid_stroke`'s `gateGridsRoster` grades `supportsBrush`
+against an independent 23-entry transcription; snakehook and wingscrape A/B
+grids-vs-mesh at **0.00000000** (eps 1e-6), every pre-existing A/B number
+unchanged; ctest 135/135 both with and without `--kernels-extra ../brushes`.
+The wingscrape A/B first failed at 6.2e-3 and found a real engine bug:
+`updateStrokeFrame` left the *previous* stroke's tangent in `strokeDir` on a
+stroke's first dab, which wingscrape leans its wings along — fixed in both
+executors.
+Addon side: `GridStroke_setRenderMatrix` + `texture.apply_render_matrix_grids`
+(§8.4 — texdraw/texgrad would otherwise map through the identity), and
+`stroke.py`'s `not self._snake_hook` grids gate is lifted (the snake-hook state
+is written on the shared `Brush`, which both paths read).
 
 **P1 — domain infrastructure.** Channel domain/type/persist; face element counts;
 the four `(S+1)²` sites; name-keyed `GridBlock` + range check; lazy session-level

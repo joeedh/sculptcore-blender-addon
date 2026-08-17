@@ -910,13 +910,15 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
                       or (not kernel_toggle and
                           self.brush.sculpt_brush_type in mapping.FORCE_ACCUMULATE))
         # Grids-native dispatch (multires W1): plain dab/grab strokes of
-        # roster kernels skip the materialized-mesh hot path entirely, and so
-        # do autosmooth programs when every entry is grids-capable (E2; dyntopo
-        # never coexists with multires, so a program here is autosmooth's).
-        # Preview and snake-hook flows stay mesh-path.
+        # kernels the engine reports as grids-capable skip the materialized-mesh
+        # hot path entirely, and so do autosmooth programs when every entry is
+        # capable (E2; dyntopo never coexists with multires, so a program here is
+        # autosmooth's). Snake hook rides this too — its per-dab state is written
+        # on the shared Brush, which both paths read. Preview flows stay
+        # mesh-path (the grid executor has no preview machinery).
         grids_kernel = None
         if (self.session.multires_ptr is not None
-                and not self._preview_method and not self._snake_hook
+                and not self._preview_method
                 and (self._program is None
                      or program_grids_capable(self.session, self.kernel))):
             grids_kernel = self.kernel
@@ -925,6 +927,11 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         stroke_begin(self.session, has_dyntopo=self._dyntopo is not None,
                      accumulate=accumulate, anchored_grab=self._grab_class,
                      grids_kernel=grids_kernel)
+        # The grids session is created inside stroke_begin, so its own copy of
+        # the view matrix can only be pushed here — the mesh-path push above
+        # rides the long-lived executor.
+        if self.session.last_stroke_grids and texture.needs_render_matrix(self.brush):
+            texture.apply_render_matrix_grids(context, self.session.grid_ptr)
         # First dab at the invoke location — before the modal handler is
         # registered, so an engine-refused first batch can still bail out with
         # a plain CANCELLED return.

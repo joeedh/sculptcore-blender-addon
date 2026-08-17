@@ -255,6 +255,12 @@ class _CApi:
         lib.GridStroke_sync.restype = ctypes.c_int
         lib.GridStroke_syncMask.argtypes = [ctypes.c_void_p]
         lib.GridStroke_syncMask.restype = None
+        # Object -> clip matrix for the view-mapped texture UV modes (16 flat
+        # floats, row-major). The mesh path reaches the same executor setter
+        # through reflection; a grids session is a raw pointer, so it needs an
+        # export of its own.
+        lib.GridStroke_setRenderMatrix.argtypes = [ctypes.c_void_p, f32p]
+        lib.GridStroke_setRenderMatrix.restype = None
         lib.GridStroke_setDeferNormals.argtypes = [ctypes.c_void_p, ctypes.c_int]
         lib.GridStroke_setDeferNormals.restype = None
         lib.GridStroke_flushNormals.argtypes = [ctypes.c_void_p]
