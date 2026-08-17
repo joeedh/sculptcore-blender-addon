@@ -128,6 +128,26 @@ Working notes Claude maintains for this repository. See the top-level
   that turns on a defaulted parameter needs the call sites enumerated before it
   is believed. Kills the tasklist's **E7** and restores **1.4**'s original
   merge-policy claim.
+- [plans/grid-domain-attributes.md](plans/grid-domain-attributes.md)
+  — **plan, rev 2 (pressure-tested); P0a + P0b landed 2026-08-17.** Per-grid-element vertex and
+  face attribute domains, and the deletion of every hand-written switch that
+  gates which brushes may run. Capability becomes a computed join of the
+  DSL-reflected attr manifest against grid storage policy, so no brush is
+  "unsupported on grids" merely because nobody typed its `case`; codegen emits
+  one shared built-in dispatcher (the `brushes/extra.h` pattern) for both
+  executors. A brush whose write the host cannot persist (Blender: everything
+  but the mask) redirects to the base mesh attribute instead, as Blender's own
+  multires face sets do — that cage path is the *default*, and none of its
+  plumbing exists yet. Carries the `Session` storage class behind an addon
+  "allow direct multires attr editing (not saved)" checkbox, the store-channel
+  domain/type extension, the seam-correct grid edge numbering, and the rule that
+  face attributes average **within a grid only** so indexed buffers and seam
+  crispness survive. Rev 2's §0 is the useful part on its own: four adversarial
+  reviewers killed a dozen rev-1 claims, including that the manifest's `write`
+  bit means "writes" (it means ensure-materialized, so BSMOOTH would have routed
+  to the cage), that an `AttrRef` can alias store memory (it is a paged
+  container), that `supportsBrush` can die first (`makeFaceIter` is `abort()`),
+  and that four rosters exist (fourteen do).
 - [plans/multires-grids-native-brush-path.md](plans/multires-grids-native-brush-path.md)
   — **engine phases G1–G4 executed 2026-08-04** (see the results doc below);
   Blender wiring still open. The direct grids editing path that closes the
