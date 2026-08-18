@@ -1,7 +1,8 @@
 # Grid-element attribute domains + de-gating the brush rosters
 
-**Status:** plan, rev 2 — **P0a–P0d landed** (engine `080d0ac` / `182dc4e` /
-`0a18195`, 2026-08-17); P1 next. Every brush roster in the engine is gone: what
+**Status:** plan, rev 2 — **P0a–P2 landed** (engine `080d0ac` / `182dc4e` /
+`0a18195` / `e5ffc03` / `513ed34`, addon `a7389b6` / `a36aae8`, 2026-08-17); P3
+next. Every brush roster in the engine is gone: what
 runs on grids is now decided by each kernel's own def (no face stage, every
 declared attr layer bindable), so P1–P5 widen a predicate rather than editing a
 switch. Engine work in `engine/source/{subdiv,brush}`, addon work in
@@ -581,21 +582,50 @@ Addon side: `GridStroke_setRenderMatrix` + `texture.apply_render_matrix_grids`
 `stroke.py`'s `not self._snake_hook` grids gate is lifted (the snake-hook state
 is written on the shared `Brush`, which both paths read).
 
-**P1 — domain infrastructure.** Channel domain/type/persist; face element counts;
+**P1 — domain infrastructure. DONE** (engine `e5ffc03`).
+Channel domain/type/persist; face element counts;
 the four `(S+1)²` sites; name-keyed `GridBlock` + range check; lazy session-level
 allocation; level-change seeding; serializer includes session channels.
 *Gates:* in `test_grids_store.cc` / `test_grid_stroke.cc` style — face channel
 survives save/load/evict/rehydrate byte-exact; int channel bit-exact; undo blocks
 survive a `removeChannel`; `addLevel` does not blank a session channel.
 
-**P2 — binding + capability, behind the kill switch.** §3's dense mirrors;
-`planForEntry`/`routeForBrush`; `storageFor` returns `None` for INT; §5.6's
-first-touch attr capture. `sculptcore_grid_attrs` scene bool, default **off**,
-introduced here and spanning P2–P4, with `supportsBrush`'s old body as the
-off-branch.
-*Gates:* BSMOOTH-on-grids A/B unchanged against `test_grid_stroke.cc:411-437`'s
-existing split eps (it is the right canary — rev 1 predicted it passes, §4.1 says
-it fails); attr undo bit-exact on a synthetic channel.
+**P2 — binding + capability, behind the kill switch. DONE** (engine `513ed34`,
+addon `a36aae8`). §3's dense mirrors; `planForEntry`/`routeForBrush`; §5.6's
+first-touch attr capture — all in the new `source/brush/grid_attr_bind.h`.
+`sculptcore_grid_attrs` scene bool, default **off**, spanning P2–P4; the engine
+half is a process-global (`GridStroke_setGridAttrs`), because
+`GridStroke_supported` answers before any session exists.
+*Gates:* the BSMOOTH-on-grids A/B is unchanged (tangent 1.19e-07 / normal
+3.06e-07 against the existing split eps); attr undo bit-exact on a COLOR stroke;
+the roster golden is graded in both switch positions; full ctest 135/135.
+
+Three deviations from the text above:
+
+- *`storageFor` returns `None` for INT* moved to P3/P4. P2 needs no derived-read
+  path — enumerating the six-entry attr manifest showed no read-only
+  *retargetable* handle exists — and that fix lives in the in-tree multires
+  attribute work, which P2 deliberately does not touch. P2 compiles at engine
+  HEAD.
+- *`!kernelWrites` → BindDerived* became **DefaultColumn or Unbindable**. A
+  read-only handle needs a *source*, not storage; binding zeros to ENHANCE's
+  held displacement or FEATURE_ALIGN's cross field (both filled by mesh-path
+  pre-passes that are out of scope, §8.4) would make those brushes silent
+  no-ops instead of falling back. The zero column binds only where zero is a
+  documented default for the layer — today `.boundary.vert.class` (0 =
+  interior = plain Laplacian), i.e. today's vclass shim re-expressed as a
+  registry of layers rather than a `handle == "vclass"` test.
+- **LAYERDRAW cannot widen in P2 either.** Its `slayer` write is a delta the
+  mesh path's displace compositor folds into positions; the grids domain runs
+  no compositor, so writing the layer alone would move nothing. Expressed
+  metadata-only as `use & AttrUse::SCULPT_LAYER` → Unbindable. P2's widening is
+  therefore COLOR + COLORSMOOTH only.
+
+One known wart, documented not fixed: `execStage`'s
+`if (cmd.writesMask) … else strokeWroteCo_ = true;` books a colour stroke as a
+position stroke, so the fold also captures `disp` and runs `gridsWriteback`.
+Harmless (writeback skips bit-identical verts) but wasteful; a `cmd.writesCo`
+bit would fix it.
 
 **P3 — cage write-back (its own sub-plan, §6).** Cage-attr readback c-api;
 `_flush_multires` branch; cage `_ATTR_KINDS` undo kind; face-domain binary
