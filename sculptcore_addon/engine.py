@@ -375,6 +375,12 @@ class _CApi:
         # them (the requested-attr set is unchanged, so nothing else would).
         lib.Multires_syncSlotAttrs.argtypes = [ctypes.c_void_p, ctypes.c_int]
         lib.Multires_syncSlotAttrs.restype = None
+        # The other direction: a mesh-path edit lands on the slot's derived copy
+        # of a face layer, and only the cage persists — this pushes it back and
+        # marks the touched grids (see convert.sync_cage_face_attrs).
+        lib.Multires_scatterFaceIntToCage.argtypes = [
+            ctypes.c_void_p, ctypes.c_int, ctypes.c_char_p]
+        lib.Multires_scatterFaceIntToCage.restype = ctypes.c_int
         lib.refreshTreeRequestedAttrs.argtypes = [ctypes.c_void_p]
         lib.refreshTreeRequestedAttrs.restype = None
 

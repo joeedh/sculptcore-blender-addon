@@ -104,6 +104,9 @@ class Session:
         "grid_generation",
         "grid_cursor",
         "last_stroke_grids",
+        # ...and last_stroke_face_sets marks it as a face-set (POLYGROUP)
+        # stroke, so only those pay for the multires cage write-back.
+        "last_stroke_face_sets",
         # GridStroke_undoBytes high-water at the last push, so each step
         # reports its own delta to the undo limiter, not the cumulative log.
         "grid_undo_bytes_base",
@@ -197,6 +200,7 @@ class Session:
         self.grid_generation = 0
         self.grid_cursor = 0
         self.last_stroke_grids = False
+        self.last_stroke_face_sets = False
         self.grid_undo_bytes_base = 0
         self.grid_mask_dirty = True
         self.multires_desynced = False

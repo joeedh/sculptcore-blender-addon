@@ -1716,6 +1716,57 @@ def sync_grid_attr_settings(ob, session, md=None):
     return True
 
 
+def sync_cage_face_attrs(session):
+    """Push a mesh-path face-set edit from the materialized slot back onto the
+    cage. The cage is the only copy that persists: the slot is an LRU cache and
+    the multires store carries displacements, not attributes — so without this
+    a face set painted on a subdivided level is gone at the next eviction.
+
+    Blender writes a face set on multires to the whole base face, unweighted,
+    which is what the engine's scatter reproduces (Multires::scatterFaceIntToCage).
+    Returns the number of base faces changed, and marks only the grids behind
+    them on both draw paths."""
+    if not session.multires_ptr:
+        return 0
+    return engine.capi().lib.Multires_scatterFaceIntToCage(
+        session.multires_ptr, session.multires_active_level, _SC_GROUP)
+
+
+def cage_face_group_bytes(session):
+    """The cage's `group` face column as raw int32 bytes — the undo payload for
+    a face-set edit on a multires object, where the slot the edit was made on is
+    an evictable cache and the cage is what persists. A cage that has no face
+    sets yet reads as the host's default group, which is what the engine's own
+    ensureFaceGroups() flood-fills on first write. None without a cage."""
+    import numpy as np
+
+    if not session.cage_ptr:
+        return None
+    count = mesh_face_num(session.cage_ptr)
+    if count <= 0:
+        return None
+    values = np.full(count, int(session.multires_default_group or 0), dtype=np.int32)
+    engine.capi().lib.Mesh_readFaceIntAttr(session.cage_ptr, _SC_GROUP, values)
+    return values.tobytes()
+
+
+def restamp_cage_face_attrs(session):
+    """Re-derive from a cage face layer that was written whole (an undo restore
+    of #cage_face_group_bytes): drop the derived grid layers keyed on it and
+    re-stamp the resident level mesh, so cage, grids and slot agree again.
+
+    Unlike #sync_cage_face_attrs this cannot know what moved, so it takes the
+    full invalidation — a whole-column restore may have changed anything."""
+    if not session.multires_ptr:
+        return
+    lib = engine.capi().lib
+    lib.Multires_invalidateGridAttr(session.multires_ptr, _SC_GROUP)
+    if session.mesh_ptr:
+        lib.Multires_syncSlotAttrs(session.multires_ptr, session.multires_active_level)
+        if session.tree_ptr and session.draw_provider_kind == 'SLOT':
+            lib.refreshTreeRequestedAttrs(session.tree_ptr)
+
+
 def refresh_grids_mask(session):
     """Pull a changed slot-mesh mask column into the grids domain mirror NOW
     when the grids provider is displaying (mask flood fill, attr-undo): the
@@ -2010,6 +2061,12 @@ def _flush_multires(ob, session):
         # — decode calls flush on every seek).
         from . import undo
         undo.materialize_grid_blobs(session)
+    # Face sets ride the cage, and a mesh-path stroke edited the slot's derived
+    # copy — push it home before the readback, or what reaches `.sculpt_face_set`
+    # is the pre-stroke cage. Runs while the slot is certainly still resident.
+    sync_cage_face_attrs(session)
+    if session.cage_ptr:
+        _flush_face_sets(ob.data, session.cage_ptr)
     session.multires_mask_base = multires.export_mask(
         ob, depsgraph, session.mesh_ptr, session.multires_map,
         session.multires_ptr, session.multires_active_level,

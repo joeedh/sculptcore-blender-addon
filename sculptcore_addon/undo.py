@@ -66,17 +66,30 @@ _ATTR_TAG = ("attr",)
 # meshlog steps' C4 fallback.
 _GRID_TAG = ("grid",)
 
+# (dtype, expected element count, engine writer, which mesh to write it to).
 _ATTR_KINDS = {
     'VERT_F32': ("float32",
                  lambda session: convert.mesh_vert_num(session.mesh_ptr),
-                 lambda lib: lib.Mesh_writeVertFloatAttr),
+                 lambda lib: lib.Mesh_writeVertFloatAttr,
+                 lambda session: session.mesh_ptr),
     'FACE_I32': ("int32",
                  lambda session: convert.mesh_face_num(session.mesh_ptr),
-                 lambda lib: lib.Mesh_writeFaceIntAttr),
+                 lambda lib: lib.Mesh_writeFaceIntAttr,
+                 lambda session: session.mesh_ptr),
     # Corner FLOAT2 (UV) columns: len(values) is floats, so 2 per corner.
     'CORNER_F32x2': ("float32",
                      lambda session: convert.mesh_corner_num(session.mesh_ptr) * 2,
-                     lambda lib: lib.Mesh_writeCornerFloat2Attr),
+                     lambda lib: lib.Mesh_writeCornerFloat2Attr,
+                     lambda session: session.mesh_ptr),
+    # The cage copy of a face layer, for multires. A face-set edit is made on
+    # the materialized slot, but the slot is an evictable cache and the store
+    # holds displacements only — so the snapshot has to be the cage's column,
+    # or an eviction or level switch between the edit and the undo leaves the
+    # restore with nothing to write into. Decode re-stamps the slot from it.
+    'CAGE_FACE_I32': ("int32",
+                      lambda session: convert.mesh_face_num(session.cage_ptr),
+                      lambda lib: lib.Mesh_writeFaceIntAttr,
+                      lambda session: session.cage_ptr),
 }
 
 
@@ -211,6 +224,7 @@ def push(context, ob, session):
         return
     size = int(log.stepMemSize(step_id))
     blob_before = blob_after = None
+    cage_before = cage_after = None
     level = 0
     if session.multires_ptr:
         # C4: snapshot the store (post-writeback, so this stroke is included);
@@ -227,11 +241,22 @@ def push(context, ob, session):
         level = session.multires_active_level
         if blob_after is not None:
             size += len(blob_after)
+        if session.last_stroke_face_sets:
+            # The stroke painted the slot's derived group column; push it onto
+            # the cage (the only copy that persists) and carry both sides of
+            # THAT column, since the store blob holds displacements only.
+            # Snapshotting both here needs no chain: nothing else writes the
+            # cage between two strokes.
+            before = convert.cage_face_group_bytes(session)
+            if convert.sync_cage_face_attrs(session) and before is not None:
+                cage_before = before
+                cage_after = convert.cage_face_group_bytes(session)
+                size += len(cage_before) + len(cage_after or b"")
     key = _next_key
     _next_key += 1
     # target = applied-step count with this stroke applied (mirrors curStep_).
     _pending[key] = (ob.name, step_id, session.meshlog_cursor, session.generation,
-                     blob_before, blob_after, level)
+                     blob_before, blob_after, level, cage_before, cage_after)
     bpy.ops.object.custom_mode_undo_push(
         'EXEC_DEFAULT', message="Sculpt Stroke", state_id=key, size=size)
 
@@ -256,6 +281,47 @@ def push_attr(context, ob, session, message, kind, attr, blob_before, blob_after
         size=len(blob_before) + len(blob_after))
 
 
+def push_face_sets(context, ob, session, message, before, after):
+    """Record a whole-column face-set write made through an operator.
+
+    On a plain mesh that is an ordinary slot-domain snapshot. On multires the
+    column the operator wrote is the materialized slot's *derived* copy: push it
+    onto the cage first (which coarsens the edit to whole base faces, the rule
+    Blender's own face sets follow there) and snapshot the cage instead, because
+    a slot eviction or a level switch between the edit and the undo would leave
+    a slot-domain snapshot with nothing to restore into."""
+    if session.multires_ptr and session.cage_ptr:
+        cage_before = convert.cage_face_group_bytes(session)
+        changed = convert.sync_cage_face_attrs(session)
+        cage_after = convert.cage_face_group_bytes(session)
+        if not changed or cage_before is None or cage_after is None:
+            # The scatter found nothing to carry home (every painted cell already
+            # agreed with its base face); there is no persistent edit to undo.
+            _tag_view3d_redraw(context)
+            return
+        push_attr(context, ob, session, message, 'CAGE_FACE_I32',
+                  convert._SC_GROUP, cage_before, cage_after)
+        return
+    push_attr(context, ob, session, message, 'FACE_I32',
+              convert._SC_GROUP, before, after)
+
+
+def _restore_cage_groups(session, blob):
+    """Put a step's cage face-set column back and re-derive from it. Only
+    face-set strokes carry one (`blob` is None otherwise), and a base-mesh
+    topology change since the push makes it unrestorable rather than wrong."""
+    import numpy as np
+
+    if blob is None or not session.cage_ptr:
+        return
+    values = np.frombuffer(blob, dtype="int32")
+    if convert.mesh_face_num(session.cage_ptr) != len(values):
+        return
+    engine.capi().lib.Mesh_writeFaceIntAttr(
+        session.cage_ptr, convert._SC_GROUP, np.ascontiguousarray(values))
+    convert.restamp_cage_face_attrs(session)
+
+
 def _decode_attr(context, ob, session, info, direction, is_final):
     """Restore an attribute snapshot. Leaving a step on undo restores its
     pre-state; landing on one (or entering on redo) restores its post-state.
@@ -268,11 +334,14 @@ def _decode_attr(context, ob, session, info, direction, is_final):
     if generation != session.generation:
         return
     blob = blob_before if (direction < 0 and not is_final) else blob_after
-    dtype, count_fn, writer_fn = _ATTR_KINDS[kind]
+    dtype, count_fn, writer_fn, ptr_fn = _ATTR_KINDS[kind]
     values = np.frombuffer(blob, dtype=dtype)
-    if count_fn(session) != len(values):
+    target = ptr_fn(session)
+    if not target or count_fn(session) != len(values):
         return
-    writer_fn(engine.capi().lib)(session.mesh_ptr, attr, np.ascontiguousarray(values))
+    writer_fn(engine.capi().lib)(target, attr, np.ascontiguousarray(values))
+    if kind == 'CAGE_FACE_I32':
+        convert.restamp_cage_face_attrs(session)
     if attr == convert._SC_MASK:
         session.grid_mask_dirty = True
         convert.refresh_grids_mask(session)
@@ -341,12 +410,15 @@ def _decode_multires_blob(context, ob, session, info, direction, is_final):
     pre-state; landing on a step (or entering it on redo) restores its
     post-state. Neighbouring steps share blobs, so a leave + land pair on the
     same history edge restores the same bytes (idempotent)."""
-    _name, _step_id, _target, _generation, blob_before, blob_after, level = info
+    (_name, _step_id, _target, _generation, blob_before, blob_after, level,
+     cage_before, cage_after) = info
     blob = blob_before if (direction < 0 and not is_final) else blob_after
     if blob is None:
         return
     materialize_grid_blobs(session)
     if convert.multires_restore_blob(ob, session, blob, level):
+        _restore_cage_groups(session, cage_before if (direction < 0 and not is_final)
+                             else cage_after)
         convert.flush(ob)
         _tag_view3d_redraw(context)
 
@@ -387,7 +459,8 @@ def decode(context, ob, state_id, direction, is_final):
     if info[0] is _GRID_TAG:
         _decode_grid(context, ob, session, info, direction, is_final)
         return
-    _object_name, _step_id, target, generation, _blob_before, blob_after, _level = info
+    (_object_name, _step_id, target, generation, _blob_before, blob_after, _level,
+     _cage_before, _cage_after) = info
     if session.multires_ptr and blob_after is not None and (
             generation != session.generation or session.meshlog is None):
         _decode_multires_blob(context, ob, session, info, direction, is_final)
@@ -439,6 +512,10 @@ def decode(context, ob, state_id, direction, is_final):
             materialize_grid_blobs(session)
             engine.capi().lib.Multires_writeback(
                 session.multires_ptr, session.multires_active_level)
+            # After the seek, not before: the re-stamp derives the slot's
+            # group column from the cage, so it has to be the last word on it.
+            _restore_cage_groups(session, info[8] if (is_final or direction > 0)
+                                 else info[7])
         convert.flush(ob)
         _tag_view3d_redraw(context)
 
@@ -471,7 +548,7 @@ def free(state_id):
                 return
         engine.capi().lib.GridStroke_dropOldest(session.grid_ptr)
         return
-    object_name, step_id, _target, generation, _bb, _ba, _level = info
+    object_name, step_id, generation = info[0], info[1], info[3]
     session = engine.sessions.get(object_name)
     if (session is not None and session.meshlog is not None
             and session.generation == generation):

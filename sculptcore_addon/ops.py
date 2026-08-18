@@ -239,8 +239,8 @@ class SCULPTCORE_OT_face_sets_create(bpy.types.Operator):
             return {'CANCELLED'}
 
         ob = context.active_object
-        undo.push_attr(context, ob, session, "Face Set from Masked", 'FACE_I32',
-                       convert._SC_GROUP, before.tobytes(), after.tobytes())
+        undo.push_face_sets(context, ob, session, "Face Set from Masked",
+                            before.tobytes(), after.tobytes())
         undo._tag_view3d_redraw(context)
         return {'FINISHED'}
 
@@ -333,8 +333,8 @@ class SCULPTCORE_OT_face_set_edit(bpy.types.Operator):
             return {'CANCELLED'}
 
         ob = context.active_object
-        undo.push_attr(context, ob, session, "Edit Face Set", 'FACE_I32',
-                       convert._SC_GROUP, groups.tobytes(), after.tobytes())
+        undo.push_face_sets(context, ob, session, "Edit Face Set",
+                            groups.tobytes(), after.tobytes())
         undo._tag_view3d_redraw(context)
         return {'FINISHED'}
 

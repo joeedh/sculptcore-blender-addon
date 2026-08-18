@@ -805,11 +805,16 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         # newFaceGroupId skips that default, so a painted set is never the
         # invisible one (extending the default set stays an explicit sample of
         # an existing face's id, never an allocation).
+        self.session.last_stroke_face_sets = False
         if not kernel_toggle and self.brush.sculpt_brush_type in mapping.FACE_SET_TYPES:
             brush = _ensure_brush(self.session)
             mesh_obj = self.session.mesh()
             mesh_obj.ensureFaceGroups()
             brush.activeGroup = int(mesh_obj.newFaceGroupId())
+            # On multires this paints the SLOT's derived group column; only the
+            # cage persists, so undo.push scatters it home (§6 of
+            # plans/grid-domain-attributes.md).
+            self.session.last_stroke_face_sets = True
         # Dyntopo (scene toggle) and autosmooth both run through a program;
         # neither applies to grab-class nor to a Shift-smooth stroke.
         # Autosmooth also skips the smooth brush itself.

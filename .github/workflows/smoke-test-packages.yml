@@ -26,9 +26,11 @@
 #
 # `tools/verify_texture_parity.py` and `tools/verify_multires_uv_parity.py` ride
 # along last, grading the shipped `.stex` texture programs and the engine's
-# multires attribute subdivision against Blender's own evaluation of each.  They
-# are here because this is the only job in which a Blender and the engine
-# coexist, and because the copy they grade is the one users get.
+# multires attribute subdivision against Blender's own evaluation of each, and
+# `tools/verify_multires_face_sets.py` round-trips a multires face set out to the
+# mesh, through save/reload and back through undo.  They are here because this is
+# the only job in which a Blender and the engine coexist, and because the copy
+# they grade is the one users get.
 name: Smoke-test packages
 
 on:
@@ -249,6 +251,16 @@ jobs:
         run: |
           '${{ steps.exe.outputs.exe }}' --background --factory-startup \
             --python-exit-code 1 --python tools/verify_multires_uv_parity.py -- --verbose
+
+      # Not a parity gate: a round trip through the host itself.  A face set
+      # painted on a multires level lives on the cage, and this walks it out to
+      # `ob.data`, through save + reload, and back through both undo routes --
+      # which needs a real Blender, a real .blend and the shipped DLL's own
+      # write-back symbol, so only this job can run it.
+      - name: Verify multires face-set write-back
+        run: |
+          '${{ steps.exe.outputs.exe }}' --background --factory-startup \
+            --python-exit-code 1 --python tools/verify_multires_face_sets.py -- --verbose
 
       - name: Summary
         if: always()

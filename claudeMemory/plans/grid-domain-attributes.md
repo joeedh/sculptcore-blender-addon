@@ -1,8 +1,8 @@
 # Grid-element attribute domains + de-gating the brush rosters
 
-**Status:** plan, rev 2 — **P0a–P2 landed** (engine `080d0ac` / `182dc4e` /
-`0a18195` / `e5ffc03` / `513ed34`, addon `a7389b6` / `a36aae8`, 2026-08-17); P3
-next. Every brush roster in the engine is gone: what
+**Status:** plan, rev 2 — **P0a–P3 landed** (engine `080d0ac` / `182dc4e` /
+`0a18195` / `e5ffc03` / `513ed34` + P3, addon `a7389b6` / `a36aae8` + P3,
+2026-08-17/18); P4 next. Every brush roster in the engine is gone: what
 runs on grids is now decided by each kernel's own def (no face stage, every
 declared attr layer bindable), so P1–P5 widen a predicate rather than editing a
 switch. Engine work in `engine/source/{subdiv,brush}`, addon work in
@@ -390,6 +390,47 @@ approximation.
 `markGrids` (`grid_draw_source.cc:232-240`) is part of this phase's definition of
 done.
 
+### 6.1 What P3 actually landed (2026-08-18)
+
+Engine: `Multires::gridCageFaces` (the grid → cage-face table, the walk
+`gridFaceInts` already describes) and `Multires::scatterFaceIntToCage`, exposed
+as `Multires_scatterFaceIntToCage`. Addon: `convert.sync_cage_face_attrs` /
+`cage_face_group_bytes` / `restamp_cage_face_attrs`, a `_flush_multires` branch
+ahead of the readback, the `CAGE_FACE_I32` `_ATTR_KINDS` kind, `undo.push_face_sets`
+for the two face-set operators, and a `cage_before`/`cage_after` pair carried in
+the stroke step (gated on `session.last_stroke_face_sets`, so only face-set
+strokes pay for the scan).
+
+Gate: `tools/verify_multires_face_sets.py` (headless, 20 checks) — the per-face
+rule, `ob.data` + save/reload, and both undo routes (attribute step and stroke
+step). Engine gate: `gateCageScatter` in `tests/test_multires_attrs.cc`.
+
+**Three deviations from §9's wording, each deliberate:**
+
+1. *"per-dab draw refill touches only marked grids"* does not apply literally.
+   During a mesh-path stroke on multires the provider is SLOT, not GRIDS, so the
+   grids source is not refilling per dab at all. The requirement is met at the
+   scatter instead: `refreshFaceSetColors` re-tints only the changed grids and
+   deliberately leaves `generation_` alone (so `GridDrawSource::update()` cannot
+   fall into `markAllData()`), the c-api calls `markGrids(touched)`, and only the
+   slot tree's leaves are flagged for re-upload. `gateCageScatter` asserts the
+   generation is unchanged across a scatter — that is the "assert, not eyeballs".
+2. The painted region snaps to base-face granularity at **mouse-up**, not live;
+   Blender flips whole base faces live. Accepted for V1: the live view is the
+   slot's own per-cell column, which is finer, not wrong.
+3. The face-set *operators* on multires are now coarsened to base-face
+   granularity too. That is a behaviour change, and the correct one — before
+   this their slot writes had no persistent home and evaporated at the next
+   eviction.
+
+**A prerequisite bug this uncovered.** A materialized slot never inherited the
+cage's `default_group_id`; it defaulted to 0 while the host's is 1. So
+`ensureFaceGroups()` on a level mesh filled it with zeros the cage disagreed
+with, `newFaceGroupId()` handed back an id aliasing the host default, and the
+first scatter read *every* base face as changed. Fixed in `assignDerivedAttrs`
+(slots inherit at materialize) and in `Multires_setDefaultGroupId` (resident
+slots follow a later change).
+
 ## 7. Draw: within-grid only
 
 Face attributes must not force a vertex soup. They also must not blur.
@@ -627,7 +668,9 @@ position stroke, so the fold also captures `disp` and runs `gridsWriteback`.
 Harmless (writeback skips bit-identical verts) but wasteful; a `cmd.writesCo`
 bit would fix it.
 
-**P3 — cage write-back (its own sub-plan, §6).** Cage-attr readback c-api;
+**P3 — cage write-back (its own sub-plan, §6). DONE** (2026-08-18; see §6.1
+for what landed, the three gate deviations, and the `default_group_id`
+inheritance bug it uncovered). Cage-attr readback c-api;
 `_flush_multires` branch; cage `_ATTR_KINDS` undo kind; face-domain binary
 per-face scatter; partial invalidate + `markGrids`.
 *Gates:* face-set paint on a multires object with the checkbox off reaches
@@ -682,8 +725,14 @@ in ABI v3.
 2. **Session-channel memory** — genuinely a measurement, now with §5.3's eager
    all-levels allocation as the thing to fix first, plus §3's per-binding dense
    mirror. Measure in P4.
-3. **Blend vs replace on partial cage coverage** — a user-visible semantic of the
-   *default* path, so it must be settled in P3, not after.
+3. **Settled in P3, was Q3: blend vs replace on partial cage coverage.**
+   Replace, binary, no weighting: a cage face takes the value of the
+   lowest-indexed cell, across all of its grids, that disagrees with what the
+   cage already holds; a face no cell disagrees with is untouched. Every cell of
+   a changed face is then re-stamped to the adopted value — leaving one
+   non-uniform would make the *next* scatter read its untouched cells as a fresh
+   disagreement and propose reverting the face. `verify_multires_face_sets.py`
+   gates that non-oscillation directly (a second write-back must return 0).
 4. The `grid_stroke` / `grid_undo` / `grid_redo` / `grid_bench` debug verbs
    (`source/debug/script.cc:2182, 2310, 2335`) are undocumented in
    `documentation/debugApp.md`; the A/B gates above lean on them.
