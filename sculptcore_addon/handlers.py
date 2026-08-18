@@ -69,6 +69,13 @@ def _sync_multires_levels_inner(convert):
         md = multires.modifier(ob)
         if md is None:
             continue
+        # uv_smooth (the derived grid UVs' rule) and the default face-set id are
+        # plain settings, so nothing else notices them moving; a change drops the
+        # derived layers and the viewport needs the redraw to rebuild them.
+        if convert.sync_grid_attr_settings(ob, session, md):
+            if session.draw_key:
+                engine.capi().lib.sc_external_draw_update(session.draw_key)
+            _tag_view3d_redraw()
         if md.total_levels != session.multires_level:
             convert.sync_multires_total_levels(ob)
             _tag_view3d_redraw()

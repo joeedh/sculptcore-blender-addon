@@ -61,7 +61,7 @@ class Session:
         "draw_key",
         # Which geometry source the provider is registered with: 'SLOT' (the
         # session's SpatialTree — plain-Mesh sessions, and multires while a
-        # mesh-path tool needs its slot edits/overlays drawn) or 'GRIDS'
+        # mesh-path tool needs its slot edits drawn) or 'GRIDS'
         # (the extdraw-v2 grids source; multires default). See
         # convert.use_grids_provider / use_slot_provider.
         "draw_provider_kind",
@@ -84,6 +84,12 @@ class Session:
         "multires_level",
         "multires_active_level",
         "multires_show_viewport",
+        # Last values pushed to the engine's derived grid-attribute layers (the
+        # modifier's uv_smooth, the mesh's default face-set id). Cached so the
+        # level-sync handler, which runs on every depsgraph update, can tell a
+        # settings change — which invalidates those layers — from a no-op.
+        "multires_uv_smooth",
+        "multires_default_group",
         # Store snapshot after the latest undo push (bytes) — the next push's
         # pre-state, and the C4 blob-fallback base for level-crossing undo.
         "multires_last_blob",
@@ -183,6 +189,8 @@ class Session:
         self.multires_level = 0
         self.multires_active_level = 0
         self.multires_show_viewport = True
+        self.multires_uv_smooth = None
+        self.multires_default_group = None
         self.multires_last_blob = None
         self.grid_ptr = None
         self.grid_level = 0

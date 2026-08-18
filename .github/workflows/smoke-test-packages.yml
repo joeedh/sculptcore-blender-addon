@@ -24,10 +24,11 @@
 # vendored `lib/sculptcore/` — so a system copy silently satisfying the load
 # fails the job rather than hiding in it.
 #
-# `tools/verify_texture_parity.py` rides along last, grading the shipped `.stex`
-# texture programs against Blender's own texture evaluation.  It is here because
-# this is the only job in which a Blender and the engine coexist, and because the
-# copy it grades is the one users get.
+# `tools/verify_texture_parity.py` and `tools/verify_multires_uv_parity.py` ride
+# along last, grading the shipped `.stex` texture programs and the engine's
+# multires attribute subdivision against Blender's own evaluation of each.  They
+# are here because this is the only job in which a Blender and the engine
+# coexist, and because the copy they grade is the one users get.
 name: Smoke-test packages
 
 on:
@@ -239,6 +240,15 @@ jobs:
         run: |
           '${{ steps.exe.outputs.exe }}' --background --factory-startup \
             --python-exit-code 1 --python tools/verify_texture_parity.py -- --verbose
+
+      # Same reasoning one level over: the grids draw path derives its UVs by
+      # subdividing the cage attribute itself, so the only way to know it still
+      # agrees with Blender is to run both against each other — which again only
+      # this job can do.  Budgets are measured worst-observed values.
+      - name: Verify multires UV parity
+        run: |
+          '${{ steps.exe.outputs.exe }}' --background --factory-startup \
+            --python-exit-code 1 --python tools/verify_multires_uv_parity.py -- --verbose
 
       - name: Summary
         if: always()

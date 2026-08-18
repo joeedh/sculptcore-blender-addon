@@ -347,6 +347,37 @@ class _CApi:
             + [f32p, ctypes.POINTER(ctypes.c_int)])
         lib.GridTree_castRay.restype = ctypes.c_int
 
+        # Derived per-grid-element attributes (engine subdiv/grid_attrs.h): the
+        # host declares what it can persist per grid element (Blender: the
+        # scalar mask, nothing else), and everything else is re-subdivided from
+        # the cage attribute on demand — which is also how the grids draw path
+        # gets UVs, colors and face-set tints.
+        lib.Multires_declareHostGridAttr.argtypes = [
+            ctypes.c_void_p, ctypes.c_char_p, ctypes.c_int]
+        lib.Multires_declareHostGridAttr.restype = None
+        lib.Multires_clearHostGridAttrs.argtypes = [ctypes.c_void_p]
+        lib.Multires_clearHostGridAttrs.restype = None
+        lib.Multires_gridAttrStorage.argtypes = [
+            ctypes.c_void_p, ctypes.c_char_p, ctypes.c_int, ctypes.c_int]
+        lib.Multires_gridAttrStorage.restype = ctypes.c_int
+        lib.Multires_setUvSmooth.argtypes = [ctypes.c_void_p, ctypes.c_int]
+        lib.Multires_setUvSmooth.restype = None
+        lib.Multires_invalidateGridAttr.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
+        lib.Multires_invalidateGridAttr.restype = None
+        lib.Multires_gridAttrSamplesOut.argtypes = [
+            ctypes.c_void_p, ctypes.c_int, ctypes.c_char_p, f32p, ctypes.c_int]
+        lib.Multires_gridAttrSamplesOut.restype = ctypes.c_int
+        lib.Multires_setDefaultGroupId.argtypes = [ctypes.c_void_p, ctypes.c_int]
+        lib.Multires_setDefaultGroupId.restype = None
+        # A resident slot mesh carries its own copy of the derived layers (it is
+        # what the mesh path draws), so an invalidation has to re-stamp it — and
+        # then the tree has to refill the vertex buffers it already built from
+        # them (the requested-attr set is unchanged, so nothing else would).
+        lib.Multires_syncSlotAttrs.argtypes = [ctypes.c_void_p, ctypes.c_int]
+        lib.Multires_syncSlotAttrs.restype = None
+        lib.refreshTreeRequestedAttrs.argtypes = [ctypes.c_void_p]
+        lib.refreshTreeRequestedAttrs.restype = None
+
         # Host samplers (texture scripts): registry-global, keyed by name.
         # fn(user, p[3], n[3]) -> float; fn_grad(user, p[3], n[3], out[4])
         # writes {value, gx, gy, gz}. texture.py owns the CFUNCTYPE keep-alive

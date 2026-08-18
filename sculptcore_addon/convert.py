@@ -227,8 +227,9 @@ def _enter_multires(ob, md):
     import the object's displaced top-level surface (CD_MDISPS via the
     evaluated modifier), and register the stack's top-level tree for draw. The
     modifier's viewport display is suppressed while the mode is active — the
-    provider draws the engine surface — and restored on exit. The v1 attribute
-    layers (mask/face-set/color/UV) stay untouched (grid channels are A4)."""
+    provider draws the engine surface — and restored on exit. The mask is
+    exchanged per grid element (the one layer Blender persists there); UV,
+    color and face sets are seeded on the cage and subdivided from it."""
     import ctypes
 
     import bpy
@@ -264,6 +265,15 @@ def _enter_multires(ob, md):
     # it explicitly first.
     _seed_cage_material_index(ob.data, cage)
 
+    # UV / color / face sets reach the viewport by being subdivided from the
+    # cage onto the grid samples, so the cage must carry them too. Blender can
+    # persist exactly one per-grid-element layer of its own (the scalar paint
+    # mask); everything else is derived, which is what the declaration says.
+    # (The two settings those layers are keyed on go in below, once there is a
+    # session to cache them on — sync_grid_attr_settings.)
+    _seed_cage_draw_attrs(ob.data, cage)
+    lib.Multires_declareHostGridAttr(mr, _SC_MASK, _AT_FLOAT)
+
     # Lazy slot (extdraw v2 end state): nothing materializes at enter — the
     # grids provider draws the domain, grids strokes edit the chain in place,
     # and the level mesh + tree build on first mesh-path need
@@ -291,6 +301,7 @@ def _enter_multires(ob, md):
     # The domain-direct mask import (above) already synced domain + store.
     session.grid_mask_dirty = False
     engine.sessions[ob.name] = session
+    sync_grid_attr_settings(ob, session)
 
     session.draw_key = int(ob.session_uid)
     # Multires draws from the grids source (extdraw v2): geometry/mask come
@@ -324,6 +335,60 @@ def _seed_cage_material_index(mesh, cage_ptr):
     engine.capi().lib.Mesh_writeAttr(
         cage_ptr, _DOMAIN_TO_ENGINE['FACE'], b"material_index", _AT_INT,
         _USE_NONE, values.ctypes.data_as(ctypes.c_void_p))
+
+
+# MultiresModifier.uv_smooth -> the engine's UvSmooth (subdiv/grid_attrs.h),
+# which mirrors DNA's eSubsurfUVSmooth. Named rather than positional: the RNA
+# identifiers are stable where the enum's integer order is an implementation
+# detail on the Blender side.
+_UV_SMOOTH_TO_ENGINE = {
+    'NONE': 0,
+    'PRESERVE_CORNERS': 1,
+    'PRESERVE_CORNERS_AND_JUNCTIONS': 2,
+    'PRESERVE_CORNERS_JUNCTIONS_AND_CONCAVE': 3,
+    'PRESERVE_BOUNDARIES': 4,
+    'SMOOTH_ALL': 5,
+}
+
+
+def _seed_cage_draw_attrs(mesh, cage_ptr):
+    """Copy the Blender mesh's UV map, vertex colors and face sets onto the
+    engine multires cage. The grids draw path has no slot mesh to read them
+    from: it subdivides these cage layers onto the grid samples itself (engine
+    ``subdiv/grid_attrs.h``), so a layer missing here is a layer the viewport
+    draws with its default (white / zero UV / untinted)."""
+    import ctypes
+
+    import numpy as np
+
+    lib = engine.capi().lib
+
+    uv_layer = mesh.uv_layers.active
+    if uv_layer is not None:
+        values = np.empty(len(mesh.loops) * 2, dtype=np.float32)
+        uv_attr = mesh.attributes.get(uv_layer.name)
+        if uv_attr is not None and uv_attr.domain == 'CORNER' and uv_attr.data_type == 'FLOAT2':
+            uv_attr.data.foreach_get("vector", values)
+        else:
+            uv_layer.data.foreach_get("uv", values)
+        # AttrUse UV is what marks this the *UV map* among corner float2 layers,
+        # and the engine picks the face-varying subdivision rule off that tag.
+        lib.Mesh_writeAttr(cage_ptr, _DOMAIN_TO_ENGINE['CORNER'], b"uv", _AT_FLOAT2,
+                           _USE_UV, values.ctypes.data_as(ctypes.c_void_p))
+
+    color_attr = _point_float_color(mesh)
+    if color_attr is not None:
+        values = np.empty(len(mesh.vertices) * 4, dtype=np.float32)
+        color_attr.data.foreach_get("color", values)
+        lib.Mesh_writeAttr(cage_ptr, _DOMAIN_TO_ENGINE['POINT'], _SC_COLOR, _AT_FLOAT4,
+                           _USE_COLOR, values.ctypes.data_as(ctypes.c_void_p))
+
+    fs_attr = mesh.attributes.get(_BL_FACE_SET)
+    if fs_attr is not None and fs_attr.domain == 'FACE' and fs_attr.data_type == 'INT':
+        values = np.empty(len(mesh.polygons), dtype=np.int32)
+        fs_attr.data.foreach_get("value", values)
+        lib.Mesh_writeAttr(cage_ptr, _DOMAIN_TO_ENGINE['FACE'], _SC_GROUP, _AT_INT,
+                           _USE_NONE, values.ctypes.data_as(ctypes.c_void_p))
 
 
 def _default_face_set(mesh):
@@ -1598,9 +1663,10 @@ def use_grids_provider(session):
 
 def use_slot_provider(session, ob=None):
     """Point the provider at the materialized slot tree — required while a
-    mesh-path tool edits the slot (its edits are invisible to the grid
-    domain until the fold) and for the color/uv/fset overlays the grids
-    source does not carry. First use pays the slot GPU-buffer build."""
+    mesh-path tool edits the slot, whose edits are invisible to the grid domain
+    until the fold. First use pays the slot GPU-buffer build. (Overlays are no
+    longer a reason to flip: the grids source carries color/uv/fset too, derived
+    from the cage.)"""
     if not session.draw_key:
         return
     ensure_multires_slot(session)
@@ -1614,6 +1680,40 @@ def use_slot_provider(session, ob=None):
         lib.sc_external_draw_set_default_group(session.tree_ptr, _default_face_set(ob.data))
     lib.sc_external_draw_update(session.draw_key)
     session.draw_provider_kind = 'SLOT'
+
+
+def sync_grid_attr_settings(ob, session, md=None):
+    """Push the two host settings the engine's derived grid-attribute layers
+    are keyed on — the modifier's ``uv_smooth`` (the face-varying UV rule) and
+    the mesh's default face-set id (which group draws untinted). Both are
+    user-editable while the mode is live, and a change drops the derived layers,
+    so this returns True when it moved something and the caller owes the
+    viewport an update."""
+    if not session.multires_ptr:
+        return False
+    if md is None:
+        md = multires.modifier(ob)
+        if md is None:
+            return False
+
+    uv_smooth = _UV_SMOOTH_TO_ENGINE.get(md.uv_smooth, 4)
+    group = _default_face_set(ob.data)
+    if (uv_smooth == session.multires_uv_smooth
+            and group == session.multires_default_group):
+        return False
+
+    lib = engine.capi().lib
+    lib.Multires_setUvSmooth(session.multires_ptr, uv_smooth)
+    lib.Multires_setDefaultGroupId(session.multires_ptr, group)
+    # A resident slot mesh holds its own stamped copy of the derived layers
+    # (materialize writes them); the invalidation above only drops the samples.
+    if session.mesh_ptr:
+        lib.Multires_syncSlotAttrs(session.multires_ptr, session.multires_active_level)
+        if session.tree_ptr and session.draw_provider_kind == 'SLOT':
+            lib.refreshTreeRequestedAttrs(session.tree_ptr)
+    session.multires_uv_smooth = uv_smooth
+    session.multires_default_group = group
+    return True
 
 
 def refresh_grids_mask(session):
