@@ -346,6 +346,66 @@ per dab** (as `pos`/`mask` already do, `grid_stroke_log.cc:118-131`), accumulate
 *set* of written channels instead of two booleans, and capture before the mirror
 flush.
 
+### 5.7 What P4a actually landed (2026-08-18)
+
+The vertex half of P4: a session channel a colour stroke paints now *reaches the
+viewport*, live, and survives the round trip through undo.
+
+The gap it closes is a layering one. The grids draw path never reads the store —
+it reads `MultiresAttrs`' derived samples, subdivided from the cage — and the
+store only learns of a stroke at the fold. So before this, a grids-native colour
+stroke was invisible until mouse-up, and invisible again after any rebuild of the
+derived layer. Four seams, all in the engine:
+
+- **`GridsStore::channelLevelAllocated(level, ch)`** — "does this level hold
+  anything authored". False only for a session channel nobody has touched at that
+  level (persistent channels are allocated up front; an evicted level rehydrates
+  on the next `elem()`), which is exactly the question the seed and the overlay
+  both need to ask.
+- **Seed, once per level** (`MultiresAttrs::seedSessionChannel`, called from
+  `gridAttrEnsureChannel`, which now takes the level). `addChannel` zero-fills;
+  without a seed the first rebuild would overlay black over the whole level and
+  paint would blend up from black instead of from the surface.
+- **Overlay on build** (`overlaySessionChannel`, on both `buildLayer` branches):
+  where a session channel of the same name holds data, it *wins* over the
+  subdivided cage — the layer is no longer a pure function of the cage, because
+  authored paint is not something the cage can reproduce.
+- **Publish per dab** (`gridAttrMirrorToSamples`, from `GridBrushExecutor::finishDab`,
+  through every occurrence so a seam sample stays identical in each grid). This
+  runs single-threaded after the parallel kernel section, alongside the
+  `markVerts` the draw source already gets, so the existing partial refill
+  carries the colour with no extra invalidation.
+
+Plus the undo return route: `applySwap` collects the blocks whose channel is a
+session channel and re-overlays just those grids
+(`MultiresAttrs::refreshSamplesFromChannel` + `markGrids`). It deliberately leaves
+`generation_` alone, for the same reason `refreshFaceSetColors` does (§6.1
+deviation 1) — a generation change sends `GridDrawSource::update()` through
+`markAllData()` and re-uploads every node.
+
+Gates: `test_grid_stroke`'s P4 block (published-per-dab count, then samples
+bit-exact through `invalidateAll()` → undo → redo — the rebuild leg is what proves
+the seed, since without it the untouched samples would come back zeroed), and
+`tools/verify_multires_color.py` (headless, 14 checks: the kill switch decides the
+route; the cage carries the `color` layer; a grids dab paints and leaves the cage,
+the slot and `ob.data` byte-identical; the undo step seeks the grid log itself;
+and the same dab with the switch off *does* land on the slot, which is what makes
+"nothing moved" a routing result rather than a dab that missed). Wired into
+`smoke-test-packages.yml`. Whether it *renders* is checked by eye — that needs a
+viewport.
+
+**Known limitation: seeding is per level and one-shot.** Nothing propagates
+between levels, so painting at level 3 and then switching to level 4 seeds level 4
+from the *cage*, not from level 3's paint. (`addLevel` seeds from the level below;
+a level *switch* does not.) Acceptable while colour is session-only — the paint is
+not persisted anyway — but it is the first thing to revisit if colour ever gains a
+flush route.
+
+**Not in scope, and not a regression:** a session channel is excluded at the flush
+boundary, so multires colour paint reaches neither `ob.data` nor the .blend. That
+matches §5.1/§5.3 and matches the mesh path's behaviour today, where
+`_flush_multires` writes mask + CD_MDISPS only.
+
 ## 6. The cage-write fallback — the product, not the fallback
 
 This is what the user asked for, it is the path every user takes with the

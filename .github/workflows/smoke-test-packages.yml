@@ -28,7 +28,9 @@
 # along last, grading the shipped `.stex` texture programs and the engine's
 # multires attribute subdivision against Blender's own evaluation of each, and
 # `tools/verify_multires_face_sets.py` round-trips a multires face set out to the
-# mesh, through save/reload and back through undo.  They are here because this is
+# mesh, through save/reload and back through undo, while
+# `tools/verify_multires_color.py` checks the opposite contract for colour: a
+# grid *session* channel that must reach nothing on the host side at all.  They are here because this is
 # the only job in which a Blender and the engine coexist, and because the copy
 # they grade is the one users get.
 name: Smoke-test packages
@@ -261,6 +263,17 @@ jobs:
         run: |
           '${{ steps.exe.outputs.exe }}' --background --factory-startup \
             --python-exit-code 1 --python tools/verify_multires_face_sets.py -- --verbose
+
+      # The other half of the same story: colour paint on a multires level is a
+      # *session* channel of the grid store, so the gate is that it paints and
+      # that it reaches neither the cage, the materialized slot, nor `ob.data` --
+      # measured against the mesh path, which does land on the slot.  It needs a
+      # real Blender for the multires modifier and the shipped DLL for the
+      # grids-native route, so again only this job can run it.
+      - name: Verify multires colour session channel
+        run: |
+          '${{ steps.exe.outputs.exe }}' --background --factory-startup \
+            --python-exit-code 1 --python tools/verify_multires_color.py -- --verbose
 
       - name: Summary
         if: always()
