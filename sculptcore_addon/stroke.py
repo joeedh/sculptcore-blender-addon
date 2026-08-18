@@ -168,7 +168,10 @@ def grids_capable(session, brush_type):
     mask truth is the slot mesh's column (flood fills, CD_GRID_PAINT_MASK
     import), and a grids mask stroke would write the store channel the host
     doesn't read back yet. BSMOOTH rides the ``sculptcore_grids_programs``
-    kill switch: off restores the pre-plan mesh-path routing."""
+    kill switch: off restores the pre-plan mesh-path routing.
+
+    Brushes that write an attribute layer are answered by the engine roster
+    itself, gated on ``sculptcore_grid_attrs``."""
     global _mask_kernel_id, _bsmooth_kernel_id
     if not session.multires_ptr:
         return False
@@ -182,7 +185,12 @@ def grids_capable(session, brush_type):
     if (int(brush_type) == _bsmooth_kernel_id
             and not getattr(bpy.context.scene, "sculptcore_grids_programs", True)):
         return False
-    return bool(engine.capi().lib.GridStroke_supported(int(brush_type)))
+    lib = engine.capi().lib
+    # Pushed on every query, not once at register: the engine flag is
+    # process-global and the scene bool can change between strokes.
+    lib.GridStroke_setGridAttrs(
+        1 if getattr(bpy.context.scene, "sculptcore_grid_attrs", False) else 0)
+    return bool(lib.GridStroke_supported(int(brush_type)))
 
 
 def program_grids_capable(session, main_kernel):
