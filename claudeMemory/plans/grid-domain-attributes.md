@@ -889,16 +889,40 @@ P4b blocks); `tools/verify_multires_color.py` and
 `tools/verify_multires_face_sets.py` headless; colour *renders* — confirmed by eye
 2026-08-19 (§5.7).
 
-**P5 — cleanup.** `supportsBrush` → constant true, symbol retained; kill switch
-default-on for a release, then removed.
+**P5 — cleanup.** Kill switch **removed**, making the routing unconditional. It
+is a development tool and is never promoted to default on -- that is a deliberate
+exception to the pattern its three siblings follow (`sculptcore_cpp_dab_loop`,
+`sculptcore_grids_programs`, `sculptcore_texture_scripts` are all `default=True`
+with the switch retained), so there is no default-on release in between.
+
+`supportsBrush` does **not** become constant true, and §8.1's wording overstates
+it: the predicate is already tool-list-free and metadata-derived, and with the
+flag on three built-ins still decline for capabilities this domain lacks --
+`FEATURE_ALIGN` (cross field) and `ENHANCE` (held per-vert displacement) want a
+mesh-path pre-pass, `LAYERDRAW` wants the displace compositor. All three are §8.4
+/ §11 out-of-scope items, and the roster golden (`test_grid_stroke.cc:132-153`)
+is the ledger: 20 of 23 built-ins run grids-native with the flag on. So P5 keeps
+the predicate and records those three as residual decliners with named reasons.
+
+**Removal is the gate for the durability question, not a flip.** While the switch
+exists, session-only colour is behind a dev tool; deleting it makes grids-native
+what every user gets. So §11's "persisting session channels" item must be settled
+before P5 lands -- either by §6.2's cage route or by accepting and documenting
+that multires colour is session-only. Not a regression either way: the mesh path
+does not persist multires colour either (`_flush_color` is unreachable from
+`_flush_multires`, and the slot's colour column is re-derived by
+`assignDerivedAttrs` inside every `materialize()`).
 
 ## 10. Rollback
 
-`sculptcore_grid_attrs`, default off, introduced in P2, spanning P2–P4 — matching
+`sculptcore_grid_attrs`, default off, introduced in P2, spanning P2–P4 — the same shape as
 `sculptcore_grids_programs` (`props.py:139-147`) and `sculptcore_texture_scripts`
 (`:148-157`), which exist because, per `program-grids-routing.md:318-325`, without
 an addon lever "the first user-visible change would need an engine revert to roll
-back". P0a–P0d are each independently revertable because none of them changes
+back". It differs from those two in the one way that matters for P5: they are
+`default=True` with the switch retained, whereas this one stays a development tool
+and is deleted rather than promoted (§9, P5). P0a–P0d are each independently
+revertable because none of them changes
 which brushes reach grids until P0d, and P0d's gate is an A/B.
 
 ## 11. Out of scope
