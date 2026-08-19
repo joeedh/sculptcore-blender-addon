@@ -25,7 +25,7 @@ the rest of this document is shaped by their absence:
 |---|---|
 | "hand kernels an `AttrRef` pointing at store-channel memory" | `AttrRef::data` is an `AttrDataBase *` — a **paged container**, `pages[i>>SHIFT].data[i&MASK]` over per-page heap allocs (`mesh/attribute.h:215-218, 326`). Store levels are `Vector<Vector<float>>` chunks. Not aliasable. |
 | "the metadata is already there; capability is just the join" | The manifest's `write` bit **does not mean writes**. `bsmooth.brush.gen.h:107` emits `vclass` with `write == true`; `grid_executor.h:806-808` says "the manifest write flag only means ensure-materialized". BSMOOTH — i.e. every autosmooth stroke — would route to the cage. (§4.1 now infers a real `kernelWrites` from the kernel body; this stays the plan's first blocker.) |
-| "undo is a `GridBlock` sizing tweak" | `GridCapturePolicy` hard-asserts `field != CaptureField::Attr` (`grid_executor.h:1139`); the fold captures two hardcoded channels (`:124-135`); `captureGrids` is a stroke-**end** snapshot, so in-place dab writes would make undo a silent no-op. |
+| "undo is a `GridBlock` sizing tweak" | `GridCapturePolicy` hard-asserts `field != CaptureField::Attr` (rev 2 cited `grid_executor.h:1139`; that assert never existed — see §5.6); the fold captures two hardcoded channels (`:124-135`); `captureGrids` is a stroke-**end** snapshot, so in-place dab writes would make undo a silent no-op. |
 | "delete `supportsBrush` in P0" | `makeFaceIter` is `abort()` (`grid_executor.h:443-447`). P0 would send POLYGROUP down the grids path and hard-abort Blender. In `Release` the vclass assert is compiled out, so COLOR/COLORSMOOTH/LAYERDRAW dereference an unmatched handle instead. |
 | "one emitted dispatcher already serves any executor" | `emit_registry.cc:400-405` emits the neighbor sources as **literals** (`CsrNbr`/`LiveDiskNbr`), both mesh-only. Grids needs `GridCsrNbr` (`grid_executor.h:67-77`). No extra kernel has ever run on grids. |
 | "generate the `SculptBrushes` enum" | Ids are not positional: `CLAY = 2`, `TEXDRAW = 9`, `SCRAPE = 10`, `FILL = 11` (`brushes/types.h`). One `plane.sbrush` serves 2/10/11. No file-order rule reproduces that. |
@@ -43,9 +43,18 @@ and `test_multires_stroke.cc` only builds under `WITH_VULKAN`
 (`tests/CMakeLists.txt:131`) — new multires-stroke gates go in
 `test_grid_stroke.cc` (CPU, deterministic).
 
-## 1. Diagnosis (unchanged, and verified three times over)
+## 1. Diagnosis (HISTORICAL — the pre-plan state, superseded by P0a-P4b)
 
-`GridBrushExecutor::supportsBrush` (`grid_executor.h:504`) is:
+**Read this section in the past tense.** Rev 2's heading said "unchanged, and
+verified three times over", which reads as present tense; every citation below now
+lands on different code. `supportsBrush` is at `grid_executor.h:684-697` and
+iterates `def.attrs` through `attrBindable`; `createCommandSwitch` (`:655-668`)
+lists **no** tools, having been replaced by the generated
+`createBuiltinBrush`/`createExtraBrush` in P0b; `execStage` is at `:1012` and
+calls `ensureAttrBindings` (`:1024`), with no non-`vclass` assert left. The
+diagnosis was correct when written and is what P0a-P4b dismantled.
+
+`GridBrushExecutor::supportsBrush` (`grid_executor.h:504`) was:
 
 ```cpp
 brush_command def;
@@ -65,7 +74,9 @@ storage for a named, typed, domained layer.
 
 ## 2. What is actually missing
 
-Rev 1 assumed one gap. There are five, and each is phase-sized:
+Rev 1 assumed one gap. There are five, and each is phase-sized. **Status:** items
+1, 2, 3 and 5 all landed (P0a-P4b, §9); item 4's framing is the switch/cage
+conflation §6 now corrects. Read the present tense below as of rev 2.
 
 1. **A binding mechanism** that reaches kernels at all (§3).
 2. **Metadata that distinguishes reads from writes** (§4) — does not exist today.
@@ -84,9 +95,11 @@ Three different index spaces, and `AttrData<T>` is a paged container besides.
 So a bound attribute is an **executor-owned dense column**, exactly as the mask
 and the vclass shim already work:
 
-- `ensureVclassBinding` (`grid_executor.h:1049-1064`) allocates an
-  `AttrData<int>` sized to `domain->vertCount()` and points the `AttrRef` at it.
-  This is the pattern; it generalizes.
+- The vclass shim allocates an `AttrData<int>` sized to `domain->vertCount()` and
+  points the `AttrRef` at it. This is the pattern; it generalizes. (Rev 2 named it
+  `ensureVclassBinding` at `grid_executor.h:1049-1064`; **no such function has ever
+  existed** — the generalization landed as `ensureAttrBindings`,
+  `grid_executor.h:1309`. The prediction was right, the citation was invented.)
 - The mask is the round-trip precedent: dense mirror on the domain, flushed
   through the occurrence table (`grid_domain.h:98-107`, `grid_domain.cc:286-308`).
 
@@ -109,7 +122,11 @@ satisfies.
 *ensure-materialize*, not for anything the kernel stores to. `bsmooth` reads
 `vclass` and only reads it, yet `write == true`. Any predicate keyed on that bit
 routes BSMOOTH — and therefore every autosmooth-bearing program, i.e. the Clay
-default that `program-grids-routing` landed and benched — into the cage path.
+default that `program-grids-routing` landed and benched — off the grids path.
+(Rev 2 wrote "into the cage path" here. Wrong: an unbindable attr routes a brush
+to the **materialized-mesh** path, `grid_attr_bind.h:20`. BSMOOTH has no cage
+destination at all — `.boundary.vert.class` is engine-derived, and is the one
+layer `gridAttrZeroDefault` binds a zero column for, `grid_attr_bind.h:92-95`.)
 
 **This is P0 work, not a §4 detail.** Nothing else in this plan is implementable
 until the manifest distinguishes the two.
@@ -206,7 +223,10 @@ Two further defects in the reflection surface, same phase:
 
 - **Host owns the inputs.** `MultiresAttrs::declareHostAttr(name, type)` /
   `clearHostAttrs()` (`grid_attrs.h:118`) — today the addon declares the scalar
-  mask, nothing else. Plus the checkbox and the kill switch.
+  mask, nothing else. Plus the kill switch — there is one host input,
+  `Scene.sculptcore_grid_attrs` (`props.py:157`), drawn in the dev-only
+  `SCULPTCORE_PT_experimental`. Rev 2's "the checkbox and the kill switch" implies
+  two; every later "the checkbox" in this doc means that one dev switch.
 - **Engine owns the derivation.** A host-side join would be a host conditional
   over brush behaviour, which `engine/CLAUDE.md` § *Brush* rules out.
 
@@ -246,11 +266,17 @@ never sees, so `enhance`'s `.brush.enhance.disp` and `featurealign`'s
 with nothing behind it (`:308`). `polygroup`'s read binding would be null. Fix:
 `storageFor` returns `None` for INT until an int derived layer exists.
 
-The per-brush route is the aggregate ("any entry scatters ⇒ `CageWrite`"), built
-once per stroke and invalidated on `attrs.generation()` or the flag moving.
-It answers *where writes land*, never *whether grids runs* — but see §8.1: a gate
-for face-stage kernels remains, because a redirected write does not conjure a
-face iterator.
+**What actually landed differs, and §9 did not record it.** The enum has no cage
+arm: `enum class GridAttrPlanKind { Unbindable, DefaultColumn, SessionChannel }`
+(`grid_attr_bind.h:66-70`), and switch-off is
+`if (!sessionChannels) return Unbindable;` (`:117-119`). So the aggregate is
+`supportsBrush`, which loops `def.attrs` and returns **false** on any unbindable
+entry (`grid_executor.h:684-697`) — it answers exactly *whether grids runs*, the
+opposite of what rev 2 asserted here ("It answers *where writes land*, never
+*whether grids runs*"). The cage is not an arm of this predicate at all; it is a
+destination orthogonal to it (§6.2, and `convert.sync_cage_face_attrs`, which
+reads whichever of the two routes a stroke actually wrote). The face-stage gate
+rev 2 expected to survive did not: P4b built the iterator (§5.4, §5.8).
 
 ## 5. Storage and domains
 
@@ -274,34 +300,50 @@ struct Channel {
 };
 ```
 
-Elements per grid: Vertex → `(S+1)²`, Face → `S²`. The `(S+1)²` formula is
-duplicated in **four** places that must move together: `allocLevel`
-(`grids.cc:33-34`), `rehydrate` (`:323-325` — must mirror `allocLevel` exactly or
-eviction round-trips corrupt), `captureGridBlock` (`grid_stroke_log.cc:82-83`)
-and `applySwap` (`:182-185`).
+Elements per grid: Vertex → `(S+1)²`, Face → `S²`.
+
+**Landed as single-sourced, and rev 2 undercounted the sites.** `GridsStore::elemWidth`
+/ `elemsPerGrid` (`grids.h:97-111`, "The single home of…") is now the only home:
+`allocLevel`/`fillChunks` call `elemsPerGrid` (`grids.cc:33, 44`), and
+`captureGridBlock`/`applySwap` call `channelElemsPerGrid`
+(`grid_stroke_log.cc:80-81, 176-177`). Rev 2 listed **four** duplication sites;
+there were **five** — the row stride was also inline in `elemIn`
+(`e5ffc03~1:source/subdiv/grids.cc:90-92`), a site that had to move for the Face
+domain exactly as much as the sizing sites did, and did (`grids.cc:155`).
 
 Storage is `float` throughout — `type` enforces nothing. State the invariant
 explicitly: **no float math on a typed channel**, asserted at the interpolating
 consumers (`gridsWriteback`, the §7 averaging).
 
-### 5.3 Lifetime hazards (all live today, none in rev 1)
+### 5.3 Lifetime hazards (rev 2: "all live today"; two are now FIXED — see the tags)
 
 - **Undo blocks are keyed by channel *index*.** `applySwap` dereferences
   `store.elem(level, b.channel, …)` unchecked (`grid_stroke_log.cc:184`), and
   `removeChannel` shifts every later index down (`grids.h:124-136`, live via
   `multires.cc:1387`). Key `GridBlock` by **name**, resolve at swap time, drop
   blocks whose channel is gone, add the missing range check.
+  **FIXED in P1** (`e5ffc03`): `GridBlock.channel` is a `string`
+  (`grid_stroke_log.h:93-96`), `applySwap` resolves by name and `continue`s when
+  `findChannel < 0` (`grid_stroke_log.cc:176-188`), `removeChannel` gained a range
+  guard (`grids.h:175-177`).
 - **`addChannel` allocates every level eagerly and resident** (`grids.cc:49-60`),
   and eviction state is per `(channel, level)` (`:281-338`) — a channel created
   while a level is evicted lands resident under an "evicted" level. So §12 Q2's
   rev-1 answer ("eviction covers it") is false. Lazy per-level allocation for
   `persist == false`, and `evictLevel` must sweep late-added channels.
+  **FIXED in P1**: `allocLevel` skips `fillChunks` for `!ch.persist`
+  (`grids.cc:50-53`), and `addChannel` evicts the new level when that level is
+  non-resident (`grids.cc:68-74`).
 - **Level changes destroy session data.** `addLevel` zero-fills the new finest
   level for every channel (`multires.cc:1294`), `dropTopLevel` discards it, and
   `buildFromCage` does `channels_.clear()` re-adding only `disp`
   (`grids.cc:121-127`). "Never re-subdivided" protects against cage edits, not
   against Add Level. Seed new levels from the level below; document cage rebuild
-  as destructive, in the checkbox warning text.
+  as destructive.
+  **HALF FIXED in P1**: `addLevel` seeds session channels via `seedLevelFromBelow`
+  (`grids.cc:80-87`); `buildFromCage`'s `channels_.clear()` is still destructive
+  (`grids.cc:195`, documented at `grids.h:69-72`). No warning text was written,
+  and none is owed while the switch is dev-only (§9, P5).
 - **Skipping the serializer is not a safety property.** `Multires_serializeStore`
   has exactly one production consumer and it is *undo*, not save
   (`convert.py:1804`, `undo.py:324-335`); the .blend is written by
@@ -335,7 +377,9 @@ attributes keep reaching grids as subdivided values.
 ### 5.6 Attribute undo on grids
 
 Does not exist. Three independent breaks: the capture path asserts on
-`CaptureField::Attr` (`grid_executor.h:1139`) — which is exactly what
+`CaptureField::Attr` (rev 2 cited `grid_executor.h:1139`; **no such assert exists
+or existed** — `GridCapturePolicy::capture` is at `:1435-1463` and handles attr
+saves by documented omission, `:1454-1457`) — which is exactly what
 `color.sbrush`'s `save vertex color` codegens to; the fold captures two hardcoded
 channels gated on `strokeWroteCo_`/`strokeWroteMask_`, so a colour stroke is
 booked as a position stroke (`:124-135`, `:819-827`); and `captureGrids` is a
@@ -387,7 +431,7 @@ deviation 1) — a generation change sends `GridDrawSource::update()` through
 Gates: `test_grid_stroke`'s P4 block (published-per-dab count, then samples
 bit-exact through `invalidateAll()` → undo → redo — the rebuild leg is what proves
 the seed, since without it the untouched samples would come back zeroed), and
-`tools/verify_multires_color.py` (headless, 14 checks: the kill switch decides the
+`tools/verify_multires_color.py` (headless: the kill switch decides the
 route; the cage carries the `color` layer; a grids dab paints and leaves the cage,
 the slot and `ob.data` byte-identical; the undo step seeks the grid log itself;
 and the same dab with the switch off *does* land on the slot, which is what makes
@@ -414,9 +458,14 @@ matches §5.1/§5.3 and matches the mesh path's behaviour today, where
 The face half of P4, and with it the last kernel the grids domain declined for
 anything but a missing attr layer. POLYGROUP now instantiates and runs
 grids-native: `supportsFaceStages` is gone as a `false`, `makeFaceIter` is a real
-iterator, and the roster golden in `test_grid_stroke` lists exactly one declined
-kernel, for exactly one reason (`group attr layer` — and that reason disappears
-with this change too).
+iterator, and POLYGROUP's last decline reason (`group attr layer`) goes with this
+change. **Correction:** rev 2 wrote that the roster golden "lists exactly one
+declined kernel, for exactly one reason". It does not.
+`test_grid_stroke.cc:132-153` declines **six** of 23 with the flag off (COLOR,
+POLYGROUP, COLORSMOOTH, FEATURE_ALIGN, LAYERDRAW, ENHANCE) and **three** with it
+on (FEATURE_ALIGN, LAYERDRAW, ENHANCE), for three *different* reasons — see §9's
+P5 entry. What is true is narrower: no kernel is declined for a *face stage* any
+more.
 
 Five seams, engine-side:
 
@@ -488,8 +537,28 @@ to the touched-grid count when no vertex moved. Callers read the return only as
 
 ## 6. The cage-write fallback — the product, not the fallback
 
-This is what the user asked for, it is the path every user takes with the
-checkbox off, and **none of its plumbing exists**:
+This is what the user asked for. **Two corrections to rev 2's framing, both
+load-bearing:**
+
+1. It is **not** "the path every user takes with the checkbox off". The switch
+   selects grids-native vs the **materialized-mesh** path (`grid_attr_bind.h:20`,
+   `grid_executor.h:677-678`). The cage write-back is a *destination* orthogonal to
+   the switch, reached from **both** routes — `convert.sync_cage_face_attrs` reads
+   "whichever of the two a stroke actually wrote" (`convert.py:1719-1733`), and
+   `undo.push`'s grids branch runs the same scatter (`undo.py:214-225`). Face sets
+   reach it from both sides; colour from neither.
+2. "None of its plumbing exists" was true at rev 2 and is now false — P3 built it
+   (§6.1). The three bullets below are **historical**; each is superseded:
+   - `_flush_multires` (now `convert.py:2047`) calls `sync_cage_face_attrs` then
+     `_flush_face_sets(ob.data, session.cage_ptr)` (`:2071-2074`). Only the
+     `_flush_color` half of the claim still holds.
+   - `_seed_cage_draw_attrs`'s `group` layer **is** read back, by
+     `cage_face_group_bytes` (`convert.py:1740-1756`).
+   - `session.cage_ptr` is now all over `undo.py`: the `CAGE_FACE_I32`
+     `_ATTR_KINDS` kind (`:89-92`), `_restore_cage_groups` (`:317-331`), both
+     `push` branches.
+
+Rev 2's original text, for the record:
 
 - `convert.py:2033-2037` early-returns multires into `_flush_multires`
   (`:1994-2022`), which writes `export_mask` + `export_bake` (CD_MDISPS) and
@@ -517,7 +586,8 @@ the real forward operator — weights are inline at `grid_attrs.cc:533-536` (no
 `quad_weights_from_uv` exists), n-gons gather a face average over *all* corners
 so a transposed write sprays the whole n-gon, the forward weights are not a
 per-source-vertex partition of unity, and UV-likes use face-varying Catmull-Clark
-with limit masks (`buildFaceVarying:550-692`, `applyLimitMask:196-261`) where a
+with limit masks (`buildFaceVarying:696`, `applyLimitMask:197` — rev 2's
+`:550-692` range is inside `buildBilinear`, `:585-694`) where a
 bilinear transpose is simply wrong. Colour-on-multires with the checkbox off is
 therefore **out of V1**; say so plainly rather than shipping a smeared
 approximation. **This objection is narrower than it reads -- it kills the
@@ -542,7 +612,7 @@ for the two face-set operators, and a `cage_before`/`cage_after` pair carried in
 the stroke step (gated on `session.last_stroke_face_sets`, so only face-set
 strokes pay for the scan).
 
-Gate: `tools/verify_multires_face_sets.py` (headless, 20 checks) — the per-face
+Gate: `tools/verify_multires_face_sets.py` (headless) — the per-face
 rule, `ob.data` + save/reload, and both undo routes (attribute step and stroke
 step). Engine gate: `gateCageScatter` in `tests/test_multires_attrs.cc`.
 
@@ -691,7 +761,9 @@ consequence of the capability work, not its prerequisite.**
 **The enum is not generated.** Ids are non-derivable (§0). Codegen emits the
 `Binder` item list and the dispatchers; `types.h`'s enum stays hand-written, and
 a golden `{name → id}` table test pins it (`tests/test_brush.cc` is a 25-line
-stub). `SB_EXTRA_RESERVED` (`brush/CMakeLists.txt:159`), a literal copy of all 23
+stub). `SB_EXTRA_RESERVED` (`brush/CMakeLists.txt:159` — since P0b it reads
+`brushes/tools.txt` via `file(STRINGS …)`, `:163-167`, so the "literal copy" half
+of this is historical), a literal copy of all 23
 names commented "keep in sync", is generated from the same table.
 
 ### 8.3 `@tool` and `@fulltopo`
@@ -733,15 +805,19 @@ notes ENHANCE/FEATURE_ALIGN are deliberately absent), `:136-169`
 `debug/script.cc:730-764, 1393-1407, 1622-1635`; `debug/ui.cc:160+`.
 
 Also: `grid_executor.h:858` asserts `!cmd.needsOrigNormals` with the roster as its
-stated premise, and `ctx.renderMatrix` is never set on the grids path (only
-`brush_executor.h:279-290` sets it) — so VIEWPLANE/VIEWREPEAT textures read an
-identity matrix there. Harmless for texdraw/texgrad; a live bug the moment the
-addon's texture bridge follows them onto grids.
+stated premise. Rev 2 also claimed `ctx.renderMatrix` "is never set on the grids
+path … a live bug the moment the addon's texture bridge follows them onto grids".
+**Fixed in P0d** and no longer a bug: `GridBrushExecutor::setRenderMatrix` exists
+(`grid_executor.h:540-554`), reached through `GridStroke_setRenderMatrix` +
+`texture.apply_render_matrix_grids`.
 
 And `_snake_hook` is **not** a name roster: `mapping.is_snake_hook`
 (`mapping.py:160-169`) already derives from the engine's `@incremental` flag. The
-grids exclusion at `stroke.py:919` exists because its dab centres come from
-`_snake_hook_advance` (`:1121-1140`), addon-side. MASK is held back because host
+grids exclusion rev 2 cited at `stroke.py:919` was **lifted in P0d**: the
+grids-dispatch condition (`stroke.py:926-936`) carries no snake-hook term, since
+"its per-dab state is written on the shared Brush, which both paths read". The
+surviving `not self._snake_hook` at `stroke.py:874` gates the C++ dab loop, a
+different thing. MASK is held back because host
 mask ownership lives in the slot-mesh column (`convert.py:1719-1734`); BSMOOTH
 rides the deliberate `sculptcore_grids_programs` kill switch. None become vacuous.
 
@@ -835,7 +911,10 @@ survive a `removeChannel`; `addLevel` does not blank a session channel.
 
 **P2 — binding + capability, behind the kill switch. DONE** (engine `513ed34`,
 addon `a36aae8`). §3's dense mirrors; `planForEntry`/`routeForBrush`; §5.6's
-first-touch attr capture — all in the new `source/brush/grid_attr_bind.h`.
+stroke-end attr capture — all in the new `source/brush/grid_attr_bind.h`.
+(§5.6 asked for *first-touch*; it landed as a **stroke-end** channel capture in
+`gridsFoldStroke`, deliberately: "a per-dab snapshot here would capture nothing",
+`grid_executor.h:1454-1457`. §5.8 states this correctly.)
 `sculptcore_grid_attrs` scene bool, default **off**, spanning P2–P4; the engine
 half is a process-global (`GridStroke_setGridAttrs`), because
 `GridStroke_supported` answers before any session exists.
@@ -917,7 +996,7 @@ does not persist multires colour either (`_flush_color` is unreachable from
 
 `sculptcore_grid_attrs`, default off, introduced in P2, spanning P2–P4 — the same shape as
 `sculptcore_grids_programs` (`props.py:139-147`) and `sculptcore_texture_scripts`
-(`:148-157`), which exist because, per `program-grids-routing.md:318-325`, without
+(`:167`), which exist because, per `program-grids-routing.md:318-325`, without
 an addon lever "the first user-visible change would need an engine revert to roll
 back". It differs from those two in the one way that matters for P5: they are
 `default=True` with the switch retained, whereas this one stays a development tool
@@ -930,12 +1009,19 @@ which brushes reach grids until P0d, and P0d's gate is an A/B.
 - Persisting session channels into a .blend (no Blender container exists).
 - Edge-domain storage or edge-attr kernels (numbering only).
 - Corner-domain attributes on grids (cage route, permanently).
-- Vertex-domain cage scatter (§6 — needs an operator-correct adjoint first).
+- Vertex-domain cage scatter — out of scope for §6.2's three reasons (per-base-vert
+  dedupe, cage-topology neighbour reads, accepted resolution collapse). **Not** for
+  a missing adjoint: rev 2 said "needs an operator-correct adjoint first", which
+  §6.2 disproves (sample (0,0) is the corner's cage vert at weight 1).
 - A fifth draw channel (that *is* a fork change: `attr_names[4]`, four static
   `GPUVertFormat`s, six `NodeCache` VBOs — and the repo's two-workflow packaging
   order applies).
 - The six per-tool pre-pass conditionals and the `gpu_marshal.cc` rosters (§8.4).
-- Dyntopo/slot-path behaviour, unchanged throughout.
+- Dyntopo behaviour, unchanged throughout. The **slot path** is not: rev 2 said
+  "Dyntopo/slot-path behaviour, unchanged throughout" and two things changed —
+  the face-set operators on multires coarsened to base-face granularity (§6.1
+  deviation 3, deliberate), and `assignDerivedAttrs` now has slots inherit the
+  cage's `default_group_id` (`multires.cc:417-419`).
 
 **No fork change is required for anything in scope** — verified: per-grid-element
 storage never crosses the boundary (the provider hands over expanded per-node
