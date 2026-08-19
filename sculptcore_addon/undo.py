@@ -124,7 +124,8 @@ def materialize_grid_blobs(session):
     for key, info in _pending.items():
         if info[0] is not _GRID_TAG:
             continue
-        _tag, _name, generation, grid_gen, target, bb, ba, level = info
+        (_tag, _name, generation, grid_gen, target, bb, ba, level,
+         _cb, _ca) = info
         if (generation != session.generation
                 or grid_gen != session.grid_generation
                 or level != session.grid_level):
@@ -159,12 +160,14 @@ def materialize_grid_blobs(session):
         print("SculptCore: grid blob materialization ended at cursor {} "
               "(expected {})".format(session.grid_cursor, home))
     for target, key in live.items():
-        _tag, name, generation, grid_gen, t, bb, ba, level = _pending[key]
+        (_tag, name, generation, grid_gen, t, bb, ba, level,
+         cb, ca) = _pending[key]
         if ba is None:
             ba = blobs.get(t)
         if bb is None:
             bb = blobs.get(t - 1)
-        _pending[key] = (_GRID_TAG, name, generation, grid_gen, t, bb, ba, level)
+        _pending[key] = (_GRID_TAG, name, generation, grid_gen, t, bb, ba, level,
+                         cb, ca)
     current = blobs.get(home)
     if current is not None:
         session.multires_last_blob = current
@@ -208,11 +211,23 @@ def push(context, ob, session):
         total = int(lib.GridStroke_undoBytes(session.grid_ptr))
         size = max(0, total - session.grid_undo_bytes_base)
         session.grid_undo_bytes_base = total
+        cage_before = cage_after = None
+        if session.last_stroke_face_sets:
+            # A grids-native face stage wrote the store's Face session
+            # channel, which is engine-owned and does not persist; the
+            # cage is the only copy that does. Same scatter as the mesh
+            # path, reading the store instead of the slot column.
+            before = convert.cage_face_group_bytes(session)
+            if convert.sync_cage_face_attrs(session) and before is not None:
+                cage_before = before
+                cage_after = convert.cage_face_group_bytes(session)
+                size += len(cage_before) + len(cage_after or b"")
         key = _next_key
         _next_key += 1
         _pending[key] = (_GRID_TAG, ob.name, session.generation,
                          session.grid_generation, session.grid_cursor,
-                         blob_before, None, session.grid_level)
+                         blob_before, None, session.grid_level,
+                         cage_before, cage_after)
         bpy.ops.object.custom_mode_undo_push(
             'EXEC_DEFAULT', message="Sculpt Stroke", state_id=key, size=size)
         return
@@ -360,7 +375,8 @@ def _decode_grid(context, ob, session, info, direction, is_final):
     unchanged AND the engine session is still bound to the same domain
     (GridStroke_sync == 1); anything else falls back to the store-blob
     restore, which is exact (grids strokes write back at stroke end)."""
-    _tag, _name, generation, grid_gen, target, blob_before, blob_after, level = info
+    (_tag, _name, generation, grid_gen, target, blob_before, blob_after, level,
+     cage_before, cage_after) = info
     lib = engine.capi().lib
     live = (generation == session.generation
             and grid_gen == session.grid_generation
@@ -387,6 +403,10 @@ def _decode_grid(context, ob, session, info, direction, is_final):
             landed = blob_after if (is_final or direction > 0) else blob_before
             if landed is not None:
                 session.multires_last_blob = landed
+            # After the seek: the re-stamp re-derives from the cage, so
+            # it has to be the last word (mirrors the meshlog path).
+            _restore_cage_groups(session, cage_after if (is_final or direction > 0)
+                                 else cage_before)
             convert.flush(ob)
             _tag_view3d_redraw(context)
         return
@@ -400,6 +420,8 @@ def _decode_grid(context, ob, session, info, direction, is_final):
     # back into them lands on the message above.
     materialize_grid_blobs(session)
     if convert.multires_restore_blob(ob, session, blob, level):
+        _restore_cage_groups(session, cage_before if (direction < 0 and not is_final)
+                             else cage_after)
         convert.flush(ob)
         _tag_view3d_redraw(context)
 
@@ -534,7 +556,8 @@ def free(state_id):
         # so its memory tracks the retained steps — but only when this entry
         # IS the oldest of its live history: a redo-branch truncation frees
         # *newer* steps (the engine's beginStep already dropped those).
-        _tag, object_name, generation, grid_gen, target, _bb, _ba, _level = info
+        (_tag, object_name, generation, grid_gen, target, _bb, _ba, _level,
+         _cb, _ca) = info
         session = engine.sessions.get(object_name)
         if (session is None or session.grid_ptr is None
                 or session.generation != generation

@@ -1717,10 +1717,15 @@ def sync_grid_attr_settings(ob, session, md=None):
 
 
 def sync_cage_face_attrs(session):
-    """Push a mesh-path face-set edit from the materialized slot back onto the
-    cage. The cage is the only copy that persists: the slot is an LRU cache and
-    the multires store carries displacements, not attributes — so without this
-    a face set painted on a subdivided level is gone at the next eviction.
+    """Push a face-set edit on a subdivided level back onto the cage. The cage
+    is the only copy that persists: the slot is an LRU cache and the store's
+    Face channel is engine-owned session state — so without this a face set
+    painted on a subdivided level is gone at the next eviction or mode exit.
+
+    Reads whichever of the two a stroke actually wrote: the store's `group`
+    session channel for a grids-native face stage, the materialized slot's
+    derived column for the mesh path (the engine picks, see
+    Multires::scatterFaceIntToCage).
 
     Blender writes a face set on multires to the whole base face, unweighted,
     which is what the engine's scatter reproduces (Multires::scatterFaceIntToCage).

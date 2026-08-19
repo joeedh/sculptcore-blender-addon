@@ -811,8 +811,9 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
             mesh_obj = self.session.mesh()
             mesh_obj.ensureFaceGroups()
             brush.activeGroup = int(mesh_obj.newFaceGroupId())
-            # On multires this paints the SLOT's derived group column; only the
-            # cage persists, so undo.push scatters it home (§6 of
+            # On multires this paints the store's `group` session channel
+            # (grids-native) or the SLOT's derived column (mesh path); neither
+            # persists, so undo.push scatters it home either way (§6 of
             # plans/grid-domain-attributes.md).
             self.session.last_stroke_face_sets = True
         # Dyntopo (scene toggle) and autosmooth both run through a program;

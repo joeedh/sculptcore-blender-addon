@@ -31,6 +31,30 @@ painted cage face is claimed whole. The gates below are that rule end to end:
 
 This deliberately grades the *rule*, not stock Blender's multires: the
 comparison is against what the per-base-face rule predicts.
+
+The grids-native route (P4b)
+----------------------------
+Under ``Scene.sculptcore_grid_attrs`` the same paint takes a different road.
+POLYGROUP is a *face*-stage kernel, and the grids domain now has a face
+iterator, so it runs grids-native: the write lands in a Face-domain *session*
+channel of the grid store, one value per grid cell, and never touches the
+materialized slot. Session channels are engine-owned -- they ride the store blob
+(so the stroke log undoes them) but stop at the flush boundary -- so the cage is
+still the only copy that persists, and ``undo.push`` is what puts it there,
+through the same scatter, reading the store instead of the slot column.
+
+5. the kill switch decides the route: POLYGROUP is declined with it off and
+   grids-native with it on;
+6. a face dab reports work done in its own unit (the grids it touched -- it
+   moves no vertex) and leaves the cage untouched;
+7. ``undo.push`` scatters it home, undo restores the cage column and redo puts
+   it back;
+8. the object starts with *no* face-set column at all, so the seed also has to
+   invent the cage's implicit default group rather than seeding zeros -- which
+   would otherwise scatter "no group" onto every face the stroke missed.
+
+Whether a face-set boundary *inside* a grid renders per sample is the other half
+of P4b's gate and is checked by eye: it needs a viewport.
 """
 
 import os
@@ -40,7 +64,7 @@ import tempfile
 import bpy
 import numpy as np
 
-from sculptcore_addon import convert, engine, undo
+from sculptcore_addon import convert, engine, stroke, undo
 
 VERBOSE = False
 FAILURES = []
@@ -217,6 +241,98 @@ def run():
     convert.exit_(ob)
 
 
+DAB_CENTER = (1.0, 1.0, 0.0)
+DAB_NORMAL = (0.0, 0.0, 1.0)
+DAB_RADIUS = 0.8
+ACTIVE_GROUP = 7
+
+
+def _cage_groups(session):
+    blob = convert.cage_face_group_bytes(session)
+    return None if blob is None else np.frombuffer(blob, dtype=np.int32).copy()
+
+
+def _paint_dab(session, kernel):
+    """One face-set dab straight down onto the flat surface. ``activeGroup`` is
+    the id the kernel stamps; the per-dab ``loadProps`` rewrites strength and
+    radius, so both are set here rather than once."""
+    sc_brush = stroke._ensure_brush(session)
+    sc_brush.activeGroup = ACTIVE_GROUP
+    sc_brush.strength = 1.0
+    sc_brush.radius = DAB_RADIUS
+    sc_brush.invert = False
+    sc_brush.writeProps()
+    return stroke.apply_dab(session, kernel, DAB_CENTER, DAB_NORMAL, DAB_RADIUS)
+
+
+def run_grids_native():
+    """Gates 5-8: the same face set, painted through the grid store."""
+    scene = bpy.context.scene
+    kernel = int(engine.manager().get("sculptcore::brush::SculptBrushes").items['POLYGROUP'])
+    # 4x4 rather than 2x2: on a 2x2 cage the dab's centre is the corner shared
+    # by every face, and the per-base-face rule would claim the whole mesh --
+    # true, but it would not distinguish a bounded dab from an unbounded one.
+    ob = _object("fsgrid_grids", 4, 2)
+    check(_face_sets(ob.data) is None,
+          "the object starts with no face-set column (the seed must invent one)")
+
+    scene.sculptcore_grid_attrs = False
+    convert.enter(ob)
+    session = engine.sessions[ob.name]
+
+    # --- gate 5: the kill switch decides the route ---
+    check(not stroke.grids_capable(session, kernel),
+          "POLYGROUP falls back to the mesh path with sculptcore_grid_attrs off")
+    scene.sculptcore_grid_attrs = True
+    check(stroke.grids_capable(session, kernel),
+          "POLYGROUP runs grids-native with sculptcore_grid_attrs on")
+
+    default_group = int(getattr(ob.data, "face_sets_color_default", 1))
+    cage_before = _cage_groups(session)
+
+    # --- gate 6: the dab lands, and nothing moves on the host ---
+    stroke.stroke_begin(session, grids_kernel=kernel)
+    check(session.last_stroke_grids, "the stroke routed grids-native")
+    session.last_stroke_face_sets = True  # the stroke operator's job; this is not it
+    touched = _paint_dab(session, kernel)
+    stroke.stroke_end(session)
+    check(touched > 0,
+          "the face dab reported {:d} touched grids (a face stage moves no vert)"
+          .format(touched))
+    check(np.array_equal(_cage_groups(session), cage_before),
+          "the paint left the cage untouched (a session channel, not a cage write)")
+
+    # --- gate 7: the undo push is what puts it on the cage ---
+    key = undo._next_key
+    undo.push(bpy.context, ob, session)
+    check(key in undo._pending, "the grids face-set stroke pushed an undo step")
+    cage_after = _cage_groups(session)
+    painted = 0 if cage_after is None else int(np.count_nonzero(cage_after == ACTIVE_GROUP))
+    check(0 < painted < len(ob.data.polygons),
+          "{:d} of {:d} cage faces adopted the active group"
+          .format(painted, len(ob.data.polygons)))
+
+    # --- gate 8: the untouched faces got the default group, not zero ---
+    check(cage_after is not None
+          and bool(np.all(cage_after[cage_after != ACTIVE_GROUP] == default_group)),
+          "the faces the stroke missed hold the cage default group")
+    convert.flush(ob)
+    values = _face_sets(ob.data)
+    check(values is not None and int((values == ACTIVE_GROUP).sum()) == painted,
+          "the grids-native face set reached ob.data")
+
+    undo.decode(bpy.context, ob, key, -1, False)
+    check(session.grid_cursor == 0, "undo seeked the grid log itself")
+    check(np.array_equal(_cage_groups(session), cage_before),
+          "undoing the stroke restored the cage face-set column")
+    undo.decode(bpy.context, ob, key, 1, False)
+    check(np.array_equal(_cage_groups(session), cage_after),
+          "redoing the stroke put the cage face-set column back")
+
+    convert.exit_(ob)
+    scene.sculptcore_grid_attrs = False
+
+
 def main():
     global VERBOSE
 
@@ -233,6 +349,7 @@ def main():
 
     print("multires face-set write-back gate")
     run()
+    run_grids_native()
 
     if FAILURES:
         print("\nFAILED ({:d}):".format(len(FAILURES)))

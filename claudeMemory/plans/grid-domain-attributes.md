@@ -323,7 +323,8 @@ But there is **no face execution path**: `makeFaceIter` is `abort()`
 (`grid_executor.h:443-447`), `face_iter` is a mesh iterator present only to
 satisfy the concept (`:324-326`), and `GridCapturePolicy` discards every
 non-vertex domain (`:1124-1126`). A grid face iterator — per-cell centre/normal,
-per-cell affected set, per-cell capture — is its own phase.
+per-cell affected set, per-cell capture — is its own phase. **Built in P4b; see
+§5.8.**
 
 ### 5.5 Edges
 
@@ -405,6 +406,83 @@ flush route.
 boundary, so multires colour paint reaches neither `ob.data` nor the .blend. That
 matches §5.1/§5.3 and matches the mesh path's behaviour today, where
 `_flush_multires` writes mask + CD_MDISPS only.
+
+### 5.8 What P4b actually landed (2026-08-18)
+
+The face half of P4, and with it the last kernel the grids domain declined for
+anything but a missing attr layer. POLYGROUP now instantiates and runs
+grids-native: `supportsFaceStages` is gone as a `false`, `makeFaceIter` is a real
+iterator, and the roster golden in `test_grid_stroke` lists exactly one declined
+kernel, for exactly one reason (`group attr layer` — and that reason disappears
+with this change too).
+
+Five seams, engine-side:
+
+- **`GridFaceIter`** over a leaf's grids (`grid_executor.h`). A leaf owns whole
+  grids, so face-leaf granularity *is* grid granularity and every cell is visited
+  exactly once — no canonical-corner rule was needed. Cell centre/normal come from
+  the four lattice samples that bound the cell.
+- **Face-domain channels end to end**: `gridAttrPlan` accepts a Face-domain
+  layer, `gridAttrEnsureChannel` allocates with `GridElemDomain::Face`
+  (`elemWidth = S`, not `S+1`), and `gridAttrGatherFace` / `gridAttrScatterFace`
+  move the dense mirror in and out. The seed is `seedFaceSessionChannel` — the
+  cage's per-face value copied into every cell of its grid — because a face
+  channel has no derived sample layer to copy from. A cage that never carried
+  face sets gets `ensureFaceGroups()` first: it still has an *implicit* group
+  (the host's default), and seeding zeros instead would make the scatter push
+  "no group" onto every face the stroke missed.
+- **Per-sample face-set draw.** `MultiresAttrs::faceSetSampleColors(level)` is a
+  new derived layer: gridCount × (S+1)² float3, each sample averaged over its
+  incident cells *within its own grid*. It wins over the per-grid
+  `gridFaceSetColors()` in `GridDrawSource::fillNode` (a new `fsetSampleSrc_`),
+  which is what lets a face-set boundary land *inside* a grid instead of snapping
+  to a grid seam. It exists only once a grids-native polygroup stroke has
+  allocated the Face channel; without one the per-grid colour is still the truth.
+  Published per dab from `gridAttrMirrorFaceToSamples`, which builds the cache
+  first — a per-grid refresh is a no-op before it exists, and the lazy build would
+  otherwise source the (not-yet-folded) store and show nothing.
+- **Undo.** Face saves are ignored by `GridCapturePolicy` on purpose: a face
+  kernel's cells are a store channel, and every channel is captured at the fold,
+  which is where the store is first written — a per-dab snapshot would capture
+  nothing. The return route out of a seek is the same as P4a's: `applySwap`
+  re-derives the touched grids, here through `refreshFaceSetSampleColors`.
+- **`Multires::scatterFaceIntToCage` reads the store first.** A grids-native face
+  stroke never materializes a slot mesh, so the old slot-only read saw nothing at
+  all. It now prefers a non-persistent, elem-size-1, Face-domain channel of that
+  name at that level and falls back to the slot column. One grid's cells are
+  contiguous, so the store side is a base pointer per grid.
+
+Addon side, `undo.push`'s grids branch now runs that scatter when the stroke was
+a face-set stroke, and carries both sides of the cage column in the `_GRID_TAG`
+tuple (now ten elements: `…, level, cage_before, cage_after`); both `_decode_grid`
+paths restore it. Without this the paint would be gone at the next mode exit —
+the Face channel is engine-owned session state and the cage is the only copy that
+persists.
+
+**Per-cell detail collapses to per-base-face at push time**, and the scatter
+re-stamps its own source so the next push is idempotent. That is Blender's own
+multires face-set rule and exactly what the mesh path already does; the gate is a
+second `scatterFaceIntToCage` returning 0.
+
+**Deliberate wart, left at mesh-path parity:** the scatter runs at *push* time,
+after the grid log step closed, so a redo replays the un-collapsed per-cell state
+while the cage holds the collapsed value. The mesh path has the identical
+asymmetry (it re-stamps the slot after the meshlog snapshot). Matching it beat
+inventing a third rule; fixing both is a separate change.
+
+Gates: `test_grid_stroke`'s P4b block (a POLYGROUP dab publishes non-uniform
+per-sample colours *before* `endStep`; the fold writes cells; undo restores every
+cell and redo is blob-bit-exact; the cage adopts the group and a second scatter
+returns 0) and four gates appended to `tools/verify_multires_face_sets.py`, next
+to P3's own (the kill switch decides the route; a face dab reports touched *grids*
+since it moves no vertex; the cage stays untouched until `undo.push` scatters it,
+and undo/redo restore the column; and the object starts with *no* face-set column,
+so the missed faces landing on the default group is what proves the seed invented
+it rather than seeding zeros).
+
+One c-api consequence: `GridStroke_dab`/`applyDab` (and `applyProgram`) fall back
+to the touched-grid count when no vertex moved. Callers read the return only as
+"did the dab land", and a face stage that returned 0 read as "the brush missed".
 
 ## 6. The cage-write fallback — the product, not the fallback
 
@@ -738,12 +816,15 @@ per-face scatter; partial invalidate + `markGrids`.
 marked grids (assert node count, not eyeballs); the resolution matches what the
 per-face rule predicts — **not** a comparison against stock Blender's multires.
 
-**P4 — session channels.** Colour (vertex float4) and polygroup (face) under the
-checkbox; draw prefers the session channel. Requires the grid face iterator
-(§5.4) for polygroup, which is most of the phase.
-*Gates:* paint → undo/redo bit-exact via the grid log; colour renders (the object
-must carry an active Blender colour attribute, §4.2 — the gate is "renders", not
-"stream published").
+**P4 — session channels. DONE** (2026-08-18). Colour (vertex float4, P4a —
+§5.7) and polygroup (face, P4b — §5.8) under the checkbox; draw prefers the
+session channel. P4b built the grid face iterator (§5.4), which was most of the
+phase, and with it POLYGROUP stopped being declined at all.
+*Gates:* paint → undo/redo bit-exact via the grid log (`test_grid_stroke`'s P4 and
+P4b blocks); `tools/verify_multires_color.py` and
+`tools/verify_multires_face_sets.py` headless. **Still open:** colour *renders*
+(the object must carry an active Blender colour attribute, §4.2 — the gate is
+"renders", not "stream published"), which needs a viewport and an eye.
 
 **P5 — cleanup.** `supportsBrush` → constant true, symbol retained; kill switch
 default-on for a release, then removed.

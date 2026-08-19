@@ -28,7 +28,8 @@
 # along last, grading the shipped `.stex` texture programs and the engine's
 # multires attribute subdivision against Blender's own evaluation of each, and
 # `tools/verify_multires_face_sets.py` round-trips a multires face set out to the
-# mesh, through save/reload and back through undo, while
+# mesh, through save/reload and back through undo -- on both routes, the mesh
+# path and the grids-native one the kill switch selects -- while
 # `tools/verify_multires_color.py` checks the opposite contract for colour: a
 # grid *session* channel that must reach nothing on the host side at all.  They are here because this is
 # the only job in which a Blender and the engine coexist, and because the copy
@@ -258,7 +259,9 @@ jobs:
       # painted on a multires level lives on the cage, and this walks it out to
       # `ob.data`, through save + reload, and back through both undo routes --
       # which needs a real Blender, a real .blend and the shipped DLL's own
-      # write-back symbol, so only this job can run it.
+      # write-back symbol, so only this job can run it.  It runs the paint twice:
+      # once through the materialized slot and once through the grid store's Face
+      # session channel, since only the cage write-back is shared between them.
       - name: Verify multires face-set write-back
         run: |
           '${{ steps.exe.outputs.exe }}' --background --factory-startup \
