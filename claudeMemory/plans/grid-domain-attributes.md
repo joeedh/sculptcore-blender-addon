@@ -968,6 +968,58 @@ P4b blocks); `tools/verify_multires_color.py` and
 `tools/verify_multires_face_sets.py` headless; colour *renders* — confirmed by eye
 2026-08-19 (§5.7).
 
+**B1 — persistent channels + a channel c-api. DONE** (2026-08-19). The
+host-agnostic half of P5's durability blocker: SculptCore will be embedded in
+hosts that *do* have a multires-attribute container, so the engine should not
+encode Blender's inability. P4 set `persist = false` on every bound channel for
+one host-specific reason — no Blender container — and `persist` had by then
+accreted three unrelated meanings.
+
+The fix is a second axis. `GridLevelRule { Delta, Authored }` now decides
+level-transition behaviour, `persist` decides only whether the host saves it,
+and the engine never branches on `persist` again (the five former
+`channelPersist` predicates are `channelAuthored`). `disp` and sculpt layers are
+Delta — a per-level displacement *correction*, so a new finest level starts at
+zero and a dropped one takes its correction with it. Everything else (mask, face
+sets, colour, kernel session layers) is Authored: `addLevel` seeds it through
+`seedLevelFromBelow`, and `dropTopLevel` now restricts it back through the new
+`restrictLevelToBelow`.
+
+Restriction is **injection** — coarse `(u,v)` takes fine `(2u,2v)` — not the
+full-weighting `propagateDown` uses for displacement. Three reasons: it is the
+exact left inverse of the prolongation above it, so add-then-drop is the
+identity; it does no float arithmetic, which is what makes it legal on an INT
+typed channel (store slots are `float` whatever the declared type); and it
+cannot blur across a grid seam, which §7 forbids. One formula covers both
+element domains.
+
+`subdiv/c-api/grid_channel_c_api.h` is the interface itself — enumerate,
+describe, ensure, remove, and read/write one level a grid range at a time
+(`Multires_gridChannel*`, ten exports). It is written for the embedding host,
+not for the addon: keyed by name, grid-ranged so a large layer can stream, and
+`Read` never materializes storage, so asking what is in an untouched Authored
+level costs nothing. `Write` republishes through `refreshSamplesFromChannel` +
+`markGrids` the way `Multires_scatterFaceIntToCage` does, since the draw path
+reads derived samples rather than the store. `buildFromCage` stays
+unconditionally destructive and is now documented as the store's LOAD boundary:
+a host restores by declaring its channels and writing their levels back, which
+is exactly this c-api's `Ensure` + `Write` pair. Serializer version 3 → 4 (a
+`u32 levelRule` per channel); rejecting v3 blobs is safe because the only
+production consumer is session-local undo.
+
+`gridAttrEnsureChannel` no longer hardcodes persistence: it asks
+`storageFor(...) == GridAttrStorage::Host`, i.e. the host answers the half that
+is the host's.
+
+*Scope:* the engine boundary plus its c-api. B1 adds **no** Blender persistence
+container — that is B2a.
+*Gates:* `test_grids_store.cc`'s `gateDomainsAndSession`, rewritten around the
+two axes (both flags independently, lazy allocation, an addLevel/dropTopLevel
+identity, and a "restriction, not a pop" check); a new `gateChannelCapi` in
+`test_multires_attrs.cc`; ctest 135/135. `tools/verify_grid_channels.py` crosses
+the c-api through ctypes headless — the check that catches a new export left out
+of `wasm_add_symbols`, which links cleanly and is invisible at runtime.
+
 **P5 — cleanup.** Kill switch **removed**, making the routing unconditional. It
 is a development tool and is never promoted to default on -- that is a deliberate
 exception to the pattern its three siblings follow (`sculptcore_cpp_dab_loop`,
@@ -1006,7 +1058,11 @@ which brushes reach grids until P0d, and P0d's gate is an A/B.
 
 ## 11. Out of scope
 
-- Persisting session channels into a .blend (no Blender container exists).
+- Persisting grid channels into a .blend. **Half of this moved in scope in
+  B1**: a channel can now declare itself persistent and a host can read and
+  write its levels through `grid_channel_c_api.h`. What is still out of scope
+  is a *Blender* container for one — Blender has no multires-attribute domain,
+  which is why B2a routes colour to the cage instead.
 - Edge-domain storage or edge-attr kernels (numbering only).
 - Corner-domain attributes on grids (cage route, permanently).
 - Vertex-domain cage scatter — out of scope for §6.2's three reasons (per-base-vert

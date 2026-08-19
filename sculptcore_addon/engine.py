@@ -381,6 +381,45 @@ class _CApi:
         lib.Multires_scatterFaceIntToCage.argtypes = [
             ctypes.c_void_p, ctypes.c_int, ctypes.c_char_p]
         lib.Multires_scatterFaceIntToCage.restype = ctypes.c_int
+        # Persistent grid-domain channels (engine subdiv/c-api/grid_channel_c_api.h).
+        # The host-agnostic half: a host that CAN store per-grid-element data
+        # enumerates the store's channels and reads/writes a level of one. Two
+        # independent flags per channel — the level rule (0 Delta, 1 Authored),
+        # which is what the engine keys off, and persist, which is purely the
+        # host saying it has a container. Blender has one (the paint mask), so
+        # the addon declares nothing further here yet.
+        i32p = ctypes.POINTER(ctypes.c_int)
+        lib.Multires_gridChannelCount.argtypes = [ctypes.c_void_p]
+        lib.Multires_gridChannelCount.restype = ctypes.c_int
+        lib.Multires_gridChannelName.argtypes = [
+            ctypes.c_void_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_int]
+        lib.Multires_gridChannelName.restype = ctypes.c_int
+        lib.Multires_gridChannelFind.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
+        lib.Multires_gridChannelFind.restype = ctypes.c_int
+        lib.Multires_gridChannelInfo.argtypes = [
+            ctypes.c_void_p, ctypes.c_int, i32p, i32p, i32p, i32p, i32p]
+        lib.Multires_gridChannelInfo.restype = ctypes.c_int
+        lib.Multires_gridChannelEnsure.argtypes = [
+            ctypes.c_void_p, ctypes.c_char_p, ctypes.c_int, ctypes.c_int, ctypes.c_int,
+            ctypes.c_int, ctypes.c_int]
+        lib.Multires_gridChannelEnsure.restype = ctypes.c_int
+        lib.Multires_gridChannelRemove.argtypes = [ctypes.c_void_p, ctypes.c_int]
+        lib.Multires_gridChannelRemove.restype = ctypes.c_int
+        lib.Multires_gridChannelGridFloats.argtypes = [
+            ctypes.c_void_p, ctypes.c_int, ctypes.c_int]
+        lib.Multires_gridChannelGridFloats.restype = ctypes.c_int
+        lib.Multires_gridChannelLevelAllocated.argtypes = [
+            ctypes.c_void_p, ctypes.c_int, ctypes.c_int]
+        lib.Multires_gridChannelLevelAllocated.restype = ctypes.c_int
+        lib.Multires_gridChannelRead.argtypes = [
+            ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int,
+            f32p, ctypes.c_int]
+        lib.Multires_gridChannelRead.restype = ctypes.c_int
+        lib.Multires_gridChannelWrite.argtypes = [
+            ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int,
+            f32p, ctypes.c_int]
+        lib.Multires_gridChannelWrite.restype = ctypes.c_int
+
         lib.refreshTreeRequestedAttrs.argtypes = [ctypes.c_void_p]
         lib.refreshTreeRequestedAttrs.restype = None
 
