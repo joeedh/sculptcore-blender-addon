@@ -392,8 +392,10 @@ route; the cage carries the `color` layer; a grids dab paints and leaves the cag
 the slot and `ob.data` byte-identical; the undo step seeks the grid log itself;
 and the same dab with the switch off *does* land on the slot, which is what makes
 "nothing moved" a routing result rather than a dab that missed). Wired into
-`smoke-test-packages.yml`. Whether it *renders* is checked by eye — that needs a
-viewport.
+`smoke-test-packages.yml`. Whether it *renders* was checked by eye and **passes**
+(2026-08-19): with the checkbox on, colour appears live during the stroke on a
+multires object carrying an active POINT/FLOAT_COLOR attribute, and undo/redo
+behave.
 
 **Known limitation: seeding is per level and one-shot.** Nothing propagates
 between levels, so painting at level 3 and then switching to level 4 seeds level 4
@@ -822,9 +824,8 @@ session channel. P4b built the grid face iterator (§5.4), which was most of the
 phase, and with it POLYGROUP stopped being declined at all.
 *Gates:* paint → undo/redo bit-exact via the grid log (`test_grid_stroke`'s P4 and
 P4b blocks); `tools/verify_multires_color.py` and
-`tools/verify_multires_face_sets.py` headless. **Still open:** colour *renders*
-(the object must carry an active Blender colour attribute, §4.2 — the gate is
-"renders", not "stream published"), which needs a viewport and an eye.
+`tools/verify_multires_face_sets.py` headless; colour *renders* — confirmed by eye
+2026-08-19 (§5.7).
 
 **P5 — cleanup.** `supportsBrush` → constant true, symbol retained; kill switch
 default-on for a release, then removed.
