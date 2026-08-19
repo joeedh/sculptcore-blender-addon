@@ -520,7 +520,8 @@ per-source-vertex partition of unity, and UV-likes use face-varying Catmull-Clar
 with limit masks (`buildFaceVarying:550-692`, `applyLimitMask:196-261`) where a
 bilinear transpose is simply wrong. Colour-on-multires with the checkbox off is
 therefore **out of V1**; say so plainly rather than shipping a smeared
-approximation.
+approximation. **This objection is narrower than it reads -- it kills the
+transpose, not the cage route; see §6.2.**
 
 **Refresh cadence is a correctness-adjacent gate, not a follow-up.**
 `invalidate()` bumps `generation_` (`grid_attrs.cc:337-346`), which
@@ -570,6 +571,67 @@ with, `newFaceGroupId()` handed back an id aliasing the host default, and the
 first scatter read *every* base face as changed. Fixed in `assignDerivedAttrs`
 (slots inherit at materialize) and in `Multires_setDefaultGroupId` (resident
 slots follow a later change).
+
+### 6.2 Correction: the vertex-domain objection is about the *transpose*, not the cage route
+
+Rev 2's "Vertex domain: cut from V1" above rejects one specific construction --
+transposing `buildBilinear`'s gather, i.e. spreading a fine-sample edit back
+across every cage vert that fed it. That rejection stands, for the reasons given
+(the n-gon face-average term sprays a whole n-gon, the forward weights are not a
+per-source-vertex partition of unity, and face-varying layers carry limit masks).
+
+It does **not** apply to the restriction route, which is a different operation:
+paint only the samples that *are* cage verts, and write them through unweighted.
+That route is exact, not approximate, and the code says so.
+
+**Sample (0, 0) of every grid is its corner's cage vert, with weight exactly 1.**
+Verified in `buildBilinear` (`grid_attrs.cc:585-693`), both branches:
+
+- *Quad* (`size == 4`): `org = kQuadPtex[gr.index]`, one of the unit square's four
+  corners (`:38`), and `ptex[j] = elemVal(j)` are the face's four verts in loop
+  order. At `(u, v) = (0, 0)`, `(pu, pv) = org`, so `quad_weights_from_uv` is
+  one-hot on ptex corner `gr.index` -- this grid's own cage vert.
+- *N-gon*: `org = (0, 0)` and `ptex[0] = elemVal(k)` is the corner's own vert
+  (`:653-668`), so the same `(0, 0)` lattice coord reads weight 1 on it. The
+  face-average term lives at `ptex[2]`, which `(0, 0)` weights zero.
+
+So grid -> cage corner -> cage vert (`buildGridRefs`, `:50-67`, plus
+`cage.c.v[cc]`) is as exact for the vertex domain as `gridCageFaces` is for the
+face domain. No adjoint is involved: the forward operator is already the identity
+on this subdomain, so the inverse on it is too.
+
+**The three things the restriction route does need**, none of them an adjoint:
+
+1. *A per-base-vert visit set.* A cage vert of valence n is sample `(0, 0)` of n
+   grids, one per incident corner. Forward they all agree; after a dab that
+   touched only some of them they do not. Treat the base vert as the entity and
+   dedupe, exactly as P4b dedupes base faces.
+2. *A neighbour-reading rule.* Grid-lattice neighbours of `(0, 0)` are mid-edge
+   and face-centre samples, not cage verts, so grid adjacency is the wrong
+   topology for a smooth-class kernel. Run those against the cage's own topology
+   -- the cage is a `mesh::Mesh`, so this is the existing mesh executor pointed at
+   `cage_ptr`, not new machinery. A cage 1-ring can reach verts whose grids the
+   query never returned; that is fine for a kernel that *reads* neighbours and
+   writes the centre (the cage attr array is fully resident), and only a problem
+   for one that writes neighbours.
+3. *An accepted resolution collapse.* Only cage verts are paintable, so a dab
+   smaller than a base face paints nothing. That is cage-resolution paint -- the
+   honest, persistent counterpart to the session channel's full-resolution,
+   non-persistent paint. They are different products and shipping both is
+   reasonable.
+
+**No second spatial tree, and no tree update.** The grid tree stays the spatial
+index; grid -> corner -> vert turns its hit set into base verts for free, and the
+cage is only ever written, never queried spatially. Attribute paint moves no
+geometry, so nothing rebuilds -- only the draw refresh needs marking, which is
+P3's partial-refresh machinery (`refreshFaceSetColors` + `markGrids`, deliberately
+leaving `generation_` alone; §6.1 deviation 1).
+
+**Scope of the identity claim:** `buildBilinear` layers only -- colour, groups,
+generic float attrs. `buildLayer` routes `layer.uvRule` layers to
+`buildFaceVarying` when `uvSmooth_ != None` (`:431-438`), and those carry
+`applyLimitMask` (`:823`), whose limit value at a vert is *not* the cage value.
+UV is therefore outside this, which costs nothing here since UV is not painted.
 
 ## 7. Draw: within-grid only
 
