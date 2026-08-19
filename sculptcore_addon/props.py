@@ -148,8 +148,11 @@ def register():
     )
     # The grid-attribute kill switch (plans/grid-domain-attributes.md): spans
     # P2-P4, so one toggle restores the pre-plan grids roster (attr-writing
-    # brushes back to the materialized-mesh path). Default off until the cage
-    # write-back lands, since a session channel is not saved with the file.
+    # brushes back to the materialized-mesh path). Default off as a rollback
+    # lever only (plan 10) -- durability is not the reason, since the cage
+    # write-back is a destination orthogonal to this switch (face sets reach it
+    # from both sides, see convert.sync_cage_face_attrs) and colour reaches it
+    # from neither.
     bpy.types.Scene.sculptcore_grid_attrs = bpy.props.BoolProperty(
         name="Grid Attributes",
         description="Let brushes that write attribute layers (color, mask "
