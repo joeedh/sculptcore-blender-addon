@@ -50,6 +50,12 @@ So the gates run a stroke's whole life:
 
 Whether the paint *renders* at cage resolution during the stroke is the half no
 headless run can see, and is checked by eye.
+
+The plain-mesh colorsmooth gate (grids-native-completion CS1) runs first:
+Shift over a paint brush picks COLORSMOOTH on a plain mesh (BSMOOTH on
+multires until CS3 lands the cage-dab entry), and the stroke itself relaxes
+the colour field toward its topological neighbourhood mean, undone through
+the meshlog like any other mesh-path stroke.
 """
 
 import os
@@ -206,6 +212,117 @@ def _paint_dab(session, kernel, color, center=DAB_CENTER, radius=DAB_RADIUS):
     return touched
 
 
+def _toggle_brush(brush_type):
+    """A throwaway sculpt brush of the given type, for driving the toggle
+    pick the way the operator does (it reads only ``sculpt_brush_type``)."""
+    br = bpy.data.brushes.get("cs1_" + brush_type)
+    if br is None:
+        br = bpy.data.brushes.new("cs1_" + brush_type, mode='SCULPT')
+    br.sculpt_brush_type = brush_type
+    return br
+
+
+def _neighbour_means(colors, neighbours):
+    """Per-vert mean of the edge-connected neighbours' colours, over a fixed
+    snapshot — the target colorsmooth relaxes each vert toward."""
+    rows = colors.reshape(-1, 4)
+    means = np.empty_like(rows)
+    for v, nbs in enumerate(neighbours):
+        means[v] = rows[list(nbs)].mean(axis=0) if nbs else rows[v]
+    return means
+
+
+def run_plain_colorsmooth():
+    """CS1: Shift smooth over a paint brush blurs colour on a plain mesh."""
+    ob = bpy.data.objects.new("csplain", _base_grid("csplain", 8))
+    bpy.context.scene.collection.objects.link(ob)
+    bpy.context.view_layer.objects.active = ob
+
+    # A red/green checkerboard: every interior vert sits opposite its whole
+    # 1-ring, so "moved toward the neighbourhood mean" is a strong signal
+    # rather than a marginal one.
+    mesh = ob.data
+    attr = mesh.color_attributes.new("Col", 'FLOAT_COLOR', 'POINT')
+    seed = np.empty(len(mesh.vertices) * 4, dtype=np.float32)
+    w = 9
+    for i in range(len(mesh.vertices)):
+        red = (i % w + i // w) % 2 == 0
+        seed[i * 4:i * 4 + 4] = (1.0, 0.0, 0.0, 1.0) if red else (0.0, 1.0, 0.0, 1.0)
+    attr.data.foreach_set("color", seed)
+    mesh.color_attributes.active_color_index = mesh.color_attributes.find(attr.name)
+
+    neighbours = [set() for _ in range(len(mesh.vertices))]
+    for edge in mesh.edges:
+        a, b = edge.vertices
+        neighbours[a].add(b)
+        neighbours[b].add(a)
+
+    convert.enter(ob)
+    session = engine.sessions[ob.name]
+    check(bool(session.mesh_ptr) and not session.multires_ptr,
+          "the plain session has a mesh and no multires")
+
+    # --- the toggle pick (vanilla brush_toggle semantics) ---
+    paint = _toggle_brush('PAINT')
+    draw = _toggle_brush('DRAW')
+    check(stroke.toggle_kernel_name('SMOOTH', paint, session) == "COLORSMOOTH",
+          "Shift over a paint brush picks COLORSMOOTH on a plain mesh")
+    check(stroke.toggle_kernel_name('SMOOTH', draw, session) == "BSMOOTH",
+          "Shift over a non-paint brush keeps BSMOOTH")
+    check(stroke.toggle_kernel_name('MASK', paint, session) == "MASK",
+          "Alt picks MASK regardless of the brush")
+
+    cs_kernel = int(engine.manager().get(
+        "sculptcore::brush::SculptBrushes").items['COLORSMOOTH'])
+    before = _colors(session.mesh_ptr)
+    check(before is not None and np.array_equal(before, seed),
+          "the engine mesh carries the seeded colour column")
+
+    # --- one covering dab: movement toward the neighbourhood mean ---
+    stroke.stroke_begin(session, grids_kernel=cs_kernel)
+    sc_brush = stroke._ensure_brush(session)
+    sc_brush.strength = 1.0
+    sc_brush.radius = 2.5
+    sc_brush.invert = False
+    sc_brush.writeProps()
+    touched = stroke.apply_dab(session, cs_kernel, (4.0, 4.0, 0.0), DAB_NORMAL, 2.5)
+    check(touched > 0, "the colorsmooth dab touched {:d} nodes".format(touched))
+    stroke.stroke_end(session)
+
+    after = _colors(session.mesh_ptr)
+    changed = _changed_verts(before, after)
+    check(bool(changed), "the dab changed {:d} verts".format(len(changed or [])))
+    far = [v for v in range(len(mesh.vertices))
+           if (v % w - 4) ** 2 + (v // w - 4) ** 2 > 2.5 ** 2]
+    check(changed is not None and not (set(changed) & set(far)),
+          "verts beyond the dab radius kept their seed colours")
+    means = _neighbour_means(before, neighbours)
+    rows_a, rows_b = before.reshape(-1, 4), after.reshape(-1, 4)
+    toward = [v for v in (changed or [])
+              if np.linalg.norm(rows_b[v] - means[v]) < np.linalg.norm(rows_a[v] - means[v])]
+    check(changed is not None and toward == changed,
+          "every changed vert moved toward its neighbourhood mean "
+          "({:d} of {:d})".format(len(toward), len(changed or [])))
+
+    # --- undo restores the seed exactly; redo puts the blur back ---
+    key = undo._next_key
+    undo.push(bpy.context, ob, session)
+    undo.decode(bpy.context, ob, key, -1, False)
+    check(np.array_equal(_colors(session.mesh_ptr), before),
+          "undo restored the seed colours exactly (the kernel's "
+          "`save vertex color` routed the meshlog capture)")
+    undo.decode(bpy.context, ob, key, 1, False)
+    check(np.array_equal(_colors(session.mesh_ptr), after),
+          "redo put the smoothed colours back")
+
+    # --- and the blur reaches ob.data like any colour edit ---
+    convert.flush(ob)
+    data = _mesh_colors(mesh)
+    check(data is not None and np.allclose(data, after, atol=1e-6),
+          "ob.data holds the smoothed colours after flush")
+    convert.exit_(ob)
+
+
 def run():
     ob = _object("colgrid", 2, 2)
 
@@ -222,6 +339,10 @@ def run():
     check(not stroke.grids_capable(session, color_kernel),
           "COLOR is declined — `color` is Derived, so its grid elements are "
           "a cache the kernel may not author (C2)")
+    check(stroke.toggle_kernel_name('SMOOTH', _toggle_brush('PAINT'), session)
+          == "BSMOOTH",
+          "Shift over a paint brush keeps BSMOOTH on multires until CS3's "
+          "cage-dab entry lands (a grid-lattice smear is not a cage blur)")
 
     # --- gate 2: the cage carries what the derived samples subdivide ---
     cage_before = _colors(session.cage_ptr)
@@ -382,6 +503,9 @@ def main():
     # update; the direct convert.enter/flush calls below are that rebuild's job.
     from sculptcore_addon import handlers
     handlers.unregister()
+
+    print("plain-mesh colorsmooth gate (CS1)")
+    run_plain_colorsmooth()
 
     print("multires colour gate")
     run()

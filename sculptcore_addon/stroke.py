@@ -206,6 +206,28 @@ def program_grids_capable(session, main_kernel):
     return grids_capable(session, _bsmooth_kernel_id)
 
 
+def toggle_kernel_name(mode, brush, session):
+    """Kernel for a Shift/Alt stroke toggle (vanilla brush_toggle semantics).
+
+    Shift over a paint brush blurs colour, as vanilla sculpt does — but only on
+    a non-multires session for now. On multires a colour stroke takes the cage
+    route, and its per-dab collapse is only correct for pointwise kernels: a
+    neighbour-reading smooth would average over grid-lattice neighbours (mid-edge
+    and face-centre samples), not the cage 1-ring (§6.3 of
+    plans/grid-domain-attributes.md), so multires keeps BSMOOTH until the
+    engine's cage-dab entry lands (grids-native-completion CS3).
+
+    A plain function rather than inline invoke code: the verify harness drives
+    ``stroke_begin``/``apply_dab`` directly and never runs the modal operator.
+    """
+    if mode != 'SMOOTH':
+        return "MASK"
+    if (brush is not None and brush.sculpt_brush_type in mapping.COLOR_TYPES
+            and not session.multires_ptr):
+        return "COLORSMOOTH"
+    return "BSMOOTH"
+
+
 def _grid_session(session):
     """The engine grids stroke session for the active multires level, created
     lazily and recreated on level change (a session binds one level). None
@@ -682,9 +704,10 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         self.brush = context.tool_settings.sculpt.brush
         mgr = engine.manager()
         if self.mode in {'SMOOTH', 'MASK'}:
-            # Shift-stroke smooths, Alt-stroke masks — both with the active
-            # brush's radius/strength (vanilla brush_toggle semantics).
-            kernel_name = "BSMOOTH" if self.mode == 'SMOOTH' else 'MASK'
+            # Shift-stroke smooths (colour blur over a paint brush), Alt-stroke
+            # masks — both with the active brush's radius/strength (vanilla
+            # brush_toggle semantics). The pick lives in toggle_kernel_name.
+            kernel_name = toggle_kernel_name(self.mode, self.brush, self.session)
             self.kernel = (int(mgr.get("sculptcore::brush::SculptBrushes").items[kernel_name])
                            if self.brush else None)
         else:
