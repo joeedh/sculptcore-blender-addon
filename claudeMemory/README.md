@@ -131,6 +131,24 @@ Working notes Claude maintains for this repository. See the top-level
   that turns on a defaulted parameter needs the call sites enumerated before it
   is believed. Kills the tasklist's **E7** and restores **1.4**'s original
   merge-policy claim.
+- [plans/grids-native-completion.md](plans/grids-native-completion.md)
+  — **rev 2, 2026-08-20; pressure-tested, no phase started.** Successor to
+  grid-domain-attributes; rev 1 was pressure-tested by five fresh-context
+  adversarial agents and three kill-class findings folded in (§0 records
+  them). Cage-topology neighbour reads so colorsmooth works on multires (the
+  kernel runs on a synthetic cage node whose tree-mesh view substitutes limit
+  positions and grid-(0,0) mask; four-step epilogue); LAYERDRAW goes
+  grids-native by riding the grids layer subsystem that already exists
+  (compositeMix/writebackChannel — requires an active edit target; roster
+  golden becomes a flat −3 / edit-target −2 pair); the mask made a single
+  truth on the store's Host channel with the seed/edit split preserved and the
+  exchange rebase (MK4) landing before the holdback removal (MK2) — the rev-1
+  order was a data-loss window; and the switch audit re-derived on mechanisms
+  that exist (`@gpu` annotation, codegen Brush-member descriptor tables, a
+  three-shape hook table), opening with SW0: a real bug — GPU colour strokes
+  always ran mix mode 0 because `packBrushUniforms` never wrote `mixMode`.
+  Ends with the consolidated docs pass, including debugApp.md's missing grid
+  verbs (closes grid-domain-attributes §12 Q4).
 - [plans/grid-domain-attributes.md](plans/grid-domain-attributes.md)
   — **COMPLETE: P0a–P5 landed 2026-08-17/19, plus the C1–C4 routing
   correction.** Per-grid-element vertex and
