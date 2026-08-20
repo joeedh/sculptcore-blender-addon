@@ -628,7 +628,10 @@ step). Engine gate: `gateCageScatter` in `tests/test_multires_attrs.cc`.
    generation is unchanged across a scatter — that is the "assert, not eyeballs".
 2. The painted region snaps to base-face granularity at **mouse-up**, not live;
    Blender flips whole base faces live. Accepted for V1: the live view is the
-   slot's own per-cell column, which is finer, not wrong.
+   slot's own per-cell column, which is finer, not wrong. **Reversed by C1**
+   (§6.3): finer *is* wrong when the finer values are not authoritative, and
+   face sets are `Derived` on Blender exactly as colour is. C1 moves the
+   collapse to per dab, which is also what Blender itself does.
 3. The face-set *operators* on multires are now coarsened to base-face
    granularity too. That is a behaviour change, and the correct one — before
    this their slot writes had no persistent home and evaporated at the next
@@ -702,6 +705,83 @@ generic float attrs. `buildLayer` routes `layer.uvRule` layers to
 `buildFaceVarying` when `uvSmooth_ != None` (`:431-438`), and those carry
 `applyLimitMask` (`:823`), whose limit value at a vert is *not* the cage value.
 UV is therefore outside this, which costs nothing here since UV is not painted.
+
+### 6.3 Correction (2026-08-19): host capability decides the route, and scatter is not a durability mechanism
+
+B2a shipped the wrong mechanism, and §6.2 as written is ambiguous enough to have
+invited it. The rule, from the user:
+
+> It should be two distinct paths, since some hosts (like Blender) do not support
+> multires attributes but others do. Scattering should exist for the latter, to
+> enable propagating to coarser multires layers and ultimately the base mesh —
+> but it shouldn't be used to enable *editing* multires attributes for hosts that
+> don't support them.
+
+**The engine already states this rule**; nothing here is new policy. `grid_attrs.h`'s
+storage-policy header says of the `Derived` class: "the grid-element data is a
+CACHE. **A brush must write the cage attribute**; this class re-subdivides from
+it." Colour and face sets on Blender are `Derived` — the host declares exactly
+one persistable grid attribute, the scalar paint mask. So the two routes are:
+
+| storage class | who is authoritative | edit lands on | direction of travel |
+| --- | --- | --- | --- |
+| `Host`, `Temp` | the fine grid level | grid elements, full resolution | **down**: restriction to coarser levels, ultimately the cage |
+| `Derived` | the cage | cage elements | **up**: `buildBilinear` prolongation into every level |
+
+They are opposite directions, and mixing them is what produced the defect. B2a
+used the *down* operator to give an edit made in the *Derived* class a home —
+i.e. it faked `Host` storage for a host that had not declared it. What the user
+sees is the tell: full-resolution paint on screen, cage-resolution paint in the
+file, no moment where the two agree.
+
+**Where the rule is not enforced today.** `gridAttrPlan` (`grid_attr_bind.h`)
+never consults `storageFor`. The storage class reaches exactly one decision —
+the channel's `persist` flag (`grid_attr_bind.h:237`) — so a `Derived`
+attribute still gets an `Authored` grid channel, merely an unsaveable one. That
+one missing condition is the root of every contradiction §6.2/§9 accumulated.
+
+**What §6.2 got right and what it got wrong.** Its three requirements are all
+properties of *painting the cage* and stand unchanged. Its framing of the two
+outcomes as "different products and shipping both is reasonable" does not: they
+are not products to choose between per stroke, they are what two different
+*host capabilities* look like. A Blender user never gets the full-resolution
+one, and a host that declares grid colour never needs the cage one.
+
+**The falloff wrinkle §6.2 does not address.** A cage vert's own position is not
+where the paint landed — the fine surface is displaced away from it, and the
+limit stencil moves a valence-one boundary corner off it entirely (which is why
+`gateCageVertScatter` grades against `colorSamples`, not positions). So the dab
+must be evaluated at **grid sample (0, 0)'s position**, which is the fine-surface
+point corresponding to that cage corner, and only the *write* goes to the cage
+vert. The spatial query stays exactly what it is; §6.2's "no second spatial tree"
+survives.
+
+**Mechanically, the cage route is a per-dab collapse, not executor surgery.**
+The kernel keeps writing the slot column; immediately after each dab the corner
+samples restrict onto the cage and the touched grids re-derive from it, so every
+non-corner sample it wrote is overwritten by a pure function of the cage before
+anything observes it. For a pointwise kernel this is *identical* to running the
+kernel on the cage vert (the corner sample it reads already equals the cage
+value), so it satisfies the rule in substance: nothing at grid resolution is ever
+authoritative. It is not identical for a neighbour-reading kernel — grid-lattice
+neighbours of (0, 0) are mid-edge and face-centre samples, not the cage 1-ring —
+so §6.2 requirement 2 stays a live requirement for the day `colorsmooth` is
+wired. `COLOR_TYPES` is `{'PAINT'}` today, so nothing painted through this route
+reads neighbours.
+
+**What this deletes.** `subdiv::GridScatterSource` and the whole store-vs-slot
+source pick (see the B2a source-pick correction in §9) exist only because two
+derived copies both looked authoritative. Under a cage-authored `Derived`
+attribute there is no source to pick — the cage is the source. Yesterday's fix
+was correct for the design it was fixing and is removed with it.
+
+**What this owes.** True attribute down-propagation does not exist. The scatter
+makes one hop, active level → cage, skipping every intermediate level;
+`propagateDown` covers positions only and refuses `level < 2` because level 0 is
+the user's base mesh. For attributes the cage *is* the destination, and
+`refiner.levels[0].stencil` already spans level 1 → cage, so the cascade is the
+existing operator run one step further down. That is C4.
+
 
 ## 7. Draw: within-grid only
 
@@ -1020,7 +1100,18 @@ identity, and a "restriction, not a pop" check); a new `gateChannelCapi` in
 the c-api through ctypes headless — the check that catches a new export left out
 of `wasm_add_symbols`, which links cleanly and is invisible at runtime.
 
-**B2a — the vertex-domain cage route for colour. DONE** (2026-08-19). The
+**B2a — the vertex-domain cage route for colour. DONE, then SUPERSEDED by
+C1–C3** (2026-08-19). It gave painted colour a home in `ob.data`, and by the
+wrong mechanism: it used the *down* operator (restriction) to persist an edit
+made in the `Derived` class, which is faking `Host` storage for a host that never
+declared it. The visible symptom is full-resolution paint on screen and
+cage-resolution paint in the file, with no moment where the two agree. §6.3 has
+the rule; C1–C3 replace this. **The rest of this entry is historical.** What
+survives it is the correspondence work — `gridCageVerts`, the weight-1 identity
+and its gate — which C1 reuses; what does not is the stroke-end scatter, the
+source pick, and "the forward scatter marks nothing for redraw".
+
+The
 host-specific half of the same blocker: Blender has no multires attribute
 domain, so a painted colour that lives only in the store's session channel (or
 in the slot's derived column, which `assignDerivedAttrs` rewrites on every
@@ -1108,6 +1199,95 @@ naming the slot lands the dab on the cage. `gateCageVertScatter` gained the same
 case at engine level (a store channel and a slot column that disagree). The face
 twin had the identical hole and is fixed the same way, unreproduced in the GUI.
 
+**C1–C4 — the storage-class routing correction (2026-08-19, supersedes B2a and
+reworks P3/P4b's Blender-facing half).** See §6.3 for the rule and why B2a's
+mechanism was wrong. Ordered so that no step leaves colour or face sets worse
+than they are now.
+
+**C1 — the cage route for `Derived` attributes. DONE (2026-08-19).** Per dab on a multires object,
+for every writable `Derived` attribute the dab touched: restrict the corner
+samples onto the cage, then re-derive the touched grids from it, so nothing the
+kernel wrote at grid resolution survives to be observed. Vertex domain (colour)
+and face domain (face sets) together — one rule, no grandfathered exception.
+Needs a partial `buildBilinear` (whole-layer today) and the touched-grid set
+from the dab rather than a whole-mesh diff. `refreshFaceSetColors` + `markGrids`
+carry the refresh, `generation_` untouched (§6.1 deviation 1).
+*Gates:* extend `gateCageVertScatter`/`gateCageScatter` with "after a dab, every
+non-corner sample equals its rebuild from the cage" — the assertion that says
+nothing at grid resolution is authoritative. `verify_multires_color.py` gate 3
+("the dab itself left the cage untouched") and gate 7 ("a sub-face dab changes no
+cage vert") **both invert**: the dab now writes the cage immediately, and a
+sub-face dab visibly paints nothing rather than painting and then evaporating.
+By-eye: paint at level 5 and watch it stay cage-resolution *during* the stroke.
+*As landed:* the touched-grid set comes from the dab spheres themselves —
+`Multires::dabGrids(level, {x,y,z,radius}xN)` maps each sphere through the level
+slot's own `SpatialTree::filterNodes` and reads a grid id off the leaf's face
+ids (`face / S²`), so it is O(dab region) and needs no correspondence table. The
+addon records the spheres in `session.dab_regions` and hands them to
+`convert.sync_cage_vert_color`; `undo.scatter_cage_columns` runs the scatter
+after every dab batch and clears them. Face sets need no region at all —
+`scatterFaceIntToCage`'s first pass already floods the whole base face.
+One engine bug fell out of the gate rather than the design: the brush attr-bind
+creates a kernel's missing manifest layer with `set_default` (zeros), so a
+first-ever `group` column read as "no face set" on every cell the dab missed and
+the scatter then stamped 0 onto every base face of the mesh. The bind now seeds
+a fresh POLYGROUP-use int face layer with the mesh's `default_group_id`, which
+is `Mesh::ensureFaceGroups`' rule applied where the bind, not the host, creates
+the layer (`tests/test_brush_attr.cc` gates it).
+
+**C2 — enforce the rule at the bind. DONE (2026-08-19).** `gridAttrPlan` consults `storageFor` and
+refuses a writable `Derived` attribute, independent of `sessionChannels`. Host
+capability decides, not the switch. Needs the `Multires` (or a storage-class
+lookup) threaded into `gridAttrPlan`, which currently takes only the manifest
+entry and a bool. After this, colour and face sets on Blender never bind
+grids-native, so C1's route is the only one they can take and the switch means
+nothing for them — which is what P5 needs.
+*Gates:* a unit test on `gridAttrPlan` across the three storage classes;
+`verify_grid_channels` still green for `mask` (Host) and TEMP attrs, which are
+the classes that keep binding.
+
+**C3 — delete the source pick. DONE (2026-08-19).** `subdiv::GridScatterSource`,
+`convert.SCATTER_*`, `session.color_scatter_source`/`face_scatter_source`, and
+the `stroke.py` block that sets them. Dead once the cage is the only author
+(§6.3). The scatters keep their `Host`-class role and lose the parameter.
+
+**C4 — real down-propagation for `Host` attributes.** The cascade the current
+single hop stands in for: level L → L−1 → … → cage, one step at a time through
+`restrictToCoarse(refiner.levels[L−1].stencil, …)` generalized off `float3` to
+`comps` floats, with `downPropPending_`-style debt so a coarser level settles on
+a downward switch rather than eagerly. Level 1 → cage is the same operator, not
+a special case — `refiner.levels[0].stencil` spans it; `propagateDown` refuses it
+only because level 0 positions are the user's base mesh, which does not apply to
+an attribute whose destination *is* the cage.
+Full-weighting, not injection: a coarse level is a *summary* of the fine one, and
+the rows-sum-to-1 argument that makes `propagateDown` unable to overshoot applies
+unchanged. This is deliberately the opposite operator from C1's prolongation —
+the two directions belong to the two storage classes and must not be shared.
+*Gates:* engine-only. No Blender host exercises it (`mask` is the sole `Host`
+attribute and has its own export path), so coverage is a ctest gate: a fine edit
+restricts to every level below it, idempotence, and debt settled exactly once.
+
+*Mechanism correction (2026-08-19, before implementation).* The paragraph above
+names the wrong operator. `restrictToCoarse` works on the **position chain** —
+dense `float3` in refiner vert order, restricted through
+`refiner.levels[L−1].stencil`. A `Host` attribute is not stored there: it is a
+`GridsStore` channel (`gridAttrEnsureChannel` → `addChannel(..., persist =
+storageFor == Host, GridLevelRule::Authored)`), i.e. per level, per grid, in the
+`(S+1)²` lattice / `S²` cell space. So C4's operator lives in `grids.cc` beside
+the two that already move a channel between levels — `seedLevelFromBelow`
+(bilinear prolongation, run by `addLevel`) and `restrictLevelToBelow`
+(injection, run by `dropTopLevel`) — and the right one is the *transpose of the
+prolongation*: the 9-point full-weighting stencil (¼ centre, ⅛ edge, ¹⁄₁₆
+corner) that `diag(Pᵀ1)⁻¹Pᵀ` gives for that 4-tap `P`. The rows-sum-to-1
+argument carries over unchanged; injection does not, which is why `dropTopLevel`
+is not the thing to reuse. Grid seams are the new work `restrictToCoarse` never
+had: a coarse sample on a grid border needs the fine taps that live in the
+adjacent grid, so the gather steps with the lattice walk that already crosses
+seams (`GridsStore::stepGrid` / `seamMates`, the same closure
+`refreshNormals` uses), and every replica of a seam sample is written the same
+value. Extraordinary vertices are the case to gate: a corner sample's
+neighbourhood is valence-many grids, not 8 taps.
+
 **P5 — cleanup.** Kill switch **removed**, making the routing unconditional. It
 is a development tool and is never promoted to default on -- that is a deliberate
 exception to the pattern its three siblings follow (`sculptcore_cpp_dab_loop`,
@@ -1152,13 +1332,17 @@ which brushes reach grids until P0d, and P0d's gate is an A/B.
   which is why B2a routes colour to the cage instead.
 - Edge-domain storage or edge-attr kernels (numbering only).
 - Corner-domain attributes on grids (cage route, permanently).
-- ~~Vertex-domain cage scatter~~ — **in scope and landed in B2a** for colour
-  (§9). The three §6.2 items were requirements, not blockers: the per-base-vert
-  dedupe is "skip a value the vert already holds", the resolution collapse is
-  accepted and gated, and cage-topology neighbour reads are still unbuilt —
-  nothing painted through this route reads neighbours. **Not** blocked on a
-  missing adjoint either: rev 2 said "needs an operator-correct adjoint first",
-  which §6.2 disproves (sample (0,0) is the corner's cage vert at weight 1).
+- ~~Vertex-domain cage scatter~~ — **in scope**; landed in B2a and re-done as
+  C1 (§6.3), because B2a used restriction to *persist* a grid-resolution edit
+  rather than to summarize a `Host`-class one. The three §6.2 items were
+  requirements, not blockers, and two of them are C1's actual content: the
+  per-base-vert dedupe, and the resolution collapse — which C1 makes visible
+  during the stroke instead of only at save. Cage-topology neighbour reads
+  remain unbuilt and remain required for `colorsmooth`; `COLOR_TYPES` is
+  `{'PAINT'}`, so nothing painted through this route reads neighbours yet.
+  **Not** blocked on a missing adjoint either: rev 2 said "needs an
+  operator-correct adjoint first", which §6.2 disproves (sample (0,0) is the
+  corner's cage vert at weight 1).
 - A fifth draw channel (that *is* a fork change: `attr_names[4]`, four static
   `GPUVertFormat`s, six `NodeCache` VBOs — and the repo's two-workflow packaging
   order applies).

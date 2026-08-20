@@ -190,7 +190,12 @@ def grids_capable(session, brush_type):
     # process-global and the scene bool can change between strokes.
     lib.GridStroke_setGridAttrs(
         1 if getattr(bpy.context.scene, "sculptcore_grid_attrs", False) else 0)
-    return bool(lib.GridStroke_supported(int(brush_type)))
+    # The multires is not optional here: an attribute brush's route is its
+    # attribute's storage class, which is per-object state (a host that CAN
+    # store multires attributes declares them, and only then may a kernel
+    # write grid elements). session.multires_ptr is live -- the early return
+    # above refused a session without one.
+    return bool(lib.GridStroke_supported(session.multires_ptr, int(brush_type)))
 
 
 def program_grids_capable(session, main_kernel):
@@ -817,11 +822,16 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
             # plans/grid-domain-attributes.md).
             self.session.last_stroke_face_sets = True
         # Colour is the other layer with no multires domain to live in: the
-        # store channel and the slot column both die with the session, so a
-        # paint stroke's undo push scatters it onto the cage (§6.2 of
+        # store channel and the slot column both die with the session, so the
+        # cage is where a paint stroke's dabs land (§6.3 of
         # plans/grid-domain-attributes.md).
         self.session.last_stroke_color = (
             not kernel_toggle and self.brush.sculpt_brush_type in mapping.COLOR_TYPES)
+        # Both flags are known now, and the cage is untouched: this is the only
+        # place the pre-stroke columns can still be read, since every dab from
+        # here on writes them.
+        if self.session.multires_ptr:
+            undo.snapshot_cage_columns(self.session)
         # Dyntopo (scene toggle) and autosmooth both run through a program;
         # neither applies to grab-class nor to a Shift-smooth stroke.
         # Autosmooth also skips the smooth brush itself.
@@ -947,16 +957,6 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         stroke_begin(self.session, has_dyntopo=self._dyntopo is not None,
                      accumulate=accumulate, anchored_grab=self._grab_class,
                      grids_kernel=grids_kernel)
-        # Both halves of the cage write-back's source pick are known only now:
-        # the layer flags above, and the route stroke_begin just chose. Sticky
-        # per layer, because a store channel outlives the grids stroke that
-        # bound it (§6.2 of plans/grid-domain-attributes.md).
-        _scatter_src = (convert.SCATTER_STORE if self.session.last_stroke_grids
-                        else convert.SCATTER_SLOT)
-        if self.session.last_stroke_face_sets:
-            self.session.face_scatter_source = _scatter_src
-        if self.session.last_stroke_color:
-            self.session.color_scatter_source = _scatter_src
         # The grids session is created inside stroke_begin, so its own copy of
         # the view matrix can only be pushed here — the mesh-path push above
         # rides the long-lived executor.
@@ -1049,6 +1049,13 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
                 for point in points:
                     self._apply_spaced_dab(context, point, invert, event.pressure)
 
+        # Face sets and colour are cage attributes a subdivided level only
+        # mirrors, so this batch's paint is carried onto the cage and the grids
+        # it touched are re-derived from it -- now, not at stroke end, or the
+        # stroke would draw at grid resolution and then snap to the cage's on
+        # release (§6.3 of plans/grid-domain-attributes.md).
+        if self.session.multires_ptr:
+            undo.scatter_cage_columns(self.session)
         if redraw:
             self._mid_redraw(context)
 
@@ -1112,6 +1119,14 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         a mirror image); None for every other brush."""
         self._dab_count += 1
         seed = self._dab_count
+        if self.session.multires_ptr:
+            # The region this dab paints, for the per-dab cage collapse: a dab
+            # smaller than a base face moves no cage vert, so the collapse has
+            # no other way to learn which grids to re-derive (see
+            # undo.scatter_cage_columns). Grab-class dabs skip this path and
+            # never write an attribute.
+            self.session.dab_regions.extend(
+                (position[0], position[1], position[2], world_radius))
         if snake_delta is not None:
             set_snake_hook_state(self.session, position, snake_delta)
         if self._dyntopo is not None:
@@ -1300,6 +1315,18 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
             dabs[row, 0:6] = hits[i]
             dabs[row, 6] = _world_radius(context, self.brush, position)
             row += 1
+        if session.multires_ptr:
+            # The regions this batch paints, for the per-dab cage collapse (see
+            # undo.scatter_cage_columns). The mirror images are applied engine
+            # side, so reflect them here -- the collapse needs every sphere the
+            # kernel wrote into, not just the primaries.
+            for i in range(hit_count):
+                centre = (float(dabs[i, 0]), float(dabs[i, 1]), float(dabs[i, 2]))
+                radius = float(dabs[i, 6])
+                session.dab_regions.extend(centre + (radius,))
+                for sign in self._mirror_signs:
+                    session.dab_regions.extend(
+                        tuple(symmetry.reflect(centre, sign)) + (radius,))
         # Strength/invert exactly as mapping.apply_dab_state folds them; both
         # are constant across the event's batch (pressure reaches strength
         # through the engine's device dynamics, not this scalar).

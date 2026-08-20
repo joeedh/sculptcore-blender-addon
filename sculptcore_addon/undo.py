@@ -106,36 +106,78 @@ _CAGE_RESTAMP = {
 }
 
 
+# The two host layers with no multires domain of their own. Both are cage
+# attributes that a subdivided level only mirrors, so what a stroke paints
+# reaches ob.data through the cage or not at all.
+_CAGE_LAYERS = (
+    ("last_stroke_face_sets", 'CAGE_FACE_I32', convert._SC_GROUP,
+     convert.cage_face_group_bytes, convert.sync_cage_face_attrs),
+    ("last_stroke_color", 'CAGE_VERT_F32x4', convert._SC_COLOR,
+     convert.cage_vert_color_bytes, convert.sync_cage_vert_color),
+)
+
+
+def snapshot_cage_columns(session):
+    """Record the cage columns the starting stroke will paint, as its undo
+    "before" state.
+
+    It cannot be read at the end any more: the cage is the authority for these
+    layers, so every dab already scattered onto it (#scatter_cage_columns).
+    Nothing else writes the cage between two strokes, so a snapshot taken here
+    is still the pre-stroke state when #_push_cage_columns pairs it."""
+    cols = [(kind, attr, reader(session))
+            for flag, kind, attr, reader, _scatter in _CAGE_LAYERS
+            if getattr(session, flag)]
+    session.cage_stroke_before = cols or None
+    session.dab_regions = []
+
+
+def scatter_cage_columns(session):
+    """Carry this dab's face-set or colour paint onto the cage and re-derive
+    the grids it touched from it.
+
+    Per dab, not per stroke: the cage is the authority for a layer the host
+    cannot store per grid element, so grid-resolution paint must never outlive
+    the dab that made it — during the stroke as much as after it (§6.3 of
+    plans/grid-domain-attributes.md). Cheap on the layers that are off; a
+    stroke that paints neither pays nothing.
+
+    The dab regions the colour scatter reads are cleared here, so each call
+    collapses the dabs since the last one and none is re-derived twice."""
+    for flag, _kind, _attr, _reader, scatter in _CAGE_LAYERS:
+        if getattr(session, flag):
+            scatter(session)
+    if session.dab_regions:
+        session.dab_regions = []
+
+
 def _push_cage_columns(session):
-    """Drive whatever the just-ended stroke painted home onto the cage, and
-    return ``(before, after, bytes)`` snapshots of the columns that moved.
+    """The cage columns the just-ended stroke moved, as ``(before, after,
+    bytes)`` snapshots — each a list of ``(kind, attr, blob)``, so decode can
+    put a column back without being told which layer it was.
 
-    Face sets and colour are both host data with no multires domain to live in:
-    the store channel is engine-owned session state and the slot is an evictable
-    cache, so the cage is the only copy of either that survives to ``ob.data``.
-    Each snapshot is a list of ``(kind, attr, blob)``, so decode can put a column
-    back without being told which layer it was.
-
-    Nothing else writes the cage between two strokes, so both sides can be
-    snapshotted here with no chain."""
-    before, after, size = [], [], 0
-    for flag, kind, attr, reader, scatter in (
-            (session.last_stroke_face_sets, 'CAGE_FACE_I32', convert._SC_GROUP,
-             convert.cage_face_group_bytes, convert.sync_cage_face_attrs),
-            (session.last_stroke_color, 'CAGE_VERT_F32x4', convert._SC_COLOR,
-             convert.cage_vert_color_bytes, convert.sync_cage_vert_color)):
-        if not flag:
+    The move already happened, dab by dab; this only pairs the stroke-start
+    snapshot with what the cage holds now. Columns that did not actually change
+    are dropped: a dab finer than a base face moves no cage element, which is
+    the accepted resolution limit of routing a host layer through the cage, not
+    an edit to record."""
+    before = session.cage_stroke_before
+    session.cage_stroke_before = None
+    if not before:
+        return None, None, 0
+    # One last scatter for the release dab, which lands after the final
+    # per-dab pass on some paths (the trailing spline segment).
+    scatter_cage_columns(session)
+    readers = {kind: reader for _f, kind, _a, reader, _s in _CAGE_LAYERS}
+    out_before, out_after, size = [], [], 0
+    for kind, attr, pre in before:
+        post = readers[kind](session)
+        if pre is None or post is None or post == pre:
             continue
-        pre = reader(session)
-        if not scatter(session) or pre is None:
-            # The scatter found nothing to carry home (the paint resolved finer
-            # than the cage, or already agreed with it): no persistent edit.
-            continue
-        post = reader(session)
-        before.append((kind, attr, pre))
-        after.append((kind, attr, post))
-        size += len(pre) + len(post or b"")
-    return (before or None), (after or None), size
+        out_before.append((kind, attr, pre))
+        out_after.append((kind, attr, post))
+        size += len(pre) + len(post)
+    return (out_before or None), (out_after or None), size
 
 
 def materialize_grid_blobs(session):
@@ -256,10 +298,10 @@ def push(context, ob, session):
         total = int(lib.GridStroke_undoBytes(session.grid_ptr))
         size = max(0, total - session.grid_undo_bytes_base)
         session.grid_undo_bytes_base = total
-        # A grids-native stage wrote the store's session channel for face sets
-        # or colour, which is engine-owned and does not persist; the cage is the
-        # only copy that does. Same scatters as the mesh path, reading the store
-        # instead of the slot column.
+        # A grids-native stroke never paints face sets or colour (their storage
+        # class refuses the route), so this pairs a snapshot no stroke of this
+        # flavour took, and costs nothing. It stays because the flags, not the
+        # route, decide -- a host that DID declare those attrs would take it.
         cage_before, cage_after, cage_size = _push_cage_columns(session)
         size += cage_size
         key = _next_key
@@ -296,9 +338,8 @@ def push(context, ob, session):
         level = session.multires_active_level
         if blob_after is not None:
             size += len(blob_after)
-        # The stroke painted the slot's derived group/colour column; push it
-        # onto the cage (the only copy that persists) and carry both sides of
-        # THAT column, since the store blob holds displacements only.
+        # The stroke painted the cage, dab by dab; carry both sides of the
+        # columns it moved, since the store blob holds displacements only.
         cage_before, cage_after, cage_size = _push_cage_columns(session)
         size += cage_size
     key = _next_key

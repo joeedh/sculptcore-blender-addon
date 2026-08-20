@@ -109,12 +109,16 @@ class Session:
         # the multires cage write-back their layer needs.
         "last_stroke_face_sets",
         "last_stroke_color",
-        # ...and which route that layer's last stroke wrote through, as a
-        # convert.SCATTER_* source for the cage write-back. Sticky per layer:
-        # a store channel outlives the grids stroke that bound it, so the
-        # engine's own guess would keep reading it after the route changed.
-        "face_scatter_source",
-        "color_scatter_source",
+        # The cage columns as they stood when the current stroke began, for
+        # the layers it paints: each dab carries its paint onto the cage, so
+        # by the time undo.push runs there is no "before" left to read (see
+        # undo.snapshot_cage_columns). None outside a stroke.
+        "cage_stroke_before",
+        # The dab spheres applied since the last cage scatter, flat object-space
+        # {x, y, z, radius} floats. A dab finer than a base face moves no cage
+        # vert, so without its own region the collapse would have nothing to
+        # re-derive and its paint would stay on screen at grid resolution.
+        "dab_regions",
         # GridStroke_undoBytes high-water at the last push, so each step
         # reports its own delta to the undo limiter, not the cumulative log.
         "grid_undo_bytes_base",
@@ -208,10 +212,10 @@ class Session:
         self.grid_generation = 0
         self.grid_cursor = 0
         self.last_stroke_grids = False
-        self.face_scatter_source = 0  # convert.SCATTER_AUTO
-        self.color_scatter_source = 0
         self.last_stroke_face_sets = False
         self.last_stroke_color = False
+        self.cage_stroke_before = None
+        self.dab_regions = []
         self.grid_undo_bytes_base = 0
         self.grid_mask_dirty = True
         self.multires_desynced = False

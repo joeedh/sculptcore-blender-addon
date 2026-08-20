@@ -32,29 +32,28 @@ painted cage face is claimed whole. The gates below are that rule end to end:
 This deliberately grades the *rule*, not stock Blender's multires: the
 comparison is against what the per-base-face rule predicts.
 
-The grids-native route (P4b)
-----------------------------
-Under ``Scene.sculptcore_grid_attrs`` the same paint takes a different road.
-POLYGROUP is a *face*-stage kernel, and the grids domain now has a face
-iterator, so it runs grids-native: the write lands in a Face-domain *session*
-channel of the grid store, one value per grid cell, and never touches the
-materialized slot. Session channels are engine-owned -- they ride the store blob
-(so the stroke log undoes them) but stop at the flush boundary -- so the cage is
-still the only copy that persists, and ``undo.push`` is what puts it there,
-through the same scatter, reading the store instead of the slot column.
+The cage route (C1-C3)
+----------------------
+A face set is a *cage* attribute that a subdivided level only mirrors: Blender
+declares no multires attribute domain, so ``group`` is ``Derived`` and the cage
+is its authority. That is enforced at the bind (C2) rather than left to a
+switch, so POLYGROUP never runs grids-native here however
+``Scene.sculptcore_grid_attrs`` is set, and every dab travels *down* -- onto the
+cage, immediately, with the grids it touched re-derived from what the cage now
+holds. Second battery:
 
-5. the kill switch decides the route: POLYGROUP is declined with it off and
-   grids-native with it on;
-6. a face dab reports work done in its own unit (the grids it touched -- it
-   moves no vertex) and leaves the cage untouched;
-7. ``undo.push`` scatters it home, undo restores the cage column and redo puts
-   it back;
+5. the storage class decides the route, not the kill switch: POLYGROUP is
+   declined with it off *and* on;
+6. the dab's own paint reaches the cage within the dab, not at stroke end --
+   this is what makes the class true rather than nominal;
+7. ``undo.push`` pairs it with the stroke-start snapshot, undo restores the cage
+   column and redo puts it back;
 8. the object starts with *no* face-set column at all, so the seed also has to
    invent the cage's implicit default group rather than seeding zeros -- which
    would otherwise scatter "no group" onto every face the stroke missed.
 
-Whether a face-set boundary *inside* a grid renders per sample is the other half
-of P4b's gate and is checked by eye: it needs a viewport.
+Whether the paint *renders* at cage resolution during the stroke is the half no
+headless run can see, and is checked by eye.
 """
 
 import os
@@ -218,6 +217,9 @@ def run():
     executor.endStep()
     session.meshlog_cursor += 1  # what stroke.py's stroke end does
     session.last_stroke_face_sets = True
+    # The stroke operator's other job: the cage's pre-stroke state is read at
+    # the start now, because every dab writes it (undo.snapshot_cage_columns).
+    undo.snapshot_cage_columns(session)
     groups = _slot_groups(session)
     groups[face_cells * 3] = new_id + 2
     lib.Mesh_writeFaceIntAttr(session.mesh_ptr, convert._SC_GROUP, groups)
@@ -265,8 +267,8 @@ def _paint_dab(session, kernel):
     return stroke.apply_dab(session, kernel, DAB_CENTER, DAB_NORMAL, DAB_RADIUS)
 
 
-def run_grids_native():
-    """Gates 5-8: the same face set, painted through the grid store."""
+def run_cage_route():
+    """Gates 5-8: the same face set, painted through the cage route."""
     scene = bpy.context.scene
     kernel = int(engine.manager().get("sculptcore::brush::SculptBrushes").items['POLYGROUP'])
     # 4x4 rather than 2x2: on a 2x2 cage the dab's centre is the corner shared
@@ -279,34 +281,49 @@ def run_grids_native():
     scene.sculptcore_grid_attrs = False
     convert.enter(ob)
     session = engine.sessions[ob.name]
+    convert.ensure_multires_slot(session)
 
-    # --- gate 5: the kill switch decides the route ---
+    # --- gate 5: the storage class decides the route, not the switch ---
     check(not stroke.grids_capable(session, kernel),
-          "POLYGROUP falls back to the mesh path with sculptcore_grid_attrs off")
+          "POLYGROUP is declined with sculptcore_grid_attrs off")
     scene.sculptcore_grid_attrs = True
-    check(stroke.grids_capable(session, kernel),
-          "POLYGROUP runs grids-native with sculptcore_grid_attrs on")
+    check(not stroke.grids_capable(session, kernel),
+          "and declined with it on too -- `group` is Derived, so its grid "
+          "elements are a cache the kernel may not author (C2)")
 
     default_group = int(getattr(ob.data, "face_sets_color_default", 1))
     cage_before = _cage_groups(session)
 
-    # --- gate 6: the dab lands, and nothing moves on the host ---
+    # --- gate 6: the dab's paint reaches the cage within the dab ---
     stroke.stroke_begin(session, grids_kernel=kernel)
-    check(session.last_stroke_grids, "the stroke routed grids-native")
+    check(not session.last_stroke_grids,
+          "the stroke takes the mesh path, which is the cage route's front end")
     session.last_stroke_face_sets = True  # the stroke operator's job; this is not it
+    undo.snapshot_cage_columns(session)
     touched = _paint_dab(session, kernel)
-    stroke.stroke_end(session)
     check(touched > 0,
-          "the face dab reported {:d} touched grids (a face stage moves no vert)"
-          .format(touched))
-    check(np.array_equal(_cage_groups(session), cage_before),
-          "the paint left the cage untouched (a session channel, not a cage write)")
+          "the face dab reported {:d} touched nodes".format(touched))
+    undo.scatter_cage_columns(session)  # what _dab_at does after every batch
+    cage_mid = _cage_groups(session)
+    check(not np.array_equal(cage_mid, cage_before),
+          "the dab moved the cage before the stroke ended (C1: the cage is the "
+          "author, so nothing at grid resolution outlives the dab)")
+    # ...and the collapse itself: re-deriving the whole layer from the cage
+    # reproduces the slot column bit for bit, so no cell still holds paint the
+    # cage cannot make.
+    slot_mid = _slot_groups(session)
+    convert.restamp_cage_face_attrs(session)
+    check(np.array_equal(_slot_groups(session), slot_mid),
+          "and the level's cells are already a pure function of the cage")
+    stroke.stroke_end(session)
 
-    # --- gate 7: the undo push is what puts it on the cage ---
+    # --- gate 7: the undo push pairs it with the stroke-start snapshot ---
     key = undo._next_key
     undo.push(bpy.context, ob, session)
-    check(key in undo._pending, "the grids face-set stroke pushed an undo step")
+    check(key in undo._pending, "the face-set stroke pushed an undo step")
     cage_after = _cage_groups(session)
+    check(np.array_equal(cage_after, cage_mid),
+          "the push found the cage already written and moved it no further")
     painted = 0 if cage_after is None else int(np.count_nonzero(cage_after == ACTIVE_GROUP))
     check(0 < painted < len(ob.data.polygons),
           "{:d} of {:d} cage faces adopted the active group"
@@ -319,10 +336,9 @@ def run_grids_native():
     convert.flush(ob)
     values = _face_sets(ob.data)
     check(values is not None and int((values == ACTIVE_GROUP).sum()) == painted,
-          "the grids-native face set reached ob.data")
+          "the face set reached ob.data")
 
     undo.decode(bpy.context, ob, key, -1, False)
-    check(session.grid_cursor == 0, "undo seeked the grid log itself")
     check(np.array_equal(_cage_groups(session), cage_before),
           "undoing the stroke restored the cage face-set column")
     undo.decode(bpy.context, ob, key, 1, False)
@@ -349,7 +365,7 @@ def main():
 
     print("multires face-set write-back gate")
     run()
-    run_grids_native()
+    run_cage_route()
 
     if FAILURES:
         print("\nFAILED ({:d}):".format(len(FAILURES)))

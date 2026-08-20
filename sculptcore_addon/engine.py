@@ -243,11 +243,15 @@ class _CApi:
         lib.GridStroke_new.restype = ctypes.c_void_p
         lib.GridStroke_free.argtypes = [ctypes.c_void_p]
         lib.GridStroke_free.restype = None
-        lib.GridStroke_supported.argtypes = [ctypes.c_int]
+        # Takes the Multires the stroke would run on: whether an attribute
+        # brush can bind grids natively is the attribute's storage class, and
+        # that is per-object state. Null answers the pre-session question (is
+        # this kernel on the roster at all).
+        lib.GridStroke_supported.argtypes = [ctypes.c_void_p, ctypes.c_int]
         lib.GridStroke_supported.restype = ctypes.c_int
-        # Grid attribute channels on/off. Process-global in the engine, since
-        # GridStroke_supported answers before any session exists; off restores
-        # the roster attr-writing brushes had before the channels landed.
+        # Grid attribute channels on/off. Process-global in the engine: a
+        # development lever, not per-object state; off restores the roster
+        # attr-writing brushes had before the channels landed.
         lib.GridStroke_setGridAttrs.argtypes = [ctypes.c_int]
         lib.GridStroke_setGridAttrs.restype = None
         lib.GridStroke_gridAttrs.argtypes = []
@@ -377,19 +381,21 @@ class _CApi:
         lib.Multires_syncSlotAttrs.restype = None
         # The other direction: a mesh-path edit lands on the slot's derived copy
         # of a face layer, and only the cage persists — this pushes it back and
-        # marks the touched grids (see convert.sync_cage_face_attrs). The last
-        # argument names the source (convert._SCATTER_*): neither goes stale on
-        # its own, so the caller has to say which route wrote last.
+        # marks the touched grids (see convert.sync_cage_face_attrs).
         lib.Multires_scatterFaceIntToCage.argtypes = [
-            ctypes.c_void_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_int]
+            ctypes.c_void_p, ctypes.c_int, ctypes.c_char_p]
         lib.Multires_scatterFaceIntToCage.restype = ctypes.c_int
         # Its vertex-domain twin, for colour: exact restriction rather than a
         # transpose, because grid sample (0, 0) IS its corner's cage vert at
-        # weight one (see convert.sync_cage_vert_color). Nothing is marked for
-        # redraw — the derived samples are built FROM the cage, so re-deriving
-        # would replace full-resolution paint with its cage restriction.
+        # weight one (see convert.sync_cage_vert_color). Re-deriving the touched
+        # grids from the cage afterwards is the point, not a side effect — it is
+        # what makes colour a Derived attribute in fact and not just in name.
+        # The trailing float array is the dab region ({x, y, z, radius} each):
+        # those grids re-derive even when no cage vert moved, so a dab finer
+        # than a base face paints nothing rather than painting and evaporating.
         lib.Multires_scatterVertFloat4ToCage.argtypes = [
-            ctypes.c_void_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_int]
+            ctypes.c_void_p, ctypes.c_int, ctypes.c_char_p,
+            ctypes.POINTER(ctypes.c_float), ctypes.c_int]
         lib.Multires_scatterVertFloat4ToCage.restype = ctypes.c_int
         # Persistent grid-domain channels (engine subdiv/c-api/grid_channel_c_api.h).
         # The host-agnostic half: a host that CAN store per-grid-element data

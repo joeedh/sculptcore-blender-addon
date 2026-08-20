@@ -41,14 +41,6 @@ _EDGE_FLAG_MAP = (
 # corner/byte colors are left untouched (a warning is logged on flush).
 _SC_COLOR = b"color"
 
-# subdiv::GridScatterSource — which copy of a derived layer a cage
-# write-back reads. AUTO is the engine guessing (store when it has the
-# level, else the slot), which is only right for a session that never
-# switched routes: a store channel stays allocated after the grids-native
-# stroke that bound it and shadows every later mesh-path edit.
-SCATTER_AUTO = 0
-SCATTER_STORE = 1
-SCATTER_SLOT = 2
 _DEFAULT_COLOR_NAME = "Color"
 
 
@@ -1736,13 +1728,6 @@ def sync_cage_face_attrs(session):
     Face channel is engine-owned session state — so without this a face set
     painted on a subdivided level is gone at the next eviction or mode exit.
 
-    Reads whichever of the two the last face-set stroke actually wrote: the
-    store's `group` session channel for a grids-native face stage, the
-    materialized slot's derived column for the mesh path. The session records
-    which (`face_scatter_source`) because neither source goes stale on its own
-    — letting the engine guess reads a channel an earlier grids stroke left
-    behind instead of the column the mesh path just wrote.
-
     Blender writes a face set on multires to the whole base face, unweighted,
     which is what the engine's scatter reproduces (Multires::scatterFaceIntToCage).
     Returns the number of base faces changed, and marks only the grids behind
@@ -1750,8 +1735,7 @@ def sync_cage_face_attrs(session):
     if not session.multires_ptr:
         return 0
     return engine.capi().lib.Multires_scatterFaceIntToCage(
-        session.multires_ptr, session.multires_active_level, _SC_GROUP,
-        session.face_scatter_source)
+        session.multires_ptr, session.multires_active_level, _SC_GROUP)
 
 
 def cage_face_group_bytes(session):
@@ -1797,12 +1781,6 @@ def sync_cage_vert_color(session):
     exit, and the cage is the only copy of painted colour that reaches
     ``ob.data``.
 
-    Reads the source the last colour stroke wrote (`color_scatter_source`), for
-    the reason #sync_cage_face_attrs spells out: the two sources outlive the
-    routes that write them, so the engine's own guess picks the store whenever a
-    grids-native stroke ever bound this layer at this level — shadowing every
-    mesh-path dab after it.
-
     Exact, not a fit: grid sample (0, 0) is its corner's cage vert at weight one
     under the ptex-bilinear rule, so this is restriction. What it cannot do is
     resolve finer than the cage — a dab smaller than a base face changes no cage
@@ -1810,12 +1788,22 @@ def sync_cage_vert_color(session):
     multires colour through the cage (plans/grid-domain-attributes.md §6.2), not
     a bug to engineer away.
 
+    ``session.dab_regions`` (the spheres painted since the last call) goes with
+    it so those grids re-derive whether or not a cage vert moved. Leaving
+    nothing behind has to mean *nothing*: without the region a sub-face dab's
+    paint would sit on screen at grid resolution until some later dab moved a
+    neighbouring cage vert and swept it away.
+
     Returns the number of cage verts changed."""
+    import ctypes
+
     if not session.multires_ptr:
         return 0
+    dabs = session.dab_regions
+    count = len(dabs) // 4
+    buf = (ctypes.c_float * len(dabs))(*dabs) if count else None
     return engine.capi().lib.Multires_scatterVertFloat4ToCage(
-        session.multires_ptr, session.multires_active_level, _SC_COLOR,
-        session.color_scatter_source)
+        session.multires_ptr, session.multires_active_level, _SC_COLOR, buf, count)
 
 
 def cage_vert_color_bytes(session):
