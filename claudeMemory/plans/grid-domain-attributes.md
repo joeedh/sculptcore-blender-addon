@@ -1020,6 +1020,69 @@ identity, and a "restriction, not a pop" check); a new `gateChannelCapi` in
 the c-api through ctypes headless — the check that catches a new export left out
 of `wasm_add_symbols`, which links cleanly and is invisible at runtime.
 
+**B2a — the vertex-domain cage route for colour. DONE** (2026-08-19). The
+host-specific half of the same blocker: Blender has no multires attribute
+domain, so a painted colour that lives only in the store's session channel (or
+in the slot's derived column, which `assignDerivedAttrs` rewrites on every
+`materialize()`) dies at mode exit. B2a gives it a home in `ob.data` by writing
+it back onto the **cage**, mirroring the face-domain half P3/P4b already shipped.
+
+It is exact **restriction**, not the transpose §6.2 rejects: sample (0, 0) of a
+grid *is* its corner's cage vert at weight one, so the value is copied through
+unweighted. `Multires::gridCageVerts` builds the grid → cage-vert pairing
+(`buildGridRefs` + `cage.c.v[cc]`, the vertex twin of `gridCageFaces`), and
+`Multires::scatterVertFloat4ToCage` copies each grid's corner sample onto it.
+Two sources, store-first for the reason the face twin is: a grids-native stroke
+writes the channel and materializes no level mesh, so the store is the truth
+when it holds that level; otherwise the slot's column is. Unlike the face twin
+it needs **no re-stamp** — `gridAttrScatter` writes every occurrence of a
+boundary sample, so the n grids meeting at a cage vert already agree, and the
+dedupe is just "skip a value the vert already holds".
+
+A first-ever cage colour layer is flooded **white**, not the attribute system's
+zero, the way `ensureFaceGroups` floods a first-ever group layer with the host's
+default id.
+
+Addon side: `convert.sync_cage_vert_color` / `cage_vert_color_bytes` /
+`restamp_cage_vert_color` mirror the face-set trio, `_flush_multires` calls the
+scatter, and the multires enter path now seeds `session.color_attr_name` (it
+never ran `_load_bridged_attrs`, which is mesh-only). Undo's cage payload
+generalized from one face-set blob to a list of `(kind, attr, blob)`, so
+`CAGE_VERT_F32x4` rides the same push/restore route as `CAGE_FACE_I32`;
+`_push_cage_columns` drives whatever the stroke painted home and snapshots both
+sides, keyed off `session.last_stroke_color` (set from `mapping.COLOR_TYPES`).
+
+**The forward scatter marks nothing for redraw** — the derived samples are built
+*from* the cage, so re-deriving would replace full-resolution session paint with
+its cage restriction. An undo *restore* does re-derive (`_CAGE_RESTAMP`), because
+there the cage is becoming the truth again.
+
+The accepted cost is §6.2's third item, unchanged: a dab smaller than a base
+face changes no cage vert, so it is session paint and nothing more.
+
+*Gates:* `gateCageVertScatter` in `test_multires_attrs.cc` (valence multiset,
+the correspondence graded against `gridAttrs().colorSamples` rather than
+positions — geometry follows the limit stencil, which moves a valence-one
+boundary corner off its cage vert entirely — the white flood, replica agreement,
+idempotence, the slot-column fallback, and refusals leaving no half-built
+layer); ctest 135/135. `tools/verify_multires_color.py` rewritten around the
+stroke's whole life: the dab moves nothing on the host, the undo push carries it
+onto exactly the cage vert under it with every grid corner sample bit-identical
+to a cage vert, it reaches `ob.data`, undo/redo round-trips it (and the flush in
+between does not scatter the undone paint back on), a sub-face dab durably
+paints nothing, the mesh path lands home through the slot column, and both
+survive save + reload. Full suite green (`verify_grid_channels`,
+`verify_multires_face_sets`, `verify_multires_uv_parity`,
+`verify_texture_parity`). By-eye check outstanding.
+
+*One ordering constraint the gate exposed:* the store-first pick means a session
+that has already allocated the store channel at a level reads the store even
+after a mesh-path stroke, so the slot branch is only reachable where no
+grids-native stroke ran at that level. That is also the only place it is
+reachable in earnest — the switch is a dev tool, and post-P5 a multires colour
+stroke is grids-native or nothing — so the gate exercises it on its own object
+rather than papering over it with a source override.
+
 **P5 — cleanup.** Kill switch **removed**, making the routing unconditional. It
 is a development tool and is never promoted to default on -- that is a deliberate
 exception to the pattern its three siblings follow (`sculptcore_cpp_dab_loop`,
@@ -1037,12 +1100,11 @@ the predicate and records those three as residual decliners with named reasons.
 
 **Removal is the gate for the durability question, not a flip.** While the switch
 exists, session-only colour is behind a dev tool; deleting it makes grids-native
-what every user gets. So §11's "persisting session channels" item must be settled
-before P5 lands -- either by §6.2's cage route or by accepting and documenting
-that multires colour is session-only. Not a regression either way: the mesh path
-does not persist multires colour either (`_flush_color` is unreachable from
-`_flush_multires`, and the slot's colour column is re-derived by
-`assignDerivedAttrs` inside every `materialize()`).
+what every user gets. So §11's "persisting session channels" item had to be
+settled before P5 lands -- and **B2a settled it** by §6.2's cage route: colour
+now reaches `ob.data` from both routes, at cage resolution. What P5 deletes is
+therefore a switch between two durable paths, not between a durable one and a
+disappearing one.
 
 ## 10. Rollback
 
@@ -1065,10 +1127,13 @@ which brushes reach grids until P0d, and P0d's gate is an A/B.
   which is why B2a routes colour to the cage instead.
 - Edge-domain storage or edge-attr kernels (numbering only).
 - Corner-domain attributes on grids (cage route, permanently).
-- Vertex-domain cage scatter — out of scope for §6.2's three reasons (per-base-vert
-  dedupe, cage-topology neighbour reads, accepted resolution collapse). **Not** for
-  a missing adjoint: rev 2 said "needs an operator-correct adjoint first", which
-  §6.2 disproves (sample (0,0) is the corner's cage vert at weight 1).
+- ~~Vertex-domain cage scatter~~ — **in scope and landed in B2a** for colour
+  (§9). The three §6.2 items were requirements, not blockers: the per-base-vert
+  dedupe is "skip a value the vert already holds", the resolution collapse is
+  accepted and gated, and cage-topology neighbour reads are still unbuilt —
+  nothing painted through this route reads neighbours. **Not** blocked on a
+  missing adjoint either: rev 2 said "needs an operator-correct adjoint first",
+  which §6.2 disproves (sample (0,0) is the corner's cage vert at weight 1).
 - A fifth draw channel (that *is* a fork change: `attr_names[4]`, four static
   `GPUVertFormat`s, six `NodeCache` VBOs — and the repo's two-workflow packaging
   order applies).

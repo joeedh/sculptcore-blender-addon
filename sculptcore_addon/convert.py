@@ -298,6 +298,11 @@ def _enter_multires(ob, md):
     session.multires_level = level
     session.multires_active_level = level
     session.multires_show_viewport = prev_show
+    # The colour layer the cage was seeded from is the one a painted level is
+    # written back into (see _flush_multires), by name rather than by the active
+    # designation — the rule the mesh path already follows.
+    color_attr = _point_float_color(ob.data)
+    session.color_attr_name = color_attr.name if color_attr is not None else None
     # The domain-direct mask import (above) already synced domain + store.
     session.grid_mask_dirty = False
     engine.sessions[ob.name] = session
@@ -1772,6 +1777,64 @@ def restamp_cage_face_attrs(session):
             lib.refreshTreeRequestedAttrs(session.tree_ptr)
 
 
+def sync_cage_vert_color(session):
+    """Push a colour edit on a subdivided level back onto the cage — the
+    vertex-domain twin of #sync_cage_face_attrs, and for the same reason:
+    Blender has no multires attribute domain, so the store channel (engine-owned
+    session state) and the slot column (an evictable cache) both die at mode
+    exit, and the cage is the only copy of painted colour that reaches
+    ``ob.data``.
+
+    Exact, not a fit: grid sample (0, 0) is its corner's cage vert at weight one
+    under the ptex-bilinear rule, so this is restriction. What it cannot do is
+    resolve finer than the cage — a dab smaller than a base face changes no cage
+    vert and so leaves nothing behind. That is the accepted trade of routing
+    multires colour through the cage (plans/grid-domain-attributes.md §6.2), not
+    a bug to engineer away.
+
+    Returns the number of cage verts changed."""
+    if not session.multires_ptr:
+        return 0
+    return engine.capi().lib.Multires_scatterVertFloat4ToCage(
+        session.multires_ptr, session.multires_active_level, _SC_COLOR)
+
+
+def cage_vert_color_bytes(session):
+    """The cage's `color` vertex column as raw float32 bytes (4 per vert) — the
+    undo payload for a colour edit on a multires object, the same argument as
+    #cage_face_group_bytes. A cage with no colour layer yet reads as white,
+    which is what the engine's own scatter floods a first-ever one with. None
+    without a cage."""
+    import numpy as np
+
+    if not session.cage_ptr:
+        return None
+    count = mesh_vert_num(session.cage_ptr)
+    if count <= 0:
+        return None
+    values = np.ones(count * 4, dtype=np.float32)
+    engine.capi().lib.Mesh_readVertFloat4Attr(session.cage_ptr, _SC_COLOR, values)
+    return values.tobytes()
+
+
+def restamp_cage_vert_color(session):
+    """Re-derive from a cage colour layer written whole (an undo restore of
+    #cage_vert_color_bytes) — the colour twin of #restamp_cage_face_attrs.
+
+    Unlike the forward scatter this DOES re-derive: a whole-column restore is
+    not a finer-than-cage edit being coarsened, it is the cage becoming the
+    truth again, so the derived samples must follow it rather than keep the
+    undone paint."""
+    if not session.multires_ptr:
+        return
+    lib = engine.capi().lib
+    lib.Multires_invalidateGridAttr(session.multires_ptr, _SC_COLOR)
+    if session.mesh_ptr:
+        lib.Multires_syncSlotAttrs(session.multires_ptr, session.multires_active_level)
+        if session.tree_ptr and session.draw_provider_kind == 'SLOT':
+            lib.refreshTreeRequestedAttrs(session.tree_ptr)
+
+
 def refresh_grids_mask(session):
     """Pull a changed slot-mesh mask column into the grids domain mirror NOW
     when the grids provider is displaying (mask flood fill, attr-undo): the
@@ -2070,8 +2133,15 @@ def _flush_multires(ob, session):
     # copy — push it home before the readback, or what reaches `.sculpt_face_set`
     # is the pre-stroke cage. Runs while the slot is certainly still resident.
     sync_cage_face_attrs(session)
+    # Colour rides the cage for the same reason, and needs the same push: a
+    # grids-native stroke wrote the store's session channel, a mesh-path one the
+    # slot's derived column, and neither reaches ob.data (§6.2 of
+    # plans/grid-domain-attributes.md).
+    sync_cage_vert_color(session)
     if session.cage_ptr:
         _flush_face_sets(ob.data, session.cage_ptr)
+        _flush_color(ob.data, session.cage_ptr, len(ob.data.vertices),
+                     session.color_attr_name)
     session.multires_mask_base = multires.export_mask(
         ob, depsgraph, session.mesh_ptr, session.multires_map,
         session.multires_ptr, session.multires_active_level,

@@ -130,6 +130,10 @@ STRENGTH_SCALE = {'DRAW_SHARP': 2.0}
 # id (max existing + 1) at stroke start.
 FACE_SET_TYPES = {'DRAW_FACE_SETS'}
 
+# Brush types that paint the `color` vertex attr — on multires, the only ones
+# that pay for the cage colour write-back (convert.sync_cage_vert_color).
+COLOR_TYPES = {'PAINT'}
+
 # Kernels that exist but need infrastructure not wired yet — kept for
 # reference / a future UI "unsupported" hint, never entered.
 UNSUPPORTED = {

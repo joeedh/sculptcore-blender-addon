@@ -816,6 +816,12 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
             # persists, so undo.push scatters it home either way (§6 of
             # plans/grid-domain-attributes.md).
             self.session.last_stroke_face_sets = True
+        # Colour is the other layer with no multires domain to live in: the
+        # store channel and the slot column both die with the session, so a
+        # paint stroke's undo push scatters it onto the cage (§6.2 of
+        # plans/grid-domain-attributes.md).
+        self.session.last_stroke_color = (
+            not kernel_toggle and self.brush.sculpt_brush_type in mapping.COLOR_TYPES)
         # Dyntopo (scene toggle) and autosmooth both run through a program;
         # neither applies to grab-class nor to a Shift-smooth stroke.
         # Autosmooth also skips the smooth brush itself.

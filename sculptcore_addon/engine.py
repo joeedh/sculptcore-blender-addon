@@ -381,6 +381,14 @@ class _CApi:
         lib.Multires_scatterFaceIntToCage.argtypes = [
             ctypes.c_void_p, ctypes.c_int, ctypes.c_char_p]
         lib.Multires_scatterFaceIntToCage.restype = ctypes.c_int
+        # Its vertex-domain twin, for colour: exact restriction rather than a
+        # transpose, because grid sample (0, 0) IS its corner's cage vert at
+        # weight one (see convert.sync_cage_vert_color). Nothing is marked for
+        # redraw — the derived samples are built FROM the cage, so re-deriving
+        # would replace full-resolution paint with its cage restriction.
+        lib.Multires_scatterVertFloat4ToCage.argtypes = [
+            ctypes.c_void_p, ctypes.c_int, ctypes.c_char_p]
+        lib.Multires_scatterVertFloat4ToCage.restype = ctypes.c_int
         # Persistent grid-domain channels (engine subdiv/c-api/grid_channel_c_api.h).
         # The host-agnostic half: a host that CAN store per-grid-element data
         # enumerates the store's channels and reads/writes a level of one. Two
