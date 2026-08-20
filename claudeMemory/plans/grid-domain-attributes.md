@@ -1461,15 +1461,24 @@ which brushes reach grids until P0d, and P0d's gate is an A/B.
   requirements, not blockers, and two of them are C1's actual content: the
   per-base-vert dedupe, and the resolution collapse — which C1 makes visible
   during the stroke instead of only at save. Cage-topology neighbour reads
-  remain unbuilt and remain required for `colorsmooth`; `COLOR_TYPES` is
-  `{'PAINT'}`, so nothing painted through this route reads neighbours yet.
+  ~~remain unbuilt~~ — **superseded 2026-08-20: built as `CageSmoothSession`
+  (`brush/cage_smooth.h`) by
+  [grids-native-completion.md](./grids-native-completion.md) CS**, and
+  COLORSMOOTH now runs on multires through it.
   **Not** blocked on a missing adjoint either: rev 2 said "needs an
   operator-correct adjoint first", which §6.2 disproves (sample (0,0) is the
   corner's cage vert at weight 1).
 - A fifth draw channel (that *is* a fork change: `attr_names[4]`, four static
   `GPUVertFormat`s, six `NodeCache` VBOs — and the repo's two-workflow packaging
   order applies).
-- The six per-tool pre-pass conditionals and the `gpu_marshal.cc` rosters (§8.4).
+- ~~The six per-tool pre-pass conditionals and the `gpu_marshal.cc` rosters
+  (§8.4)~~ — **superseded 2026-08-20 by
+  [grids-native-completion.md](./grids-native-completion.md) SW**: the
+  pre-passes moved into the `brush_hooks.{h,cc}` hook table (SW3), the
+  `gpu_marshal.cc` tool→kernel roster + hand-packed uniforms became the
+  generated `@gpu` map and per-kernel packs (SW1/SW2), and the debug app's
+  rosters reflect over the generated tables (SW4). The one keep:
+  `packCtxUniforms`'s grab-mode ctx tail.
 - Dyntopo behaviour, unchanged throughout. The **slot path** is not: rev 2 said
   "Dyntopo/slot-path behaviour, unchanged throughout" and two things changed —
   the face-set operators on multires coarsened to base-face granularity (§6.1
@@ -1500,6 +1509,7 @@ in ABI v3.
    non-uniform would make the *next* scatter read its untouched cells as a fresh
    disagreement and propose reverting the face. `verify_multires_face_sets.py`
    gates that non-oscillation directly (a second write-back must return 0).
-4. The `grid_stroke` / `grid_undo` / `grid_redo` / `grid_bench` debug verbs
-   (`source/debug/script.cc:2182, 2310, 2335`) are undocumented in
-   `documentation/debugApp.md`; the A/B gates above lean on them.
+4. **Settled 2026-08-20, was Q4.** The `grid_stroke` / `grid_undo` /
+   `grid_redo` / `grid_bench` debug verbs are now documented in
+   `documentation/debugApp.md` (the
+   [grids-native-completion.md](./grids-native-completion.md) DOC pass).

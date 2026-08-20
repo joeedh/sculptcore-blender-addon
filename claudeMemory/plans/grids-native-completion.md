@@ -1,6 +1,12 @@
 # Grids-native completion: colorsmooth, layerdraw, mask, and the switch audit
 
-Status: **rev 2, 2026-08-20. Executing — §7 questions resolved, SW0 first.** Rev 1 (2026-08-19) was
+Status: **COMPLETE 2026-08-20.** All workstreams landed and gated — CS
+(cage-smooth colorsmooth), MK (mask single truth + seed/edit split), LD1–LD3
+(layerdraw grids-native + layer c-api + addon layer UI), SW0–SW4 (the switch
+audit: mixMode fix, generated GPU uniform packs, `@gpu` kernel map, the
+`brush_hooks` hook table, debug-app reflection), and the DOC pass. ctest
+137/137. By-eye items listed in the session close-out remain with the user.
+Originally: Rev 1 (2026-08-19) was
 pressure-tested by five fresh-context adversarial agents (one lens each:
 CS buildability, LD semantics, MK semantics, SW feasibility, cross-cutting
 seams). Three kill-class findings and twelve majors survived verification and

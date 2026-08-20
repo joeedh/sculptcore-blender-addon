@@ -132,7 +132,8 @@ Working notes Claude maintains for this repository. See the top-level
   is believed. Kills the tasklist's **E7** and restores **1.4**'s original
   merge-policy claim.
 - [plans/grids-native-completion.md](plans/grids-native-completion.md)
-  — **rev 2, 2026-08-20; pressure-tested, no phase started.** Successor to
+  — **COMPLETE 2026-08-20 (all workstreams + DOC landed; ctest 137/137).**
+  Successor to
   grid-domain-attributes; rev 1 was pressure-tested by five fresh-context
   adversarial agents and three kill-class findings folded in (§0 records
   them). Cage-topology neighbour reads so colorsmooth works on multires (the
