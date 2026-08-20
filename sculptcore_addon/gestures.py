@@ -21,8 +21,8 @@ vanilla's default behaves the same way, but its option to limit is absent.
 
 import bpy
 
-from . import convert, engine, undo
-from .ops import _session
+from . import convert
+from .ops import _mask_apply, _mask_state, _session
 
 _MOUSE_BUTTONS = {'LEFTMOUSE', 'MIDDLEMOUSE', 'RIGHTMOUSE'}
 
@@ -51,26 +51,20 @@ def _project_verts(context, session):
 
 def _apply_mask(context, session, selected, mode, value, message):
     """Write ``value`` (or invert) into the mask for ``selected`` verts,
-    with an attribute-snapshot undo step."""
-    import numpy as np
-
+    with an attribute-snapshot undo step. ``selected`` indexes the slot
+    mesh's verts (the projection ran over them), which on multires is also
+    the grid domain's order — ops._mask_state/_mask_apply route the write to
+    whichever of the two this session treats as the mask truth."""
     if not selected.any():
         return False
-    lib = engine.capi().lib
-    verts_num = convert.mesh_vert_num(session.mesh_ptr)
-    before = np.zeros(verts_num, dtype=np.float32)
-    lib.Mesh_readVertFloatAttr(session.mesh_ptr, convert._SC_MASK, before)
+    before, level = _mask_state(session)
     after = before.copy()
     if mode == 'INVERT':
         after[selected] = 1.0 - after[selected]
     else:
         after[selected] = value
-    lib.Mesh_writeVertFloatAttr(session.mesh_ptr, convert._SC_MASK,
-                                np.ascontiguousarray(after))
-    undo.push_attr(context, context.active_object, session, message,
-                   'VERT_F32', convert._SC_MASK, before.tobytes(), after.tobytes())
-    undo._tag_view3d_redraw(context)
-    return True
+    return _mask_apply(context, context.active_object, session, message,
+                       before, after, level)
 
 
 def points_in_polygon(xy, valid, polygon):
@@ -116,7 +110,7 @@ class _MaskGesture:
 
     @classmethod
     def poll(cls, context):
-        return _session(context) is not None
+        return _session(context, allow_multires=True) is not None
 
     def invoke(self, context, event):
         if context.region is None or context.region_data is None:
@@ -207,9 +201,13 @@ class SCULPTCORE_OT_mask_box_gesture(_MaskGesture, bpy.types.Operator):
         return self.execute(context) == {'FINISHED'}
 
     def execute(self, context):
-        session = _session(context)
+        session = _session(context, allow_multires=True)
         if session is None or context.region_data is None:
             return {'CANCELLED'}
+        if session.multires_ptr:
+            # The projection walks the level mesh's positions; the lazy
+            # grids path may not have materialized it yet.
+            convert.ensure_multires_slot(session)
         xy, valid = _project_verts(context, session)
         inside = (valid
                   & (xy[:, 0] >= self.xmin) & (xy[:, 0] <= self.xmax)
@@ -235,9 +233,11 @@ class SCULPTCORE_OT_mask_lasso_gesture(_MaskGesture, bpy.types.Operator):
         return self._points
 
     def _apply(self, context):
-        session = _session(context)
+        session = _session(context, allow_multires=True)
         if session is None:
             return False
+        if session.multires_ptr:
+            convert.ensure_multires_slot(session)
         xy, valid = _project_verts(context, session)
         inside = points_in_polygon(xy, valid, self._points)
         return _apply_mask(context, session, inside, self.mode, self.value,

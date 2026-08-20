@@ -351,22 +351,25 @@ def push(context, ob, session):
         'EXEC_DEFAULT', message="Sculpt Stroke", state_id=key, size=size)
 
 
-def push_attr(context, ob, session, message, kind, attr, blob_before, blob_after):
+def push_attr(context, ob, session, message, kind, attr, blob_before, blob_after,
+              level=None):
     """Record one undo step for a whole-column attribute write (e.g. mask
     flood fill). The engine meshlog never sees such writes, so the step
     carries before/after snapshots; decode restores them. ``kind`` is an
-    _ATTR_KINDS key, ``attr`` the engine column name (bytes), blobs the raw
-    column bytes."""
+    _ATTR_KINDS key (or 'MR_MASK_F32', below), ``attr`` the engine column
+    name (bytes), blobs the raw column bytes.
+
+    The 'MR_MASK_F32' kind is level-tagged: its blobs snapshot a multires
+    level's dense grid-domain mask, and ``level`` records which one, so the
+    decode can restore at that level no matter which level is active by
+    then (a slot-column snapshot would instead die with the slot at the
+    first level switch or eviction — the push_face_sets cage precedent)."""
     global _next_key
     engine_diverged(ob, session)
     key = _next_key
     _next_key += 1
-    if attr == convert._SC_MASK:
-        # The op wrote the slot column; fold so the store (the mask truth,
-        # MK4) and the grid domain see it now, not at the next fold point.
-        convert.fold_slot_mask(session)
     _pending[key] = (_ATTR_TAG, ob.name, session.generation,
-                     kind, attr, blob_before, blob_after)
+                     kind, attr, blob_before, blob_after, level)
     bpy.ops.object.custom_mode_undo_push(
         'EXEC_DEFAULT', message=message, state_id=key,
         size=len(blob_before) + len(blob_after))
@@ -417,6 +420,39 @@ def _restore_cage_columns(session, payload):
         _CAGE_RESTAMP[kind](session)
 
 
+def _restore_domain_mask(session, level, blob):
+    """Land a level-tagged mask snapshot back on its multires level as an
+    EDIT (Multires_editDomainMask: upward delta-prolongation plus downward
+    debt, the same shape as a grids stroke fold), diffed against the level's
+    current domain. When the active level is *coarser* than the snapshot's,
+    the edit's down-debt is settled immediately — a level switch would spend
+    it eventually, but everything reading the active domain (the slot
+    column, the next mask op) must see the restore now. A vert-count
+    mismatch (the level was restacked away or the base changed) skips the
+    restore rather than corrupting the store."""
+    import numpy as np
+
+    if not session.multires_ptr:
+        return
+    lib = engine.capi().lib
+    values = np.frombuffer(blob, dtype=np.float32)
+    nv = lib.Multires_levelVertCount(session.multires_ptr, level)
+    if nv != len(values):
+        return
+    cur = np.zeros(nv, dtype=np.float32)
+    if not lib.Multires_readDomainMask(session.multires_ptr, level, cur, nv):
+        return
+    changed = np.nonzero(values != cur)[0].astype(np.int32)
+    if len(changed):
+        lib.Multires_editDomainMask(
+            session.multires_ptr, level, np.ascontiguousarray(changed),
+            np.ascontiguousarray(values[changed], dtype=np.float32),
+            len(changed))
+        if session.multires_active_level < level:
+            lib.Multires_settleAttrsDown(session.multires_ptr, level)
+    convert.sync_slot_mask(session)
+
+
 def _decode_attr(context, ob, session, info, direction, is_final):
     """Restore an attribute snapshot. Leaving a step on undo restores its
     pre-state; landing on one (or entering on redo) restores its post-state.
@@ -425,22 +461,27 @@ def _decode_attr(context, ob, session, info, direction, is_final):
     corrupting the column."""
     import numpy as np
 
-    _tag, _name, generation, kind, attr, blob_before, blob_after = info
-    if generation != session.generation:
-        return
+    _tag, _name, generation, kind, attr, blob_before, blob_after, level = info
     blob = blob_before if (direction < 0 and not is_final) else blob_after
-    dtype, count_fn, writer_fn, ptr_fn = _ATTR_KINDS[kind]
-    values = np.frombuffer(blob, dtype=dtype)
-    target = ptr_fn(session)
-    if not target or count_fn(session) != len(values):
-        return
-    writer_fn(engine.capi().lib)(target, attr, np.ascontiguousarray(values))
-    if kind in _CAGE_RESTAMP:
-        _CAGE_RESTAMP[kind](session)
-    if attr == convert._SC_MASK:
-        # The restore rewrote the slot column; fold it into the store so an
-        # undone mask flood is undone in the mask truth too (MK4).
-        convert.fold_slot_mask(session)
+    if kind == 'MR_MASK_F32':
+        # No generation guard: the snapshot is tagged to a store level, and
+        # the store survives the level switches and slot evictions that bump
+        # session.generation (the bump invalidates slot-bound steps, which
+        # this one deliberately is not). _restore_domain_mask's own checks —
+        # a live multires session, the level still stacked, the level's vert
+        # count unchanged — cover the rebuild/restack hazards.
+        _restore_domain_mask(session, level, blob)
+    else:
+        if generation != session.generation:
+            return
+        dtype, count_fn, writer_fn, ptr_fn = _ATTR_KINDS[kind]
+        values = np.frombuffer(blob, dtype=dtype)
+        target = ptr_fn(session)
+        if not target or count_fn(session) != len(values):
+            return
+        writer_fn(engine.capi().lib)(target, attr, np.ascontiguousarray(values))
+        if kind in _CAGE_RESTAMP:
+            _CAGE_RESTAMP[kind](session)
     # Flush on the leave decode too, not only on the final one: an undo whose
     # destination is a step this type never decodes (e.g. the mode-enter
     # memfile boundary) would otherwise leave the restored column engine-only,

@@ -38,6 +38,21 @@ domain, and stroke end folds the edits into the store as an EDIT
    column agrees, and switching back finds the top level's detail intact;
 6. flush exports the store's top level into the CD layer, exactly.
 
+Mask *operators* work on multires too (MK3): flood fill, filter, and the
+gestures' shared apply route their writes through the active level's grid
+domain (ops._mask_state/_mask_apply -> Multires_editDomainMask) and record a
+level-tagged domain snapshot (undo.push_attr 'MR_MASK_F32') whose decode
+restores at the pushed level no matter which level is active. So the gates
+also check:
+
+7. an op-style domain apply fills the level domain, lands in the store, and
+   pushes the level-tagged step;
+8. undoing at the level the op ran on restores the previous domain;
+9. undoing at a *coarser* active level settles the edit down immediately
+   (Multires_settleAttrsDown) — the active domain and a resident slot's
+   column show the undone state without waiting for a level switch — and
+   redo brings it back the same way.
+
 Whether the mask overlay *renders* right across level switches is the half a
 headless run cannot see, and is checked by eye.
 """
@@ -261,6 +276,74 @@ def run_stroke():
     convert.exit_(ob)
 
 
+def run_ops():
+    """Gates 7-9: op-style domain writes and the level-tagged undo step."""
+    from sculptcore_addon import ops, undo
+
+    ob = _object("maskops", 2, LEVEL)
+    convert.enter(ob)
+    session = engine.sessions[ob.name]
+
+    # --- gate 7: a flood-fill-shaped apply, on the lazy path (no slot) ---
+    before, level = ops._mask_state(session)
+    check(level == LEVEL and len(before) and float(before.max()) == 0.0,
+          "_mask_state reads the active level's (empty) domain")
+    fill = np.full(len(before), 0.6, dtype=np.float32)
+    key_fill = undo._next_key
+    check(ops._mask_apply(bpy.context, ob, session, "Mask Flood Fill",
+                          before, fill, level),
+          "the domain apply succeeded")
+    step = undo._pending.get(key_fill)
+    check(step is not None and step[0] is undo._ATTR_TAG
+          and step[3] == 'MR_MASK_F32' and step[7] == LEVEL,
+          "and pushed a level-tagged domain snapshot step")
+    domain = _domain_mask(session, LEVEL)
+    check(domain is not None and np.allclose(domain, 0.6),
+          "the fill landed in the level domain")
+    stored = _store_top(session)
+    check(stored is not None and np.allclose(stored, 0.6),
+          "and in the store (editDomainMask flushes as it writes)")
+
+    # --- gate 8: a second op, undone at the level it ran on ---
+    before2, _ = ops._mask_state(session)
+    invert = np.ascontiguousarray(1.0 - before2)
+    key_invert = undo._next_key
+    ops._mask_apply(bpy.context, ob, session, "Mask Flood Fill",
+                    before2, invert, LEVEL)
+    domain = _domain_mask(session, LEVEL)
+    check(domain is not None and np.allclose(domain, 0.4),
+          "the invert landed (0.6 -> 0.4)")
+    undo.decode(bpy.context, ob, key_invert, -1, False)
+    domain = _domain_mask(session, LEVEL)
+    check(domain is not None and np.allclose(domain, 0.6),
+          "undo at the op's own level restored the previous domain")
+
+    # --- gate 9: undo/redo at a coarser active level than the push ---
+    convert.set_multires_level(ob, 1)
+    convert.ensure_multires_slot(session)
+    coarse = _domain_mask(session, 1)
+    check(coarse is not None and np.allclose(coarse, 0.6, atol=1e-3),
+          "the switch restricted the fill down to level 1")
+    undo.decode(bpy.context, ob, key_fill, -1, False)
+    coarse = _domain_mask(session, 1)
+    check(coarse is not None and float(np.abs(coarse).max()) < 1e-6,
+          "undoing the level-{:d} fill while level 1 is active settled "
+          "down immediately".format(LEVEL))
+    column = _column_mask(session)
+    check(column is not None and coarse is not None
+          and np.array_equal(column, coarse),
+          "and the resident slot's column shows it")
+    undo.decode(bpy.context, ob, key_fill, 1, False)
+    coarse = _domain_mask(session, 1)
+    check(coarse is not None and np.allclose(coarse, 0.6, atol=1e-3),
+          "redo brought it back at the coarse level")
+    convert.set_multires_level(ob, LEVEL)
+    domain = _domain_mask(session, LEVEL)
+    check(domain is not None and np.allclose(domain, 0.6),
+          "and the op's own level agrees after switching back")
+    convert.exit_(ob)
+
+
 def main():
     global VERBOSE
 
@@ -280,6 +363,9 @@ def main():
 
     print("grids-native MASK stroke gate (MK2)")
     run_stroke()
+
+    print("multires mask operator gate (MK3)")
+    run_ops()
 
     if FAILURES:
         print("\nFAILED ({:d}):".format(len(FAILURES)))

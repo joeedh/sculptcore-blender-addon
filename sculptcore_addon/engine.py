@@ -342,6 +342,8 @@ class _CApi:
         lib.Multires_editDomainMask.restype = ctypes.c_int
         lib.Multires_maskGeneration.argtypes = [ctypes.c_void_p]
         lib.Multires_maskGeneration.restype = ctypes.c_uint64
+        lib.Multires_settleAttrsDown.argtypes = [ctypes.c_void_p, ctypes.c_int]
+        lib.Multires_settleAttrsDown.restype = ctypes.c_int
         lib.GridTree_castRay.argtypes = (
             [ctypes.c_void_p, ctypes.c_int] + [ctypes.c_float] * 6
             + [f32p, ctypes.POINTER(ctypes.c_int)])

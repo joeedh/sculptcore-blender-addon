@@ -8,8 +8,12 @@ the vanilla sculpt operators do on the SculptSession, reimplemented over the
 engine's attribute columns. Each op writes the column directly (no meshlog
 entry) and records an attribute-snapshot undo step via undo.push_attr.
 
-Multires sessions are excluded for now: their mask lives in per-grid
-channels (A4), not the top-level column these ops write.
+On multires the mask ops (flood fill, filter, the gestures' shared apply)
+work on the active level's grid domain — the store is the mask truth (MK4),
+so writes go through Multires_editDomainMask (an EDIT: upward
+delta-prolongation plus down-debt, like a grids stroke fold) and undo rides
+a level-tagged domain snapshot (undo.push_attr 'MR_MASK_F32'). Face-set ops
+route multires through the cage instead (undo.push_face_sets).
 """
 
 import bpy
@@ -28,6 +32,59 @@ def _session(context, allow_multires=False):
     if session.multires_ptr and not allow_multires:
         return None
     return session
+
+
+def _mask_state(session):
+    """``(values, level)`` — the authoritative mask this session edits:
+    the active level's dense grid domain on multires (``level`` set), the
+    slot mesh's column on a plain mesh (``level`` is None). Multires
+    callers must sync first (sync_slot_mask) if they also read the column."""
+    import numpy as np
+
+    lib = engine.capi().lib
+    if session.multires_ptr:
+        level = session.multires_active_level
+        nv = lib.Multires_levelVertCount(session.multires_ptr, level)
+        values = np.zeros(nv, dtype=np.float32)
+        lib.Multires_readDomainMask(session.multires_ptr, level, values, nv)
+        return values, level
+    nv = convert.mesh_vert_num(session.mesh_ptr)
+    values = np.zeros(nv, dtype=np.float32)
+    lib.Mesh_readVertFloatAttr(session.mesh_ptr, convert._SC_MASK, values)
+    return values, None
+
+
+def _mask_apply(context, ob, session, message, before, after, level):
+    """Write an op's mask result into the truth _mask_state read from, and
+    push its undo step. Multires goes through Multires_editDomainMask on the
+    changed verts (which lands in the store and marks the draw source) plus
+    a store->column sync for a resident slot; the undo step is the
+    level-tagged domain snapshot. A plain mesh writes the column and
+    snapshots it. Returns False when the engine refused the write."""
+    import numpy as np
+
+    lib = engine.capi().lib
+    if level is not None:
+        changed = np.nonzero(after != before)[0].astype(np.int32)
+        if len(changed):
+            lib.Multires_editDomainMask(
+                session.multires_ptr, level, np.ascontiguousarray(changed),
+                np.ascontiguousarray(after[changed], dtype=np.float32),
+                len(changed))
+            convert.sync_slot_mask(session)
+        undo.push_attr(context, ob, session, message, 'MR_MASK_F32',
+                       convert._SC_MASK, before.tobytes(), after.tobytes(),
+                       level=level)
+    else:
+        if not lib.Mesh_writeVertFloatAttr(session.mesh_ptr, convert._SC_MASK,
+                                           np.ascontiguousarray(after)):
+            return False
+        undo.push_attr(context, ob, session, message, 'VERT_F32',
+                       convert._SC_MASK, before.tobytes(), after.tobytes())
+    # Write-back to the Mesh stays deferred to the mode flush, matching the
+    # stroke policy; the engine state is authoritative meanwhile.
+    undo._tag_view3d_redraw(context)
+    return True
 
 
 class SCULPTCORE_OT_mask_flood_fill(bpy.types.Operator):
@@ -52,33 +109,23 @@ class SCULPTCORE_OT_mask_flood_fill(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return _session(context) is not None
+        return _session(context, allow_multires=True) is not None
 
     def execute(self, context):
         import numpy as np
 
-        session = _session(context)
-        lib = engine.capi().lib
-        verts_num = convert.mesh_vert_num(session.mesh_ptr)
+        session = _session(context, allow_multires=True)
 
-        before = np.zeros(verts_num, dtype=np.float32)
-        lib.Mesh_readVertFloatAttr(session.mesh_ptr, convert._SC_MASK, before)
-
+        before, level = _mask_state(session)
         if self.mode == 'INVERT':
             after = np.ascontiguousarray(1.0 - before)
         else:
-            after = np.full(verts_num, self.value, dtype=np.float32)
+            after = np.full(len(before), self.value, dtype=np.float32)
 
-        if not lib.Mesh_writeVertFloatAttr(session.mesh_ptr, convert._SC_MASK, after):
+        if not _mask_apply(context, context.active_object, session,
+                           "Mask Flood Fill", before, after, level):
             self.report({'ERROR'}, "Engine rejected the mask write")
             return {'CANCELLED'}
-
-        ob = context.active_object
-        undo.push_attr(context, ob, session, "Mask Flood Fill", 'VERT_F32',
-                       convert._SC_MASK, before.tobytes(), after.tobytes())
-        # Write-back to the Mesh stays deferred to the mode flush, matching
-        # the stroke policy; the engine state is authoritative meanwhile.
-        undo._tag_view3d_redraw(context)
         return {'FINISHED'}
 
 
@@ -126,17 +173,21 @@ class SCULPTCORE_OT_mask_filter(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return _session(context) is not None
+        return _session(context, allow_multires=True) is not None
 
     def execute(self, context):
         import numpy as np
 
-        session = _session(context)
-        lib = engine.capi().lib
-        verts_num = convert.mesh_vert_num(session.mesh_ptr)
+        session = _session(context, allow_multires=True)
+        if session.multires_ptr:
+            # The neighbour filters walk the level mesh's topology; the lazy
+            # grids path may not have materialized it yet. The slot's vert
+            # order is the domain's (sync_slot_mask writes one onto the
+            # other), so domain values index the slot adjacency directly.
+            convert.ensure_multires_slot(session)
 
-        mask = np.zeros(verts_num, dtype=np.float32)
-        lib.Mesh_readVertFloatAttr(session.mesh_ptr, convert._SC_MASK, mask)
+        mask, level = _mask_state(session)
+        verts_num = len(mask)
         before = mask.copy()
 
         iterations = self.iterations
@@ -173,14 +224,10 @@ class SCULPTCORE_OT_mask_filter(bpy.types.Operator):
                 mask = out
 
         after = np.ascontiguousarray(mask, dtype=np.float32)
-        if not lib.Mesh_writeVertFloatAttr(session.mesh_ptr, convert._SC_MASK, after):
+        if not _mask_apply(context, context.active_object, session,
+                           "Mask Filter", before, after, level):
             self.report({'ERROR'}, "Engine rejected the mask write")
             return {'CANCELLED'}
-
-        ob = context.active_object
-        undo.push_attr(context, ob, session, "Mask Filter", 'VERT_F32',
-                       convert._SC_MASK, before.tobytes(), after.tobytes())
-        undo._tag_view3d_redraw(context)
         return {'FINISHED'}
 
 
