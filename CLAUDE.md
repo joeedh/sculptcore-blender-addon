@@ -325,6 +325,12 @@ the fork's artifacts) and `contents:write` on `joeedh/sculptblender-builds`.
 - Prefix scaffolding/helper comments with `CLAUDENOTE:` so they are greppable;
   strip them before a task is considered done, then audit every comment you
   touched for accuracy.
+- **Pressure-test every plan after formulation.** Launch multiple adversarial
+  agents with fresh contexts (one lens each — per-workstream buildability,
+  semantics/correctness, cross-cutting seams and gates) whose brief is to
+  *kill* the plan against the actual code, then fold every surviving finding
+  back into the plan before any phase starts. A citation audit is not a
+  substitute: it verifies references, not buildability.
 
 ## Coding style
 
