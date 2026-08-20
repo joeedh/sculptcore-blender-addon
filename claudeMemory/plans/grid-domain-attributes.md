@@ -1254,7 +1254,9 @@ what a slot was built from, and a re-derive in `materialize()` when the two
 disagree. Lazy on purpose: it costs one whole-level re-derive on a level
 switch, where the eager alternative is one per dab for levels nobody is
 looking at. Gate: `gateResidentSlotFreshness` in `test_multires_attrs.cc`
-(fails both halves without the fix).
+(fails both halves without the fix), and re-checked by eye 2026-08-19 in the
+case that used to fail — paint at L5, visit L3 and L2 so their slots are
+resident, paint on a coarse level, and the fine level's paint survives.
 
 **C2 — enforce the rule at the bind. DONE (2026-08-19).** `gridAttrPlan` consults `storageFor` and
 refuses a writable `Derived` attribute, independent of `sessionChannels`. Host
