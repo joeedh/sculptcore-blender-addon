@@ -286,7 +286,14 @@ class SCULPTCORE_PT_layers(bpy.types.Panel):
     """The sculpt-layer stack (multires only for now): pick the stroke
     target, re-weight or disable a layer after the fact, add and remove.
     Rows read the engine directly; only the weight slider needs the
-    WindowManager mirror (layers.py)."""
+    WindowManager mirror (layers.py).
+
+    Currently unregistered (see _classes): general-purpose layers are a
+    side effect of how the stack was built for the Layer brush -- today it
+    behaves like Blender's persistent base rather than a full layer system.
+    The panel returns when that functionality is fleshed out; the Layer
+    brush keeps working through create-on-first-use meanwhile
+    (layers.ensure_stroke_target)."""
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = _CATEGORY
@@ -380,7 +387,9 @@ _classes = (
     SCULPTCORE_PT_dyntopo,
     SCULPTCORE_PT_boundary_uv,
     SCULPTCORE_PT_multires,
-    SCULPTCORE_PT_layers,
+    # SCULPTCORE_PT_layers stays unregistered for now -- the layer stack is
+    # only exercised by the Layer brush (persistent-base-like); re-add once
+    # the layer system is fleshed out (see the class docstring).
     SCULPTCORE_PT_experimental,
 )
 
