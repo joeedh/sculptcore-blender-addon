@@ -3,11 +3,10 @@
 **Status:** plan, rev 2 — **P0a–P4b landed** (engine `080d0ac` / `182dc4e` /
 `0a18195` / `e5ffc03` / `513ed34` + P3/P4, addon `a7389b6` / `a36aae8` + P3/P4,
 2026-08-17/18) and **C1–C4 landed** (the storage-class routing correction,
-2026-08-19, §6.3). **P5 is blocked on checking in with the user** — do not start
-it unprompted. Every brush roster in the engine is gone: what
-runs on grids is now decided by each kernel's own def (no face stage, every
-declared attr layer bindable), so P1–P5 widen a predicate rather than editing a
-switch. Engine work in `engine/source/{subdiv,brush}`, addon work in
+2026-08-19, §6.3), and **P5 landed** (the kill switch deleted,
+2026-08-19, §9). Every brush roster in the engine is gone: what runs on grids is
+now decided by each kernel's own def (no face stage, every declared attr layer
+bindable), so P1–P5 widened a predicate rather than editing a switch. Engine work in `engine/source/{subdiv,brush}`, addon work in
 `sculptcore_addon/`. No Blender-fork change required (verified, §11).
 
 **Goal, in the user's words:** *"the goal is to eliminate any switch statements
@@ -225,10 +224,11 @@ Two further defects in the reflection surface, same phase:
 
 - **Host owns the inputs.** `MultiresAttrs::declareHostAttr(name, type)` /
   `clearHostAttrs()` (`grid_attrs.h:118`) — today the addon declares the scalar
-  mask, nothing else. Plus the kill switch — there is one host input,
-  `Scene.sculptcore_grid_attrs` (`props.py:157`), drawn in the dev-only
-  `SCULPTCORE_PT_experimental`. Rev 2's "the checkbox and the kill switch" implies
-  two; every later "the checkbox" in this doc means that one dev switch.
+  mask, nothing else — which, since C2, is the *only* host input to routing.
+  There was briefly a second, the `Scene.sculptcore_grid_attrs` kill switch drawn
+  in the dev-only `SCULPTCORE_PT_experimental`; P5 deleted it (§9). Rev 2's "the
+  checkbox and the kill switch" implied two controls where there was one, and
+  every "the checkbox" elsewhere in this doc means that now-deleted dev switch.
 - **Engine owns the derivation.** A host-side join would be a host conditional
   over brush behaviour, which `engine/CLAUDE.md` § *Brush* rules out.
 
@@ -345,7 +345,9 @@ consumers (`gridsWriteback`, the §7 averaging).
   **HALF FIXED in P1**: `addLevel` seeds session channels via `seedLevelFromBelow`
   (`grids.cc:80-87`); `buildFromCage`'s `channels_.clear()` is still destructive
   (`grids.cc:195`, documented at `grids.h:69-72`). No warning text was written,
-  and none is owed while the switch is dev-only (§9, P5).
+  No warning text is owed for a route no user can take: `buildFromCage` runs on
+  a cage rebuild, and since C2 no session channel on a Blender host carries
+  anything a user authored (§9, P5).
 - **Skipping the serializer is not a safety property.** `Multires_serializeStore`
   has exactly one production consumer and it is *undo*, not save
   (`convert.py:1804`, `undo.py:324-335`); the .blend is written by
@@ -463,10 +465,10 @@ grids-native: `supportsFaceStages` is gone as a `false`, `makeFaceIter` is a rea
 iterator, and POLYGROUP's last decline reason (`group attr layer`) goes with this
 change. **Correction:** rev 2 wrote that the roster golden "lists exactly one
 declined kernel, for exactly one reason". It does not.
-`test_grid_stroke.cc:132-153` declines **six** of 23 with the flag off (COLOR,
+`test_grid_stroke.cc`'s golden declined **six** of 23 with the flag off (COLOR,
 POLYGROUP, COLORSMOOTH, FEATURE_ALIGN, LAYERDRAW, ENHANCE) and **three** with it
-on (FEATURE_ALIGN, LAYERDRAW, ENHANCE), for three *different* reasons — see §9's
-P5 entry. What is true is narrower: no kernel is declined for a *face stage* any
+on, for three *different* reasons. Since P5 deleted the flag there is one column
+and three decliners — FEATURE_ALIGN, LAYERDRAW, ENHANCE — see §9's P5 entry. What is true is narrower: no kernel is declined for a *face stage* any
 more.
 
 Five seams, engine-side:
@@ -998,11 +1000,13 @@ stroke-end attr capture — all in the new `source/brush/grid_attr_bind.h`.
 `gridsFoldStroke`, deliberately: "a per-dab snapshot here would capture nothing",
 `grid_executor.h:1454-1457`. §5.8 states this correctly.)
 `sculptcore_grid_attrs` scene bool, default **off**, spanning P2–P4; the engine
-half is a process-global (`GridStroke_setGridAttrs`), because
-`GridStroke_supported` answers before any session exists.
+half was a process-global (`GridStroke_setGridAttrs`), because
+`GridStroke_supported` answers before any session exists. (Both were deleted in
+P5 — §9.)
 *Gates:* the BSMOOTH-on-grids A/B is unchanged (tangent 1.19e-07 / normal
 3.06e-07 against the existing split eps); attr undo bit-exact on a COLOR stroke;
-the roster golden is graded in both switch positions; full ctest 135/135.
+the roster golden was graded in both switch positions (one position since P5);
+full ctest 135/135.
 
 Three deviations from the text above:
 
@@ -1257,8 +1261,8 @@ refuses a writable `Derived` attribute, independent of `sessionChannels`. Host
 capability decides, not the switch. Needs the `Multires` (or a storage-class
 lookup) threaded into `gridAttrPlan`, which currently takes only the manifest
 entry and a bool. After this, colour and face sets on Blender never bind
-grids-native, so C1's route is the only one they can take and the switch means
-nothing for them — which is what P5 needs.
+grids-native, so C1's route is the only one they can take and the switch meant
+nothing for them — which is what let P5 delete it.
 *Gates:* a unit test on `gridAttrPlan` across the three storage classes;
 `verify_grid_channels` still green for `mask` (Host) and TEMP attrs, which are
 the classes that keep binding.
@@ -1364,38 +1368,79 @@ bit-identical, and serialize/clear/restore recovers the debt by name), and
 `verify_multires_color`, `verify_grid_channels`, `verify_multires_uv_parity`,
 `verify_texture_parity`) all pass on a restaged build.
 
-**P5 — cleanup.** Kill switch **removed**, making the routing unconditional. It
-is a development tool and is never promoted to default on -- that is a deliberate
-exception to the pattern its three siblings follow (`sculptcore_cpp_dab_loop`,
-`sculptcore_grids_programs`, `sculptcore_texture_scripts` are all `default=True`
-with the switch retained), so there is no default-on release in between.
+**P5 — cleanup. DONE (2026-08-19).** Kill switch **removed**, making the
+routing unconditional. It was a development tool and was never promoted to
+default on — a deliberate exception to the pattern its three siblings follow
+(`sculptcore_cpp_dab_loop`, `sculptcore_grids_programs`,
+`sculptcore_texture_scripts` are all `default=True` with the switch retained),
+so there was no default-on release in between.
 
-`supportsBrush` does **not** become constant true, and §8.1's wording overstates
-it: the predicate is already tool-list-free and metadata-derived, and with the
-flag on three built-ins still decline for capabilities this domain lacks --
-`FEATURE_ALIGN` (cross field) and `ENHANCE` (held per-vert displacement) want a
-mesh-path pre-pass, `LAYERDRAW` wants the displace compositor. All three are §8.4
-/ §11 out-of-scope items, and the roster golden (`test_grid_stroke.cc:132-153`)
-is the ledger: 20 of 23 built-ins run grids-native with the flag on. So P5 keeps
-the predicate and records those three as residual decliners with named reasons.
+**Why it went now.** C2 had already made it inert: on a Blender host colour and
+face sets are `Derived`, which `gridAttrPlan` refuses *before* the session flag
+is consulted, and the one attr Blender declares host-side (`mask`,
+`convert.py:276`) belongs to a brush `stroke.py::grids_capable` still holds
+back. So the checkbox could no longer change any routing decision — the user
+found it dead in GUI testing and chose deletion over retitling or repurposing.
 
-**Removal is the gate for the durability question, not a flip.** While the switch
-exists, session-only colour is behind a dev tool; deleting it makes grids-native
-what every user gets. So §11's "persisting session channels" item had to be
-settled before P5 lands -- and **B2a settled it** by §6.2's cage route: colour
-now reaches `ob.data` from both routes, at cage resolution. What P5 deletes is
+*As landed.* Engine: the process-global `g_gridAttrsEnabled` and its
+`gridAttrsEnabled`/`setGridAttrsEnabled` accessors are gone from
+`grid_attr_bind.h`, along with `gridAttrPlan`'s `sessionChannels` parameter and
+the `if (!sessionChannels) return Unbindable;` early-out; the signature is now
+`gridAttrPlan(const BrushAttrManifestEntry &, const subdiv::MultiresAttrs * =
+nullptr)`. `grid_executor.h`'s `attrBindable` and `ensureAttrBindings` call it
+without the flag. The two c-api entry points `GridStroke_setGridAttrs` and
+`GridStroke_gridAttrs` are deleted from `grid_stroke_c_api.cc` and from the
+export list in `source/brush/CMakeLists.txt`.
+
+Addon: `Scene.sculptcore_grid_attrs` (property, `del`, and the comment block)
+out of `props.py`; the `layout.prop` row out of `ui.py`; the per-query
+`lib.GridStroke_setGridAttrs(...)` push out of `stroke.py::grids_capable`, whose
+docstring now names the storage class as the decider instead of the switch; the
+four ctypes binding lines out of `engine.py`. The two headless gates that used
+to flip the switch to prove the route was unconditional
+(`verify_multires_color`, `verify_multires_face_sets`) now assert the single
+storage-class decline once.
+
+`supportsBrush` did **not** become constant true, and §8.1's wording overstates
+it: the predicate was already tool-list-free and metadata-derived, and three
+built-ins still decline for capabilities this domain lacks — `FEATURE_ALIGN`
+(cross field) and `ENHANCE` (held per-vert displacement) want a mesh-path
+pre-pass, `LAYERDRAW` wants the displace compositor. All three are §8.4 / §11
+out-of-scope items. The roster golden in `test_grid_stroke.cc` is now a single
+`{tool, supported, why}` column — there is no "off" column left to have — and
+ends in the ledger assertion `native == SculptBrushesBuiltinCount - 3`, so a
+fourth decliner appearing is a test failure rather than a quiet regression. The
+P2/P4/P4b blocks that used to enable the switch now `declareHostAttr` the
+attribute they were simulating a grids-native host for, and clear it again on
+the way out; that also removed the "grid executor: attr layer has no grid
+storage" assert prints those blocks had been emitting since C2, and flipped two
+`!channelPersist` assertions positive (a Host-class channel persists by
+definition).
+
+**Removal was the gate for the durability question, not a flip.** While the
+switch existed, session-only colour sat behind a dev tool; deleting it makes
+grids-native what every user gets. So §11's "persisting session channels" item
+had to be settled first — and **B2a settled it** by §6.2's cage route: colour
+now reaches `ob.data` from both routes, at cage resolution. What P5 deleted is
 therefore a switch between two durable paths, not between a durable one and a
 disappearing one.
 
+*Gates:* `node make.mjs build native -j 6` clean, full ctest **135/135**, and the
+Blender-side set (`verify_multires_color`, `verify_multires_face_sets`,
+`verify_grid_channels`, `verify_multires_uv_parity`, `verify_texture_parity`) all
+green on a restaged build.
+
 ## 10. Rollback
 
-`sculptcore_grid_attrs`, default off, introduced in P2, spanning P2–P4 — the same shape as
+`sculptcore_grid_attrs`, default off, introduced in P2, spanning P2–P4 and
+**deleted in P5** — had the same shape as
 `sculptcore_grids_programs` (`props.py:139-147`) and `sculptcore_texture_scripts`
 (`:167`), which exist because, per `program-grids-routing.md:318-325`, without
 an addon lever "the first user-visible change would need an engine revert to roll
-back". It differs from those two in the one way that matters for P5: they are
-`default=True` with the switch retained, whereas this one stays a development tool
-and is deleted rather than promoted (§9, P5). P0a–P0d are each independently
+back". It differed from those two in the one way that mattered for P5: they are
+`default=True` with the switch retained, whereas this one stayed a development
+tool and was deleted rather than promoted (§9, P5). Rolling P2–P4 back now means
+reverting the commits, not clearing a checkbox. P0a–P0d are each independently
 revertable because none of them changes
 which brushes reach grids until P0d, and P0d's gate is an A/B.
 

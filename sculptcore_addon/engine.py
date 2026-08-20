@@ -249,13 +249,6 @@ class _CApi:
         # this kernel on the roster at all).
         lib.GridStroke_supported.argtypes = [ctypes.c_void_p, ctypes.c_int]
         lib.GridStroke_supported.restype = ctypes.c_int
-        # Grid attribute channels on/off. Process-global in the engine: a
-        # development lever, not per-object state; off restores the roster
-        # attr-writing brushes had before the channels landed.
-        lib.GridStroke_setGridAttrs.argtypes = [ctypes.c_int]
-        lib.GridStroke_setGridAttrs.restype = None
-        lib.GridStroke_gridAttrs.argtypes = []
-        lib.GridStroke_gridAttrs.restype = ctypes.c_int
         lib.GridStroke_setMirror.argtypes = [ctypes.c_void_p, ctypes.c_int]
         lib.GridStroke_setMirror.restype = None
         lib.GridStroke_setNonAccum.argtypes = [ctypes.c_void_p, ctypes.c_int]

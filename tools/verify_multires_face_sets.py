@@ -36,14 +36,13 @@ The cage route (C1-C3)
 ----------------------
 A face set is a *cage* attribute that a subdivided level only mirrors: Blender
 declares no multires attribute domain, so ``group`` is ``Derived`` and the cage
-is its authority. That is enforced at the bind (C2) rather than left to a
-switch, so POLYGROUP never runs grids-native here however
-``Scene.sculptcore_grid_attrs`` is set, and every dab travels *down* -- onto the
-cage, immediately, with the grids it touched re-derived from what the cage now
+is its authority, and that is enforced at the bind (C2): POLYGROUP never runs
+grids-native here, and every dab travels *down* — onto the cage,
+immediately, with the grids it touched re-derived from what the cage now
 holds. Second battery:
 
-5. the storage class decides the route, not the kill switch: POLYGROUP is
-   declined with it off *and* on;
+5. the storage class decides the route, and it is the only thing that does:
+   POLYGROUP is declined because ``group`` is ``Derived``;
 6. the dab's own paint reaches the cage within the dab, not at stroke end --
    this is what makes the class true rather than nominal;
 7. ``undo.push`` pairs it with the stroke-start snapshot, undo restores the cage
@@ -269,7 +268,6 @@ def _paint_dab(session, kernel):
 
 def run_cage_route():
     """Gates 5-8: the same face set, painted through the cage route."""
-    scene = bpy.context.scene
     kernel = int(engine.manager().get("sculptcore::brush::SculptBrushes").items['POLYGROUP'])
     # 4x4 rather than 2x2: on a 2x2 cage the dab's centre is the corner shared
     # by every face, and the per-base-face rule would claim the whole mesh --
@@ -278,17 +276,14 @@ def run_cage_route():
     check(_face_sets(ob.data) is None,
           "the object starts with no face-set column (the seed must invent one)")
 
-    scene.sculptcore_grid_attrs = False
     convert.enter(ob)
     session = engine.sessions[ob.name]
     convert.ensure_multires_slot(session)
 
-    # --- gate 5: the storage class decides the route, not the switch ---
+    # --- gate 5: the storage class decides the route, and it is the only
+    # thing that does ---
     check(not stroke.grids_capable(session, kernel),
-          "POLYGROUP is declined with sculptcore_grid_attrs off")
-    scene.sculptcore_grid_attrs = True
-    check(not stroke.grids_capable(session, kernel),
-          "and declined with it on too -- `group` is Derived, so its grid "
+          "POLYGROUP is declined — `group` is Derived, so its grid "
           "elements are a cache the kernel may not author (C2)")
 
     default_group = int(getattr(ob.data, "face_sets_color_default", 1))
@@ -346,7 +341,6 @@ def run_cage_route():
           "redoing the stroke put the cage face-set column back")
 
     convert.exit_(ob)
-    scene.sculptcore_grid_attrs = False
 
 
 def main():

@@ -171,7 +171,9 @@ def grids_capable(session, brush_type):
     kill switch: off restores the pre-plan mesh-path routing.
 
     Brushes that write an attribute layer are answered by the engine roster
-    itself, gated on ``sculptcore_grid_attrs``."""
+    itself, from the attribute's storage class: Blender declares only the mask
+    as a host grid attribute, so colour and face sets are ``Derived`` and take
+    the cage route (mesh path + a per-dab write-back) instead."""
     global _mask_kernel_id, _bsmooth_kernel_id
     if not session.multires_ptr:
         return False
@@ -186,10 +188,6 @@ def grids_capable(session, brush_type):
             and not getattr(bpy.context.scene, "sculptcore_grids_programs", True)):
         return False
     lib = engine.capi().lib
-    # Pushed on every query, not once at register: the engine flag is
-    # process-global and the scene bool can change between strokes.
-    lib.GridStroke_setGridAttrs(
-        1 if getattr(bpy.context.scene, "sculptcore_grid_attrs", False) else 0)
     # The multires is not optional here: an attribute brush's route is its
     # attribute's storage class, which is per-object state (a host that CAN
     # store multires attributes declares them, and only then may a kernel

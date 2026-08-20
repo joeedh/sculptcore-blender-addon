@@ -224,7 +224,6 @@ class SCULPTCORE_PT_experimental(bpy.types.Panel):
         layout.use_property_decorate = False
         layout.prop(context.scene, "sculptcore_cpp_dab_loop")
         layout.prop(context.scene, "sculptcore_grids_programs")
-        layout.prop(context.scene, "sculptcore_grid_attrs")
 
 
 class SCULPTCORE_PT_boundary_uv(bpy.types.Panel):

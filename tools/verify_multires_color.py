@@ -14,10 +14,9 @@ What is checked
 Colour is a *cage* attribute that a subdivided level only mirrors: Blender
 declares no multires attribute domain, so ``color`` is ``Derived`` and the cage
 is its authority. The grid elements are a cache, and a brush may not author a
-cache — so the bind refuses the grids-native route (C2) however
-``Scene.sculptcore_grid_attrs`` is set, and every dab travels *down*: onto the
-cage, immediately, with the grids it touched re-derived from what the cage now
-holds.
+cache — so the bind refuses the grids-native route (C2), and every dab
+travels *down*: onto the cage, immediately, with the grids it touched
+re-derived from what the cage now holds.
 
 That write-back is exact rather than a fit: sample (0, 0) of every grid *is* its
 corner's cage vert, at weight one, under the ptex-bilinear rule. What it cannot
@@ -27,8 +26,8 @@ grid resolution and evaporates when some later dab happens to move a neighbour.
 
 So the gates run a stroke's whole life:
 
-1. the storage class decides the route, not the kill switch: COLOR is declined
-   with ``sculptcore_grid_attrs`` off *and* on;
+1. the storage class decides the route, and it is the only thing that does:
+   COLOR is declined because ``color`` is ``Derived``;
 2. the cage carries the ``color`` float4 point layer the derived samples are
    built from — without it the draw path has nothing to paint over;
 3. the dab paints the materialized slot, and the per-dab scatter carries it onto
@@ -208,10 +207,8 @@ def _paint_dab(session, kernel, color, center=DAB_CENTER, radius=DAB_RADIUS):
 
 
 def run():
-    scene = bpy.context.scene
     ob = _object("colgrid", 2, 2)
 
-    scene.sculptcore_grid_attrs = False
     convert.enter(ob)
     session = engine.sessions[ob.name]
     convert.ensure_multires_slot(session)
@@ -220,13 +217,11 @@ def run():
 
     color_kernel = int(engine.manager().get("sculptcore::brush::SculptBrushes").items['COLOR'])
 
-    # --- gate 1: the storage class decides the route, not the switch ---
+    # --- gate 1: the storage class decides the route, and it is the only
+    # thing that does ---
     check(not stroke.grids_capable(session, color_kernel),
-          "COLOR is declined with sculptcore_grid_attrs off")
-    scene.sculptcore_grid_attrs = True
-    check(not stroke.grids_capable(session, color_kernel),
-          "and declined with it on too -- `color` is Derived, so its grid "
-          "elements are a cache the kernel may not author (C2)")
+          "COLOR is declined — `color` is Derived, so its grid elements are "
+          "a cache the kernel may not author (C2)")
 
     # --- gate 2: the cage carries what the derived samples subdivide ---
     cage_before = _colors(session.cage_ptr)

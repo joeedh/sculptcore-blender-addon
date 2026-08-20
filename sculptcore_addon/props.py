@@ -146,21 +146,6 @@ def register():
                     "through Python on the materialized mesh",
         default=True,
     )
-    # The grid-attribute kill switch (plans/grid-domain-attributes.md): spans
-    # P2-P4, so one toggle restores the pre-plan grids roster (attr-writing
-    # brushes back to the materialized-mesh path). Unlike the three switches
-    # above this one is a development tool and is never promoted to default on:
-    # the routing ships by deleting the switch, not by flipping it. Durability
-    # is not what holds the default, since the cage write-back is a destination
-    # orthogonal to this switch (face sets reach it from both sides, see
-    # convert.sync_cage_face_attrs) and colour reaches it from neither.
-    bpy.types.Scene.sculptcore_grid_attrs = bpy.props.BoolProperty(
-        name="Grid Attributes",
-        description="Let brushes that write attribute layers (color, mask "
-                    "layers) run grids-native on multires, backed by engine "
-                    "session channels, instead of the materialized mesh",
-        default=False,
-    )
     # The texture-script kill switch (plans/blender-texture-system-port.md
     # 1.5): a ported .stex that compiles and is wrong has no other backstop,
     # since _apply_script falls back to the 2D bake only on compile failure.
@@ -188,5 +173,4 @@ def unregister():
     del bpy.types.Scene.sculptcore_uv_margin
     del bpy.types.Scene.sculptcore_cpp_dab_loop
     del bpy.types.Scene.sculptcore_grids_programs
-    del bpy.types.Scene.sculptcore_grid_attrs
     del bpy.types.Scene.sculptcore_texture_scripts
