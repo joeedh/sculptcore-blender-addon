@@ -53,8 +53,29 @@ also check:
    column show the undone state without waiting for a level switch — and
    redo brings it back the same way.
 
-Whether the mask overlay *renders* right across level switches is the half a
-headless run cannot see, and is checked by eye.
+The MK5 completion gates widen the sweep:
+
+10. a grids MASK stroke while a *coarse* level is active edits that level's
+    domain, and the fold prolongates it up into the store's top level;
+11. a grids stroke *step* undone while a different level is active falls
+    back to the retro-attached store blob and re-activates the step's own
+    level (both directions), the restored blob carrying the down-debt a
+    later downward switch settles;
+12. a constant coarse-level op edit reaches the top level as the same
+    constant with the fine pattern intact underneath (delta prolongation,
+    never overwrite);
+13. the gestures' shared apply, driven with an injected selection (the
+    projection itself needs a real region and is checked by eye), masks
+    exactly the selected verts and undoes;
+14. the *registered* operators run against a real headless mode entry
+    (object.custom_mode_toggle): flood fill VALUE/INVERT and a GROW filter,
+    ending with a clean mode exit;
+15. the CD_GRID_PAINT_MASK layer round-trips an actual save + reload
+    bit-identically, and re-entering imports it into the store exactly.
+
+Whether the mask overlay *renders* right across level switches — and the
+gestures' screen-space selection geometry — is the half a headless run
+cannot see, and is checked by eye.
 """
 
 import sys
@@ -344,6 +365,227 @@ def run_ops():
     convert.exit_(ob)
 
 
+def _mask_kernel():
+    return int(engine.manager().get("sculptcore::brush::SculptBrushes").items['MASK'])
+
+
+def run_coarse_stroke():
+    """Gate 10: a grids-native MASK stroke while a coarse level is active."""
+    ob = _object("maskcoarse", 2, LEVEL)
+    convert.enter(ob)
+    session = engine.sessions[ob.name]
+    kernel = _mask_kernel()
+
+    convert.set_multires_level(ob, 1)
+    check(session.multires_active_level == 1, "switched to level 1 before the stroke")
+    check(stroke.grids_capable(session, kernel),
+          "MASK is grids-capable at the coarse level")
+    stroke.stroke_begin(session, grids_kernel=kernel)
+    check(session.last_stroke_grids, "the coarse stroke dispatched grids-native")
+    moved = _mask_dab(session, kernel)
+    check(moved > 0, "the coarse dab touched {:d} verts".format(moved))
+    coarse = _domain_mask(session, 1)
+    check(coarse is not None and float(coarse.max()) > 0.0,
+          "and raised the coarse domain's mask")
+    stroke.stroke_end(session)
+
+    stored = _store_top(session)
+    check(stored is not None and float(stored.max()) > 0.0,
+          "stroke end prolongated the coarse edit into the store's top level")
+    convert.set_multires_level(ob, LEVEL)
+    top = _domain_mask(session, LEVEL)
+    check(top is not None and float(top.max()) > 0.0,
+          "and switching up finds it on the top level's domain")
+    convert.exit_(ob)
+
+
+def run_grid_step_undo():
+    """Gate 11: a grids stroke step undone/redone at a different active level
+    than the push (the dead-history blob fallback)."""
+    from sculptcore_addon import undo
+
+    ob = _object("maskgridundo", 2, LEVEL)
+    convert.enter(ob)
+    session = engine.sessions[ob.name]
+    kernel = _mask_kernel()
+
+    stroke.stroke_begin(session, grids_kernel=kernel)
+    _mask_dab(session, kernel)
+    stroke.stroke_end(session)
+    key = undo._next_key
+    undo.push(bpy.context, ob, session)
+    step = undo._pending.get(key)
+    check(step is not None and step[0] is undo._GRID_TAG,
+          "the stroke pushed a grids-native step")
+
+    convert.set_multires_level(ob, 1)
+    coarse = _domain_mask(session, 1)
+    check(coarse is not None and float(coarse.max()) > 0.0,
+          "the switch restricted the stroke's mask down")
+    step = undo._pending.get(key)
+    check(step is not None and step[6] is not None,
+          "and retro-attached the step's post-state blob")
+    undo.decode(bpy.context, ob, key, -1, False)
+    check(session.multires_active_level == LEVEL,
+          "the blob fallback re-activated the step's own level")
+    top = _domain_mask(session, LEVEL)
+    check(top is not None and float(np.abs(top).max()) < 1e-6,
+          "and undoing restored the pre-stroke (maskless) store")
+    undo.decode(bpy.context, ob, key, 1, False)
+    top = _domain_mask(session, LEVEL)
+    check(top is not None and float(top.max()) > 0.0,
+          "redo brought the stroke's mask back at its own level")
+    convert.set_multires_level(ob, 1)
+    coarse = _domain_mask(session, 1)
+    check(coarse is not None and float(coarse.max()) > 0.0,
+          "and a downward switch settles it into the coarse level "
+          "(the blob carried the down-debt)")
+    convert.exit_(ob)
+
+
+def run_detail_preservation():
+    """Gate 12: a coarse op edit rides fine detail as a delta. A constant
+    coarse lift must reach the top level as the same constant — the
+    prolongation stencils are affine, so constants are fixed points — with
+    the fine pattern intact underneath (an overwrite would flatten it)."""
+    from sculptcore_addon import ops
+
+    ob = _object("maskdetail", 2, LEVEL)
+    convert.enter(ob)
+    session = engine.sessions[ob.name]
+
+    before, level = ops._mask_state(session)
+    pattern = ((np.arange(len(before), dtype=np.float32) % 17) / 16.0) * 0.5
+    ops._mask_apply(bpy.context, ob, session, "Mask Flood Fill",
+                    before, np.ascontiguousarray(pattern), level)
+    top_before = _domain_mask(session, LEVEL)
+
+    convert.set_multires_level(ob, 1)
+    coarse, clevel = ops._mask_state(session)
+    check(clevel == 1, "the coarse level is the op target after the switch")
+    ops._mask_apply(bpy.context, ob, session, "Mask Flood Fill",
+                    coarse, np.ascontiguousarray(coarse + 0.25), clevel)
+
+    convert.set_multires_level(ob, LEVEL)
+    top_after = _domain_mask(session, LEVEL)
+    check(top_after is not None and top_before is not None
+          and np.allclose(top_after, top_before + 0.25, atol=1e-3),
+          "a constant coarse lift reached the top as the same constant, "
+          "fine pattern intact underneath")
+    convert.exit_(ob)
+
+
+def run_gesture():
+    """Gate 13: the gestures' shared apply on multires, selection injected
+    (screen-space projection needs a real region — by-eye territory)."""
+    from sculptcore_addon import gestures, undo
+
+    ob = _object("maskgesture", 2, LEVEL)
+    convert.enter(ob)
+    session = engine.sessions[ob.name]
+    convert.ensure_multires_slot(session)
+
+    nv = convert.mesh_vert_num(session.mesh_ptr)
+    selected = np.zeros(nv, dtype=bool)
+    selected[:nv // 2] = True
+    key = undo._next_key
+    check(gestures._apply_mask(bpy.context, session, selected, 'VALUE', 1.0,
+                               "Box Mask"),
+          "the gesture apply accepted the injected selection")
+    domain = _domain_mask(session, LEVEL)
+    check(domain is not None and np.allclose(domain[:nv // 2], 1.0)
+          and float(np.abs(domain[nv // 2:]).max()) < 1e-6,
+          "and masked exactly the selected half of the domain")
+    undo.decode(bpy.context, ob, key, -1, False)
+    domain = _domain_mask(session, LEVEL)
+    check(domain is not None and float(np.abs(domain).max()) < 1e-6,
+          "undoing the gesture cleared it")
+    convert.exit_(ob)
+
+
+def run_real_ops():
+    """Gate 14: the registered operators against a real headless mode entry."""
+    from sculptcore_addon import ops
+
+    ob = _object("maskrealops", 2, LEVEL)
+    result = bpy.ops.object.custom_mode_toggle(mode_id="sculptcore.sculpt")
+    check(result == {'FINISHED'} and ob.mode == 'CUSTOM',
+          "custom_mode_toggle entered the sculpt mode headlessly")
+    session = engine.sessions.get(ob.name)
+    check(session is not None and bool(session.multires_ptr),
+          "and the mode enter built a multires session")
+    if session is None:
+        return
+
+    check(bpy.ops.sculptcore.mask_flood_fill.poll(),
+          "mask_flood_fill polls true on the multires session")
+    bpy.ops.sculptcore.mask_flood_fill(mode='VALUE', value=0.3)
+    domain = _domain_mask(session, LEVEL)
+    check(domain is not None and np.allclose(domain, 0.3),
+          "the real flood fill filled the level domain")
+    bpy.ops.sculptcore.mask_flood_fill(mode='INVERT')
+    domain = _domain_mask(session, LEVEL)
+    check(domain is not None and np.allclose(domain, 0.7),
+          "and INVERT inverted it")
+
+    before, level = ops._mask_state(session)
+    pattern = np.ascontiguousarray(np.arange(len(before)) % 2, dtype=np.float32)
+    ops._mask_apply(bpy.context, ob, session, "Mask Flood Fill",
+                    before, pattern, level)
+    bpy.ops.sculptcore.mask_filter(filter_type='GROW',
+                                   auto_iteration_count=False, iterations=1)
+    after, _ = ops._mask_state(session)
+    check(not np.array_equal(after, pattern)
+          and bool((after >= pattern - 1e-6).all()),
+          "the real GROW filter grew the alternating pattern monotonically")
+
+    bpy.ops.object.custom_mode_toggle()
+    check(ob.mode != 'CUSTOM' and ob.name not in engine.sessions,
+          "toggling again exited the mode and freed the session")
+
+
+def run_save_reload():
+    """Gate 15: the CD layer round-trips an actual save + reload. Runs last —
+    open_mainfile replaces the whole scene."""
+    import os
+    import tempfile
+
+    from sculptcore_addon import ops
+
+    ob = _object("masksave", 2, LEVEL)
+    convert.enter(ob)
+    session = engine.sessions[ob.name]
+    before, level = ops._mask_state(session)
+    seed = (np.arange(len(before), dtype=np.float32) % 13) / 12.0
+    ops._mask_apply(bpy.context, ob, session, "Mask Flood Fill",
+                    before, np.ascontiguousarray(seed), level)
+    convert.flush(ob)
+    convert.exit_(ob)
+    saved = _blender_mask(ob)
+    check(saved is not None and float(saved.max()) > 0.0,
+          "flush left the CD mask layer populated before the save")
+
+    path = os.path.join(tempfile.gettempdir(), "sculptcore_verify_mask.blend")
+    bpy.ops.wm.save_as_mainfile(filepath=path)
+    bpy.ops.wm.open_mainfile(filepath=path)
+    ob = bpy.data.objects.get("masksave")
+    check(ob is not None, "the saved object survived the reload")
+    if ob is None:
+        return
+    loaded = _blender_mask(ob)
+    check(loaded is not None and saved is not None
+          and np.array_equal(loaded, saved),
+          "the CD mask layer round-tripped the file bit-identically")
+    convert.enter(ob)
+    session = engine.sessions[ob.name]
+    stored = _store_top(session)
+    mapping = session.multires_map
+    check(stored is not None and loaded is not None
+          and np.array_equal(stored, loaded[mapping.engine_sample_to_blender]),
+          "and re-entering imports it into the store exactly")
+    convert.exit_(ob)
+
+
 def main():
     global VERBOSE
 
@@ -366,6 +608,14 @@ def main():
 
     print("multires mask operator gate (MK3)")
     run_ops()
+
+    print("multires mask completion gates (MK5)")
+    run_coarse_stroke()
+    run_grid_step_undo()
+    run_detail_preservation()
+    run_gesture()
+    run_real_ops()
+    run_save_reload()
 
     if FAILURES:
         print("\nFAILED ({:d}):".format(len(FAILURES)))
