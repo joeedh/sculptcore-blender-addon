@@ -10,11 +10,10 @@ and (optionally) per-type field values applied on stroke start. World-space
 radius unprojection is the stroke operator's job; this layer copies
 engine-space fields only.
 
-Grab-family and layer brushes are intentionally *not* supported yet: grab/
-snake-hook/pose need per-stroke anchor/delta state a bare per-dab
-``execBrush`` doesn't set up (and crash without it), and layer needs a
-persistent sculpt-layer attribute + brush texture. ``kernel_enum`` returns
-None for those so the stroke operator refuses cleanly rather than crashing.
+Pose is intentionally *not* supported yet: it needs per-stroke pose-cage
+anchor state a bare per-dab ``execBrush`` doesn't set up (and crashes
+without it). ``kernel_enum`` returns None for it so the stroke operator
+refuses cleanly rather than crashing.
 """
 
 # Engine constants for the device-dynamics seam (brush.h BrushProp ids,
@@ -37,6 +36,12 @@ _MAP = {
     # a prior PINCH stroke would otherwise leak its value into SHARP.
     'DRAW_SHARP': ("SHARP", {"pinch": 0.0}),
     'INFLATE': ("INFLATE", {}),
+    # Layer rides the layerdraw kernel: the dab writes a sculpt-layer channel
+    # (recomposited by weight) instead of base co, so a stroke can be
+    # re-weighted or disabled after the fact. The stroke operator creates the
+    # write target on first use (layers.ensure_stroke_target); vanilla's
+    # height cap and persistent base are out of scope for now.
+    'LAYER': ("LAYERDRAW", {}),
     # Clay + plane family: map the plane offset; the default plane side (+1)
     # produces sensible output at a convex surface (a -1 scrape side finds
     # nothing above the tangent plane on a sphere). Blender's 'PLANE' is the
@@ -138,7 +143,6 @@ COLOR_TYPES = {'PAINT'}
 # reference / a future UI "unsupported" hint, never entered.
 UNSUPPORTED = {
     'POSE': "needs the pose-cage anchor path",
-    'LAYER': "needs a sculpt-layer attribute + brush texture",
 }
 
 

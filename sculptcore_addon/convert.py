@@ -1644,6 +1644,13 @@ def ensure_multires_slot(session):
     session.topo_stamp = lib.Mesh_topoStamp(session.mesh_ptr)
     session.slot_mask_gen = 0
     sync_slot_mask(session)
+    # A materialized slot starts with no sculpt-layer settings row; under a
+    # live edit target the mesh path's LayerEditScope needs one (LD3). A zero
+    # scratch row at weight 1 composites nothing, and stroke-end attribution
+    # to the store channel follows the mr edit target, not this row.
+    if (lib.Multires_editTarget(session.multires_ptr) >= 0
+            and lib.Mesh_sculptLayerCount(session.mesh_ptr) == 0):
+        lib.Mesh_sculptLayerAdd(session.mesh_ptr)
 
 
 def use_grids_provider(session):

@@ -241,6 +241,8 @@ def materialize_grid_blobs(session):
         snap()
     while session.grid_cursor < home and lib.GridStroke_redo(session.grid_ptr):
         session.grid_cursor += 1
+    while session.grid_cursor > home and lib.GridStroke_undo(session.grid_ptr):
+        session.grid_cursor -= 1
     if session.grid_cursor != home:
         # A seek the engine accepted going out was refused coming back —
         # should be unreachable (swaps are symmetric); latch loudly.
@@ -375,6 +377,25 @@ def push_attr(context, ob, session, message, kind, attr, blob_before, blob_after
         size=len(blob_before) + len(blob_after))
 
 
+def push_layers(context, ob, session, message, before, after):
+    """Record one undo step for a sculpt-layer stack operation (add/remove/
+    enable/retarget). Each side is (layer table bytes, edit target, store
+    blob) -- layers.capture_state. The table/blob pair is the engine's
+    designed layer-op undo seam (multires.h layerRemove); the target rides
+    separately because layerTableRestore deliberately clears it. Weight
+    drags push nothing (see layers.py)."""
+    global _next_key
+    engine_diverged(ob, session)
+    key = _next_key
+    _next_key += 1
+    _pending[key] = (_ATTR_TAG, ob.name, session.generation,
+                     'MR_LAYERS', None, before, after,
+                     session.multires_active_level)
+    bpy.ops.object.custom_mode_undo_push(
+        'EXEC_DEFAULT', message=message, state_id=key,
+        size=len(before[2]) + len(after[2]))
+
+
 def push_face_sets(context, ob, session, message, before, after):
     """Record a whole-column face-set write made through an operator.
 
@@ -463,7 +484,14 @@ def _decode_attr(context, ob, session, info, direction, is_final):
 
     _tag, _name, generation, kind, attr, blob_before, blob_after, level = info
     blob = blob_before if (direction < 0 and not is_final) else blob_after
-    if kind == 'MR_MASK_F32':
+    if kind == 'MR_LAYERS':
+        # Layer-stack op: the payload is layers.capture_state's (table,
+        # target, store blob). No generation guard -- the state is
+        # store-level, and layer mutations themselves bump
+        # session.generation, so a guard would orphan every step at birth.
+        from . import layers
+        layers.restore_state(ob, session, blob, level)
+    elif kind == 'MR_MASK_F32':
         # No generation guard: the snapshot is tagged to a store level, and
         # the store survives the level switches and slot evictions that bump
         # session.generation (the bump invalidates slot-bound steps, which

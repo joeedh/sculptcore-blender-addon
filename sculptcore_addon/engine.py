@@ -213,6 +213,45 @@ class _CApi:
         lib.Multires_restoreStore.restype = ctypes.c_int
         lib.freeMeshBuffer.argtypes = [ctypes.POINTER(ctypes.c_uint8)]
         lib.freeMeshBuffer.restype = None
+        # Sculpt-layer stack (LD3). The multires mutators fold pending
+        # active-level edits and rematerialize slots -- layers.py brackets
+        # every call with a store snapshot before and
+        # convert._rebind_multires_views after.
+        lib.Multires_layerAdd.argtypes = [ctypes.c_void_p]
+        lib.Multires_layerAdd.restype = ctypes.c_int
+        lib.Multires_layerRemove.argtypes = [ctypes.c_void_p, ctypes.c_int]
+        lib.Multires_layerRemove.restype = None
+        lib.Multires_layerSetWeight.argtypes = [
+            ctypes.c_void_p, ctypes.c_int, ctypes.c_float]
+        lib.Multires_layerSetWeight.restype = None
+        lib.Multires_layerSetEnabled.argtypes = [
+            ctypes.c_void_p, ctypes.c_int, ctypes.c_int]
+        lib.Multires_layerSetEnabled.restype = None
+        lib.Multires_layerSetFrozen.argtypes = [
+            ctypes.c_void_p, ctypes.c_int, ctypes.c_int]
+        lib.Multires_layerSetFrozen.restype = None
+        lib.Multires_setEditTarget.argtypes = [ctypes.c_void_p, ctypes.c_int]
+        lib.Multires_setEditTarget.restype = ctypes.c_int
+        lib.Multires_editTarget.argtypes = [ctypes.c_void_p]
+        lib.Multires_editTarget.restype = ctypes.c_int
+        lib.Multires_layerCount.argtypes = [ctypes.c_void_p]
+        lib.Multires_layerCount.restype = ctypes.c_int
+        lib.Multires_layerWeight.argtypes = [ctypes.c_void_p, ctypes.c_int]
+        lib.Multires_layerWeight.restype = ctypes.c_float
+        lib.Multires_layerEnabled.argtypes = [ctypes.c_void_p, ctypes.c_int]
+        lib.Multires_layerEnabled.restype = ctypes.c_int
+        lib.Multires_layerFrozen.argtypes = [ctypes.c_void_p, ctypes.c_int]
+        lib.Multires_layerFrozen.restype = ctypes.c_int
+        lib.Multires_layerTableOut.argtypes = [ctypes.c_void_p, f32p, ctypes.c_int]
+        lib.Multires_layerTableOut.restype = ctypes.c_int
+        lib.Multires_layerTableRestore.argtypes = [ctypes.c_void_p, f32p, ctypes.c_int]
+        lib.Multires_layerTableRestore.restype = None
+        # Mesh-side create/count: the first layer on a fresh mesh is named
+        # "slayer", the layerdraw kernel's by-name binding.
+        lib.Mesh_sculptLayerAdd.argtypes = [ctypes.c_void_p]
+        lib.Mesh_sculptLayerAdd.restype = ctypes.c_int
+        lib.Mesh_sculptLayerCount.argtypes = [ctypes.c_void_p]
+        lib.Mesh_sculptLayerCount.restype = ctypes.c_int
 
         # External draw provider (P5 D6): register a tree under the object's
         # session_uid, refresh its GPU-node CPU buffers, and hand Blender the

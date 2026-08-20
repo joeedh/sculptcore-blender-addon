@@ -755,6 +755,12 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         # brush-type-derived behavior (grab anchoring, face-set group
         # assignment, autosmooth chaining) is bypassed for the stroke.
         kernel_toggle = self.mode in {'SMOOTH', 'MASK'}
+        # Layer brush: make sure the layerdraw kernel has a write target
+        # before any capability query -- on multires the grids roster itself
+        # flips on the live edit target (LD3).
+        if not kernel_toggle and self.brush.sculpt_brush_type == 'LAYER':
+            from . import layers
+            layers.ensure_stroke_target(context, ob, self.session)
         self._grab_class = not kernel_toggle and mapping.is_grab_class(self.brush)
         # Snake hook's kernel reads the grab ctx vectors (see
         # mapping.is_snake_hook) and its influence region walks out with the

@@ -14,7 +14,7 @@ handler mirrors into the engine's active level (P8 C2).
 
 import bpy
 
-from . import engine, engine_props, mapping, multires
+from . import engine, engine_props, layers, mapping, multires
 
 # The standard category + the mode's context string: panels land in the
 # sidebar "Tool" tab (where vanilla sculpt panels live) and are gated by
@@ -282,6 +282,55 @@ class SCULPTCORE_PT_multires(bpy.types.Panel):
             layout.label(text="Level 0 sculpts at level 1", icon='INFO')
 
 
+class SCULPTCORE_PT_layers(bpy.types.Panel):
+    """The sculpt-layer stack (multires only for now): pick the stroke
+    target, re-weight or disable a layer after the fact, add and remove.
+    Rows read the engine directly; only the weight slider needs the
+    WindowManager mirror (layers.py)."""
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = _CATEGORY
+    bl_context = _MODE_CONTEXT
+    bl_label = "Sculpt Layers"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    @classmethod
+    def poll(cls, context):
+        return _on_multires(context)
+
+    def draw(self, context):
+        layout = self.layout
+        session = engine.sessions.get(context.active_object.name)
+        count = layers.layer_count(session)
+        target = layers.edit_target(session)
+        mirror = context.window_manager.sculptcore_layers
+        col = layout.column()
+        if len(mirror) != count:
+            # The mirror is length-synced by the operators and undo decode;
+            # a stale window (e.g. a fresh mode enter) heals with one click,
+            # since draw callbacks cannot resize the collection themselves.
+            col.operator("sculptcore.layer_sync", icon='FILE_REFRESH')
+        else:
+            lib = engine.capi().lib
+            for i in range(count):
+                row = col.row(align=True)
+                op = row.operator("sculptcore.layer_set_target",
+                                  text="Layer {}".format(i + 1),
+                                  depress=i == target)
+                op.index = i
+                sub = row.row(align=True)
+                sub.enabled = i != target  # the target sculpts pinned to 1
+                sub.prop(mirror[i], "weight", text="")
+                on = bool(lib.Multires_layerEnabled(session.multires_ptr, i))
+                op = row.operator("sculptcore.layer_toggle_enabled", text="",
+                                  icon='HIDE_OFF' if on else 'HIDE_ON',
+                                  depress=on)
+                op.index = i
+                op = row.operator("sculptcore.layer_remove", text="", icon='X')
+                op.index = i
+        col.operator("sculptcore.layer_add", icon='ADD')
+
+
 def _make_asset_shelf():
     """The brush asset shelf, from the same (unregistered) mixins vanilla's
     VIEW3D_AST_brush_sculpt uses. Brushes are shared assets; only the poll
@@ -331,6 +380,7 @@ _classes = (
     SCULPTCORE_PT_dyntopo,
     SCULPTCORE_PT_boundary_uv,
     SCULPTCORE_PT_multires,
+    SCULPTCORE_PT_layers,
     SCULPTCORE_PT_experimental,
 )
 
