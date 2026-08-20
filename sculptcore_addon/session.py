@@ -109,6 +109,12 @@ class Session:
         # the multires cage write-back their layer needs.
         "last_stroke_face_sets",
         "last_stroke_color",
+        # ...and which route that layer's last stroke wrote through, as a
+        # convert.SCATTER_* source for the cage write-back. Sticky per layer:
+        # a store channel outlives the grids stroke that bound it, so the
+        # engine's own guess would keep reading it after the route changed.
+        "face_scatter_source",
+        "color_scatter_source",
         # GridStroke_undoBytes high-water at the last push, so each step
         # reports its own delta to the undo limiter, not the cumulative log.
         "grid_undo_bytes_base",
@@ -202,6 +208,8 @@ class Session:
         self.grid_generation = 0
         self.grid_cursor = 0
         self.last_stroke_grids = False
+        self.face_scatter_source = 0  # convert.SCATTER_AUTO
+        self.color_scatter_source = 0
         self.last_stroke_face_sets = False
         self.last_stroke_color = False
         self.grid_undo_bytes_base = 0

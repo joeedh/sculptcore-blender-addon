@@ -37,9 +37,14 @@ So the gates run a stroke's whole life:
 7. a dab smaller than a base face durably paints nothing — the accepted
    resolution collapse of routing colour through the cage (§6.2), gated so it
    stays a decision rather than a surprise;
-8. with the switch off the same stroke takes the mesh path, and the write-back
-   reads the slot column instead of the store — the other of its two sources;
-9. both survive save + reload, which is the point of all of it.
+8. flipping the switch off mid-session sends the same stroke down the mesh
+   path, and its dab still lands on the cage — the write-back reads the slot
+   column, not the store channel the earlier grids strokes left allocated at
+   this level. Neither source goes stale on its own, so the caller names which
+   one wrote last (``convert.SCATTER_*``); an engine left to guess reads the
+   store here and silently drops the paint;
+9. a session that only ever takes the mesh path lands home the same way;
+10. all of it survives save + reload, which is the point of all of it.
 
 Whether the paint *renders* — at grid resolution during the session, not at its
 cage restriction — is the half no headless run can see, and is checked by eye.
@@ -177,6 +182,16 @@ def _grid_corners(session):
     return values.reshape(grids, per_grid)[:, :4]
 
 
+def _mark_color_stroke(session):
+    """What the stroke operator records once the route is known and this script
+    has to stand in for: the stroke just begun paints colour, and which of the
+    two sources its dabs will land in — the cage write-back has to be told, the
+    engine cannot tell (see stroke.py, convert.sync_cage_vert_color)."""
+    session.last_stroke_color = True
+    session.color_scatter_source = (convert.SCATTER_STORE if session.last_stroke_grids
+                                    else convert.SCATTER_SLOT)
+
+
 def _paint_dab(session, kernel, color, center=DAB_CENTER, radius=DAB_RADIUS):
     """One colour dab straight down onto the flat surface. The engine's per-dab
     ``loadProps`` writes the post-dynamics values back into the Brush fields, so
@@ -222,7 +237,7 @@ def run():
     # --- gate 3: a grids-native dab paints, and the host does not move yet ---
     stroke.stroke_begin(session, grids_kernel=color_kernel)
     check(session.last_stroke_grids, "the stroke routed grids-native")
-    session.last_stroke_color = True  # the stroke operator's job, and this is not it
+    _mark_color_stroke(session)
     moved = _paint_dab(session, color_kernel, DAB_COLOR)
     stroke.stroke_end(session)
     check(moved > 0, "the dab painted {:d} grid verts".format(moved))
@@ -298,7 +313,7 @@ def run():
     # session paint and nothing more. Gated so it stays a decision.
     cage_fine = _colors(session.cage_ptr)
     stroke.stroke_begin(session, grids_kernel=color_kernel)
-    session.last_stroke_color = True
+    _mark_color_stroke(session)
     moved = _paint_dab(session, color_kernel, FINE_COLOR,
                        center=FINE_CENTER, radius=FINE_RADIUS)
     stroke.stroke_end(session)
@@ -308,18 +323,41 @@ def run():
     check(np.array_equal(_colors(session.cage_ptr), cage_fine),
           "so the cage is unchanged by it")
 
+    # --- gate 8: the switch flips mid-session and the paint still lands ---
+    # The bug B2a shipped with, and the reason the source is the caller's to
+    # name: the store channel gates 3-7 bound stays allocated at this level, so
+    # an engine left to guess keeps reading it and never sees the slot column
+    # the mesh path writes. Same session, same level, same cage vert — the only
+    # thing that changes is the route.
+    scene.sculptcore_grid_attrs = False
+    cage_pre_switch = _colors(session.cage_ptr)
+    stroke.stroke_begin(session, grids_kernel=color_kernel)
+    check(not session.last_stroke_grids,
+          "the switch flipping off sends the same stroke down the mesh path")
+    _mark_color_stroke(session)
+    moved = _paint_dab(session, color_kernel, MESH_COLOR)
+    stroke.stroke_end(session)
+    check(moved > 0, "the mesh-path dab touched {:d} nodes".format(moved))
+    check(engine.capi().lib.Multires_scatterVertFloat4ToCage(
+              session.multires_ptr, session.multires_active_level,
+              convert._SC_COLOR, convert.SCATTER_AUTO) == 0,
+          "a guessed source reads the store channel still allocated here, and misses it")
+    check(convert.sync_cage_vert_color(session) == 1,
+          "naming the slot carries it onto one cage vert")
+    cage_switch = _colors(session.cage_ptr)
+    changed = _changed_verts(cage_pre_switch, cage_switch)
+    check(changed == [CENTER_VERT],
+          "the vert under that dab, and only it, changed (got {!r})".format(changed))
+    check(cage_switch is not None and cage_pre_switch is not None
+          and float(cage_switch[CENTER_VERT * 4 + 1]
+                    - cage_pre_switch[CENTER_VERT * 4 + 1]) > 0.5,
+          "and took the mesh-path dab's colour")
+
     convert.flush(ob)
+    data_final = _mesh_colors(ob.data)
     convert.exit_(ob)
 
-    # --- gate 8: the mesh path lands home too, through the slot column ---
-    # On its own object, because the source pick is store-first (multires.cc,
-    # "the store wins ... a grids-native stroke writes the channel and
-    # materializes no level mesh"): a session whose store channel a grids stroke
-    # already allocated at this level reads the store, so the slot branch is
-    # only reachable where no grids stroke ever ran. That is also the only place
-    # it is reachable in earnest — the switch is a dev tool, and post-P5 a
-    # multires colour stroke is grids-native or nothing.
-    scene.sculptcore_grid_attrs = False
+    # --- gate 9: a session that only ever takes the mesh path lands home too ---
     mesh_ob = _object("colmesh", 2, 2)
     convert.enter(mesh_ob)
     mesh_session = engine.sessions[mesh_ob.name]
@@ -329,7 +367,7 @@ def run():
     stroke.stroke_begin(mesh_session, grids_kernel=color_kernel)
     check(not mesh_session.last_stroke_grids,
           "the same stroke takes the mesh path with the switch off")
-    mesh_session.last_stroke_color = True
+    _mark_color_stroke(mesh_session)
     moved = _paint_dab(mesh_session, color_kernel, MESH_COLOR)
     stroke.stroke_end(mesh_session)
     check(moved > 0, "the mesh-path dab touched {:d} nodes".format(moved))
@@ -339,6 +377,7 @@ def run():
           "the mesh-path dab painted the materialized slot")
     check(convert.sync_cage_vert_color(mesh_session) == 1,
           "and the write-back read the slot column onto one cage vert")
+
     cage_mesh = _colors(mesh_session.cage_ptr)
     changed = _changed_verts(cage_pre_mesh, cage_mesh)
     check(changed == [CENTER_VERT],
@@ -349,15 +388,15 @@ def run():
     convert.flush(mesh_ob)
     convert.exit_(mesh_ob)
 
-    # --- gate 9: it survives save + reload, which is the point of all of it ---
+    # --- gate 10: it survives save + reload, which is the point of all of it ---
     path = os.path.join(tempfile.gettempdir(), "sculptcore_multires_color_gate.blend")
     bpy.ops.wm.save_as_mainfile(filepath=path)
     bpy.ops.wm.open_mainfile(filepath=path)
     reloaded = _mesh_colors(bpy.data.objects["colgrid"].data)
-    check(reloaded is not None and data_after is not None
+    check(reloaded is not None and data_final is not None
           and np.allclose(reloaded[CENTER_VERT * 4:CENTER_VERT * 4 + 4],
-                          data_after[CENTER_VERT * 4:CENTER_VERT * 4 + 4], atol=1e-6),
-          "the grids-route paint survived save + reload")
+                          data_final[CENTER_VERT * 4:CENTER_VERT * 4 + 4], atol=1e-6),
+          "the switched-route object's paint survived save + reload")
     reloaded = _mesh_colors(bpy.data.objects["colmesh"].data)
     check(reloaded is not None and cage_mesh is not None
           and np.allclose(reloaded[CENTER_VERT * 4:CENTER_VERT * 4 + 4],

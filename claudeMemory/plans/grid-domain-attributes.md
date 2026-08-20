@@ -1032,9 +1032,10 @@ grid *is* its corner's cage vert at weight one, so the value is copied through
 unweighted. `Multires::gridCageVerts` builds the grid → cage-vert pairing
 (`buildGridRefs` + `cage.c.v[cc]`, the vertex twin of `gridCageFaces`), and
 `Multires::scatterVertFloat4ToCage` copies each grid's corner sample onto it.
-Two sources, store-first for the reason the face twin is: a grids-native stroke
-writes the channel and materializes no level mesh, so the store is the truth
-when it holds that level; otherwise the slot's column is. Unlike the face twin
+Two sources, and **the caller names which** (`subdiv::GridScatterSource`, mirrored
+as `convert.SCATTER_AUTO/STORE/SLOT`): the store for a grids-native stroke, the
+slot's derived column for a mesh-path one. See the source-pick correction below.
+Unlike the face twin
 it needs **no re-stamp** — `gridAttrScatter` writes every occurrence of a
 boundary sample, so the n grids meeting at a cage vert already agree, and the
 dedupe is just "skip a value the vert already holds".
@@ -1051,6 +1052,9 @@ generalized from one face-set blob to a list of `(kind, attr, blob)`, so
 `CAGE_VERT_F32x4` rides the same push/restore route as `CAGE_FACE_I32`;
 `_push_cage_columns` drives whatever the stroke painted home and snapshots both
 sides, keyed off `session.last_stroke_color` (set from `mapping.COLOR_TYPES`).
+`session.color_scatter_source` / `face_scatter_source` record the route, set in
+`stroke.py` just after `stroke_begin` — the first point where both the layer flag
+and the chosen route are known.
 
 **The forward scatter marks nothing for redraw** — the derived samples are built
 *from* the cage, so re-deriving would replace full-resolution session paint with
@@ -1070,18 +1074,39 @@ stroke's whole life: the dab moves nothing on the host, the undo push carries it
 onto exactly the cage vert under it with every grid corner sample bit-identical
 to a cage vert, it reaches `ob.data`, undo/redo round-trips it (and the flush in
 between does not scatter the undone paint back on), a sub-face dab durably
-paints nothing, the mesh path lands home through the slot column, and both
-survive save + reload. Full suite green (`verify_grid_channels`,
+paints nothing, flipping the switch off mid-session still lands the dab on the
+cage, a mesh-path-only session lands home the same way, and all of it survives
+save + reload. Full suite green (`verify_grid_channels`,
 `verify_multires_face_sets`, `verify_multires_uv_parity`,
 `verify_texture_parity`). By-eye check outstanding.
 
-*One ordering constraint the gate exposed:* the store-first pick means a session
-that has already allocated the store channel at a level reads the store even
-after a mesh-path stroke, so the slot branch is only reachable where no
-grids-native stroke ran at that level. That is also the only place it is
-reachable in earnest — the switch is a dev tool, and post-P5 a multires colour
-stroke is grids-native or nothing — so the gate exercises it on its own object
-rather than papering over it with a source override.
+*Source-pick correction (2026-08-19, found in the GUI, not by a gate).* B2a first
+shipped with the face twin's **store-first** rule: read the store channel when it
+holds that level, the slot column otherwise. That is wrong, and it broke exactly
+the setup the plan calls the common one — multires, switch **off**, a colour
+attribute already on the mesh. A store channel stays allocated after the
+grids-native stroke that bound it, so once *any* grids colour stroke has run at a
+level, every later mesh-path dab is read from the store instead of from the slot
+column it actually wrote: the scatter finds the store already agreeing with the
+cage, changes nothing, and the paint never reaches `ob.data`. Silent — a
+0-changed scatter is indistinguishable from a sub-face dab.
+
+Neither source goes stale on its own, so **there is no static preference that is
+right**; the fix is to stop guessing. Both scatters take a
+`subdiv::GridScatterSource` (`Auto` = the old guess, still the default;
+`Store`; `Slot`), naming a source that holds nothing for the level is a refusal
+rather than a fallback to the other, and the session records the route per layer.
+Per *layer*, not per stroke: keying on `last_stroke_grids` alone would pick the
+store after a grids-native **sculpt** stroke and revert colour the mesh path had
+already carried home.
+
+The original gate had *met* this and misread it — gate 8 ran the mesh path on its
+own object because a shared session shadowed it, and the constraint got written
+down as a fact of the design instead of as the defect it was. It now runs on the
+shared session and asserts both halves: `SCATTER_AUTO` returns 0 there, and
+naming the slot lands the dab on the cage. `gateCageVertScatter` gained the same
+case at engine level (a store channel and a slot column that disagree). The face
+twin had the identical hole and is fixed the same way, unreproduced in the GUI.
 
 **P5 — cleanup.** Kill switch **removed**, making the routing unconditional. It
 is a development tool and is never promoted to default on -- that is a deliberate

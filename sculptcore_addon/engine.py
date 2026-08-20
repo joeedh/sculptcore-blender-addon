@@ -377,9 +377,11 @@ class _CApi:
         lib.Multires_syncSlotAttrs.restype = None
         # The other direction: a mesh-path edit lands on the slot's derived copy
         # of a face layer, and only the cage persists — this pushes it back and
-        # marks the touched grids (see convert.sync_cage_face_attrs).
+        # marks the touched grids (see convert.sync_cage_face_attrs). The last
+        # argument names the source (convert._SCATTER_*): neither goes stale on
+        # its own, so the caller has to say which route wrote last.
         lib.Multires_scatterFaceIntToCage.argtypes = [
-            ctypes.c_void_p, ctypes.c_int, ctypes.c_char_p]
+            ctypes.c_void_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_int]
         lib.Multires_scatterFaceIntToCage.restype = ctypes.c_int
         # Its vertex-domain twin, for colour: exact restriction rather than a
         # transpose, because grid sample (0, 0) IS its corner's cage vert at
@@ -387,7 +389,7 @@ class _CApi:
         # redraw — the derived samples are built FROM the cage, so re-deriving
         # would replace full-resolution paint with its cage restriction.
         lib.Multires_scatterVertFloat4ToCage.argtypes = [
-            ctypes.c_void_p, ctypes.c_int, ctypes.c_char_p]
+            ctypes.c_void_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_int]
         lib.Multires_scatterVertFloat4ToCage.restype = ctypes.c_int
         # Persistent grid-domain channels (engine subdiv/c-api/grid_channel_c_api.h).
         # The host-agnostic half: a host that CAN store per-grid-element data

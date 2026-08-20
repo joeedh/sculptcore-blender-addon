@@ -947,6 +947,16 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         stroke_begin(self.session, has_dyntopo=self._dyntopo is not None,
                      accumulate=accumulate, anchored_grab=self._grab_class,
                      grids_kernel=grids_kernel)
+        # Both halves of the cage write-back's source pick are known only now:
+        # the layer flags above, and the route stroke_begin just chose. Sticky
+        # per layer, because a store channel outlives the grids stroke that
+        # bound it (§6.2 of plans/grid-domain-attributes.md).
+        _scatter_src = (convert.SCATTER_STORE if self.session.last_stroke_grids
+                        else convert.SCATTER_SLOT)
+        if self.session.last_stroke_face_sets:
+            self.session.face_scatter_source = _scatter_src
+        if self.session.last_stroke_color:
+            self.session.color_scatter_source = _scatter_src
         # The grids session is created inside stroke_begin, so its own copy of
         # the view matrix can only be pushed here — the mesh-path push above
         # rides the long-lived executor.
