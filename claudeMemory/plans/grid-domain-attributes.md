@@ -1,8 +1,10 @@
 # Grid-element attribute domains + de-gating the brush rosters
 
-**Status:** plan, rev 2 — **P0a–P3 landed** (engine `080d0ac` / `182dc4e` /
-`0a18195` / `e5ffc03` / `513ed34` + P3, addon `a7389b6` / `a36aae8` + P3,
-2026-08-17/18); P4 next. Every brush roster in the engine is gone: what
+**Status:** plan, rev 2 — **P0a–P4b landed** (engine `080d0ac` / `182dc4e` /
+`0a18195` / `e5ffc03` / `513ed34` + P3/P4, addon `a7389b6` / `a36aae8` + P3/P4,
+2026-08-17/18) and **C1–C4 landed** (the storage-class routing correction,
+2026-08-19, §6.3). **P5 is blocked on checking in with the user** — do not start
+it unprompted. Every brush roster in the engine is gone: what
 runs on grids is now decided by each kernel's own def (no face stage, every
 declared attr layer bindable), so P1–P5 widen a predicate rather than editing a
 switch. Engine work in `engine/source/{subdiv,brush}`, addon work in
@@ -1251,7 +1253,7 @@ the classes that keep binding.
 the `stroke.py` block that sets them. Dead once the cage is the only author
 (§6.3). The scatters keep their `Host`-class role and lose the parameter.
 
-**C4 — real down-propagation for `Host` attributes.** The cascade the current
+**C4 — real down-propagation for `Host` attributes. DONE (2026-08-19).** The cascade the current
 single hop stands in for: level L → L−1 → … → cage, one step at a time through
 `restrictToCoarse(refiner.levels[L−1].stencil, …)` generalized off `float3` to
 `comps` floats, with `downPropPending_`-style debt so a coarser level settles on
@@ -1287,6 +1289,65 @@ seams (`GridsStore::stepGrid` / `seamMates`, the same closure
 `refreshNormals` uses), and every replica of a seam sample is written the same
 value. Extraordinary vertices are the case to gate: a corner sample's
 neighbourhood is valence-many grids, not 8 taps.
+
+*As landed (2026-08-19). C4 DONE.* The operator is
+`GridsStore::restrictChannelDown(channel, level)` in `grids.cc`, three passes
+over the fine level: (1) a per-grid gather of the 9-point stencil, written into
+the coarse level **unnormalized** with the weight actually collected kept in a
+parallel `wsum`; (2) a merge across `seamMates(level - 1, ...)` for every border
+coord, summing the partial `dst`/`wsum` of each incident grid into `bacc`/`bwt`;
+(3) a normalize that gives border coords the merged value and divides the
+interior by its own `wsum`. Deferring the divide is what removes the seam walk
+from the gather: a tap that falls off grid `g` is inside a mate, whose own
+gather already collected it, so no `neighbor()` traversal and no canonicalization
+of fine coords is needed. **Documented deviation:** an on-seam *tap* is counted
+once per incident grid, so on a two-grid seam the centre weight comes out 1/3
+rather than 1/4. Normalization absorbs it -- constants stay fixed points and the
+no-overshoot argument still holds -- but the filter is mildly seam-biased and
+that is a choice, not an accident. `Face`-domain channels take the exact 4-child
+mean and skip the seam pass (cells have no shared coords); a channel whose type
+fails `interpolatableType` falls back to `restrictLevelToBelow` (injection),
+because there is no float math to do on a typed channel.
+
+**Debt is per (channel, level), not per level.** `LevelData::downPending` lives
+beside the level's data, so it follows `addLevel`/`dropTopLevel` with no
+bookkeeping (`dropTopLevel` hands its debt to the level below -- injection is the
+exact left inverse of the prolongation, so a level owing nothing lands back on
+what it seeded). Per level would have been wrong, not merely coarse: a mask edit
+at L5 would drag an untouched colour layer through the filter and replace paint
+the user authored on the coarse level with a blurred copy of what that level had
+seeded upward. `Multires::noteAttrEdit(level, channel)` sets it,
+`propagateAttrsDown(level)` spends it one step and re-owes it to `level - 1`,
+and `setActiveLevel`'s downward loop runs it on `anyChannelLevelDebt(l)` beside
+the position `propagateDown` -- paint is authored surface data and follows a fine
+edit down for the same reason positions do.
+
+**Seed vs edit.** `gridAttrScatter`/`gridAttrScatterFace` mark the edit (both are
+already gated on `m->dirty` at their `grid_executor.h` call sites), as does the
+*span* overload of `flushMaskToStore`. The whole-domain overload deliberately
+does **not**: it is `Multires_writeDomainMask` (← `multires.py::import_mask`)
+seeding this level from the host's stored mask, and marking a seed as an edit
+would push it down the whole stack.
+
+**Debt survives undo, in three places.** The store holds it
+(`channelLevelDebt`); the MRDP undo header gained flag bit 1 per level plus, for
+each such level, a length-prefixed list of channel *names* (not indices -- the
+same rule `GridBlock` already follows); and `GridStrokeLog::Step` carries
+`preAttrDebt`/`postAttrDebt` name vectors that `undo()`/`redo()` reapply. The
+header stays byte-compatible: a blob with bit 1 nowhere is identical to the
+previous format, so older undo blobs restore exactly as before.
+
+*Gates run:* three new ctest gates -- `restrictChannelDown` over cube/fan/pentagon
+at 3 levels (constant field is a fixed point everywhere including extraordinary
+verts and mesh boundaries; a varying field never leaves the fine `[lo, hi]`
+range; every `seamMates` replica agrees; `Face` is exactly the 4-child mean; a
+typed INT channel injects), `attr down-propagation` (two channels, one noted --
+only that one moves, both levels settle, an up-then-down round trip is
+bit-identical, and serialize/clear/restore recovers the debt by name), and
+`attr debt round-tripped through undo/redo` in `test_grid_stroke.cc`. Full sweep
+**135/135**, and the Blender-side set (`verify_multires_face_sets`,
+`verify_multires_color`, `verify_grid_channels`, `verify_multires_uv_parity`,
+`verify_texture_parity`) all pass on a restaged build.
 
 **P5 — cleanup.** Kill switch **removed**, making the routing unconditional. It
 is a development tool and is never promoted to default on -- that is a deliberate
