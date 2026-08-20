@@ -6,7 +6,6 @@
 claudeMemory/plans/program-grids-routing.md, verify stage.
 
 1. multires cube: ``program_grids_capable`` says yes; with the
-   ``sculptcore_grids_programs`` kill switch off it says no (pre-plan routing);
 2. an autosmooth program stroke dispatches grids-native
    (``apply_dab_program`` -> ``GridStroke_dabProgram``), moves verts, and the
    draw provider stays GRIDS;
@@ -116,10 +115,6 @@ def routing_and_undo():
 
     check(stroke.program_grids_capable(session, kernel),
           "autosmooth program is grids-capable")
-    bpy.context.scene.sculptcore_grids_programs = False
-    check(not stroke.program_grids_capable(session, kernel),
-          "kill switch off restores pre-plan (mesh) routing")
-    bpy.context.scene.sculptcore_grids_programs = True
 
     prog = stroke.build_program(session, kernel, SMOOTH)
     sc_brush = stroke._ensure_brush(session)

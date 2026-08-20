@@ -158,35 +158,26 @@ def _ensure_executor(session):
 
 # Cached MASK/BSMOOTH kernel ids: the binding enum introspection walks
 # descriptors and costs ~20 ms — far too much per stroke.
-_mask_kernel_id = None
 _bsmooth_kernel_id = None
 
 
 def grids_capable(session, brush_type):
     """Whether a stroke of ``brush_type`` can run grids-native (multires
-    session + engine roster kernel). MASK is held back for now: the addon's
-    mask truth is the slot mesh's column (flood fills, CD_GRID_PAINT_MASK
-    import), and a grids mask stroke would write the store channel the host
-    doesn't read back yet. BSMOOTH rides the ``sculptcore_grids_programs``
-    kill switch: off restores the pre-plan mesh-path routing.
+    session + engine roster kernel). MASK qualifies since MK4 made the store
+    the addon's one mask truth (the slot column is a cache the fold/sync
+    machinery keeps honest).
 
     Brushes that write an attribute layer are answered by the engine roster
     itself, from the attribute's storage class: Blender declares only the mask
     as a host grid attribute, so colour and face sets are ``Derived`` and take
     the cage route (mesh path + a per-dab write-back) instead."""
-    global _mask_kernel_id, _bsmooth_kernel_id
+    global _bsmooth_kernel_id
     if not session.multires_ptr:
         return False
-    if _mask_kernel_id is None:
+    if _bsmooth_kernel_id is None:
         mgr = engine.manager()
         items = mgr.get("sculptcore::brush::SculptBrushes").items
-        _mask_kernel_id = int(items['MASK'])
         _bsmooth_kernel_id = int(items['BSMOOTH'])
-    if int(brush_type) == _mask_kernel_id:
-        return False
-    if (int(brush_type) == _bsmooth_kernel_id
-            and not getattr(bpy.context.scene, "sculptcore_grids_programs", True)):
-        return False
     lib = engine.capi().lib
     # The multires is not optional here: an attribute brush's route is its
     # attribute's storage class, which is per-object state (a host that CAN
@@ -198,9 +189,7 @@ def grids_capable(session, brush_type):
 
 def program_grids_capable(session, main_kernel):
     """Whether an autosmooth program ``[main_kernel, BSMOOTH]`` can run
-    grids-native: both entries must pass ``grids_capable`` (the BSMOOTH check
-    carries the ``sculptcore_grids_programs`` kill switch, so switching it off
-    restores the pre-plan mesh-path routing for program strokes too)."""
+    grids-native: both entries must pass ``grids_capable``."""
     if not grids_capable(session, main_kernel):
         return False
     return grids_capable(session, _bsmooth_kernel_id)
