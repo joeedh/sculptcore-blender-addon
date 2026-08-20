@@ -1237,6 +1237,21 @@ a fresh POLYGROUP-use int face layer with the mesh's `default_group_id`, which
 is `Mesh::ensureFaceGroups`' rule applied where the bind, not the host, creates
 the layer (`tests/test_brush_attr.cc` gates it).
 
+*Bug found in GUI testing (2026-08-19), fixed.* A cage write-back reconciles
+the level it ran on and no other -- `refreshFromCage` + `stampSlotVertFloat4`
+both take a level. Every OTHER resident level slot therefore kept its pre-paint
+derived attributes, because `Multires::materialize` hands back a slot it found
+without re-deriving. Visible as paint "skipping a level", and worse than a
+display gap: the write-back READS the level mesh, so painting on a stale slot
+pushes pre-edit colour onto the cage and reverts the finer level's paint. The
+fix is a freshness stamp -- `MultiresAttrs::cageGeneration()` bumped by every
+cage write-back and every invalidation, `MultiresSlot::derivedGen` recording
+what a slot was built from, and a re-derive in `materialize()` when the two
+disagree. Lazy on purpose: it costs one whole-level re-derive on a level
+switch, where the eager alternative is one per dab for levels nobody is
+looking at. Gate: `gateResidentSlotFreshness` in `test_multires_attrs.cc`
+(fails both halves without the fix).
+
 **C2 — enforce the rule at the bind. DONE (2026-08-19).** `gridAttrPlan` consults `storageFor` and
 refuses a writable `Derived` attribute, independent of `sessionChannels`. Host
 capability decides, not the switch. Needs the `Multires` (or a storage-class
