@@ -249,7 +249,6 @@ def _grid_session(session):
         session.grid_generation += 1
         session.grid_cursor = 0
         session.grid_undo_bytes_base = 0
-        session.grid_mask_dirty = True
         # The addon relies on the engine-side ride-along mirror to keep the
         # slot mesh (extdraw, flush, mesh-path queries) current, and defers
         # normal refreshes to the frame cadence (closely-spaced dabs overlap
@@ -274,10 +273,6 @@ def stroke_begin(session, *, has_dyntopo=False, accumulate=True, anchored_grab=T
                 session.grid_generation += 1
                 session.grid_cursor = 0
                 session.grid_undo_bytes_base = 0
-                session.grid_mask_dirty = True
-            if session.grid_mask_dirty:
-                lib.GridStroke_syncMask(grid)
-                session.grid_mask_dirty = False
             if lib.GridStroke_begin(grid):
                 session.last_stroke_grids = True
                 session.stroke_gen += 1
@@ -605,6 +600,9 @@ def stroke_end(session):
     # endStep() advanced the meshlog's applied-step count; mirror it (a stroke
     # begun after an undo truncates the redo branch, so +1 is always correct).
     session.meshlog_cursor += 1
+    # A mesh-path MASK stroke on multires wrote only the slot column; fold it
+    # into the store (no-op when the stroke touched no mask, or no multires).
+    convert.fold_slot_mask(session)
     # Normals only over the leaves the stroke dirtied. Mesh.recalc_normals() is
     # O(whole mesh) and thaws the topology, so on a multires cage it cost half a
     # second per stroke plus a frozen-topology rebuild on the next dab.

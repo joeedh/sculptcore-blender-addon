@@ -283,15 +283,15 @@ def _enter_multires(ob, md):
     mesh_ptr = 0
     tree_ptr = 0
 
-    # Mask (A4): seed the engine mask from the grid paint mask — straight
-    # into the grid domain + store (no slot column yet). The exchange
-    # follows the active level (see set_multires_level).
+    # Mask (MK4): seed the store's mask channel from the grid paint mask —
+    # every level, top exact + coarser by injection. The store is the one
+    # mask truth from here on; slot columns and domain mirrors are caches,
+    # refreshed by generation (sync_slot_mask / the engine's write hooks).
     depsgraph = context.evaluated_depsgraph_get()
-    mask_base = multires.import_mask(ob, depsgraph, mesh_ptr, mr_map, mr, level)
+    multires.import_mask(ob, depsgraph, mr_map, mr)
 
     session = Session(ob.name, mesh_ptr, tree_ptr,
                       lib.Multires_levelVertCount(mr, level))
-    session.multires_mask_base = mask_base
     session.blender_verts_num = len(ob.data.vertices)
     session.multires_ptr = mr
     session.cage_ptr = cage
@@ -304,8 +304,6 @@ def _enter_multires(ob, md):
     # designation — the rule the mesh path already follows.
     color_attr = _point_float_color(ob.data)
     session.color_attr_name = color_attr.name if color_attr is not None else None
-    # The domain-direct mask import (above) already synced domain + store.
-    session.grid_mask_dirty = False
     engine.sessions[ob.name] = session
     sync_grid_attr_settings(ob, session)
 
@@ -1632,13 +1630,11 @@ def ensure_multires_slot(session):
     """Materialize the active level's slot mesh + tree for a mesh-path reader
     (executor stroke, slot draw provider, slot mask/attr ops). The build
     reads the chain — which the grids path edits in place — so positions and
-    normals are current by construction; the mask column is seeded from the
-    grid domain, the mask truth while the slot was lazy. No-op when already
-    resident (the ride-along mirror keeps a resident slot current)."""
+    normals are current by construction; the mask column syncs from the
+    store, the one mask truth (MK4). No-op when already resident (the
+    ride-along mirror keeps a resident slot current)."""
     if session.mesh_ptr or not session.multires_ptr:
         return
-    import numpy as np
-
     lib = engine.capi().lib
     level = session.multires_active_level
     lib.Multires_setActiveLevel(session.multires_ptr, level)
@@ -1646,10 +1642,8 @@ def ensure_multires_slot(session):
     session.tree_ptr = lib.Multires_activeTree(session.multires_ptr)
     session.verts_num = _mesh_vert_num(session.mesh_ptr)
     session.topo_stamp = lib.Mesh_topoStamp(session.mesh_ptr)
-    nv = lib.Multires_levelVertCount(session.multires_ptr, level)
-    mask = np.zeros(nv, dtype=np.float32)
-    if lib.Multires_readDomainMask(session.multires_ptr, level, mask, nv):
-        lib.Mesh_writeVertFloatAttr(session.mesh_ptr, _SC_MASK, mask)
+    session.slot_mask_gen = 0
+    sync_slot_mask(session)
 
 
 def use_grids_provider(session):
@@ -1676,6 +1670,9 @@ def use_slot_provider(session, ob=None):
     if not session.draw_key:
         return
     ensure_multires_slot(session)
+    # An already-resident slot may hold a mask column older than the store
+    # (grids MASK strokes while the grids provider was showing).
+    sync_slot_mask(session)
     lib = engine.capi().lib
     lib.sc_external_draw_register(session.draw_key, session.tree_ptr)
     lib.sc_external_draw_enable_dynamic(session.tree_ptr)
@@ -1842,22 +1839,68 @@ def restamp_cage_vert_color(session):
             lib.refreshTreeRequestedAttrs(session.tree_ptr)
 
 
-def refresh_grids_mask(session):
-    """Pull a changed slot-mesh mask column into the grids domain mirror NOW
-    when the grids provider is displaying (mask flood fill, attr-undo): the
-    op's visual feedback must not wait for the next grids stroke to run
-    GridStroke_syncMask. Handles the sync==2 bookkeeping the stroke path
-    normally does."""
-    if (session.draw_provider_kind != 'GRIDS' or session.grid_ptr is None
-            or not session.grid_mask_dirty):
+def sync_slot_mask(session):
+    """Refresh the resident slot mesh's mask column from the store when the
+    store's mask moved underneath it (Multires_maskGeneration): level switch,
+    blob restore, restack, grids MASK strokes. No-op without a resident slot
+    or while the recorded generation is current — slot_mask_gen resets to 0
+    on rebind and the engine counter starts at 1, so a fresh slot always
+    refreshes once."""
+    if not session.mesh_ptr or not session.multires_ptr:
         return
     lib = engine.capi().lib
-    if lib.GridStroke_sync(session.grid_ptr) == 2:
-        session.grid_generation += 1
-        session.grid_cursor = 0
-        session.grid_undo_bytes_base = 0
-    lib.GridStroke_syncMask(session.grid_ptr)
-    session.grid_mask_dirty = False
+    gen = lib.Multires_maskGeneration(session.multires_ptr)
+    if gen == session.slot_mask_gen:
+        return
+    import numpy as np
+
+    level = session.multires_active_level
+    nv = lib.Multires_levelVertCount(session.multires_ptr, level)
+    mask = np.zeros(nv, dtype=np.float32)
+    if lib.Multires_readDomainMask(session.multires_ptr, level, mask, nv):
+        lib.Mesh_writeVertFloatAttr(session.mesh_ptr, _SC_MASK, mask)
+        if session.tree_ptr and session.draw_provider_kind == 'SLOT':
+            lib.refreshTreeRequestedAttrs(session.tree_ptr)
+    session.slot_mask_gen = gen
+
+
+def fold_slot_mask(session):
+    """Fold mesh-path mask edits — the resident slot's `.spatial.v.mask`
+    column — into the store as an EDIT (upward delta-prolongation, down-debt),
+    keyed on an actual diff against the domain, so it is a no-op when nothing
+    wrote the column. Covers the mesh-path MASK fallback stroke and attr-undo
+    restores, both of which write the column without touching the store."""
+    if not session.mesh_ptr or not session.multires_ptr:
+        return
+    import numpy as np
+
+    lib = engine.capi().lib
+    if lib.Multires_maskGeneration(session.multires_ptr) != session.slot_mask_gen:
+        # The store moved since the column last synced (a grids MASK stroke,
+        # a restore): the column is a stale cache, not host edits — folding
+        # it would overwrite the newer store content. Host mask-edit paths
+        # always sync first (use_slot_provider), so a stale column cannot be
+        # carrying legitimate edits.
+        return
+    level = session.multires_active_level
+    nv = lib.Multires_levelVertCount(session.multires_ptr, level)
+    col = np.empty(nv, dtype=np.float32)
+    if not lib.Mesh_readVertFloatAttr(session.mesh_ptr, _SC_MASK, col):
+        return
+    cur = np.zeros(nv, dtype=np.float32)
+    if not lib.Multires_readDomainMask(session.multires_ptr, level, cur, nv):
+        return
+    changed = np.nonzero(col != cur)[0].astype(np.int32)
+    if not len(changed):
+        return
+    lib.Multires_editDomainMask(session.multires_ptr, level,
+                                np.ascontiguousarray(changed),
+                                np.ascontiguousarray(col[changed], dtype=np.float32),
+                                len(changed))
+    # The fold bumped the generation while the column already IS the store's
+    # new content: record it, or sync_slot_mask would rewrite the column
+    # with the values it was just given.
+    session.slot_mask_gen = lib.Multires_maskGeneration(session.multires_ptr)
 
 
 def _rebind_multires_views(session, active_level):
@@ -1894,6 +1937,9 @@ def _rebind_multires_views(session, active_level):
     session.meshlog = None
     session.meshlog_cursor = 0
     session.mesh_obj = None
+    # The new slot's column was seeded whenever it was materialized; force a
+    # store->column refresh against the store's current generation.
+    session.slot_mask_gen = 0
     if session.draw_key:
         # Level switch (or slot rematerialization): rebind the provider. The
         # grids source is bound to one level, so it re-registers for the new
@@ -1903,6 +1949,8 @@ def _rebind_multires_views(session, active_level):
             use_slot_provider(session)
         else:
             use_grids_provider(session)
+    if session.mesh_ptr:
+        sync_slot_mask(session)
 
 
 def multires_store_blob(session, skip_writeback=False):
@@ -1951,18 +1999,15 @@ def multires_restore_blob(ob, session, blob, level):
     else:
         actual = lib.Multires_setActiveLevelLazy(session.multires_ptr, level)
     _rebind_multires_views(session, actual)
-    # The restore invalidated the slot meshes and their mask columns with
-    # them; re-seed at the restored level so mask state survives the seek.
-    import bpy
-    session.multires_mask_base = multires.import_mask(
-        ob, bpy.context.evaluated_depsgraph_get(), session.mesh_ptr,
-        session.multires_map, session.multires_ptr, actual)
+    # The restore bumped the store's mask generation; the rebind above
+    # early-returns when the slot pointers did not change, so sync the
+    # resident column here explicitly.
+    sync_slot_mask(session)
     # The restore invalidated every grid domain too — the engine grids
     # session re-binds on its next sync, and its undo history is gone.
     session.grid_generation += 1
     session.grid_cursor = 0
     session.grid_undo_bytes_base = 0
-    session.grid_mask_dirty = True
     # The store now equals this blob; a new stroke branches from here.
     session.multires_last_blob = blob
     return True
@@ -2052,9 +2097,6 @@ def sync_multires_total_levels(ob):
     md.show_viewport = False
     session.multires_map = multires.build_map(ob, depsgraph, session.multires_ptr, have, len(top))
     _rebind_multires_views(session, lib.Multires_setActiveLevel(session.multires_ptr, have))
-    session.multires_mask_base = multires.import_mask(
-        ob, bpy.context.evaluated_depsgraph_get(), session.mesh_ptr,
-        session.multires_map, session.multires_ptr, have)
     if session.draw_key:
         lib.sc_external_draw_update(session.draw_key)
 
@@ -2071,10 +2113,9 @@ def set_multires_level(ob, level):
     """Switch a multires session's active engine level (C2). The engine
     writes the outgoing level's edits back into the store; finer detail rides
     on top of coarser edits through the displacement cascade. The paint mask
-    lives on the level mesh (dropped with the evicted slot), so leaving any
-    level persists it to the grid paint mask (delta-based — see
-    multires.export_mask) and arriving re-seeds from it at the new level's
-    lattice."""
+    lives in the store (MK4) and crosses level switches there; the arriving
+    slot's column refreshes from it in _rebind_multires_views. CD export
+    happens only at flush."""
     import bpy
 
     session = engine.sessions.get(ob.name)
@@ -2089,10 +2130,9 @@ def set_multires_level(ob, level):
         # while the log can still seek them.
         from . import undo
         undo.materialize_grid_blobs(session)
-        session.multires_mask_base = multires.export_mask(
-            ob, bpy.context.evaluated_depsgraph_get(), session.mesh_ptr,
-            session.multires_map, session.multires_ptr, was,
-            session.multires_mask_base)
+        # Mesh-path mask edits live only in the slot column until folded;
+        # the switch drops the slot, so fold before it goes.
+        fold_slot_mask(session)
     if session.mesh_ptr:
         actual = lib.Multires_setActiveLevel(session.multires_ptr, level)
     else:
@@ -2100,13 +2140,6 @@ def set_multires_level(ob, level):
         # unmaterialized until a mesh-path tool needs it.
         actual = lib.Multires_setActiveLevelLazy(session.multires_ptr, level)
     _rebind_multires_views(session, actual)
-    if actual != was:
-        session.multires_mask_base = multires.import_mask(
-            ob, bpy.context.evaluated_depsgraph_get(), session.mesh_ptr,
-            session.multires_map, session.multires_ptr, actual)
-        # A slot-column import is ahead of the domain until the next grids
-        # sync; a domain-direct import (lazy) is current everywhere.
-        session.grid_mask_dirty = bool(session.mesh_ptr)
     if actual != was:
         # The switch changed the store (downward settles down-propagation
         # into the coarser levels; either direction folds pending slot
@@ -2123,8 +2156,8 @@ def _flush_multires(ob, session):
     so the suppressed modifier viewport state does not affect it. Dumping the
     top level moves the engine's active level there; restore the sculpt level
     afterwards (a no-op rebind while the slots stay resident). The paint mask
-    is exported at whatever level is active — before the bake's level dance,
-    while session.mesh_ptr certainly still names the active slot."""
+    is exported from the store's top level (MK4) — after folding any pending
+    slot-column edits, so a mesh-path stroke or attr-undo reaches the file."""
     import bpy
 
     depsgraph = bpy.context.evaluated_depsgraph_get()
@@ -2149,10 +2182,8 @@ def _flush_multires(ob, session):
         _flush_face_sets(ob.data, session.cage_ptr)
         _flush_color(ob.data, session.cage_ptr, len(ob.data.vertices),
                      session.color_attr_name)
-    session.multires_mask_base = multires.export_mask(
-        ob, depsgraph, session.mesh_ptr, session.multires_map,
-        session.multires_ptr, session.multires_active_level,
-        session.multires_mask_base)
+    fold_slot_mask(session)
+    multires.export_mask(ob, depsgraph, session.multires_map, session.multires_ptr)
     multires.export_bake(ob, depsgraph, session.multires_ptr, session.multires_map)
     # Multires_levelPositionsOut reads the chain now — the bake no longer
     # moves the active level, so there is no level dance to undo (and a

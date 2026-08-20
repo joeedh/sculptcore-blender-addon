@@ -362,8 +362,9 @@ def push_attr(context, ob, session, message, kind, attr, blob_before, blob_after
     key = _next_key
     _next_key += 1
     if attr == convert._SC_MASK:
-        session.grid_mask_dirty = True
-        convert.refresh_grids_mask(session)
+        # The op wrote the slot column; fold so the store (the mask truth,
+        # MK4) and the grid domain see it now, not at the next fold point.
+        convert.fold_slot_mask(session)
     _pending[key] = (_ATTR_TAG, ob.name, session.generation,
                      kind, attr, blob_before, blob_after)
     bpy.ops.object.custom_mode_undo_push(
@@ -437,8 +438,9 @@ def _decode_attr(context, ob, session, info, direction, is_final):
     if kind in _CAGE_RESTAMP:
         _CAGE_RESTAMP[kind](session)
     if attr == convert._SC_MASK:
-        session.grid_mask_dirty = True
-        convert.refresh_grids_mask(session)
+        # The restore rewrote the slot column; fold it into the store so an
+        # undone mask flood is undone in the mask truth too (MK4).
+        convert.fold_slot_mask(session)
     # Flush on the leave decode too, not only on the final one: an undo whose
     # destination is a step this type never decodes (e.g. the mode-enter
     # memfile boundary) would otherwise leave the restored column engine-only,
@@ -466,7 +468,6 @@ def _decode_grid(context, ob, session, info, direction, is_final):
         session.grid_generation += 1
         session.grid_cursor = 0
         session.grid_undo_bytes_base = 0
-        session.grid_mask_dirty = True
         live = False
     if live:
         if direction < 0 and not is_final:

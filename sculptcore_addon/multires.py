@@ -73,10 +73,6 @@ class MultiresMap:
         # attribute exchange, e.g. the paint mask). Derived from the grid
         # tables: each grid sample names its engine vertex.
         self.engine_vert_to_blender = engine_vert_to_blender
-        # level -> (grid-sample -> engine level-mesh vertex) tables, built
-        # lazily for the per-level mask exchange (the top level's is seeded by
-        # build_map). A level switch reuses these; a restack rebuilds the map.
-        self.level_grid_verts = {}
 
 
 def build_engine(base_arrays, level):
@@ -167,7 +163,6 @@ def build_map(ob, depsgraph, mr_ptr, level, blender_verts_num):
     engine_vert_to_blender[grid_verts[valid]] = engine_sample_to_blender[valid]
     mapping = MultiresMap(level, grid_size, engine_sample_to_blender,
                           blender_to_engine_sample, engine_vert_to_blender)
-    mapping.level_grid_verts[level] = grid_verts
     return mapping
 
 
@@ -205,78 +200,21 @@ def export_bake(ob, depsgraph, mr_ptr, mapping):
     ob.data.update_tag()
 
 
-# Mask exchange (A4). The engine mask lives on the *active level* mesh's
-# `.spatial.v.mask` column, Blender's on CD_GRID_PAINT_MASK — a top-level
-# lattice. The exchange is level-aware: importing to a lower level restricts
-# the top lattice to the level's own (every level sample coincides with a top
-# sample), and exporting from a lower level prolongates the user's *delta*
-# bilinearly and adds it into the stored mask, so finer-lattice detail the
-# lower level cannot represent is preserved rather than overwritten. The
-# import result is the delta base (kept on the session); an export returns the
-# new base.
+# Mask exchange (MK4). The engine's mask truth is the STORE's "mask" channel
+# (every level; Authored rule), and its top-level sample layout is exactly the
+# engine grid-sample order the map pairs with Blender's subdiv vertices — so
+# both directions of the exchange are exact top-level copies, and a no-edit
+# round trip is bit-identical. Importing also seeds every coarser level by
+# injection (each coarse sample coincides with a top sample); exporting reads
+# the top level alone, since the engine's own edit propagation keeps it
+# current. Slot-mesh mask columns and domain mirrors are caches, refreshed
+# from the store by generation (convert.sync_slot_mask / the engine's write
+# hooks) — nothing here touches them.
 _SC_MASK = b".spatial.v.mask"
 
-
-def _mesh_vert_count(mesh_ptr):
-    import ctypes
-
-    nv, nc, nf, cap = (ctypes.c_int(0) for _ in range(4))
-    engine.capi().lib.Mesh_arraySizes(mesh_ptr, ctypes.byref(nv), ctypes.byref(nc),
-                                      ctypes.byref(nf), ctypes.byref(cap))
-    return nv.value
-
-
-def _level_grid_verts(mapping, mr_ptr, level):
-    """Grid-sample -> engine-vertex table for `level`, cached on the map."""
-    grid_verts = mapping.level_grid_verts.get(level)
-    if grid_verts is None:
-        import sculptcore
-
-        mgr = engine.manager()
-        mr_obj = mgr.get_bound_pointer(
-            mgr.get("sculptcore::subdiv::Multires"), mr_ptr, deref=False)
-        with sculptcore.construct_from_items(mgr, mgr.get("int32"), []) as out:
-            mr_obj.levelGridVertsOut(level, out)
-            grid_verts = out.numpy().copy()
-        mapping.level_grid_verts[level] = grid_verts
-    return grid_verts
-
-
-def _level_lattice(mapping, grid_verts):
-    """(level grid side w, stride f) pairing a level's lattice with the top
-    one: level sample (u, v) coincides with top sample (u*f, v*f) — both sides
-    anchor every level's lattice at the same corner."""
-    top_w = mapping.grid_size
-    area = top_w * top_w
-    grids_num = len(mapping.engine_sample_to_blender) // area
-    if grids_num == 0 or len(grid_verts) % grids_num:
-        raise engine.EngineError("SculptCore: multires level sample count "
-                                 "does not tile the grids")
-    level_area = len(grid_verts) // grids_num
-    w = int(round(level_area ** 0.5))
-    if w * w != level_area or w < 2:
-        raise engine.EngineError("SculptCore: multires level lattice is not "
-                                 "square ({} samples/grid)".format(level_area))
-    f, rem = divmod(top_w - 1, w - 1)
-    if rem:
-        raise engine.EngineError("SculptCore: multires level lattice ({}) does "
-                                 "not subdivide the top one ({})".format(w, top_w))
-    return w, f
-
-
-def _prolongate(grids, f):
-    """Bilinearly upsample `(n, w, w)` grid lattices by integer factor `f`."""
-    import numpy as np
-
-    if f == 1:
-        return grids
-    n, w, _ = grids.shape
-    top_w = (w - 1) * f + 1
-    idx = np.arange(top_w) / f
-    i0 = np.minimum(idx.astype(np.int64), w - 2)
-    t = (idx - i0).astype(grids.dtype)
-    rows = grids[:, i0, :] * (1.0 - t)[None, :, None] + grids[:, i0 + 1, :] * t[None, :, None]
-    return rows[:, :, i0] * (1.0 - t)[None, None, :] + rows[:, :, i0 + 1] * t[None, None, :]
+# Engine enum values for the mask channel declaration: mesh::AttrType::FLOAT,
+# GridElemDomain::Vertex, GridLevelRule::Authored.
+_MASK_CHANNEL_ARGS = (b"mask", 1, 0, 1, 1, 1)
 
 
 def _stored_top_engine_values(ob, depsgraph, mapping):
@@ -291,78 +229,57 @@ def _stored_top_engine_values(ob, depsgraph, mapping):
     return blender_values[mapping.engine_sample_to_blender]
 
 
-def import_mask(ob, depsgraph, mesh_ptr, mapping, mr_ptr, level):
-    """Seed the engine mask on the active-level engine mesh from the object's
-    grid paint mask, restricted to the level's lattice. Returns the imported
-    per-vertex values (the delta base for export_mask), or None when the
-    object has no mask layer."""
+
+def import_mask(ob, depsgraph, mapping, mr_ptr):
+    """Seed the store's mask channel from the object's grid paint mask: the
+    top level takes the stored lattice verbatim, every coarser level is
+    seeded by injection. Raw channel writes are propagation-free SEEDs (the
+    engine re-mirrors alive domains and marks draw itself). No-op when the
+    object has no mask layer — the channel is not created for maskless
+    objects."""
     import numpy as np
 
     top_values = _stored_top_engine_values(ob, depsgraph, mapping)
     if top_values is None:
-        return None
-    grid_verts = _level_grid_verts(mapping, mr_ptr, level)
-    w, f = _level_lattice(mapping, grid_verts)
-    top_w = mapping.grid_size
-    level_values = np.ascontiguousarray(
-        top_values.reshape(-1, top_w, top_w)[:, ::f, ::f].reshape(-1),
-        dtype=np.float32)
-
+        return
     lib = engine.capi().lib
-    # Lazy slot: no level mesh — the mask lands in the grid domain (and the
-    # store channel) directly; the slot column is seeded from the domain when
-    # a mesh-path tool materializes it (convert.ensure_multires_slot).
-    nv = _mesh_vert_count(mesh_ptr) if mesh_ptr else lib.Multires_levelVertCount(mr_ptr, level)
-    engine_values = np.zeros(nv, dtype=np.float32)
-    valid = (grid_verts >= 0) & (grid_verts < nv)
-    engine_values[grid_verts[valid]] = level_values[valid]
-    if mesh_ptr:
-        lib.Mesh_writeVertFloatAttr(mesh_ptr, _SC_MASK, engine_values)
-    else:
-        lib.Multires_writeDomainMask(mr_ptr, level, engine_values, nv)
-    return engine_values
+    ch = lib.Multires_gridChannelEnsure(mr_ptr, *_MASK_CHANNEL_ARGS)
+    if ch < 0:
+        raise engine.EngineError("SculptCore: engine refused the mask grid channel")
+    top = mapping.level
+    top_w = mapping.grid_size
+    grids = top_values.reshape(-1, top_w, top_w)
+    for level in range(top, 0, -1):
+        f = 1 << (top - level)
+        values = np.ascontiguousarray(grids[:, ::f, ::f].reshape(-1), dtype=np.float32)
+        if lib.Multires_gridChannelWrite(mr_ptr, level, ch, 0, len(grids),
+                                         values, len(values)) != len(values):
+            raise engine.EngineError(
+                "SculptCore: mask channel write failed at level {}".format(level))
 
 
-def export_mask(ob, depsgraph, mesh_ptr, mapping, mr_ptr, level, base):
-    """Write the engine mask back into the object's grid paint mask (created
-    on first use): gather the active level's per-vertex values, subtract the
-    imported `base`, prolongate the delta to the top lattice and add it into
-    the stored mask (clamped to 0..1). Painting the level did not touch leaves
-    the stored mask bit-identical. Returns the new base (the current level
-    values), or None when the engine mesh carries no mask column."""
+def export_mask(ob, depsgraph, mapping, mr_ptr):
+    """Write the store's top-level mask back into the object's grid paint
+    mask (created on first use), clipped to 0..1. The store top is the mask
+    truth — edits at any level reached it through the engine's upward
+    prolongation — so the copy is exact and a no-edit round trip is
+    bit-identical. No-op while the engine holds no mask content (never
+    creates a zero CD layer)."""
     import numpy as np
 
     lib = engine.capi().lib
-    # Lazy slot: read the grid domain's dense mask (the mask truth while no
-    # slot exists); a resident slot's column stays authoritative (mesh-path
-    # mask tools write it).
-    nv = _mesh_vert_count(mesh_ptr) if mesh_ptr else lib.Multires_levelVertCount(mr_ptr, level)
-    current = np.zeros(nv, dtype=np.float32)
-    if mesh_ptr:
-        if not lib.Mesh_readVertFloatAttr(mesh_ptr, _SC_MASK, current):
-            return None
-    else:
-        if not lib.Multires_readDomainMask(mr_ptr, level, current, nv):
-            return None
-
-    grid_verts = _level_grid_verts(mapping, mr_ptr, level)
-    w, f = _level_lattice(mapping, grid_verts)
-    delta = current if base is None else current - base
-    valid = (grid_verts >= 0) & (grid_verts < nv)
-    delta_samples = np.zeros(len(grid_verts), dtype=np.float32)
-    delta_samples[valid] = delta[grid_verts[valid]]
-    if not delta_samples.any():
-        return current
-
-    top_delta = _prolongate(delta_samples.reshape(-1, w, w), f).reshape(-1)
-    stored = _stored_top_engine_values(ob, depsgraph, mapping)
-    if stored is None:
-        stored = np.zeros(len(mapping.engine_sample_to_blender), dtype=np.float32)
-    new_top = np.clip(stored + top_delta, 0.0, 1.0)
-
+    ch = lib.Multires_gridChannelFind(mr_ptr, b"mask")
+    top = mapping.level
+    if ch < 0 or not lib.Multires_gridChannelLevelAllocated(mr_ptr, top, ch):
+        return
+    n = len(mapping.engine_sample_to_blender)
+    top_w = mapping.grid_size
+    top_values = np.empty(n, dtype=np.float32)
+    if lib.Multires_gridChannelRead(mr_ptr, top, ch, 0, n // (top_w * top_w),
+                                    top_values, n) != n:
+        return
     blender_values = np.zeros(len(mapping.blender_to_engine_sample), dtype=np.float32)
-    blender_values[mapping.engine_sample_to_blender] = new_top
+    blender_values[mapping.engine_sample_to_blender] = np.clip(top_values, 0.0, 1.0)
     ob.multires_mask_from_vert_values(
         depsgraph, np.ascontiguousarray(blender_values, dtype=np.float32))
     ob.data.update_tag()
-    return current

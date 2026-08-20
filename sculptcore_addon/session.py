@@ -125,7 +125,7 @@ class Session:
         # The slot mesh's mask column changed since the grids domain mirror
         # last pulled it (flood fill, mask import, attr-undo, domain rebuild)
         # — the next grids stroke re-syncs. O(level), so flag-driven.
-        "grid_mask_dirty",
+        "slot_mask_gen",
         # The modifier's stack and the engine's have diverged in a way only a
         # re-enter can fix (the base cage was rebuilt, or the engine would not
         # follow a level-count change). Latches so the level-sync handler, which
@@ -148,7 +148,6 @@ class Session:
         # last imported/exported, so the next export writes only the user's
         # delta into CD_GRID_PAINT_MASK (preserving finer-lattice detail when
         # sculpting at a lower level). None when the object has no mask layer.
-        "multires_mask_base",
         # The mesh entered with the *encoded* (INT16_2D corner) custom-normal
         # form: the bridge carries decoded directions and re-encodes on every
         # topology rebuild (convert._load_custom_normals). The second flag
@@ -217,12 +216,11 @@ class Session:
         self.cage_stroke_before = None
         self.dab_regions = []
         self.grid_undo_bytes_base = 0
-        self.grid_mask_dirty = True
+        self.slot_mask_gen = 0
         self.multires_desynced = False
         self.bridged_attrs = []
         self.color_attr_name = None
         self.vert_map_prev = None
-        self.multires_mask_base = None
         self.custom_normal_encoded = False
         self.custom_normal_creep_warned = False
         self.shape_key_names = []

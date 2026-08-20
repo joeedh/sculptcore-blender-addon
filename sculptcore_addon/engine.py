@@ -257,8 +257,6 @@ class _CApi:
         lib.GridStroke_setAnchoredGrab.restype = None
         lib.GridStroke_sync.argtypes = [ctypes.c_void_p]
         lib.GridStroke_sync.restype = ctypes.c_int
-        lib.GridStroke_syncMask.argtypes = [ctypes.c_void_p]
-        lib.GridStroke_syncMask.restype = None
         # Object -> clip matrix for the view-mapped texture UV modes (16 flat
         # floats, row-major). The mesh path reaches the same executor setter
         # through reflection; a grids session is a raw pointer, so it needs an
@@ -339,6 +337,11 @@ class _CApi:
         lib.Multires_writeDomainMask.argtypes = [ctypes.c_void_p, ctypes.c_int, f32p,
                                                  ctypes.c_int]
         lib.Multires_writeDomainMask.restype = ctypes.c_int
+        lib.Multires_editDomainMask.argtypes = [ctypes.c_void_p, ctypes.c_int, i32p,
+                                                f32p, ctypes.c_int]
+        lib.Multires_editDomainMask.restype = ctypes.c_int
+        lib.Multires_maskGeneration.argtypes = [ctypes.c_void_p]
+        lib.Multires_maskGeneration.restype = ctypes.c_uint64
         lib.GridTree_castRay.argtypes = (
             [ctypes.c_void_p, ctypes.c_int] + [ctypes.c_float] * 6
             + [f32p, ctypes.POINTER(ctypes.c_int)])
