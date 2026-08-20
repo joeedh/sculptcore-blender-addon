@@ -52,10 +52,16 @@ Whether the paint *renders* at cage resolution during the stroke is the half no
 headless run can see, and is checked by eye.
 
 The plain-mesh colorsmooth gate (grids-native-completion CS1) runs first:
-Shift over a paint brush picks COLORSMOOTH on a plain mesh (BSMOOTH on
-multires until CS3 lands the cage-dab entry), and the stroke itself relaxes
+Shift over a paint brush picks COLORSMOOTH, and the stroke itself relaxes
 the colour field toward its topological neighbourhood mean, undone through
 the meshlog like any other mesh-path stroke.
+
+The cage-smooth gate (CS3) runs last: on multires the same toggle routes
+through the engine's cage-dab entry (CageSmooth_*), so the smooth executes on
+the cage colour column at cage resolution — the 1-ring average, not a
+grid-lattice smear — with the touched grids re-derived per dab, the columns
+paired into the stroke's own (dab-empty) meshlog step by undo.push, and the
+result surviving flush, save + reload, and undo.
 """
 
 import os
@@ -340,9 +346,9 @@ def run():
           "COLOR is declined — `color` is Derived, so its grid elements are "
           "a cache the kernel may not author (C2)")
     check(stroke.toggle_kernel_name('SMOOTH', _toggle_brush('PAINT'), session)
-          == "BSMOOTH",
-          "Shift over a paint brush keeps BSMOOTH on multires until CS3's "
-          "cage-dab entry lands (a grid-lattice smear is not a cage blur)")
+          == "COLORSMOOTH",
+          "Shift over a paint brush picks COLORSMOOTH on multires too — the "
+          "cage-dab entry (CS3) smooths at cage resolution, not grid-lattice")
 
     # --- gate 2: the cage carries what the derived samples subdivide ---
     cage_before = _colors(session.cage_ptr)
@@ -490,6 +496,111 @@ def run():
     os.unlink(path)
 
 
+def run_cage_smooth():
+    """CS3: Shift-smooth over a paint brush on multires runs the engine's
+    cage-dab entry. Paint at a deep level first (the plan's L5), then smooth:
+    the dabs execute on the cage colour column — so the centre vert relaxes
+    toward its cage 1-ring mean, never a grid-lattice one — the touched grids
+    re-derive per dab, and undo.push pairs the cage columns with the stroke's
+    own (dab-empty) meshlog step."""
+    ob = _object("cssmoothmr", 2, 5)
+    convert.enter(ob)
+    session = engine.sessions[ob.name]
+    convert.ensure_multires_slot(session)
+    check(session.multires_active_level == 5, "the session is at level 5")
+
+    color_kernel = int(engine.manager().get(
+        "sculptcore::brush::SculptBrushes").items['COLOR'])
+    cs_kernel = int(engine.manager().get(
+        "sculptcore::brush::SculptBrushes").items['COLORSMOOTH'])
+
+    # --- paint at L5: a strong spike on the centre cage vert to blur ---
+    _begin_color_stroke(session, color_kernel)
+    moved = _paint_dab(session, color_kernel, DAB_COLOR)
+    check(moved > 0, "the L5 paint dab touched {:d} nodes".format(moved))
+    undo.scatter_cage_columns(session)
+    stroke.stroke_end(session)
+    undo.push(bpy.context, ob, session)
+
+    cage_before = _colors(session.cage_ptr)
+    slot_before = _colors(session.mesh_ptr)
+    rows = cage_before.reshape(-1, 4)
+    # The centre vert's cage 1-ring on the 2 x 2 grid (edge-connected).
+    ring_mean = rows[[1, 3, 5, 7]].mean(axis=0)
+    dist_before = float(np.linalg.norm(rows[CENTER_VERT] - ring_mean))
+    check(dist_before > 0.3,
+          "the paint left the centre vert far from its cage 1-ring mean "
+          "({:.3f}), so the smooth has a target".format(dist_before))
+    cursor_before = session.meshlog_cursor
+
+    # --- shift-smooth through the cage-dab entry, as the operator drives it ---
+    session.last_stroke_color = True
+    undo.snapshot_cage_columns(session)
+    stroke.stroke_begin(session, cage_kernel=cs_kernel)
+    check(session.last_stroke_cage,
+          "stroke_begin opened the engine cage-smooth session")
+    check(not session.last_stroke_grids, "and it is not a grids-native stroke")
+    sc_brush = stroke._ensure_brush(session)
+    sc_brush.strength = 0.6
+    sc_brush.radius = DAB_RADIUS
+    sc_brush.invert = False
+    sc_brush.writeProps()
+    moved = stroke.apply_dab(session, cs_kernel, DAB_CENTER, DAB_NORMAL, DAB_RADIUS)
+    check(moved > 0, "the cage-smooth dab visited {:d} cage verts".format(moved))
+    stroke.stroke_end(session)
+    check(session.cage_smooth_ptr is None, "stroke_end freed the cage session")
+    check(session.meshlog_cursor == cursor_before + 1,
+          "the stroke owns a meshlog step of its own, dab-empty as it is")
+
+    # --- the smoothing is asserted after undo.push, not after the last dab ---
+    key = undo._next_key
+    undo.push(bpy.context, ob, session)
+    step = undo._pending.get(key)
+    check(step is not None and step[7] is not None and step[8] is not None,
+          "the push paired both sides of the cage colour column")
+    cage_after = _colors(session.cage_ptr)
+    changed = _changed_verts(cage_before, cage_after)
+    check(changed == [CENTER_VERT],
+          "the dab smoothed exactly the cage vert under its centre "
+          "(got {!r})".format(changed))
+    dist_after = float(np.linalg.norm(
+        cage_after.reshape(-1, 4)[CENTER_VERT] - ring_mean))
+    check(dist_after < dist_before,
+          "and moved it toward its cage 1-ring mean "
+          "({:.3f} -> {:.3f})".format(dist_before, dist_after))
+    check(_cage_derived(session),
+          "the level's samples are a pure function of the smoothed cage — "
+          "cage-resolution smoothing, still true after the push")
+
+    # --- undo restores the paint spike exactly; redo re-smooths ---
+    undo.decode(bpy.context, ob, key, -1, False)
+    check(np.array_equal(_colors(session.cage_ptr), cage_before),
+          "undo restored the pre-smooth cage column exactly")
+    check(np.array_equal(_colors(session.mesh_ptr), slot_before),
+          "and re-derived the level from it")
+    undo.decode(bpy.context, ob, key, 1, False)
+    check(np.array_equal(_colors(session.cage_ptr), cage_after),
+          "redo smoothed it again")
+
+    # --- and the smoothed colours survive flush + save + reload ---
+    convert.flush(ob)
+    data_final = _mesh_colors(ob.data)
+    check(data_final is not None and cage_after is not None
+          and np.allclose(data_final[CENTER_VERT * 4:CENTER_VERT * 4 + 4],
+                          cage_after[CENTER_VERT * 4:CENTER_VERT * 4 + 4],
+                          atol=1e-6),
+          "ob.data holds the smoothed centre vert after flush")
+    convert.exit_(ob)
+    path = os.path.join(tempfile.gettempdir(), "sculptcore_cage_smooth_gate.blend")
+    bpy.ops.wm.save_as_mainfile(filepath=path)
+    bpy.ops.wm.open_mainfile(filepath=path)
+    reloaded = _mesh_colors(bpy.data.objects["cssmoothmr"].data)
+    check(reloaded is not None and data_final is not None
+          and np.allclose(reloaded, data_final, atol=1e-6),
+          "the smoothed colours survived save + reload")
+    os.unlink(path)
+
+
 def main():
     global VERBOSE
 
@@ -509,6 +620,9 @@ def main():
 
     print("multires colour gate")
     run()
+
+    print("multires cage-smooth gate (CS3)")
+    run_cage_smooth()
 
     if FAILURES:
         print("\nFAILED ({:d}):".format(len(FAILURES)))

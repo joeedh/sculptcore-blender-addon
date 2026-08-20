@@ -313,6 +313,24 @@ class _CApi:
         lib.MeshStroke_dabBatchProgram.restype = ctypes.c_int
         lib.GridStroke_end.argtypes = [ctypes.c_void_p]
         lib.GridStroke_end.restype = None
+        # Cage-dab colour smoothing over multires (grids-native-completion CS3):
+        # dabs run on the cage colour column and re-derive the touched grids.
+        lib.CageSmooth_new.argtypes = [
+            ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p]
+        lib.CageSmooth_new.restype = ctypes.c_void_p
+        lib.CageSmooth_free.argtypes = [ctypes.c_void_p]
+        lib.CageSmooth_free.restype = None
+        lib.CageSmooth_begin.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
+        lib.CageSmooth_begin.restype = ctypes.c_int
+        # `signs` is c_void_p (not the ndpointer) so a mirror-free call can
+        # pass None.
+        lib.CageSmooth_dabBatch.argtypes = [
+            ctypes.c_void_p, ctypes.c_int, ctypes.c_int, f32p,
+            ctypes.c_float, ctypes.c_int, ctypes.c_float, ctypes.c_int,
+            ctypes.c_void_p, ctypes.c_int]
+        lib.CageSmooth_dabBatch.restype = ctypes.c_int
+        lib.CageSmooth_end.argtypes = [ctypes.c_void_p]
+        lib.CageSmooth_end.restype = None
         lib.GridStroke_canUndo.argtypes = [ctypes.c_void_p]
         lib.GridStroke_canUndo.restype = ctypes.c_int
         lib.GridStroke_canRedo.argtypes = [ctypes.c_void_p]

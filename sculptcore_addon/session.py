@@ -109,6 +109,8 @@ class Session:
         # the multires cage write-back their layer needs.
         "last_stroke_face_sets",
         "last_stroke_color",
+        "cage_smooth_ptr",
+        "last_stroke_cage",
         # The cage columns as they stood when the current stroke began, for
         # the layers it paints: each dab carries its paint onto the cage, so
         # by the time undo.push runs there is no "before" left to read (see
@@ -213,6 +215,8 @@ class Session:
         self.last_stroke_grids = False
         self.last_stroke_face_sets = False
         self.last_stroke_color = False
+        self.cage_smooth_ptr = None
+        self.last_stroke_cage = False
         self.cage_stroke_before = None
         self.dab_regions = []
         self.grid_undo_bytes_base = 0
@@ -274,6 +278,10 @@ class Session:
             # Before the Multires it references.
             lib.GridStroke_free(self.grid_ptr)
             self.grid_ptr = None
+        if self.cage_smooth_ptr:
+            # Same ordering rule: the cage-smooth session references the Multires.
+            lib.CageSmooth_free(self.cage_smooth_ptr)
+            self.cage_smooth_ptr = None
         if self.multires_ptr:
             # mesh_ptr/tree_ptr are the stack's active-level views (stack-owned);
             # the cage outlives the stack (Multires_new does not own it).

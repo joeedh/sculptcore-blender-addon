@@ -198,21 +198,18 @@ def program_grids_capable(session, main_kernel):
 def toggle_kernel_name(mode, brush, session):
     """Kernel for a Shift/Alt stroke toggle (vanilla brush_toggle semantics).
 
-    Shift over a paint brush blurs colour, as vanilla sculpt does — but only on
-    a non-multires session for now. On multires a colour stroke takes the cage
-    route, and its per-dab collapse is only correct for pointwise kernels: a
-    neighbour-reading smooth would average over grid-lattice neighbours (mid-edge
-    and face-centre samples), not the cage 1-ring (§6.3 of
-    plans/grid-domain-attributes.md), so multires keeps BSMOOTH until the
-    engine's cage-dab entry lands (grids-native-completion CS3).
+    Shift over a paint brush blurs colour, as vanilla sculpt does. On multires
+    the stroke runs through the engine's cage-dab entry (CageSmooth_*): dabs
+    execute on the cage colour column at cage resolution — the 1-ring average a
+    neighbour-reading smooth needs — and the touched grids re-derive per dab
+    (grids-native-completion CS2/CS3).
 
     A plain function rather than inline invoke code: the verify harness drives
     ``stroke_begin``/``apply_dab`` directly and never runs the modal operator.
     """
     if mode != 'SMOOTH':
         return "MASK"
-    if (brush is not None and brush.sculpt_brush_type in mapping.COLOR_TYPES
-            and not session.multires_ptr):
+    if brush is not None and brush.sculpt_brush_type in mapping.COLOR_TYPES:
         return "COLORSMOOTH"
     return "BSMOOTH"
 
@@ -248,8 +245,9 @@ def _grid_session(session):
 
 
 def stroke_begin(session, *, has_dyntopo=False, accumulate=True, anchored_grab=True,
-                 grids_kernel=None):
+                 grids_kernel=None, cage_kernel=None):
     session.last_stroke_grids = False
+    session.last_stroke_cage = False
     if grids_kernel is not None and grids_capable(session, grids_kernel):
         grid = _grid_session(session)
         if grid is not None:
@@ -271,11 +269,29 @@ def stroke_begin(session, *, has_dyntopo=False, accumulate=True, anchored_grab=T
                 if session.draw_provider_kind != 'GRIDS':
                     convert.use_grids_provider(session)
                 return
-    if session.multires_ptr and session.draw_provider_kind != 'SLOT':
+    if cage_kernel is not None and session.multires_ptr:
+        # Cage-dab colour smoothing (CS3): the stroke's dabs run engine-side
+        # on the cage colour column and re-derive the touched grids. The rest
+        # of the mesh-path stroke shape below still runs — the executor step
+        # is empty, but it is a real meshlog step, so undo.push pairs this
+        # stroke's cage columns with its own step id.
+        lib = engine.capi().lib
+        ptr = lib.CageSmooth_new(session.multires_ptr, session.multires_active_level,
+                                 _ensure_brush(session).ptr)
+        if ptr and not lib.CageSmooth_begin(ptr, convert._SC_COLOR):
+            lib.CageSmooth_free(ptr)
+            ptr = None
+        if ptr:
+            session.cage_smooth_ptr = ptr
+            session.last_stroke_cage = True
+    if (session.multires_ptr and session.draw_provider_kind != 'SLOT'
+            and not session.last_stroke_cage):
         # Mesh-path stroke on a multires session: its edits land in the slot
         # mesh, which the grids source cannot see — draw the slot tree for
         # the duration (first flip pays the slot GPU-buffer build; the
         # ride-along mirror keeps the slot current, so no heal is needed).
+        # A cage stroke's epilogue re-derives into both draw sources, so it
+        # keeps whichever provider is active.
         convert.use_slot_provider(session)
     executor = _ensure_executor(session)
     executor.beginStep(has_dyntopo)
@@ -408,6 +424,18 @@ def apply_dab(session, brush_type, center, normal, radius):
     grids-native strokes return the moved-vert count instead."""
     import sculptcore
 
+    if session.last_stroke_cage:
+        # Cage-dab route: one primary image per call (symmetry mirrors arrive
+        # as their own calls, already reflected). Strength was written by
+        # apply_dab_state's per-pass override; the pressure LUT is folded in
+        # there too, so the engine's own stays off.
+        import numpy as np
+        dab = np.array([center[0], center[1], center[2],
+                        normal[0], normal[1], normal[2], radius],
+                       dtype=np.float32)
+        return engine.capi().lib.CageSmooth_dabBatch(
+            session.cage_smooth_ptr, int(brush_type), 1, dab,
+            session.brush_obj.strength, 0, 1.0, 0, None, 0)
     if session.last_stroke_grids:
         # Grids-native: the engine queries its own GridTree, mirrors the slot
         # mesh, and refreshes normals/bounds — no filterNodes/_refresh_queries.
@@ -582,6 +610,13 @@ def stroke_end(session):
         engine.capi().lib.GridStroke_end(session.grid_ptr)
         session.grid_cursor += 1
         return
+    if session.last_stroke_cage and session.cage_smooth_ptr:
+        # Close the cage session first; the (empty) executor step below still
+        # ends normally so the stroke owns a meshlog step for undo.push.
+        lib = engine.capi().lib
+        lib.CageSmooth_end(session.cage_smooth_ptr)
+        lib.CageSmooth_free(session.cage_smooth_ptr)
+        session.cage_smooth_ptr = None
     executor = _ensure_executor(session)
     if session.dyntopo_active:
         executor.endDynTopoStroke()
@@ -832,9 +867,15 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         # Colour is the other layer with no multires domain to live in: the
         # store channel and the slot column both die with the session, so the
         # cage is where a paint stroke's dabs land (§6.3 of
-        # plans/grid-domain-attributes.md).
+        # plans/grid-domain-attributes.md). A Shift-smooth over a paint brush
+        # edits the same cage column through the engine's cage-dab entry, so
+        # it snapshots (and undoes) as a colour stroke too.
+        self._cage_smooth = (kernel_toggle and self.mode == 'SMOOTH'
+                             and self.session.multires_ptr is not None
+                             and self.brush.sculpt_brush_type in mapping.COLOR_TYPES)
         self.session.last_stroke_color = (
-            not kernel_toggle and self.brush.sculpt_brush_type in mapping.COLOR_TYPES)
+            (not kernel_toggle and self.brush.sculpt_brush_type in mapping.COLOR_TYPES)
+            or self._cage_smooth)
         # Both flags are known now, and the cage is untouched: this is the only
         # place the pre-stroke columns can still be read, since every dab from
         # here on writes them.
@@ -964,7 +1005,8 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         # start, absolute cursor drag); every other path dabs along the stroke.
         stroke_begin(self.session, has_dyntopo=self._dyntopo is not None,
                      accumulate=accumulate, anchored_grab=self._grab_class,
-                     grids_kernel=grids_kernel)
+                     grids_kernel=grids_kernel,
+                     cage_kernel=self.kernel if self._cage_smooth else None)
         # The grids session is created inside stroke_begin, so its own copy of
         # the view matrix can only be pushed here — the mesh-path push above
         # rides the long-lived executor.
@@ -1062,7 +1104,7 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         # it touched are re-derived from it -- now, not at stroke end, or the
         # stroke would draw at grid resolution and then snap to the cage's on
         # release (§6.3 of plans/grid-domain-attributes.md).
-        if self.session.multires_ptr:
+        if self.session.multires_ptr and not self.session.last_stroke_cage:
             undo.scatter_cage_columns(self.session)
         if redraw:
             self._mid_redraw(context)
@@ -1127,12 +1169,13 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         a mirror image); None for every other brush."""
         self._dab_count += 1
         seed = self._dab_count
-        if self.session.multires_ptr:
+        if self.session.multires_ptr and not self.session.last_stroke_cage:
             # The region this dab paints, for the per-dab cage collapse: a dab
             # smaller than a base face moves no cage vert, so the collapse has
             # no other way to learn which grids to re-derive (see
             # undo.scatter_cage_columns). Grab-class dabs skip this path and
-            # never write an attribute.
+            # never write an attribute; cage-dab strokes write the cage
+            # directly, so there is nothing to collapse.
             self.session.dab_regions.extend(
                 (position[0], position[1], position[2], world_radius))
         if snake_delta is not None:
