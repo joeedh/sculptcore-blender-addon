@@ -5,7 +5,11 @@ engine commits (one per phase); G5's seam design is
 [design/grids-native-addon-seams.md](../design/grids-native-addon-seams.md)
 and the execution record with every gate/bench number is
 [research/grids-native-brush-path-results.md](../research/grids-native-brush-path-results.md).
-Blender addon wiring remains open (its own plan). Written 2026-08-04, immediately after the
+Blender addon wiring was open when this was written and **has since landed** —
+strokes route through `stroke.py::grids_capable` + the `GridStroke_*` c-api, and
+brush *programs* (Clay's autosmooth) followed in
+[plans/program-grids-routing.md](program-grids-routing.md) on 2026-08-11.
+Written 2026-08-04, immediately after the
 multires stroke optimization work
 ([research/multires-stroke-performance.md](../research/multires-stroke-performance.md)),
 whose conclusion this plan executes: after a ~17× optimization pass (87.8 s →

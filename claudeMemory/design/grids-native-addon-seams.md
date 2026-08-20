@@ -1,6 +1,11 @@
 # Grids-native brush path: addon-facing seams (G5)
 
-**Status: design only — no Blender-side code.** Written 2026-08-04 at the end
+**Status: implemented.** Design only when written; the addon wiring has since
+landed — `stroke.py` routes grids-capable strokes through the `GridStroke_*`
+c-api, the extdraw-from-grids provider replaced the ride-along mirror
+([plans/extdraw-from-grids.md](../plans/extdraw-from-grids.md), with `node_id` a
+stable leaf id), and grid-log undo steps replaced the per-stroke store blob.
+Written 2026-08-04 at the end
 of the engine phases of
 [plans/multires-grids-native-brush-path.md](../plans/multires-grids-native-brush-path.md)
 (G1–G4 landed in the engine; see the plan's gates and

@@ -1,6 +1,9 @@
 # Routing brush programs onto the grids path (and the batch driver)
 
-Status: PRESSURE-TESTED — amended per three adversarial reviews (§9)
+Status: **LANDED 2026-08-11** (S1–S5; addon `4b82690` / `6a60937` + engine) —
+amended before implementation per three adversarial reviews (§9). Clay's stroke
+cost went 862–931 ms to 165–171 ms median, which closed the multires stroke
+perf gap.
 Date: 2026-08-11
 Repos touched: engine (submodule), addon. No fork changes (verified §9).
 

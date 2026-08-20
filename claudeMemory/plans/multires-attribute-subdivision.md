@@ -1,5 +1,10 @@
 # Multires attribute subdivision (UVs, colors, face sets) → the draw system
 
+**Status: LANDED 2026-08-16** — all six work items, with the parity numbers in
+*Measured parity* below. The storage policy this plan introduced later became
+the routing rule for attribute *brushes* too; see
+[plans/grid-domain-attributes.md](grid-domain-attributes.md).
+
 **Problem.** On a multires object the viewport shows no UVs and no vertex
 colors while the mode is active. Three independent reasons:
 
@@ -94,16 +99,25 @@ GridAttrStorage::Temp     engine-owned scratch (AttrFlag::TEMP) — never persis
                           so brushes may always write it per grid element
 ```
 
-Hosts declare their capability (`Multires::declareHostGridAttr(name, type)`;
-c-api `Multires_declareHostGridAttr`). Anything undeclared and not TEMP is
-**Derived**: a brush must write the *cage* attribute, and the grid-element data
-is a cache that gets resubdivided (`markCageDirty(name)`). Derived caches live
-outside `GridsStore` on purpose — they must not enter the undo store blob or
-the serialized level data, being recomputable by definition.
+Hosts declare their capability (`MultiresAttrs::declareHostAttr(name, type)`,
+reached as `mr.gridAttrs()`; c-api `Multires_declareHostGridAttr`). Anything
+undeclared and not TEMP is **Derived**: a brush must write the *cage*
+attribute, and the grid-element data is a cache that gets resubdivided
+(`MultiresAttrs::invalidate(name)`). Derived caches live outside `GridsStore` on
+purpose — they must not enter the undo store blob or the serialized level data,
+being recomputable by definition.
 
-Today the only grids-path attribute write is the paint mask, so the policy's
-live consumer is the derived-cache path; it is the enforcement point a future
-grids-native color brush routes through rather than a per-tool conditional.
+**Where the enforcement point ended up (2026-08-19).** When this was written the
+only grids-path attribute write was the paint mask, and the sentence here
+predicted the policy would be what a future grids-native colour brush routed
+through rather than a per-tool conditional. That is what happened, in
+[plans/grid-domain-attributes.md](grid-domain-attributes.md): `gridAttrPlan`
+(`engine/source/brush/grid_attr_bind.h`) calls `storageFor` and returns
+`Unbindable` for a writable `Derived` attribute, so on a Blender host colour and
+face sets take the mesh path and each dab writes the cage
+(`Multires::scatterVertFloat4ToCage` / `scatterFaceIntToCage`). No tool list is
+consulted anywhere on that decision, and the scene-level override that briefly
+sat in front of it was deleted once the storage class decided first.
 
 ## Work items
 

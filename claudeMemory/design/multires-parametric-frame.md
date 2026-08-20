@@ -1,10 +1,12 @@
 # Multires: derive the tangent frame from the grid parametrization
 
-**Status: partially implemented — Phase 1 landed 2026-07-30.** The frame
-computation and its test gates exist in the engine
-(`Multires::parametricFrames`, `multires.h:239`); the production
-materialization path still runs the F3 cross-field provider, so nothing has
-changed behaviourally yet. Written 2026-07-30,
+**Status (2026-08-19): implemented — this IS the production multires frame.**
+`Multires::parametricFrames()` carries every encode (`storeDispFromPositions`)
+and decode (`applyDisp`) on the multires path, so stored `d` no longer depends
+on a cross-field representative. One consumer still lags:
+`captureDetailToVdm` writes lattice-frame texels while `vdm_bake` /
+`vdm_promote` / `vdm_splat` decode against the provider's `FRAME_*_ATTR`, and
+nothing outside the c-api reaches it (the plan's Phase 3). Written 2026-07-30,
 replacing [multires-object-space-cascade.md](./multires-object-space-cascade.md)
 after that design was killed in pressure testing. Everything under *What exists
 today* is validated against the tree at that date and cited; the rest is

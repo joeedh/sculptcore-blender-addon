@@ -2,10 +2,21 @@
 
 Implements [design/multires-parametric-frame.md](../design/multires-parametric-frame.md).
 Written 2026-07-30 against engine `7979406` ("multires c-api: expose level-count
-mutation"). **Phase 1 has landed** (uncommitted in the engine submodule as of
-2026-07-30); Phases 2–4 are not started. The production materialization path
-still runs the F3 cross-field provider — Phase 1 is dead code plus the gates
-that measure the defect.
+mutation").
+
+**Status (2026-08-19): Phases 1–2 landed; Phase 3 is still open.** The lattice
+frame IS the production frame on the multires path now — every encode
+(`storeDispFromPositions`) and decode (`applyDisp`) goes through
+`Multires::parametricFrames()`, so stored `d` no longer depends on a
+cross-field representative (engine `CLAUDE.md` § *Subdivision and multires*).
+What Phase 3 was for remains true: `captureDetailToVdm` writes texels in the
+lattice frame while the VDM consumers still decode against the provider's
+`FRAME_*_ATTR`, so capture must convert — or the VDM path must adopt the
+lattice frame — before it is wired to a host. Nothing outside the c-api reaches
+it today. Phase 4's measurements were never required to ship.
+
+The text below is the plan as written on 2026-07-30, when Phase 1 was
+uncommitted and the provider was still live.
 
 **The change:** multires stops calling the curvature cross-field frame provider
 and derives its per-vertex tangent frame from the grid's own `(u,v)` lattice, so

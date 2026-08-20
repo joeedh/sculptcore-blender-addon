@@ -26,7 +26,9 @@ Working notes Claude maintains for this repository. See the top-level
   region-restricted co_prev refresh, per-arm symbol-gated batch variants,
   kill switch `sculptcore_grids_programs`. Pressure-tested 2026-08-11 by
   three adversarial lenses (2 KILLs repaired: unsatisfiable vclass oracle,
-  batch-gate staging contradiction; §9 has the log). Not yet implemented.
+  batch-gate staging contradiction; §9 has the log). **Landed 2026-08-11**
+  (S1–S5) — Clay's stroke went 862–931 ms to 165–171 ms median, closing the
+  multires stroke perf gap.
 - [plans/indexed-grid-draws.md](plans/indexed-grid-draws.md)
   — indexed draw buffers for multires grids in the external-draw path: shared
   lattice-row vertex streams + a per-node index buffer generated once at
@@ -35,7 +37,8 @@ Working notes Claude maintains for this repository. See the top-level
   AMENDMENTS** — `GPU_indexbuf_build_from_memory` takes the *primitive* count
   (passing indices_num reads 3× out of bounds), and the smoke test must assert
   `bl_draw_provider != "0"` in Stage 1 (a version-skewed engine/fork pair
-  currently ships silently drawing the base cage). Not yet implemented.
+  currently ships silently drawing the base cage). **Landed 2026-08-10** —
+  indexed draws are on by default, `SC_GRIDS_INDEXED=0` is the soup fallback.
 - [plans/cpp-stroke-driver-adoption.md](plans/cpp-stroke-driver-adoption.md)
   — replacing the addon's Python stroke sampler (`StrokeSpacer` + `stroke_math`
   + per-dab raycasting) with the engine's C++ `BrushStrokeDriver`: phased by
@@ -129,8 +132,8 @@ Working notes Claude maintains for this repository. See the top-level
   is believed. Kills the tasklist's **E7** and restores **1.4**'s original
   merge-policy claim.
 - [plans/grid-domain-attributes.md](plans/grid-domain-attributes.md)
-  — **plan, rev 2 (pressure-tested); P0a–P0d landed 2026-08-17 — every engine
-  brush roster is gone, P1 next.** Per-grid-element vertex and
+  — **COMPLETE: P0a–P5 landed 2026-08-17/19, plus the C1–C4 routing
+  correction.** Per-grid-element vertex and
   face attribute domains, and the deletion of every hand-written switch that
   gates which brushes may run. Capability becomes a computed join of the
   DSL-reflected attr manifest against grid storage policy, so no brush is
@@ -138,9 +141,13 @@ Working notes Claude maintains for this repository. See the top-level
   one shared built-in dispatcher (the `brushes/extra.h` pattern) for both
   executors. A brush whose write the host cannot persist (Blender: everything
   but the mask) redirects to the base mesh attribute instead, as Blender's own
-  multires face sets do — that cage path is the *default*, and none of its
-  plumbing exists yet. Carries the `Session` storage class behind an addon
-  "allow direct multires attr editing (not saved)" checkbox, the store-channel
+  multires face sets do — that cage path is the *default*, and **it is the one
+  colour and face sets take** (C1's per-dab `scatterVertFloat4ToCage` /
+  `scatterFaceIntToCage`, C2's `gridAttrPlan` refusing a writable `Derived`
+  attribute at the bind). The rev-2 design put a `Session` storage class behind
+  an addon "allow direct multires attr editing" checkbox; that did not survive
+  — storage class decides first, which made the checkbox inert, and P5 deleted
+  it. Also carries the store-channel
   domain/type extension, the seam-correct grid edge numbering, and the rule that
   face attributes average **within a grid only** so indexed buffers and seam
   crispness survive. Rev 2's §0 is the useful part on its own: four adversarial
@@ -161,7 +168,10 @@ Working notes Claude maintains for this repository. See the top-level
   legitimately differ.
 - [plans/multires-grids-native-brush-path.md](plans/multires-grids-native-brush-path.md)
   — **engine phases G1–G4 executed 2026-08-04** (see the results doc below);
-  Blender wiring still open. The direct grids editing path that closes the
+  Blender wiring has since landed — strokes route through
+  `stroke.py::grids_capable` + the `GridStroke_*` c-api, and brush programs
+  followed in `plans/program-grids-routing.md` on 2026-08-11. The direct grids
+  editing path that closes the
   residual ~6× multires gap: sculpt on the dense level-vert position buffer
   (`LevelPos::pos`) with lattice-CSR neighbors instead of a materialized
   `mesh::Mesh` — chosen over a Blender-style replicated CCG layout because the
@@ -172,6 +182,15 @@ Working notes Claude maintains for this repository. See the top-level
   of `debug/`), touched-set writeback, the ride-along mirror that keeps draw
   correct until an extdraw-from-grids provider exists, and five phases with
   parity/undo/perf gates. Blender wiring is explicitly out of scope.
+- [plans/extdraw-from-grids.md](plans/extdraw-from-grids.md)
+  — **v2 landed 2026-08-06; the lazy slot has since landed too.** The
+  external-draw provider fed from a level's `GridLevelDomain` instead of the
+  materialized slot mesh: writeback authority first (who owns a vert's value
+  while both a slot and a domain exist), then the provider, mask authority,
+  the two-way provider flip, and finally dropping the slot — a grids-native
+  session now has null `activeMesh`/`activeTree` until something on the mesh
+  path asks (`convert.ensure_multires_slot`). Killed a v1 that had the slot
+  stay authoritative.
 - [research/grids-native-brush-path-results.md](research/grids-native-brush-path-results.md)
   — the G1–G4 execution record: what landed per phase, every gate result
   (draw/clay/pinch/sharp A/B bit-exact, undo bit-exact, CPU-vs-GPU grids
@@ -224,8 +243,11 @@ Working notes Claude maintains for this repository. See the top-level
 - [plans/multires-parametric-frame.md](plans/multires-parametric-frame.md)
   — the implementation plan for the design below: four phases, all in the engine
   submodule (`source/subdiv/multires.cc`), each independently shippable.
-  **Phase 1 landed 2026-07-30** (frame computation + gates, no behaviour
-  change); its outcome section carries the A/B that reproduces the defect — the
+  **Phases 1–2 landed** — the lattice frame IS the production frame now, every
+  encode and decode through `Multires::parametricFrames()`; Phase 3
+  (`captureDetailToVdm` still writes lattice-frame texels that the VDM
+  consumers decode against the provider frame) remains open. Phase 1's outcome
+  section carries the A/B that reproduces the defect — the
   provider tangent *reverses* (dot −0.999962) on a nudged cube cage where the
   parametric one holds at 0.999970. Records what re-validation against engine
   `7979406` corrected in the design's scope — a third frame-population site in
@@ -234,8 +256,8 @@ Working notes Claude maintains for this repository. See the top-level
   `ensureChain`, and the capture-refusal that closes the mixed-frame-space
   window the design's suggested order left open.
 - [design/multires-parametric-frame.md](design/multires-parametric-frame.md)
-  — **Phase 1 implemented; the production path is unchanged.** The live
-  multires design: derive the tangent frame from the grid's own `(u,v)` lattice
+  — **implemented; the lattice frame is the production multires frame.** The
+  live multires design: derive the tangent frame from the grid's own `(u,v)` lattice
   instead of the curvature cross field, which removes the discrete detail-flip
   outright (a symmetry image, measured at a full 180° reversal) because a
   lattice makes no choice among symmetric alternatives. Covers why the frame

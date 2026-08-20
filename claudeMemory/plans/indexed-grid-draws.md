@@ -1,4 +1,8 @@
-# Indexed draw buffers for multires grids (external-draw path) — PLAN
+# Indexed draw buffers for multires grids (external-draw path) — LANDED 2026-08-10
+
+**Status: all stages complete**; indexed draws are on by default and
+`SC_GRIDS_INDEXED=0` is the soup-fallback rollback lever. The implementation
+notes below record where the plan and the landing differ.
 
 ## Implementation notes (2026-08-10, Stages 1–2)
 
