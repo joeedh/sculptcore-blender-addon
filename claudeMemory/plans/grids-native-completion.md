@@ -1,6 +1,6 @@
 # Grids-native completion: colorsmooth, layerdraw, mask, and the switch audit
 
-Status: **rev 2, 2026-08-20. No phase started.** Rev 1 (2026-08-19) was
+Status: **rev 2, 2026-08-20. Executing — §7 questions resolved, SW0 first.** Rev 1 (2026-08-19) was
 pressure-tested by five fresh-context adversarial agents (one lens each:
 CS buildability, LD semantics, MK semantics, SW feasibility, cross-cutting
 seams). Three kill-class findings and twelve majors survived verification and
@@ -480,23 +480,18 @@ LD2's roster golden and SW2's map golden are independent files (LAYERDRAW has
 no GPU kernel and never enters the map). Every engine phase co-commits its
 gitlink bump.
 
-## 7. Open questions (user input wanted before the affected phase)
+## 7. Open questions — RESOLVED by the user, 2026-08-20
 
-1. **LD3:** wire Blender's LAYER brush? Rev 2 scope: mapping entry **plus**
-   addon layer management (create-on-first-use or a list UI, `setEditTarget`
-   plumbing). Without it no Blender user reaches grids-native layerdraw.
-2. **MK1:** the store-side edit-propagation machinery replaces the addon's
-   numpy delta machine (every consumer benefits; the seed/edit split is
-   preserved). Veto if you'd rather keep the exchange addon-side.
-3. **SW scope:** the debug-app cleanup (SW4) is included; say so if that's
-   noise you'd rather skip.
-4. **The `sculptcore_grids_programs` switch** (table row 12): delete under the
-   precedent that killed `sculptcore_grid_attrs`, or keep as a deliberate
-   user-facing escape hatch? Deleting folds into MK2's `grids_capable`
-   rewrite; keeping means refreshing its docstrings instead.
-5. **FEATURE_ALIGN hook asymmetry** (SW3): its region pre-passes exist only in
-   the program path today — preserve that asymmetry exactly, or unify so the
-   debug app's single-tool path gets them too (a deliberate behaviour change)?
+1. **LD3: wire it, with a layer list UI.** Full layer management panel
+   (add/remove/select/weight) plus the mapping entry — the larger addon phase.
+2. **MK1: default taken** — the store-side edit-propagation machinery replaces
+   the addon's numpy delta machine.
+3. **SW scope: default taken** — SW4 (debug-app cleanup) stays in scope.
+4. **The `sculptcore_grids_programs` switch: delete it**, folded into MK2's
+   `grids_capable` rewrite, per the `sculptcore_grid_attrs` precedent.
+5. **FEATURE_ALIGN (SW3): unify both paths** — `execBrush` gains the region
+   pre-passes too. A deliberate behaviour change in the debug app's
+   single-tool path; SW3's gate must cover it explicitly.
 
 ## 8. Out of scope, restated
 
