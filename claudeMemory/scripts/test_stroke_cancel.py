@@ -128,9 +128,14 @@ class Runner:
         elif self.phase == 1:
             self.z_start = probe_z()
             # Stroke 1: press + moves, NO release, then ESC next tick.
+            # The whole point list, not a prefix: a dab lands only once the
+            # stroke has travelled one dab spacing, and spacing scales with
+            # the brush radius. A 4-move prefix used to clear it and no
+            # longer does, which cancels a stroke that applied nothing and
+            # fails the check below on its premise rather than its subject.
             push(self.window, 'MOUSEMOVE', 'NOTHING', p[0])
             push(self.window, 'LEFTMOUSE', 'PRESS', p[0])
-            for point in p[1:5]:
+            for point in p[1:]:
                 push(self.window, 'MOUSEMOVE', 'NOTHING', point)
         elif self.phase == 2:
             push(self.window, 'ESC', 'PRESS', p[4])

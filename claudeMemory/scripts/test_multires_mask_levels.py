@@ -26,7 +26,7 @@ import numpy as np
 
 import bpy
 
-from sculptcore_addon import convert, engine, handlers, multires
+from sculptcore_addon import convert, engine, handlers, multires, ops
 
 # This test drives the conversion layer directly without entering the custom
 # mode, so the addon's depsgraph reconcile handler (which frees sessions of
@@ -68,21 +68,34 @@ def main():
           "session entered at sculpt_levels (level 2 of {})".format(
               session.multires_level))
 
-    # The active-level engine mesh must carry the restricted mask.
+    # The store's mask channel is the one mask truth (MK4), read at the level
+    # the session actually sits on. Nothing is materialized at enter -- the
+    # slot is lazy -- so this must not go through session.mesh_ptr.
     lib = engine.capi().lib
-    nv = convert.mesh_vert_num(session.mesh_ptr)
-    engine_mask = np.zeros(nv, dtype=np.float32)
-    got = lib.Mesh_readVertFloatAttr(session.mesh_ptr, b".spatial.v.mask", engine_mask)
-    check(bool(got), "engine mask column exists at the sculpt level")
+    engine_mask, level = ops._mask_state(session)
+    nv = len(engine_mask)
+    check(level == session.multires_active_level,
+          "mask truth is the active level's grid domain (level {})".format(level))
+    check(nv == lib.Multires_levelVertCount(session.multires_ptr, level),
+          "domain mask is dense over the sculpt level ({} verts)".format(nv))
     check(engine_mask.any(), "engine mask is non-zero at the sculpt level")
-    base = session.multires_mask_base
-    check(base is not None and np.allclose(base, engine_mask),
-          "session mask base matches the imported values")
 
-    # Paint engine-side at the lower level: bump a fixed subset.
+    # Paint at the lower level the way the mask ops do: an EDIT on the changed
+    # verts (upward delta-prolongation plus down-debt), then the store->column
+    # sync a resident slot would need. Not a column write: there is no push
+    # protocol from the slot mesh back to the store any more.
     painted = engine_mask.copy()
     painted[: nv // 2] = np.clip(painted[: nv // 2] + 0.5, 0.0, 1.0)
-    lib.Mesh_writeVertFloatAttr(session.mesh_ptr, b".spatial.v.mask", painted)
+    changed = np.nonzero(painted != engine_mask)[0].astype(np.int32)
+    check(len(changed) > 0, "the paint actually changes mask values")
+    lib.Multires_editDomainMask(
+        session.multires_ptr, level, np.ascontiguousarray(changed),
+        np.ascontiguousarray(painted[changed], dtype=np.float32), len(changed))
+    convert.sync_slot_mask(session)
+
+    readback, _level = ops._mask_state(session)
+    check(np.allclose(readback, painted),
+          "the edit landed in the store at the sculpt level")
 
     convert.flush(ob)
 
@@ -105,10 +118,9 @@ def main():
     # Round trip down-up: switching to top must show the updated mask.
     convert.set_multires_level(ob, session.multires_level)
     session = engine.sessions.get(ob.name)
-    nv_top = convert.mesh_vert_num(session.mesh_ptr)
-    top_mask = np.zeros(nv_top, dtype=np.float32)
-    got = lib.Mesh_readVertFloatAttr(session.mesh_ptr, b".spatial.v.mask", top_mask)
-    check(bool(got) and top_mask.any(), "mask re-imported at the top level")
+    top_mask, top_level = ops._mask_state(session)
+    check(top_level == session.multires_level, "session moved to the top level")
+    check(top_mask.any(), "mask readable at the top level after the switch")
 
     convert.exit_(ob)
 

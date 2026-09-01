@@ -98,8 +98,9 @@ function run(cmd, args, cwd, extraEnv, shell = false) {
     cwd,
     stdio: 'inherit',
     env: extraEnv ? { ...process.env, ...extraEnv } : process.env,
-    // node/cmake/robocopy resolve from PATH directly; package managers such as
-    // pnpm are .cmd shims on Windows and need a shell to be found (shell=true).
+    // node/robocopy resolve from PATH directly (cmake goes through
+    // resolveCmake); package managers such as pnpm are .cmd shims on Windows
+    // and need a shell to be found (shell=true).
     shell,
   })
   if (res.error) fail(`failed to launch ${cmd}: ${res.error.message}`)
@@ -107,6 +108,154 @@ function run(cmd, args, cwd, extraEnv, shell = false) {
 }
 
 function ensureDir(d) { fs.mkdirSync(d, { recursive: true }) }
+
+// --- cmake discovery -------------------------------------------------------
+//
+// `cmake --build` is how this script drives the Blender fork's build, and it is
+// resolved from PATH — which is not something a dev box guarantees. On this
+// project the PATH cmake came from an emsdk toolchain that was later deleted,
+// and every build died in `CreateProcess failed` from inside ninja rather than
+// anywhere that named cmake. Visual Studio ships its own cmake (and ninja), so
+// a Windows box that can build Blender at all almost always has one; fall back
+// to the newest of those instead of failing.
+//
+// Version matters, not just presence: a CMakeCache.txt written by cmake 4.2
+// cannot be read by the 3.31 that VS 2022 ships, so the candidates are ranked
+// by version and the cache's own recorded version is checked before use.
+
+let CMAKE = null
+
+// Probe one cmake; null when it will not launch.
+function probeCmake(exe) {
+  const res = spawnSync(exe, ['--version'], { encoding: 'utf-8' })
+  if (res.error || res.status !== 0) return null
+  const m = /cmake version (\d+)\.(\d+)(?:\.(\d+))?/.exec(res.stdout || '')
+  if (!m) return null
+  return { exe, ver: [+m[1], +m[2], +(m[3] || 0)] }
+}
+
+function cmpVer(a, b) {
+  for (let i = 0; i < 3; i++) if (a[i] !== b[i]) return a[i] - b[i]
+  return 0
+}
+
+// Every cmake.exe bundled with a Visual Studio install on this machine.
+function vsCmakes() {
+  if (process.platform !== 'win32') return []
+  const roots = new Set()
+
+  // vswhere is the supported query, and the only one that sees non-default
+  // install locations. It ships with the VS Installer, not with VS itself.
+  const vswhere = path.join(
+    process.env['ProgramFiles(x86)'] || 'C:\Program Files (x86)',
+    'Microsoft Visual Studio', 'Installer', 'vswhere.exe')
+  if (fs.existsSync(vswhere)) {
+    const res = spawnSync(vswhere,
+      ['-all', '-prerelease', '-products', '*', '-property', 'installationPath'],
+      { encoding: 'utf-8' })
+    for (const line of (res.stdout || '').split(/\r?\n/)) if (line.trim()) roots.add(line.trim())
+  }
+
+  // Directory scan as well: vswhere is missing on some images, and a preview
+  // or side-by-side edition it does not report still has a usable cmake.
+  for (const base of [process.env.ProgramFiles, process.env['ProgramFiles(x86)']]) {
+    const vsRoot = base && path.join(base, 'Microsoft Visual Studio')
+    if (!vsRoot || !fs.existsSync(vsRoot)) continue
+    for (const year of safeReaddir(vsRoot)) {
+      for (const edition of safeReaddir(path.join(vsRoot, year))) {
+        roots.add(path.join(vsRoot, year, edition))
+      }
+    }
+  }
+
+  const found = []
+  for (const root of roots) {
+    const exe = path.join(root, 'Common7', 'IDE', 'CommonExtensions', 'Microsoft',
+                          'CMake', 'CMake', 'bin', 'cmake.exe')
+    if (fs.existsSync(exe)) found.push(exe)
+  }
+  return found
+}
+
+function safeReaddir(dir) {
+  try {
+    return fs.readdirSync(dir, { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => e.name)
+  } catch {
+    return []
+  }
+}
+
+// The cmake to build with: PATH first, then the newest VS-bundled one.
+function resolveCmake() {
+  if (CMAKE) return CMAKE
+
+  const onPath = probeCmake('cmake')
+  if (onPath) {
+    CMAKE = onPath
+    return CMAKE
+  }
+
+  warn('no working `cmake` on PATH — looking for one shipped with Visual Studio')
+  const candidates = vsCmakes().map(probeCmake).filter(Boolean).sort((a, b) => cmpVer(b.ver, a.ver))
+  if (candidates.length === 0) {
+    fail('no usable cmake found: not on PATH, and no Visual Studio install ships one.\n' +
+         '       Install CMake (or a VS workload with "C++ CMake tools"), or put cmake on PATH.')
+  }
+  CMAKE = candidates[0]
+  log(`using cmake ${CMAKE.ver.join('.')} from ${CMAKE.exe}`)
+  return CMAKE
+}
+
+// The ninja beside a given cmake, when there is one (VS bundles the pair).
+function ninjaBesideCmake(cmakeExe) {
+  const exe = path.join(path.dirname(cmakeExe), '..', '..', 'Ninja', 'ninja.exe')
+  return fs.existsSync(exe) ? path.normalize(exe) : null
+}
+
+function readCache(buildDir) {
+  const file = path.join(buildDir, 'CMakeCache.txt')
+  if (!fs.existsSync(file)) return null
+  const entries = new Map()
+  for (const line of fs.readFileSync(file, 'utf-8').split(/\r?\n/)) {
+    const m = /^([A-Za-z0-9_-]+):[A-Z]+=(.*)$/.exec(line)
+    if (m) entries.set(m[1], m[2])
+  }
+  return entries
+}
+
+// Fail early on the two ways an existing build tree outlives its toolchain,
+// both of which otherwise surface as an unattributable error from deep inside
+// the build: a cache newer than the cmake reading it, and a recorded
+// CMAKE_MAKE_PROGRAM whose executable is gone.
+function checkBuildTreeToolchain(buildDir, cmake, blenderSrc) {
+  const cache = readCache(buildDir)
+  if (!cache) return
+
+  const major = +cache.get('CMAKE_CACHE_MAJOR_VERSION')
+  const minor = +cache.get('CMAKE_CACHE_MINOR_VERSION')
+  if (major && cmpVer([major, minor, 0], [cmake.ver[0], cmake.ver[1], 0]) > 0) {
+    fail(`${buildDir} was configured by cmake ${major}.${minor}, newer than the ` +
+         `cmake ${cmake.ver.join('.')} found at ${cmake.exe}.\n` +
+         '       A newer cache cannot be read by an older cmake — install a matching cmake, ' +
+         'or delete the build tree and reconfigure.')
+  }
+
+  const makeProgram = cache.get('CMAKE_MAKE_PROGRAM')
+  if (!makeProgram || fs.existsSync(makeProgram)) return
+
+  // The build tool the tree was configured with is gone. `cmake --build` would
+  // launch it by that path and fail with CreateProcess errors that name neither
+  // ninja nor the missing path, so repoint the cache at one that exists.
+  const replacement = ninjaBesideCmake(cmake.exe)
+  if (!replacement) {
+    fail(`${buildDir} records CMAKE_MAKE_PROGRAM=${makeProgram}, which no longer exists, ` +
+         'and no replacement ninja was found beside the chosen cmake.\n' +
+         '       Reconfigure the build tree with -DCMAKE_MAKE_PROGRAM=<path to ninja>.')
+  }
+  warn(`build tree's CMAKE_MAKE_PROGRAM (${makeProgram}) is missing — reconfiguring with ${replacement}`)
+  const status = run(cmake.exe, ['-S', blenderSrc, '-B', buildDir, `-DCMAKE_MAKE_PROGRAM=${replacement}`])
+  if (status !== 0) fail(`reconfigure of ${buildDir} failed (code ${status})`)
+}
 
 // Mark the addon as always-enabled for this install.
 //
@@ -261,7 +410,9 @@ async function main() {
   // 1. Build Blender (INSTALL populates bin/).
   if (!opts.skipBlender) {
     log('building Blender (install target)…')
-    const status = run('cmake', ['--build', buildDir, '--target', 'install', '--config', opts.config])
+    const cmake = resolveCmake()
+    checkBuildTreeToolchain(buildDir, cmake, opts.blenderSrc)
+    const status = run(cmake.exe, ['--build', buildDir, '--target', 'install', '--config', opts.config])
     if (status !== 0) fail(`Blender build failed (code ${status})`)
   } else {
     log('skipping Blender build (--skip-blender)')

@@ -160,11 +160,14 @@ def main():
         stroke.apply_dab(session, kernel_draw, (x, 0.4, 1.0), (0.0, 0.0, 1.0), 0.4)
         stroke.stroke_end(session)
         # Exactly what undo.push records for a grids step under demotion.
+        # The trailing pair is the stroke's cage columns: a DRAW stroke moves
+        # no colour or face-set layer, so _push_cage_columns hands back
+        # (None, None) for it -- the faithful value here, not a placeholder.
         undo._pending[9000 + session.grid_cursor] = (
             undo._GRID_TAG, ob.name, session.generation,
             session.grid_generation, session.grid_cursor,
             session.multires_last_blob if session.grid_cursor == 1 else None,
-            None, session.grid_level)
+            None, session.grid_level, None, None)
 
     grid_stroke(-0.1)
     s1_state = slot_positions(session)
