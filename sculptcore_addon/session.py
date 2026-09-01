@@ -233,7 +233,16 @@ class Session:
         self._freed = False
 
     def mesh(self):
-        """Bound Mesh wrapper over the session's engine mesh (cached)."""
+        """Bound Mesh wrapper over the session's engine mesh (cached).
+
+        The slot of a multires session is lazy, so a mesh-path caller must
+        materialize it first (convert.ensure_multires_slot). Binding a null
+        Mesh* here would fault inside the engine instead of anywhere the
+        traceback could name.
+        """
+        if not self.mesh_ptr:
+            raise RuntimeError(
+                "SculptCore: no engine mesh (multires slot not materialized)")
         if self.mesh_obj is None:
             mgr = engine.manager()
             self.mesh_obj = mgr.get_bound_pointer(

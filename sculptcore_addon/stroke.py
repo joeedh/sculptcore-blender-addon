@@ -862,12 +862,17 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         self.session.last_stroke_face_sets = False
         if not kernel_toggle and self.brush.sculpt_brush_type in mapping.FACE_SET_TYPES:
             brush = _ensure_brush(self.session)
+            if self.session.multires_ptr:
+                # Face sets are a Derived grid attribute, so the engine roster
+                # refuses the grids path and the stroke runs mesh-path on the
+                # slot's derived `group` column. The slot is lazy: without this
+                # the wrapper below binds a null Mesh* and the group calls fault.
+                convert.ensure_multires_slot(self.session)
             mesh_obj = self.session.mesh()
             mesh_obj.ensureFaceGroups()
             brush.activeGroup = int(mesh_obj.newFaceGroupId())
-            # On multires this paints the store's `group` session channel
-            # (grids-native) or the SLOT's derived column (mesh path); neither
-            # persists, so undo.push scatters it home either way (§6 of
+            # On multires this paints the SLOT's derived column, which does
+            # not persist, so undo.push scatters it home to the cage (§6 of
             # plans/grid-domain-attributes.md).
             self.session.last_stroke_face_sets = True
         # Colour is the other layer with no multires domain to live in: the
