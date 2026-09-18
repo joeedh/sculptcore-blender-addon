@@ -1,0 +1,1303 @@
+Reading additional input from stdin...
+OpenAI Codex v0.154.0-alpha.6.2
+--------
+workdir: C:\dev\blender\sculptcore-blender-addon
+model: gpt-6-astra
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 01a0b480-6b1b-74e2-b517-d76d82fac8ef
+--------
+user
+Fresh adversarial review of the finer-level mask undo implementation plan.
+Your lens is lifetime: lifetime covers owning state swaps, channel/level identities,
+allocation absence, debt and cached domain lifetime; footprint covers affected-grid
+coverage, delta propagation, dedup complexity, honest undo bytes and test gates.
+Kill the plan against supplied source, reporting concrete blockers with minimal
+corrections and citations. Distinguish acceptance refinements from blockers.
+Use only this source packet. No tools, commands, edits, builds or delegation.
+Another independent reviewer handles the other lens. This is an authorized review.
+
+<stdin>
+SOURCE FILE: claudeMemory/plans/generic-brush-mask-finer-undo.md
+1: # Plan 6 mask gate: exact finer-level undo
+2: 
+3: Draft for independent storage/lifetime and footprint/acceptance reviews.
+4: The new prepared MASK probe reproduces a preexisting bug: edited-level values
+5: undo, while authored finer-level mask values retain the prolonged stroke delta.
+6: Evidence: `tests/plan6-mask-finer-probe-results.json`, failures in maskFinerUndo.
+7: This blocks the prepared mask completion gate; the staged package remains the
+8: previously passed non-accumulation build.
+9: 
+10: ## Cause
+11: 
+12: `grid_domain.cc::flushMaskToStore(verts)` prolongates the coarse edit upward
+13: and refreshes resident finer mask mirrors. GridStrokeLog captures/swaps only
+14: edited-level blocks. Invalidating finer domains cannot restore their authored
+15: store values. Arithmetic inverse propagation would introduce float-rounding
+16: drift and cannot restore newly allocated versus absent finer-level storage.
+17: 
+18: ## Fix
+19: 
+20: 1. Add mask-specific finer-level capture to GridStrokeLog, invoked from the shared
+21:    gridsFoldStroke immediately before mask flush, alongside coarse block capture.
+22:    Capture all occurrence grids selected for that fold: prolongateChannelEditUp
+23:    never crosses grids, and occurrence enumeration already includes seam replicas.
+24: 2. For each previously allocated finer mask level, snapshot only these grids'
+25:    blocks, plus the level's debt bit. Store channel name, exact FLOAT/one-component/
+26:    vertex metadata and level; resolve current names on seek. Evicted levels may
+27:    rehydrate for capture, as the subsequent edit already requires. Do not copy
+28:    unrelated grids or other channels.
+29: 3. For an unallocated finer level, preserve an empty owning LevelData snapshot
+30:    without allocating/seeding or changing the live store. Undo/redo swap that
+31:    owning level state with live storage, restoring absence exactly and retaining
+32:    the stroke-created allocation only for redo. This avoids materializing a full
+33:    zero level at capture. Add narrow friendship from GridsStore to GridStrokeLog
+34:    for this internal owning swap; do not expose a public mutable storage API.
+35: 4. Keep finer snapshots separate from existing coarse stamps/blocks. Capture each
+36:    (channel, level, grid) once; no quadratic duplicate scans across grid count.
+37:    Shared fold currently captures once, but repeated calls in the same open step
+38:    must preserve the earliest values. For originally absent levels, retain the
+39:    original empty snapshot and let its whole-state swap cover later edits.
+40: 5. Seek swaps coarse blocks, then finer mask snapshots, then refreshes/invalidates
+41:    cached domains in the existing order. Refresh surviving finer mask mirrors
+42:    from restored storage without creating formerly absent levels; existing
+43:    invalidateAbove can drop finer domains. Preserve edited-level attribute debt
+44:    and restore each captured finer level's debt. Channel removal/reindexing must
+45:    not redirect bytes; reject/skip incompatible metadata or removed levels using
+46:    the log's existing safe-skip convention.
+47: 6. Include finer held blocks and owning redo allocations/compressed buffers in
+48:    bytes() so undo trimming remains honest. No file schema or public C ABI change.
+49: 
+50: ## Gate
+51: 
+52: - Reproducing edited+finer nonuniform-mask fixture must undo/redo exactly, including
+53:   store serialization, live/rebuilt mirrors and per-level debt.
+54: - Cover finer resident/evicted/unallocated levels, multiple finer levels, seams,
+55:   partial grid footprints, repeated capture in one step and repeated undo/redo.
+56: - Channel removal/reindex/re-add and dropped levels must not overwrite another
+57:   channel or access freed storage. Capture scales with touched grids on allocated
+58:   levels; an absent finer level adds no allocated float buffer until the edit.
+59: - Existing GridStrokeLog, multires attributes and prepared-mask/17-suite gates
+60:   pass. Finish the prepared mask acceptance matrix before staging/marking complete.
+SOURCE FILE: engine/source/subdiv/grid_stroke_log.h
+1: #pragma once
+2: 
+3: /** Grids-native stroke undo (grids-native brush path, G2).
+4:  *
+5:  * Per stroke step, the first dab to touch a leaf snapshots that leaf's
+6:  * owned-vert PRE-positions (and pre-mask for mask strokes) plus the write
+7:  * target's store blocks of the leaf's grids — CCG-style block undo,
+8:  * O(touched leaves) per stroke. Undo/redo SWAP the blocks back in, so
+9:  * positions and store bytes restore bit-exact (copies, not re-derivations)
+10:  * and one snapshot serves both directions; each seek refreshes the captured
+11:  * leaves' normals + bounds, invalidates finer chain levels, and restores the
+12:  * level's down-propagation debt flag.
+13:  *
+14:  * Seam coverage: stroke-end block capture follows each moved vert's occurrence
+15:  * grids,
+16:  * including adjacent leaves that were not selected by the dab. Undo
+17:  * refreshes bounds
+18:  * for every occurrence leaf of restored positions.
+19:  * History is valid while the
+20:  * domain/tree it was captured against stays alive (level switches fold through the
+21:  * store-blob fallback — the addon phase). */
+22: 
+23: #include "grid_domain.h"
+24: 
+25: #include "litestl/math/vector.h"
+26: #include "litestl/util/string.h"
+27: #include "litestl/util/vector.h"
+28: 
+29: #include <span>
+30: 
+31: namespace sculptcore::subdiv {
+32: 
+33: struct GridTree;
+34: 
+35: struct GridStrokeLog {
+36:   using float3 = litestl::math::float3;
+37:   template <typename T> using Vector = litestl::util::Vector<T>;
+38: 
+39:   /** Bind to a domain (and its tree). Clears history. */
+40:   void attach(GridLevelDomain *d);
+41: 
+42:   /** Open a step (truncates any redo branch). */
+43:   void beginStep();
+44:   /** First-touch capture of `leaf` into the open step: owned pre-positions
+45:    * when `positions`, owned pre-mask when `maskToo`. Store blocks are NOT
+46:    * captured here — the store is untouched until the stroke-end fold, so
+47:    * captureGrids() defers them to exactly the touched set. */
+48:   void captureLeaf(int leaf, bool positions, bool maskToo);
+49:   /** Capture `channel`'s store blocks for `grids` (the stroke's touched-grid
+50:    * set), called at stroke end BEFORE the writeback/flush overwrites them. */
+51:   void captureGrids(std::span<const int> grids, int channel);
+52:   /** Close the step; `postDebt` is downPropDebt(level) after the stroke's
+53:    * writeback. Empty steps are dropped. */
+54:   void endStep(bool postDebt);
+55: 
+56:   /** Identifies the current capture transaction; zero means no open step. */
+57:   uint64_t openStepSerial() const
+58:   {
+59:     return open_ ? stepSerial_ : 0;
+60:   }
+61: 
+62:   bool canUndo() const
+63:   {
+64:     return cursor_ > 0;
+65:   }
+66:   bool canRedo() const
+67:   {
+68:     return cursor_ < int(steps_.size());
+69:   }
+70:   bool undo();
+71:   bool redo();
+72:   /** Evict the oldest APPLIED step (undo-limiter truncation from the front).
+73:    * Refused while a step is open, when empty, or when everything is undone
+74:    * (the front step would be redo history). Host absolute cursors stay
+75:    * valid: eviction removes a step below the deepest reachable seek, so
+76:    * seeks simply stop earlier. */
+77:   bool dropOldest();
+78: 
+79:   int stepCount() const
+80:   {
+81:     return int(steps_.size());
+82:   }
+83:   /** The domain this log is bound to (null when unattached). */
+84:   GridLevelDomain *domain() const
+85:   {
+86:     return d_;
+87:   }
+88:   /** Total captured bytes across the history (the undo-footprint gate). */
+89:   size_t bytes() const;
+90: 
+91: private:
+92:   struct LeafSnap {
+93:     int leaf = -1;
+94:     bool hasPos = false, hasMask = false;
+95:     Vector<float3> pos; // owned-vert order
+96:     Vector<float> mask; // owned-vert order
+97:   };
+98:   struct GridBlock {
+99:     int grid = -1;
+100:     // By NAME, not index: removeChannel shifts every later channel down, so an
+101:     // index captured before it would swap bytes into the wrong column (or off
+102:     // the end of the store) afterwards.
+103:     litestl::util::string channel;
+104:     Vector<float> data; // elemsPerGrid * elemSize floats, the store block layout
+105:   };
+106:   struct Step {
+107:     Vector<LeafSnap> leaves;
+108:     Vector<GridBlock> blocks;
+109:     bool preDebt = false;
+110:     bool postDebt = false;
+111:     // The attribute half of the same debt, by channel NAME for the reason
+112:     // GridBlock gives, and a set rather than a flag because the debt is per
+113:     // channel (Multires::propagateAttrsDown).
+114:     Vector<litestl::util::string> preAttrDebt, postAttrDebt;
+115:   };
+116: 
+117:   void captureGridBlock(Step &s, int grid, int channel);
+118:   /** Names of the channels owing the level below at this log's level. */
+119:   void snapshotAttrDebt(Vector<litestl::util::string> &out);
+120:   /** Make that set the live one: every other channel at this level ends up
+121:    * owing nothing. */
+122:   void applyAttrDebt(const Vector<litestl::util::string> &names);
+123:   /** Swap a step's snapshots with the live domain/store state and refresh
+124:    * normals/bounds/chain — symmetric, so it serves undo and redo alike. */
+125:   void applySwap(Step &s);
+126: 
+127:   GridLevelDomain *d_ = nullptr;
+128:   GridTree *tree_ = nullptr;
+129:   Vector<Step> steps_;
+130:   int cursor_ = 0;    // steps applied
+131:   bool open_ = false; // a step is being captured
+132:   uint64_t stepSerial_ = 0;
+133:   /** First-touch dedup stamps for the open step. */
+134:   Vector<uint32_t> leafStamp_;
+135:   Vector<uint32_t> gridStamp_;
+136:   /** Channels of `grid` already captured at gridStamp_[grid] == gen_. */
+137:   Vector<uint32_t> gridChannels_;
+138:   uint32_t gen_ = 0;
+139: };
+140: 
+141: } // namespace sculptcore::subdiv
+SOURCE FILE: engine/source/subdiv/grid_stroke_log.cc
+1: #include "grid_stroke_log.h"
+2: 
+3: #include "grid_draw_source.h"
+4: 
+5: #include "grid_tree.h"
+6: #include "multires.h"
+7: 
+8: #include "litestl/util/assert.h"
+9: 
+10: #include <cstring>
+11: #include <utility>
+12: 
+13: namespace sculptcore::subdiv {
+14: 
+15: using litestl::math::float3;
+16: using litestl::util::Assert;
+17: 
+18: void GridStrokeLog::attach(GridLevelDomain *d)
+19: {
+20:   stepSerial_++;
+21:   d_ = d;
+22:   tree_ = d ? d->ensureTree() : nullptr;
+23:   steps_.clear();
+24:   cursor_ = 0;
+25:   open_ = false;
+26:   gen_ = 0;
+27:   leafStamp_.clear();
+28:   gridStamp_.clear();
+29:   gridChannels_.clear();
+30:   if (d_) {
+31:     leafStamp_.resize(tree_->leaves.size());
+32:     gridStamp_.resize(d_->gridCount());
+33:     gridChannels_.resize(d_->gridCount());
+34:     for (int i = 0; i < int(leafStamp_.size()); i++) {
+35:       leafStamp_[i] = 0;
+36:     }
+37:     for (int i = 0; i < int(gridStamp_.size()); i++) {
+38:       gridStamp_[i] = 0;
+39:       gridChannels_[i] = 0;
+40:     }
+41:   }
+42: }
+43: 
+44: void GridStrokeLog::beginStep()
+45: {
+46:   Assert(d_ && !open_, "log attached, no step open");
+47:   // A fresh step invalidates any redo branch (linear history, meshlog-style).
+48:   while (int(steps_.size()) > cursor_) {
+49:     steps_.pop_back();
+50:   }
+51:   steps_.append(Step());
+52:   Step &s = steps_.last();
+53:   s.preDebt = d_->multires()->downPropDebt(d_->level());
+54:   snapshotAttrDebt(s.preAttrDebt);
+55:   open_ = true;
+56:   stepSerial_++;
+57:   gen_++;
+58: }
+59: 
+60: void GridStrokeLog::captureGridBlock(Step &s, int grid, int channel)
+61: {
+62:   // A stroke can capture the same grid on several channels (positions + mask),
+63:   // so the stamp carries a bitmask of the channels taken. Scanning s.blocks for
+64:   // that instead made the dedup quadratic over the touched-grid set.
+65:   const uint32_t bit = channel < 32 ? uint32_t(1) << channel : 0;
+66:   if (gridStamp_[grid] != gen_) {
+67:     gridStamp_[grid] = gen_;
+68:     gridChannels_[grid] = 0;
+69:   } else if (bit) {
+70:     if (gridChannels_[grid] & bit) {
+71:       return;
+72:     }
+73:   } else {
+74:     for (const GridBlock &b : s.blocks) { // channel >= 32: no bit to spend
+75:       if (b.grid == grid && b.channel == d_->multires()->store.channelName(channel)) {
+76:         return;
+77:       }
+78:     }
+79:   }
+80:   gridChannels_[grid] |= bit;
+81: 
+82:   Multires *mr = d_->multires();
+83:   int level = d_->level();
+84:   mr->store.ensureLevelResident(level);
+85:   int floats =
+86:       mr->store.channelElemsPerGrid(level, channel) * mr->store.channelElemSize(channel);
+87:   GridBlock b;
+88:   b.grid = grid;
+89:   b.channel = mr->store.channelName(channel);
+90:   b.data.resize(floats);
+91:   const float *src = mr->store.elem(level, channel, grid, 0, 0);
+92:   std::memcpy(b.data.data(), src, size_t(floats) * sizeof(float));
+93:   s.blocks.append(std::move(b));
+94: }
+95: 
+96: void GridStrokeLog::captureLeaf(int leaf, bool positions, bool maskToo)
+97: {
+98:   Assert(open_, "captureLeaf inside a step");
+99:   Step &s = steps_.last();
+100: 
+101:   LeafSnap *snap = nullptr;
+102:   if (leafStamp_[leaf] == gen_) {
+103:     for (LeafSnap &ls : s.leaves) {
+104:       if (ls.leaf == leaf) {
+105:         snap = &ls;
+106:         break;
+107:       }
+108:     }
+109:     if (snap && snap->hasPos >= positions && snap->hasMask >= maskToo) {
+110:       return;
+111:     }
+112:   }
+113:   leafStamp_[leaf] = gen_;
+114:   if (!snap) {
+115:     s.leaves.append(LeafSnap());
+116:     snap = &s.leaves.last();
+117:     snap->leaf = leaf;
+118:   }
+119: 
+120:   const GridTree::Leaf &tl = tree_->leaves[leaf];
+121:   if (positions && !snap->hasPos) {
+122:     snap->hasPos = true;
+123:     snap->pos.resize(tl.ownedVerts.size());
+124:     for (int i = 0; i < int(tl.ownedVerts.size()); i++) {
+125:       snap->pos[i] = d_->pos()[tl.ownedVerts[i]];
+126:     }
+127:   }
+128:   if (maskToo && !snap->hasMask) {
+129:     snap->hasMask = true;
+130:     snap->mask.resize(tl.ownedVerts.size());
+131:     for (int i = 0; i < int(tl.ownedVerts.size()); i++) {
+132:       snap->mask[i] = d_->mask[tl.ownedVerts[i]];
+133:     }
+134:   }
+135: }
+136: 
+137: void GridStrokeLog::captureGrids(std::span<const int> grids, int channel)
+138: {
+139:   Assert(open_, "captureGrids inside a step");
+140:   if (channel < 0 || channel >= d_->multires()->store.channelCount()) {
+141:     return;
+142:   }
+143:   Step &s = steps_.last();
+144:   for (int g : grids) {
+145:     captureGridBlock(s, g, channel);
+146:   }
+147: }
+148: 
+149: void GridStrokeLog::endStep(bool postDebt)
+150: {
+151:   Assert(open_, "endStep pairs with beginStep");
+152:   open_ = false;
+153:   Step &s = steps_.last();
+154:   if (s.leaves.size() == 0 && s.blocks.size() == 0) {
+155:     steps_.pop_back();
+156:     return;
+157:   }
+158:   s.postDebt = postDebt;
+159:   snapshotAttrDebt(s.postAttrDebt);
+160:   cursor_ = int(steps_.size());
+161: }
+162: 
+163: void GridStrokeLog::snapshotAttrDebt(Vector<litestl::util::string> &out)
+164: {
+165:   Multires *mr = d_->multires();
+166:   const int level = d_->level();
+167:   out.clear();
+168:   for (int c = 0; c < mr->store.channelCount(); c++) {
+169:     if (mr->store.channelLevelDebt(level, c)) {
+170:       out.append(mr->store.channelName(c));
+171:     }
+172:   }
+173: }
+174: 
+175: void GridStrokeLog::applyAttrDebt(const Vector<litestl::util::string> &names)
+176: {
+177:   Multires *mr = d_->multires();
+178:   const int level = d_->level();
+179:   for (int c = 0; c < mr->store.channelCount(); c++) {
+180:     mr->store.setChannelLevelDebt(level, c, false);
+181:   }
+182:   for (const litestl::util::string &nm : names) {
+183:     const int c = mr->store.findChannel(nm);
+184:     if (c >= 0) {
+185:       mr->store.setChannelLevelDebt(level, c, true);
+186:     }
+187:   }
+188: }
+189: 
+190: void GridStrokeLog::applySwap(Step &s)
+191: {
+192:   Multires *mr = d_->multires();
+193:   int level = d_->level();
+194:   mr->store.ensureLevelResident(level);
+195: 
+196:   Vector<int> touchedVerts;
+197:   Vector<GridBlock *> swappedSession;
+198:   for (LeafSnap &ls : s.leaves) {
+199:     const GridTree::Leaf &tl = tree_->leaves[ls.leaf];
+200:     if (ls.hasPos) {
+201:       for (int i = 0; i < int(tl.ownedVerts.size()); i++) {
+202:         std::swap(ls.pos[i], d_->pos()[tl.ownedVerts[i]]);
+203:         touchedVerts.append(tl.ownedVerts[i]);
+204:       }
+205:     }
+206:     if (ls.hasMask) {
+207:       for (int i = 0; i < int(tl.ownedVerts.size()); i++) {
+208:         std::swap(ls.mask[i], d_->mask[tl.ownedVerts[i]]);
+209:       }
+210:     }
+211:   }
+212:   for (GridBlock &b : s.blocks) {
+213:     const int channel = mr->store.findChannel(b.channel);
+214:     if (channel < 0) {
+215:       continue; // the channel was dropped since capture: nothing to restore to
+216:     }
+217:     const int floats = mr->store.channelElemsPerGrid(level, channel) *
+218:                        mr->store.channelElemSize(channel);
+219:     if (floats != int(b.data.size())) {
+220:       continue; // re-added at another size or domain — not the block's column
+221:     }
+222:     float *dst = mr->store.elem(level, channel, b.grid, 0, 0);
+223:     for (int i = 0; i < floats; i++) {
+224:       std::swap(b.data[i], dst[i]);
+225:     }
+226:     if (mr->store.channelAuthored(channel)) {
+227:       // An authored channel is what the draw path's derived samples mirror, so
+228:       // the swap has to be pushed back out to them (no-op for the rest).
+229:       swappedSession.append(&b);
+230:     }
+231:   }
+232: 
+233:   if (touchedVerts.size() > 0) {
+234:     d_->refreshNormals(std::span<const int>(touchedVerts.data(), touchedVerts.size()));
+235:   }
+236:   tree_->refreshVertexBounds(
+237:       std::span<const int>(touchedVerts.data(), touchedVerts.size()));
+238:   if (GridDrawSource *ds = mr->drawSource()) {
+239:     // Drawn pos/no/mask of the swapped leaves changed — mark by owned verts
+240:     // (occurrence mapping also reaches the neighbor cells reading them).
+241:     Vector<int> marked;
+242:     for (LeafSnap &ls : s.leaves) {
+243:       const GridTree::Leaf &tl = tree_->leaves[ls.leaf];
+244:       for (int v : tl.ownedVerts) {
+245:         marked.append(v);
+246:       }
+247:     }
+248:     ds->markVerts(std::span<const int>(marked.data(), marked.size()));
+249:   }
+250:   /* One pass per distinct session channel: the derived samples the draw path
+251:    * reads mirror the channel, so a swap has to be pushed back out to them. */
+252:   for (size_t i = 0; i < swappedSession.size(); i++) {
+253:     const litestl::util::string &name = swappedSession[i]->channel;
+254:     bool seen = false;
+255:     for (size_t j = 0; j < i && !seen; j++) {
+256:       seen = swappedSession[j]->channel == name;
+257:     }
+258:     if (seen) {
+259:       continue;
+260:     }
+261:     Vector<int> grids;
+262:     for (GridBlock *b : swappedSession) {
+263:       if (b->channel == name) {
+264:         grids.append(b->grid);
+265:       }
+266:     }
+267:     mr->gridAttrs().refreshSamplesFromChannel(
+268:         name, level, grids.data(), int(grids.size()));
+269:     if (GridDrawSource *ds = mr->drawSource()) {
+270:       ds->markGrids(std::span<const int>(grids.data(), grids.size()));
+271:     }
+272:   }
+273:   // Finer levels derive from this one's positions; the swapped state is new
+274:   // to them either way.
+275:   mr->invalidateAbove(level);
+276: }
+277: 
+278: bool GridStrokeLog::undo()
+279: {
+280:   if (!canUndo() || open_) {
+281:     return false;
+282:   }
+283:   Step &s = steps_[cursor_ - 1];
+284:   applySwap(s);
+285:   d_->multires()->setDownPropDebt(d_->level(), s.preDebt);
+286:   applyAttrDebt(s.preAttrDebt);
+287:   cursor_--;
+288:   return true;
+289: }
+290: 
+291: bool GridStrokeLog::redo()
+292: {
+293:   if (!canRedo() || open_) {
+294:     return false;
+295:   }
+296:   Step &s = steps_[cursor_];
+297:   applySwap(s);
+298:   d_->multires()->setDownPropDebt(d_->level(), s.postDebt);
+299:   applyAttrDebt(s.postAttrDebt);
+300:   cursor_++;
+301:   return true;
+302: }
+303: 
+304: bool GridStrokeLog::dropOldest()
+305: {
+306:   // Only an applied step may be evicted: cursor_ counts applied steps from
+307:   // the front, so cursor_ == 0 means the front step is redo-only history and
+308:   // dropping it would corrupt the redo chain, not trim the undo tail.
+309:   if (open_ || steps_.size() == 0 || cursor_ < 1) {
+310:     return false;
+311:   }
+312:   steps_.pop_front();
+313:   cursor_--;
+314:   return true;
+315: }
+316: 
+317: size_t GridStrokeLog::bytes() const
+318: {
+319:   size_t n = 0;
+320:   for (const Step &s : steps_) {
+321:     for (const LeafSnap &ls : s.leaves) {
+322:       n += ls.pos.size() * sizeof(float3) + ls.mask.size() * sizeof(float);
+323:     }
+324:     for (const GridBlock &b : s.blocks) {
+325:       n += b.data.size() * sizeof(float);
+326:     }
+327:   }
+328:   return n;
+329: }
+330: 
+331: } // namespace sculptcore::subdiv
+SOURCE FILE: engine/source/subdiv/grid_domain.cc
+257: 
+258: void GridLevelDomain::syncMaskFromStore()
+259: {
+260:   int ch = mr_->store.findChannel(util::string(kMaskChannel));
+261:   if (ch < 0) {
+262:     for (int i = 0; i < vertCount_; i++) {
+263:       mask[i] = 0.0f;
+264:     }
+265:     return;
+266:   }
+267:   mr_->store.ensureLevelResident(level_);
+268:   for (int v = 0; v < vertCount_; v++) {
+269:     mask[v] = *mr_->store.elem(
+270:         level_, ch, vertGrid[v * 3], vertGrid[v * 3 + 1], vertGrid[v * 3 + 2]);
+271:   }
+272: }
+273: 
+274: int GridLevelDomain::ensureMaskChannel()
+275: {
+276:   int ch = mr_->store.findChannel(util::string(kMaskChannel));
+277:   if (ch < 0) {
+278:     // Both defaults are deliberate. The paint mask defaults to Authored, so
+279:     // subdividing carries it up and deleting a level restricts it back down.
+280:     // The paint mask also defaults to persistent, because Blender itself
+281:     // provides a container for exactly this one grid layer.
+282:     ch = mr_->store.addChannel(util::string(kMaskChannel), 1);
+283:   }
+284:   return ch;
+285: }
+286: 
+287: bool GridLevelDomain::maskChannelExists() const
+288: {
+289:   return mr_ && mr_->store.findChannel(util::string(kMaskChannel)) >= 0;
+290: }
+291: 
+292: void GridLevelDomain::flushMaskToStore()
+293: {
+294:   int ch = ensureMaskChannel();
+295:   mr_->store.ensureLevelResident(level_);
+296:   for (int v = 0; v < vertCount_; v++) {
+297:     auto occs = occurrences(v);
+298:     for (size_t i = 0; i < occs.size(); i += 3) {
+299:       *mr_->store.elem(level_, ch, occs[i], occs[i + 1], occs[i + 2]) = mask[v];
+300:     }
+301:   }
+302:   mr_->noteMaskChange();
+303:   // Deliberately no noteAttrEdit: the whole-domain flush is the host SEEDING
+304:   // this level from its own stored mask (Multires_writeDomainMask), not an edit
+305:   // made here. Calling it a fine edit would push the seed down the stack on the
+306:   // next level switch and overwrite the coarser levels with a filtered copy of
+307:   // a level the user never painted.
+308: }
+309: 
+310: void GridLevelDomain::flushMaskToStore(std::span<const int> verts)
+311: {
+312:   int ch = ensureMaskChannel();
+313:   mr_->store.ensureLevelResident(level_);
+314:   // Delta capture rides the write: the finer levels take new - old added onto
+315:   // their own content (authored fine detail survives a coarse edit), so each
+316:   // replica's previous value is read just before it is overwritten.
+317:   Vector<int> coords;
+318:   Vector<float> deltas;
+319:   for (int v : verts) {
+320:     auto occs = occurrences(v);
+321:     for (size_t i = 0; i < occs.size(); i += 3) {
+322:       float *dst = mr_->store.elem(level_, ch, occs[i], occs[i + 1], occs[i + 2]);
+323:       const float d = mask[v] - *dst;
+324:       *dst = mask[v];
+325:       if (d != 0.0f) {
+326:         coords.append(occs[i]);
+327:         coords.append(occs[i + 1]);
+328:         coords.append(occs[i + 2]);
+329:         deltas.append(d);
+330:       }
+331:     }
+332:   }
+333:   // The touched-verts overload IS the edit: finer levels take the prolonged
+334:   // delta now, the level below owes an update on the next level switch
+335:   // (Multires::propagateAttrsDown), and alive finer domains re-mirror.
+336:   mr_->store.prolongateChannelEditUp(
+337:       ch,
+338:       level_,
+339:       std::span<const int>(coords.data(), coords.size()),
+340:       std::span<const float>(deltas.data(), deltas.size()));
+341:   mr_->noteAttrEdit(level_, ch);
+342:   mr_->refreshFinerMaskMirrors(level_);
+343:   mr_->noteMaskChange();
+344: }
+345: 
+346: GridTree *GridLevelDomain::ensureTree(int leafVertTarget)
+347: {
+348:   if (!tree_) {
+SOURCE FILE: engine/source/subdiv/grids.h
+155:    * a host restores by declaring its channels (addChannel) and writing their
+156:    * levels back afterwards, which is exactly the shape of the channel c-api
+157:    * (c-api/grid_channel_c_api.h). Engine-side, Multires::init is the only
+158:    * caller and it re-adds every level immediately. */
+159:   void buildFromCage(mesh::Mesh &cage);
+160: 
+161:   /** Append the next level (level == levelCount()+1 after the call). A Delta
+162:    * channel gets zero-filled storage (no correction yet is the identity); an
+163:    * Authored channel is prolonged from the level below, since nothing
+164:    * re-derives it. */
+165:   void addLevel();
+166: 
+167:   /** Drop the finest level (level == levelCount()) from every channel — the
+168:    * inverse of addLevel(). An Authored channel is restricted onto the level
+169:    * below on the way out, so its paint survives at the resolution the
+170:    * surviving level can hold; a Delta channel's correction simply goes, as
+171:    * multires displacement does. No-op when empty. */
+172:   void dropTopLevel();
+173: 
+174:   /** Carry `channel`'s authored values at `level` down onto level-1, in place:
+175:    * full weighting for an interpolatable Vertex channel (the transpose of
+176:    * seedLevelFromBelow's prolongation -- the 9-point stencil, 1/4 centre, 1/8
+177:    * edge, 1/16 corner), the mean of the four children for an interpolatable
+178:    * Face channel, and injection (restrictLevelToBelow's rule) for a typed one.
+179:    *
+180:    * Unlike dropTopLevel's injection this is a *filter*, which is what a coarse
+181:    * level wants after a fine edit: the detail arrives as an average instead of
+182:    * whichever sample happened to sit on the coarse site. Weights are
+183:    * accumulated rather than assumed, so a stencil running off the grid still
+184:    * normalizes to 1 -- a constant field restricts to itself everywhere,
+185:    * including seams and mesh boundaries.
+186:    *
+187:    * Seams: a coord shared by several grids is stored once per grid and each
+188:    * replica can only reach the taps inside its own grid, so the partial sums
+189:    * are merged across seamMates() before normalizing and every replica is
+190:    * written the same value. The taps sitting *on* the seam are then counted
+191:    * once per incident grid, which tilts the stencil towards it (centre 1/3
+192:    * rather than 1/4 on a two-grid seam). The result is still a normalized
+193:    * average of the neighbourhood, so constants and the C0 seam invariant both
+194:    * hold; the deviation is a slightly narrower filter along seams.
+195:    *
+196:    * False (and nothing written) when `level` holds nothing authored. */
+197:   bool restrictChannelDown(int channel, int level);
+198: 
+199:   /** Carry an edit at `level` up into every finer level, in place. `coords`
+200:    * is the touched lattice slots as (grid, u, v) triples — every seam replica,
+201:    * the shape occurrences() hands back — and `deltas` the per-slot change
+202:    * (new - old, floatsPerElem floats per slot). Each finer level receives the
+203:    * 4-tap prolongation of the *delta* added onto what it already holds, so
+204:    * authored fine detail rides a coarse edit instead of being overwritten;
+205:    * a finer level nothing ever authored is instead seeded whole from the
+206:    * (post-edit) level below, which is the same answer its implicit zeros
+207:    * want. The down half of the edit contract stays restrictChannelDown debt.
+208:    * Interpolatable Vertex channels only; anything else is a no-op. */
+209:   void prolongateChannelEditUp(int channel,
+210:                                int level,
+211:                                std::span<const int> coords,
+212:                                std::span<const float> deltas);
+213: 
+214:   /** Whether `channel` owes level-1 the values it holds at `level` (see
+215:    * LevelData::downPending). Out-of-range reads false / is ignored. */
+216:   bool channelLevelDebt(int level, int channel) const
+217:   {
+218:     if (level < 1 || level > levelCount_ || channel < 0 ||
+219:         channel >= int(channels_.size()))
+220:     {
+221:       return false;
+222:     }
+223:     return channels_[channel].levels[level - 1].downPending;
+224:   }
+225:   void setChannelLevelDebt(int level, int channel, bool value)
+226:   {
+227:     if (level < 1 || level > levelCount_ || channel < 0 ||
+228:         channel >= int(channels_.size()))
+229:     {
+230:       return;
+231:     }
+232:     channels_[channel].levels[level - 1].downPending = value;
+233:   }
+234:   /** Whether any channel owes level-1 at `level` — the cheap "is there work?"
+235:    * test a level switch runs before walking the channels. */
+236:   bool anyChannelLevelDebt(int level) const
+237:   {
+238:     for (int c = 0; c < int(channels_.size()); c++) {
+239:       if (channelLevelDebt(level, c)) {
+240:         return true;
+241:       }
+242:     }
+243:     return false;
+244:   }
+245: 
+246:   int levelCount() const
+247:   {
+248:     return levelCount_;
+249:   }
+250: 
+251:   int gridCount() const
+252:   {
+253:     return gridCount_;
+254:   }
+255: 
+256:   /** Add a named channel of 1..4 floats per element of `domain`. Returns the
+257:    * channel index. Channel 0 is always "disp" (3 vertex floats).
+258:    *
+259:    * Storage is `float` throughout and `type` enforces nothing — it is metadata
+260:    * for the host bridge and for the one decision the store itself makes
+261:    * (whether seeding a new level may interpolate). The invariant is
+262:    * **no float math on a typed channel**; interpolating consumers assert it.
+263:    *
+264:    * `rule` says what a level transition does to the values (see GridLevelRule)
+265:    * and is the flag the engine reads: an Authored channel is allocated lazily
+266:    * per level, so an untouched one costs nothing and channelLevelAllocated
+267:    * means exactly "this level holds something authored".
+268:    *
+269:    * `persist` is the HOST contract — "I have a container for this and will
+270:    * save and restore it" — and the engine never branches on it. Hosts read it
+271:    * back when enumerating what they own. */
+272:   int addChannel(const litestl::util::string &name,
+273:                  int floatsPerElem,
+274:                  GridElemDomain domain = GridElemDomain::Vertex,
+275:                  mesh::AttrType type = mesh::AttrType::FLOAT,
+276:                  bool persist = true,
+277:                  GridLevelRule rule = GridLevelRule::Authored);
+278: 
+279:   int channelCount() const
+280:   {
+281:     return int(channels_.size());
+282:   }
+283: 
+284:   /** Channel index for `name`, or -1. Channel 0 is always "disp". */
+285:   int findChannel(const litestl::util::string &name) const
+286:   {
+287:     for (int i = 0; i < int(channels_.size()); i++) {
+288:       if (channels_[i].name == name) {
+289:         return i;
+290:       }
+291:     }
+292:     return -1;
+293:   }
+294: 
+295:   /** Drop channel `channel` (its storage across every level, resident or
+296:    * evicted). Refuses channel 0; later channel indices shift down by one. */
+297:   void removeChannel(int channel)
+298:   {
+299:     if (channel < 1 || channel >= int(channels_.size())) {
+300:       return;
+301:     }
+302:     // Vector::remove_at move-assigns onto a destructed slot, which
+303:     // double-frees Channel's nested Vectors — shift live + pop instead.
+304:     for (int i = channel; i + 1 < int(channels_.size()); i++) {
+305:       channels_[i] = std::move(channels_[i + 1]);
+306:     }
+307:     channels_.pop_back();
+308:   }
+309: 
+310:   const litestl::util::string &channelName(int channel) const
+311:   {
+312:     return channels_[channel].name;
+313:   }
+314: 
+315:   int channelElemSize(int channel) const
+316:   {
+317:     return channels_[channel].floatsPerElem;
+318:   }
+319: 
+320:   /** Whether values of `type` may be averaged. The guard behind the storage
+321:    * invariant: channel data is `float` throughout and `type` enforces nothing,
+322:    * so there must be **no float math on a typed channel** — interpolating
+323:    * consumers assert through here instead of trusting the column. */
+324:   static bool interpolatableType(mesh::AttrType type)
+325:   {
+326:     return type == mesh::AttrType::FLOAT || type == mesh::AttrType::FLOAT2 ||
+327:            type == mesh::AttrType::FLOAT3 || type == mesh::AttrType::FLOAT4;
+328:   }
+329: 
+330:   bool channelInterpolatable(int channel) const
+331:   {
+332:     return interpolatableType(channels_[channel].type);
+333:   }
+334: 
+335:   GridElemDomain channelDomain(int channel) const
+336:   {
+337:     return channels_[channel].domain;
+338:   }
+339: 
+340:   mesh::AttrType channelType(int channel) const
+341:   {
+342:     return channels_[channel].type;
+343:   }
+344: 
+345:   bool channelPersist(int channel) const
+346:   {
+347:     return channels_[channel].persist;
+348:   }
+349: 
+350:   /** Claim (or disclaim) a channel for the host's own save/load. Nothing in
+351:    * the engine reads this; it exists so a host that gains a container for a
+352:    * layer mid-session can record the fact where the serializer will carry it. */
+353:   void setChannelPersist(int channel, bool persist)
+354:   {
+355:     channels_[channel].persist = persist;
+356:   }
+357: 
+358:   GridLevelRule channelLevelRule(int channel) const
+359:   {
+360:     return channels_[channel].rule;
+361:   }
+362: 
+363:   /** Whether `channel` carries values the surface itself holds, rather than a
+364:    * per-level correction. The discriminator every consumer of authored paint
+365:    * asks — the draw overlay, the cage write-back, the undo return route — and
+366:    * deliberately NOT `!channelPersist`, which asks a host-contract question. */
+367:   bool channelAuthored(int channel) const
+368:   {
+369:     return channels_[channel].rule == GridLevelRule::Authored;
+370:   }
+371: 
+372:   /** Whether `channel` has live storage for `level`. False only for an
+373:    * Authored channel no one has touched at that level yet (a Delta channel is
+374:    * allocated up front, and an evicted level rehydrates on the next elem()) --
+375:    * i.e. exactly "this level holds nothing authored".  */
+376:   bool channelLevelAllocated(int level, int channel) const
+377:   {
+378:     if (level < 1 || level > levelCount_ || channel < 0 ||
+379:         channel >= int(channels_.size()))
+380:     {
+381:       return false;
+382:     }
+383:     const LevelData &ld = channels_[channel].levels[level - 1];
+384:     return ld.chunks.size() > 0 || ld.evicted.size() > 0;
+385:   }
+386: 
+387:   /** Elements per grid of `channel` at `level` — elemsPerGrid on its domain.
+388:    * Multiply by channelElemSize for the float count of one grid's block. */
+389:   int channelElemsPerGrid(int level, int channel) const
+390:   {
+391:     return elemsPerGrid(level, channels_[channel].domain);
+392:   }
+393: 
+394:   /** Pointer to the floatsPerElem floats of one grid element. O(1). Rehydrates
+395:    * an evicted level and allocates a lazy session channel on the way. */
+396:   float *elem(int level, int channel, int grid, int u, int v);
+397:   const float *elem(int level, int channel, int grid, int u, int v) const;
+398: 
+399:   /** One lattice step (|du| + |dv| == 1) from `c` at `level`, crossing into
+400:    * the adjacent grid at seams. False when the step exits the cage (mesh
+401:    * boundary) — there is no vert there. The result is always lattice- (and
+402:    * hence mesh-edge-) adjacent to `c`. */
+403:   bool neighbor(int level, const GridCoord &c, int du, int dv, GridCoord &out) const;
+404: 
+405:   /** All OTHER (grid,u,v) coords aliasing the same surface vert as `c` — the
+406:    * replicas a seam write must sync. Empty for grid-interior coords. */
+407:   void
+408:   seamMates(int level, const GridCoord &c, litestl::util::Vector<GridCoord> &out) const;
+409: 
+410:   const GridLink &link(int grid, int side) const
+411:   {
+412:     return links_[grid * 4 + side];
+413:   }
+414: 
+415:   /** Serialize into @p out (appending to whatever it already holds) as a
+416:    * BinFile header followed by kCompressBlock-sized lz4 blocks; the compressed
+417:    * payload is an offset-table header followed by the raw chunks.
+418:    * @p hcLevel picks the lz4 mode: callers on an interactive path pass
+419:    * io::kFastCompressLevel, which the reader handles identically. */
+420:   bool writeBytes(litestl::util::Vector<uint8_t> &out,
+421:                   int hcLevel = io::kDefaultCompressLevel);
+422:   /** writeBytes to a stream. */
+423:   bool write(std::ostream &out, int hcLevel = io::kDefaultCompressLevel);
+424:   /** Read a write() blob into this store (replaces all contents). */
+425:   bool read(std::istream &in);
+426: 
+427:   /** Exposed for tests/pager: chunk geometry of one (channel, level). Chunks
+428:    * hold whole grids; a grid never straddles chunks. */
+429:   int gridsPerChunk(int level, int channel) const
+430:   {
+431:     return channels_[channel].levels[level - 1].gridsPerChunk;
+432:   }
+433:   int chunkCount(int level, int channel) const
+434:   {
+435:     return int(channels_[channel].levels[level - 1].chunks.size());
+436:   }
+437: 
+438:   // ---- X5: compressed eviction (activates the chunked layout) ----
+439:   // A level's chunks can be evicted to one lz4 blob per channel and
+440:   // rehydrated transparently on the next elem() touch — synchronous and
+441:   // backend-agnostic (wasm has no synchronous disk IO; a native mmap/spill
+442:   // pass can layer under the same seam later). Chunk geometry is
+443:   // deterministic from (gridCount, level, floatsPerElem), so the blob needs
+444:   // no layout header.
+445:   /** Compress + free every channel's chunks for `level` (no-op if already
+446:    * evicted). Safe for any level: readers self-heal through elem(). */
+447:   void evictLevel(int level);
+448:   /** Rehydrate `level` in every channel (no-op when resident). */
+449:   void ensureLevelResident(int level);
+450:   bool levelResident(int level) const;
+451:   /** Live (uncompressed) chunk bytes across all channels/levels. */
+452:   size_t residentBytes() const;
+453:   /** Compressed bytes held for evicted levels. */
+454:   size_t evictedBytes() const;
+455: 
+456: private:
+457:   struct LevelData {
+458:     int gridsPerChunk = 1;
+459:     /** This (channel, level) carries authored values the level below has not
+460:      * been given -- the attribute half of Multires::downPropPending_, kept
+461:      * per channel because restricting a channel that was NOT edited would
+462:      * smooth away whatever the user painted on the coarse level, and per
+463:      * LevelData so it follows addLevel/dropTopLevel without bookkeeping. */
+464:     bool downPending = false;
+465:     litestl::util::Vector<litestl::util::Vector<float>> chunks;
+466:     // X5: when non-empty, the level's chunks live here lz4-compressed and
+467:     // `chunks` is empty; rawFloats is the concatenated float count.
+468:     litestl::util::Vector<uint8_t> evicted;
+469:     size_t rawFloats = 0;
+470:   };
+471: 
+472:   struct Channel {
+473:     litestl::util::string name;
+474:     int floatsPerElem = 1;
+475:     GridElemDomain domain = GridElemDomain::Vertex;
+476:     mesh::AttrType type = mesh::AttrType::FLOAT;
+477:     bool persist = true;
+478:     GridLevelRule rule = GridLevelRule::Authored;
+479:     litestl::util::Vector<LevelData> levels; // [0] = level 1
+480:   };
+481: 
+482:   /** Append a LevelData for `level`, with chunks unless the channel is a
+483:    * lazily-allocated Authored one. */
+484:   void allocLevel(Channel &ch, int level);
+485:   /** Zeroed chunk vectors for one (channel, level), sized off ld.gridsPerChunk.
+486:    * The one sizing path — allocation, lazy first touch and rehydration all run
+487:    * through it, so an eviction round trip cannot disagree with allocation. */
+488:   void fillChunks(const Channel &ch, LevelData &ld, int level);
+489:   void rehydrate(Channel &ch, LevelData &ld, int level);
+490:   /** elem() against a channel the store holds by reference rather than index. */
+491:   float *elemIn(Channel &ch, int level, int grid, int u, int v);
+492:   /** Compress + free one (channel, level)'s chunks. No-op when already evicted
+493:    * or not allocated. */
+494:   void evictChannelLevel(LevelData &ld);
+495:   /** Prolongation: copy `level`'s values down from level-1 (which the caller
+496:    * must have just appended above), interpolating float channels and snapping
+497:    * typed ones. Exact at coincident lattice sites — an even fine coord reads
+498:    * its coarse sample four times, so the 4-tap collapses to a copy. */
+499:   void seedLevelFromBelow(Channel &ch, int level);
+500:   /** Restriction: write `level`'s values onto level-1, by injection — coarse
+501:    * (u, v) takes fine (2u, 2v), the sample seedLevelFromBelow copied it into.
+502:    *
+503:    * Injection, not a weighted average, for three reasons that all point the
+504:    * same way: it is the exact left inverse of the prolongation above (so an
+505:    * addLevel/dropTopLevel round trip is bit-identical), it does no float math
+506:    * and so is legal on a typed channel (an INT face-set column would be
+507:    * destroyed by averaging), and it cannot blur across a grid seam — grid id
+508:    * is the cage corner, so every face-set boundary lies on one. The cost is
+509:    * that sub-coarse-sample detail is dropped, which is what dropping a level
+510:    * means. No-op when `level` holds nothing. */
+511:   void restrictLevelToBelow(Channel &ch, int level);
+512: 
+513:   int gridCount_ = 0;
+514:   int levelCount_ = 0;
+515:   litestl::util::Vector<GridLink> links_; // gridCount*4, [g*4 + side]
+516:   litestl::util::Vector<Channel> channels_;
+517: };
+518: 
+519: } // namespace sculptcore::subdiv
+SOURCE FILE: engine/source/subdiv/grids.cc
+334: void GridsStore::prolongateChannelEditUp(int channel,
+335:                                          int level,
+336:                                          std::span<const int> coords,
+337:                                          std::span<const float> deltas)
+338: {
+339:   if (channel < 0 || channel >= int(channels_.size()) || level < 1 ||
+340:       level >= levelCount_)
+341:   {
+342:     return; // out of range, or nothing finer to carry the edit into
+343:   }
+344:   Channel &ch = channels_[channel];
+345:   if (ch.domain != GridElemDomain::Vertex || !interpolatableType(ch.type)) {
+346:     return; // no float math on a typed channel (restrictChannelDown's rule)
+347:   }
+348:   const int fpe = ch.floatsPerElem;
+349:   const int n = int(coords.size()) / 3;
+350:   if (!n || int(deltas.size()) < n * fpe) {
+351:     return;
+352:   }
+353: 
+354:   // Bucket the touched slots per grid: the prolongation never crosses a grid,
+355:   // and the C0 seam invariant holds because every replica arrives as its own
+356:   // slot (occurrences()-shaped input) carrying the same delta.
+357:   Vector<int> counts, offsets, order;
+358:   counts.resize(gridCount_);
+359:   for (int g = 0; g < gridCount_; g++) {
+360:     counts[g] = 0;
+361:   }
+362:   for (int i = 0; i < n; i++) {
+363:     counts[coords[i * 3]]++;
+364:   }
+365:   offsets.resize(gridCount_ + 1);
+366:   offsets[0] = 0;
+367:   for (int g = 0; g < gridCount_; g++) {
+368:     offsets[g + 1] = offsets[g] + counts[g];
+369:     counts[g] = 0;
+370:   }
+371:   order.resize(n);
+372:   for (int i = 0; i < n; i++) {
+373:     const int g = coords[i * 3];
+374:     order[offsets[g] + counts[g]++] = i;
+375:   }
+376:   Vector<int> touched; // grids with at least one slot
+377:   for (int g = 0; g < gridCount_; g++) {
+378:     if (offsets[g + 1] > offsets[g]) {
+379:       touched.append(g);
+380:     }
+381:   }
+382:   const int nt = int(touched.size());
+383: 
+384:   // Dense per-touched-grid delta lattices at the current chain level, plus the
+385:   // bounding box of the nonzero region so each level only walks what the edit
+386:   // can reach (the box grows [2b0-1, 2b1+1] per step — one 4-tap footprint).
+387:   int w = elemWidth(level, GridElemDomain::Vertex);
+388:   Vector<float> cur, next;
+389:   Vector<int> box; // per touched grid: u0, u1, v0, v1
+390:   cur.resize(size_t(nt) * w * w * fpe);
+391:   std::memset(cur.data(), 0, sizeof(float) * cur.size());
+392:   box.resize(size_t(nt) * 4);
+393:   for (int t = 0; t < nt; t++) {
+394:     const int g = touched[t];
+395:     int *b = &box[t * 4];
+396:     b[0] = w, b[1] = -1, b[2] = w, b[3] = -1;
+397:     float *dst = &cur[size_t(t) * w * w * fpe];
+398:     for (int j = offsets[g]; j < offsets[g + 1]; j++) {
+399:       const int i = order[j];
+400:       const int u = coords[i * 3 + 1], v = coords[i * 3 + 2];
+401:       for (int k = 0; k < fpe; k++) {
+402:         dst[(size_t(v) * w + u) * fpe + k] = deltas[size_t(i) * fpe + k];
+403:       }
+404:       b[0] = u < b[0] ? u : b[0];
+405:       b[1] = u > b[1] ? u : b[1];
+406:       b[2] = v < b[2] ? v : b[2];
+407:       b[3] = v > b[3] ? v : b[3];
+408:     }
+409:   }
+410: 
+411:   for (int f = level + 1; f <= levelCount_; f++) {
+412:     const int wf = elemWidth(f, GridElemDomain::Vertex);
+413:     // A level nothing ever authored holds implicit zeros, and zeros plus a
+414:     // prolonged delta is just the prolongation of the (post-edit) level below
+415:     // -- seed it whole instead and skip the add; the delta chain continues.
+416:     const bool seeded = !channelLevelAllocated(f, channel);
+417:     if (seeded) {
+418:       seedLevelFromBelow(ch, f);
+419:     }
+420:     next.resize(size_t(nt) * wf * wf * fpe);
+421:     std::memset(next.data(), 0, sizeof(float) * next.size());
+422:     for (int t = 0; t < nt; t++) {
+423:       int *b = &box[t * 4];
+424:       if (b[1] < 0) {
+425:         continue; // this grid's deltas were all exact zeros
+426:       }
+427:       const int g = touched[t];
+428:       const int fu0 = b[0] * 2 - 1 < 0 ? 0 : b[0] * 2 - 1;
+429:       const int fu1 = b[1] * 2 + 1 > wf - 1 ? wf - 1 : b[1] * 2 + 1;
+430:       const int fv0 = b[2] * 2 - 1 < 0 ? 0 : b[2] * 2 - 1;
+431:       const int fv1 = b[3] * 2 + 1 > wf - 1 ? wf - 1 : b[3] * 2 + 1;
+432:       const float *src = &cur[size_t(t) * w * w * fpe];
+433:       float *dst = &next[size_t(t) * wf * wf * fpe];
+434:       for (int v = fv0; v <= fv1; v++) {
+435:         for (int u = fu0; u <= fu1; u++) {
+436:           // seedLevelFromBelow's 4-tap, run on the delta field (zeros outside
+437:           // the box, so off-box taps contribute nothing).
+438:           const int cu = u >> 1, cv = v >> 1;
+439:           const int du = u & 1, dv = v & 1;
+440:           const float *s00 = &src[(size_t(cv) * w + cu) * fpe];
+441:           const float *s10 = &src[(size_t(cv) * w + cu + du) * fpe];
+442:           const float *s01 = &src[(size_t(cv + dv) * w + cu) * fpe];
+443:           const float *s11 = &src[(size_t(cv + dv) * w + cu + du) * fpe];
+444:           float *out = &dst[(size_t(v) * wf + u) * fpe];
+445:           float *store = seeded ? nullptr : elemIn(ch, f, g, u, v);
+446:           for (int k = 0; k < fpe; k++) {
+447:             out[k] = 0.25f * (s00[k] + s10[k] + s01[k] + s11[k]);
+448:             if (store) {
+449:               store[k] += out[k];
+450:             }
+451:           }
+452:         }
+453:       }
+454:       b[0] = fu0, b[1] = fu1, b[2] = fv0, b[3] = fv1;
+455:     }
+456:     std::swap(cur, next);
+457:     w = wf;
+458:   }
+459: }
+460: 
+461: float *GridsStore::elemIn(Channel &ch, int level, int grid, int u, int v)
+462: {
+463:   LevelData &ld = ch.levels[level - 1];
+464:   if (ld.evicted.size()) {
+465:     rehydrate(ch, ld, level); // X5: transparent rehydration on first touch
+466:   } else if (!ld.chunks.size()) {
+467:     fillChunks(ch, ld, level); // lazy session channel: allocate on first touch
+468:   }
+469:   const int w = elemWidth(level, ch.domain);
+470:   const int local = grid % ld.gridsPerChunk;
+SOURCE FILE: engine/source/brush/grid_executor.h
+88: struct GridCapturePolicy {
+89:   template <mesh::ElemType Domain>
+90:   static void capture(CommandCtxBase &ctx,
+91:                       std::span<GridExecNode *> nodes,
+92:                       std::span<const CaptureSaveDesc> saves);
+93: };
+94: 
+95: /** Stroke-end fold shared by the CPU executor and the GPU session: capture
+96:  * the touched verts' occurrence-grid store blocks into the undo log FIRST
+97:  * (the store is untouched until this fold), then the restricted writeback
+98:  * (positions), mask flush and attr-mirror scatter, then close the undo step.
+99:  * Each channel's capture precedes its own write. O(region). */
+100: inline void gridsFoldStroke(subdiv::GridLevelDomain *domain,
+101:                             subdiv::GridStrokeLog *log,
+102:                             std::span<const int> touched,
+103:                             bool wroteCo,
+104:                             bool wroteMask,
+105:                             std::span<GridAttrMirror *const> attrMirrors = {},
+106:                             std::span<const int> touchedGrids = {})
+107: {
+108:   subdiv::Multires *mr = domain->multires();
+109:   int level = domain->level();
+110:   if (touched.size() > 0) {
+111:     Vector<bool> changed;
+112:     changed.resize(domain->vertCount());
+113:     for (int i = 0; i < domain->vertCount(); i++) {
+114:       changed[i] = false;
+115:     }
+116:     Vector<int> grids;
+117:     Vector<uint8_t> gridStamp;
+118:     gridStamp.resize(domain->gridCount());
+119:     for (int i = 0; i < domain->gridCount(); i++) {
+120:       gridStamp[i] = 0;
+121:     }
+122:     for (int v : touched) {
+123:       changed[v] = true;
+124:       auto occs = domain->occurrences(v);
+125:       for (size_t k = 0; k < occs.size(); k += 3) {
+126:         if (!gridStamp[occs[k]]) {
+127:           gridStamp[occs[k]] = 1;
+128:           grids.append(occs[k]);
+129:         }
+130:       }
+131:     }
+132:     std::span<const int> gridSpan(grids.data(), grids.size());
+133:     if (wroteCo) {
+134:       if (log) {
+135:         log->captureGrids(gridSpan, mr->writebackChannel());
+136:       }
+137:       mr->gridsWriteback(level, changed, grids);
+138:     }
+139:     if (wroteMask) {
+140:       if (log) {
+141:         log->captureGrids(gridSpan, mr->store.findChannel(string("mask")));
+142:       }
+143:       domain->flushMaskToStore(touched);
+144:     }
+145:     for (GridAttrMirror *m : attrMirrors) {
+146:       if (!m->dirty || m->channel < 0 || m->domain != subdiv::GridElemDomain::Vertex) {
+147:         continue;
+148:       }
+149:       if (log) {
+150:         log->captureGrids(gridSpan, m->channel);
+151:       }
+152:       gridAttrScatter(*m, domain, touched);
+153:     }
+154:   }
+155:   // Face mirrors ride the stroke's touched-*grid* set instead: a face stage
+156:   // moves no vertex, so the occurrence walk above has nothing to derive from.
+157:   if (touchedGrids.size() > 0) {
+158:     for (GridAttrMirror *m : attrMirrors) {
+159:       if (!m->dirty || m->channel < 0 || m->domain != subdiv::GridElemDomain::Face) {
+160:         continue;
+161:       }
+162:       if (log) {
+163:         log->captureGrids(touchedGrids, m->channel);
+164:       }
+165:       gridAttrScatterFace(*m, domain, touchedGrids);
+166:     }
+167:   }
+168:   if (log) {
+169:     log->endStep(mr->downPropDebt(level));
+170:   }
+171: }
+172: 
+173: /** Interim ride-along mirror (plan §6): copy `verts`' domain positions and
+174:  * normals into the resident level slot's mesh (dense ids match) and dirty the
+175:  * owning spatial leaves, so extdraw and mesh-path queries stay current while
+176:  * the grids path does the real work. No-op when the slot is not resident.
+</stdin>
+codex
+**Lifetime verdict: block pending three corrections.** This review uses only the supplied packet; it does not assess footprint.
+
+1. **Name + metadata + level number do not establish identity.** Remove `"mask"`, re-add it with identical metadata, then seek: the planned lookup accepts the replacement and writes old snapshots into it. Likewise, dropping and recreating a finer level defeats a level-number/range check. An owning swap can replace the replacement level’s entire allocation. Channel removal actually destroys storage and shifts channels; no incarnation identifier appears in the supplied `Channel` or `LevelData`.
+   
+   **Minimal correction:** use runtime channel/level incarnation tokens, or invalidate the affected history on destructive identity changes. Preserve history across mere channel reindexing. Apply the identity check to debt restoration too.
+   
+   Citations: plan lines 25–26, 44–46, 56–57; `grids.h:295–307, 457–479`; `grid_stroke_log.cc:212–224`.
+
+2. **The existing coarse “safe-skip” convention is insufficient for the promised compatibility gate.** Fixing only finer snapshots leaves coarse restoration accepting any same-name channel with the same float count. For example, replacing FLOAT/one-component/vertex mask with INT/one-component/vertex passes the size check and receives the old mask bytes. Separately, `applyAttrDebt()` resolves names without compatibility checks and clears debt on every current channel, including replacements. Finer guards therefore cannot establish the plan’s seek-wide safety claim.
+   
+   **Minimal correction:** extend compatibility/incarnation validation to the affected coarse blocks and edited-level debt records. Define how replacement channels’ debt is preserved when their snapshots are skipped.
+   
+   Citations: plan lines 40–46, 56–57; `grid_stroke_log.cc:175–187, 212–225, 278–299`; `grids.h:259–262`.
+
+3. **A nonexistent mask channel has no specified capture path.** The shared fold looks up `"mask"` before flushing. If absent, existing coarse capture returns immediately; the flush then creates the channel, and nonzero deltas can allocate finer levels by seeding them. The plan specifies snapshots for unallocated *levels*, but does not say how to record those levels when their channel does not yet exist. Consequently, this supported source path can escape finer capture entirely.
+   
+   **Minimal correction:** explicitly handle missing-channel capture: record the finer levels’ prior absence and bind those records to the channel created by this fold, or establish and enforce an existing-channel precondition before capture. State whether undo also restores channel absence; do not silently claim exact whole-store serialization if the newly created channel remains.
+   
+   Citations: plan lines 20–31, 52–53; `grid_executor.h:139–143`; `grid_stroke_log.cc:137–142`; `grid_domain.cc:274–284, 310–340`; `grids.cc:411–419`.
+
+**Acceptance refinements, not additional blockers:**
+
+- **“Empty owning snapshot” must preserve the real empty state.** Allocation absence does not imply default metadata or false debt. Preserve `gridsPerChunk`, `rawFloats`, and `downPending`; use ownership-safe moves/swaps. Exercise redo truncation, `attach()`, and history eviction while snapshots own allocations. The nested-vector destruction warning makes these valuable lifetime tests, but does not prove owning swaps themselves are unsafe. Citations: `grids.h:225–232, 302–307, 457–488`; `grid_stroke_log.cc:18–29, 44–50, 304–314`.
+
+- **Absent-safe mirror restoration needs a specific implementation route.** Calling existing `syncMaskFromStore()` after restoring absence recreates storage through `elem()`. Either discard finer domains before any such read or provide an allocation-aware refresh. Test allocation absence *after* cache handling. The plan already requires this; the packet does not supply `invalidateAbove()` or `refreshFinerMaskMirrors()` implementations, so it cannot establish a concrete dangling-pointer defect there. Citations: plan lines 40–43; `grid_domain.cc:258–270`; `grids.cc:461–467`.
+
+- **Give finer debt one restoration authority.** Whole-state swaps already carry `downPending`; a separate debt restore must not overwrite the swapped value with a default or stale value. Include an absent level with debt set, which the public setter permits. Citations: plan lines 25, 44; `grids.h:225–232, 457–469`.
+tokens used
+**Lifetime verdict: block pending three corrections.** This review uses only the supplied packet; it does not assess footprint.
+
+1. **Name + metadata + level number do not establish identity.** Remove `"mask"`, re-add it with identical metadata, then seek: the planned lookup accepts the replacement and writes old snapshots into it. Likewise, dropping and recreating a finer level defeats a level-number/range check. An owning swap can replace the replacement level’s entire allocation. Channel removal actually destroys storage and shifts channels; no incarnation identifier appears in the supplied `Channel` or `LevelData`.
+   
+   **Minimal correction:** use runtime channel/level incarnation tokens, or invalidate the affected history on destructive identity changes. Preserve history across mere channel reindexing. Apply the identity check to debt restoration too.
+   
+   Citations: plan lines 25–26, 44–46, 56–57; `grids.h:295–307, 457–479`; `grid_stroke_log.cc:212–224`.
+
+31,701
+2. **The existing coarse “safe-skip” convention is insufficient for the promised compatibility gate.** Fixing only finer snapshots leaves coarse restoration accepting any same-name channel with the same float count. For example, replacing FLOAT/one-component/vertex mask with INT/one-component/vertex passes the size check and receives the old mask bytes. Separately, `applyAttrDebt()` resolves names without compatibility checks and clears debt on every current channel, including replacements. Finer guards therefore cannot establish the plan’s seek-wide safety claim.
+   
+   **Minimal correction:** extend compatibility/incarnation validation to the affected coarse blocks and edited-level debt records. Define how replacement channels’ debt is preserved when their snapshots are skipped.
+   
+   Citations: plan lines 40–46, 56–57; `grid_stroke_log.cc:175–187, 212–225, 278–299`; `grids.h:259–262`.
+
+3. **A nonexistent mask channel has no specified capture path.** The shared fold looks up `"mask"` before flushing. If absent, existing coarse capture returns immediately; the flush then creates the channel, and nonzero deltas can allocate finer levels by seeding them. The plan specifies snapshots for unallocated *levels*, but does not say how to record those levels when their channel does not yet exist. Consequently, this supported source path can escape finer capture entirely.
+   
+   **Minimal correction:** explicitly handle missing-channel capture: record the finer levels’ prior absence and bind those records to the channel created by this fold, or establish and enforce an existing-channel precondition before capture. State whether undo also restores channel absence; do not silently claim exact whole-store serialization if the newly created channel remains.
+   
+   Citations: plan lines 20–31, 52–53; `grid_executor.h:139–143`; `grid_stroke_log.cc:137–142`; `grid_domain.cc:274–284, 310–340`; `grids.cc:411–419`.
+
+**Acceptance refinements, not additional blockers:**
+
+- **“Empty owning snapshot” must preserve the real empty state.** Allocation absence does not imply default metadata or false debt. Preserve `gridsPerChunk`, `rawFloats`, and `downPending`; use ownership-safe moves/swaps. Exercise redo truncation, `attach()`, and history eviction while snapshots own allocations. The nested-vector destruction warning makes these valuable lifetime tests, but does not prove owning swaps themselves are unsafe. Citations: `grids.h:225–232, 302–307, 457–488`; `grid_stroke_log.cc:18–29, 44–50, 304–314`.
+
+- **Absent-safe mirror restoration needs a specific implementation route.** Calling existing `syncMaskFromStore()` after restoring absence recreates storage through `elem()`. Either discard finer domains before any such read or provide an allocation-aware refresh. Test allocation absence *after* cache handling. The plan already requires this; the packet does not supply `invalidateAbove()` or `refreshFinerMaskMirrors()` implementations, so it cannot establish a concrete dangling-pointer defect there. Citations: plan lines 40–43; `grid_domain.cc:258–270`; `grids.cc:461–467`.
+
+- **Give finer debt one restoration authority.** Whole-state swaps already carry `downPending`; a separate debt restore must not overwrite the swapped value with a default or stale value. Include an absent level with debt set, which the public setter permits. Citations: plan lines 25, 44; `grids.h:225–232, 457–469`.

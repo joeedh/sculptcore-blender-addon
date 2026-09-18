@@ -1,0 +1,15 @@
+{
+  "suite": "test_brush_dynamics",
+  "command": [
+    "C:\\Program Files\\nodejs\\node.EXE",
+    "make.mjs",
+    "test",
+    "test_brush_dynamics"
+  ],
+  "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_brush_dynamics.cc_out.exe",
+  "returncode": 0,
+  "passed": true,
+  "binary_sha256": "39a168b64773657f520bdd4a434ad3d2e99a6567c395a42b463236db5f9673bd",
+  "stdout": "",
+  "stderr": "dab 0: pressure=0 mu=0.2 expected=0.2\r\ndab 1: pressure=0.25 mu=0.6 expected=0.6\r\ndab 2: pressure=0.5 mu=0.9 expected=0.9\r\ndab 3: pressure=0.75 mu=1.6 expected=1.6\r\ndab 4: pressure=1 mu=2 expected=2\r\nno-device: dynamic_path=2 static_path=2\r\n"
+}

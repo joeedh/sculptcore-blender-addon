@@ -1,0 +1,15 @@
+{
+  "suite": "test_brush_attr",
+  "command": [
+    "C:\\Program Files\\nodejs\\node.EXE",
+    "make.mjs",
+    "test",
+    "test_brush_attr"
+  ],
+  "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_brush_attr.cc_out.exe",
+  "returncode": 0,
+  "passed": true,
+  "binary_sha256": "03a5abcd85789f7342ffc7ee979b37d9754864bd28c36d1451c33339b2656321",
+  "stdout": "",
+  "stderr": "paintedNear=16 untouchedFar=188 bleedFar=0\r\npoly id=1 painted=97 unpainted=629 other=0\r\ndefault-group painted=97 defaulted=629 zeroed=0\r\n"
+}

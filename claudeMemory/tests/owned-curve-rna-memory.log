@@ -1,0 +1,435 @@
+Switching to fully guarded memory allocator.
+Blender 5.3.0 Alpha
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+OWNED_RNA_CHECK unset_and_atomic_failed_initialization
+OWNED_RNA_CHECK root_path_initialization_native_types_and_callback
+OWNED_RNA_CHECK retained_mapping_channel_point_vector_iterator
+OWNED_RNA_CHECK field_array_and_mathutils_transactions
+OWNED_RNA_CHECK invalid_numbers_and_transactions_preserve_value
+OWNED_RNA_CHECK point_functions_and_membership
+OWNED_RNA_CHECK raw_sync_unknown_version_and_extension_preservation
+OWNED_RNA_CHECK malformed_sibling_preserved_and_explicit_unset
+OWNED_RNA_CHECK collection_growth_move_delete_and_current_callback_parent
+OWNED_RNA_CHECK independent_owner_copy_and_deleted_owner
+OWNED_RNA_CHECK off_main_thread_rejected
+OWNED_RNA_CHECK declaration_replacement_invalidates_old_wrappers
+OWNED_RNA_CHECK direct_id_storage_and_unset
+OWNED_RNA_CHECK same_curve_callback_recursion_guard
+OWNED_RNA_CHECK point_return_after_callback_owner_deletion
+OWNED_RNA_CHECK callback_unregisters_its_own_declaration
+OWNED_RNA_CHECK numeric_conversion_owner_deletion
+OWNED_RNA_CHECK boolean_conversion_owner_deletion
+OWNED_RNA_CHECK callback_unset_suppresses_same_curve_recursion
+OWNED_RNA_CHECK callback_curve_removal_rejects_reinitialization
+OWNED_RNA_CHECK callback_item_removal_rejects_reinitialization
+OWNED_RNA_CHECK callback_ancestor_removal_rejects_reinitialization
+OWNED_RNA_CHECK unsupported_declaration_rejected
+TypeError: CurveMappingProperty requires an ID or PropertyGroup declaration
+Info: Saved as "saved.blend"
+OWNED_RNA_CHECK read_only_linked_owner
+00:04.657  blend            | Read blend: "C:\dev\blender\sculptcore-blender-addon\claudeMemory\tests\owned-curve-rna\saved.blend"
+OWNED_RNA_CHECK save_reload_invalidates_retained_handles
+OWNED_CURVE_RNA_PASS test
+new curvemap len: 424 00000216B02BB040
+BKE_curvemapping_from_idprop len: 24 00000216B02C7378
+dist table len: 3084 00000216B0244138
+dupli_alloc len: 424 00000216B02BAE40
+dupli_alloc len: 24 00000216B02C6D78
+dupli_alloc len: 3084 00000216B023B078
+new curvemap len: 424 00000216B02BA440
+BKE_curvemapping_from_idprop len: 24 00000216B02C6AD8
+dist table len: 3084 00000216B023A0B8
+dupli_alloc len: 424 00000216B02BA240
+dupli_alloc len: 24 00000216B02C6E38
+dupli_alloc len: 3084 00000216B02390F8
+new curvemap len: 424 00000216B02BAA40
+BKE_curvemapping_from_idprop len: 24 00000216B02C6D18
+dist table len: 3084 00000216B02290F8
+dupli_alloc len: 424 00000216B02BAC40
+dupli_alloc len: 24 00000216B02C6B38
+dupli_alloc len: 3084 00000216B0228138
+new curvemap len: 424 00000216B02BA640
+BKE_curvemapping_from_idprop len: 36 00000216B039A208
+dist table len: 3084 00000216B022B078
+dupli_alloc len: 424 00000216B02BA840
+dupli_alloc len: 36 00000216B039A438
+dupli_alloc len: 3084 00000216B022A0B8
+new curvemap len: 424 00000216B02B9E40
+BKE_curvemapping_from_idprop len: 24 00000216B02C6CB8
+dist table len: 3084 00000216B021F078
+dupli_alloc len: 424 00000216B02BA040
+dupli_alloc len: 24 00000216B02C6E98
+dupli_alloc len: 3084 00000216B021E0B8
+IDProperty group len: 144 00000216B0226600
+idp_group_children_map_ensure len: 200 00000216B02C1D40
+IDProperty string len: 144 00000216B02D4AE0
+id property string 2 len: 28 00000216B02C6778
+IDProperty int len: 144 00000216B02D4BC0
+C:\dev\blender\main\source\blender\blenlib\BLI_array.hh:476 len: 256 00000216B02DDC40
+C:\dev\blender\main\source\blender\blenlib\BLI_vector_set.hh:1102 len: 128 00000216B02D4CA0
+IDProperty array len: 144 00000216B02D4D80
+id property array len: 32 00000216B02C6838
+IDProperty int len: 144 00000216B02D4680
+IDProperty string len: 144 00000216B02D4920
+id property string 2 len: 16 00000216B0371658
+IDProperty string len: 144 00000216B02D5B80
+id property string 2 len: 8 00000216B0371C98
+IDProperty prop array len: 144 00000216B02D5480
+IDP_ResizeIDPArray len: 864 00000216B0233438
+IDProperty double len: 144 00000216B02D5720
+idp_group_children_map_ensure len: 200 00000216B02C10C0
+IDProperty double len: 144 00000216B02D5800
+IDProperty string len: 144 00000216B02D58E0
+id property string 2 len: 8 00000216B0371B08
+IDProperty double len: 144 00000216B02D59C0
+idp_group_children_map_ensure len: 200 00000216B02C0F80
+IDProperty double len: 144 00000216B02D5AA0
+IDProperty string len: 144 00000216B02D4E60
+id property string 2 len: 8 00000216B0371608
+IDProperty double len: 144 00000216B02D4F40
+idp_group_children_map_ensure len: 200 00000216B02C0E40
+IDProperty double len: 144 00000216B02D5020
+IDProperty string len: 144 00000216B02D5100
+id property string 2 len: 8 00000216B03715B8
+new curvemap len: 424 00000216B02B9640
+BKE_curvemapping_from_idprop len: 36 00000216B039A198
+dist table len: 3084 00000216B0223078
+dupli_alloc len: 424 00000216B02B9840
+dupli_alloc len: 36 00000216B039A128
+dupli_alloc len: 3084 00000216B02220B8
+new curvemap len: 424 00000216B02B9240
+BKE_curvemapping_from_idprop len: 24 00000216B02C6718
+dist table len: 3084 00000216B021C138
+dupli_alloc len: 424 00000216B02B9440
+dupli_alloc len: 24 00000216B02C6BF8
+dupli_alloc len: 3084 00000216B021D0F8
+new curvemap len: 424 00000216B02B9040
+BKE_curvemapping_from_idprop len: 24 00000216B02C6C58
+dist table len: 3084 00000216B0238138
+dupli_alloc len: 424 00000216B02B8E40
+dupli_alloc len: 24 00000216B02C65F8
+dupli_alloc len: 3084 00000216B021B078
+IDProperty group len: 144 00000216B02D4A00
+idp_group_children_map_ensure len: 200 00000216B0216600
+IDProperty string len: 144 00000216B020FBE0
+id property string 2 len: 28 00000216B02C6478
+IDProperty int len: 144 00000216B020F5C0
+C:\dev\blender\main\source\blender\blenlib\BLI_array.hh:476 len: 256 00000216B02DDDC0
+C:\dev\blender\main\source\blender\blenlib\BLI_vector_set.hh:1102 len: 128 00000216B020FE80
+IDProperty array len: 144 00000216B020F4E0
+id property array len: 32 00000216B02C6538
+IDProperty int len: 144 00000216B020F400
+IDProperty string len: 144 00000216B020F320
+id property string 2 len: 16 00000216B0370AC8
+IDProperty string len: 144 00000216B020FF60
+id property string 2 len: 8 00000216B0370C08
+IDProperty prop array len: 144 00000216B020FDA0
+IDP_ResizeIDPArray len: 720 00000216B0236B38
+IDProperty double len: 144 00000216B020F160
+idp_group_children_map_ensure len: 200 00000216B0216240
+IDProperty double len: 144 00000216B020F080
+IDProperty string len: 144 00000216B020EFA0
+id property string 2 len: 8 00000216B0370BB8
+IDProperty double len: 144 00000216B020EEC0
+idp_group_children_map_ensure len: 200 00000216B0216100
+IDProperty double len: 144 00000216B020EDE0
+IDProperty string len: 144 00000216B020ED00
+id property string 2 len: 8 00000216B0370A78
+new curvemap len: 424 00000216B02B8A40
+BKE_curvemapping_from_idprop len: 24 00000216B02C64D8
+dist table len: 3084 00000216B02190F8
+dupli_alloc len: 424 00000216B02B8C40
+dupli_alloc len: 24 00000216B02C6598
+dupli_alloc len: 3084 00000216B021A0B8
+IDProperty group len: 144 00000216B02D4300
+idp_group_children_map_ensure len: 200 00000216B0213640
+idp_generic_copy len: 144 00000216B02D5FE0
+idp_generic_copy len: 144 00000216B02D4760
+dupli_alloc len: 8 00000216B01FBF98
+idp_group_children_map_ensure len: 200 00000216B0213280
+IDProperty string len: 144 00000216B02D4140
+id property string 2 len: 28 00000216B02C5E18
+C:\dev\blender\main\source\blender\blenlib\BLI_array.hh:476 len: 256 00000216B02DD940
+C:\dev\blender\main\source\blender\blenlib\BLI_vector_set.hh:1102 len: 128 00000216B02D6280
+IDProperty int len: 144 00000216B02D44C0
+IDProperty array len: 144 00000216B02D45A0
+id property array len: 32 00000216B02C5ED8
+IDProperty int len: 144 00000216B02D60C0
+IDProperty string len: 144 00000216B02D6520
+id property string 2 len: 12 00000216B01FBF48
+IDProperty string len: 144 00000216B02D66E0
+id property string 2 len: 8 00000216B01FBEF8
+IDProperty prop array len: 144 00000216B02D6360
+IDP_ResizeIDPArray len: 720 00000216B02367B8
+IDProperty double len: 144 00000216B01EFE80
+idp_group_children_map_ensure len: 200 00000216B0213140
+IDProperty double len: 144 00000216B01EFDA0
+IDProperty string len: 144 00000216B01EFCC0
+id property string 2 len: 8 00000216B01FBEA8
+IDProperty double len: 144 00000216B01EFBE0
+idp_group_children_map_ensure len: 200 00000216B0213000
+IDProperty double len: 144 00000216B01EFB00
+IDProperty string len: 144 00000216B01EFA20
+id property string 2 len: 8 00000216B01FBE58
+new curvemap len: 424 00000216B020AA40
+BKE_curvemapping_from_idprop len: 24 00000216B02C5E78
+dist table len: 3084 00000216B01F60B8
+dupli_alloc len: 424 00000216B020AC40
+dupli_alloc len: 24 00000216B02C5FF8
+dupli_alloc len: 3084 00000216B01F7078
+IDProperty group len: 144 00000216B01EE520
+idp_group_children_map_ensure len: 200 00000216B0213780
+IDProperty string len: 144 00000216B01ED800
+id property string 2 len: 28 00000216B02C6A18
+IDProperty int len: 144 00000216B01EDF00
+C:\dev\blender\main\source\blender\blenlib\BLI_array.hh:476 len: 256 00000216B02DD4C0
+C:\dev\blender\main\source\blender\blenlib\BLI_vector_set.hh:1102 len: 128 00000216B01EDAA0
+IDProperty array len: 144 00000216B01EDE20
+id property array len: 32 00000216B02C6658
+IDProperty int len: 144 00000216B01EDD40
+IDProperty string len: 144 00000216B01EDC60
+id property string 2 len: 16 00000216B01FB9A8
+IDProperty string len: 144 00000216B01EDB80
+id property string 2 len: 8 00000216B01FBAE8
+IDProperty prop array len: 144 00000216B01ED9C0
+IDP_ResizeIDPArray len: 720 00000216B0236438
+IDProperty double len: 144 00000216B01ED100
+idp_group_children_map_ensure len: 200 00000216B0213B40
+IDProperty double len: 144 00000216B01ED020
+IDProperty string len: 144 00000216B01ECF40
+id property string 2 len: 8 00000216B01FBA98
+IDProperty double len: 144 00000216B01ECE60
+idp_group_children_map_ensure len: 200 00000216B0212C40
+IDProperty double len: 144 00000216B01ECD80
+IDProperty string len: 144 00000216B01ECCA0
+id property string 2 len: 8 00000216B01FB958
+new curvemap len: 424 00000216B020BA40
+BKE_curvemapping_from_idprop len: 24 00000216B02C66B8
+dist table len: 3084 00000216B02210F8
+dupli_alloc len: 424 00000216B020B840
+dupli_alloc len: 24 00000216B02C6F58
+dupli_alloc len: 3084 00000216B0220138
+new curvemap len: 424 00000216B020BC40
+BKE_curvemapping_from_idprop len: 24 00000216B02C6298
+dist table len: 3084 00000216B0203078
+dupli_alloc len: 424 00000216B020BE40
+dupli_alloc len: 24 00000216B02C60B8
+dupli_alloc len: 3084 00000216B02020B8
+IDProperty group len: 144 00000216B01EF080
+idp_group_children_map_ensure len: 200 00000216B02129C0
+IDProperty string len: 144 00000216B020FA20
+id property string 2 len: 28 00000216B02C5C98
+IDProperty int len: 144 00000216B020CCA0
+C:\dev\blender\main\source\blender\blenlib\BLI_array.hh:476 len: 256 00000216B02DD340
+C:\dev\blender\main\source\blender\blenlib\BLI_vector_set.hh:1102 len: 128 00000216B020EC20
+IDProperty array len: 144 00000216B020CD80
+id property array len: 32 00000216B02C63B8
+IDProperty int len: 144 00000216B020CE60
+IDProperty string len: 144 00000216B020CF40
+id property string 2 len: 16 00000216B01FB728
+IDProperty string len: 144 00000216B020D020
+id property string 2 len: 8 00000216B01FB868
+IDProperty prop array len: 144 00000216B020F240
+IDP_ResizeIDPArray len: 720 00000216B0235D38
+IDProperty double len: 144 00000216B020D1E0
+idp_group_children_map_ensure len: 200 00000216B0212600
+IDProperty double len: 144 00000216B020D2C0
+IDProperty string len: 144 00000216B020D3A0
+id property string 2 len: 8 00000216B01FB818
+IDProperty double len: 144 00000216B020D480
+idp_group_children_map_ensure len: 200 00000216B02124C0
+IDProperty double len: 144 00000216B020D560
+IDProperty string len: 144 00000216B020D640
+id property string 2 len: 8 00000216B01FB6D8
+new curvemap len: 424 00000216B020AE40
+BKE_curvemapping_from_idprop len: 24 00000216B02C5CF8
+dist table len: 3084 00000216B0200138
+dupli_alloc len: 424 00000216B020B040
+dupli_alloc len: 24 00000216B02C6418
+dupli_alloc len: 3084 00000216B02010F8
+new curvemap len: 424 00000216B0209440
+BKE_curvemapping_from_idprop len: 24 00000216B02C5D58
+dist table len: 3084 00000216B01E50F8
+dupli_alloc len: 424 00000216B0209240
+dupli_alloc len: 24 00000216B02C5818
+dupli_alloc len: 3084 00000216B01E4138
+IDProperty group len: 144 00000216B020DFE0
+idp_group_children_map_ensure len: 200 00000216B0211840
+IDProperty string len: 144 00000216B020E7C0
+id property string 2 len: 28 00000216B02C56F8
+IDProperty int len: 144 00000216B020E600
+C:\dev\blender\main\source\blender\blenlib\BLI_array.hh:476 len: 256 00000216B02DD1C0
+C:\dev\blender\main\source\blender\blenlib\BLI_vector_set.hh:1102 len: 128 00000216B020C220
+IDProperty array len: 144 00000216B020E6E0
+id property array len: 32 00000216B02C57B8
+IDProperty int len: 144 00000216B020E8A0
+IDProperty string len: 144 00000216B020E980
+id property string 2 len: 16 00000216B01FB2C8
+IDProperty string len: 144 00000216B020EA60
+id property string 2 len: 8 00000216B01FB7C8
+IDProperty prop array len: 144 00000216B020DAA0
+IDP_ResizeIDPArray len: 864 00000216B0232C38
+IDProperty double len: 144 00000216B020FB00
+idp_group_children_map_ensure len: 200 00000216B0211480
+IDProperty double len: 144 00000216B01EEC20
+IDProperty string len: 144 00000216B01EE0C0
+id property string 2 len: 8 00000216B01FB778
+IDProperty double len: 144 00000216B01EF240
+idp_group_children_map_ensure len: 200 00000216B0211340
+IDProperty double len: 144 00000216B01EF400
+IDProperty string len: 144 00000216B01EF5C0
+id property string 2 len: 8 00000216B01FB278
+IDProperty double len: 144 00000216B01EF6A0
+idp_group_children_map_ensure len: 200 00000216B0211200
+IDProperty double len: 144 00000216B01EF860
+IDProperty string len: 144 00000216B01EF940
+id property string 2 len: 8 00000216B01FB228
+new curvemap len: 424 00000216B0208E40
+BKE_curvemapping_from_idprop len: 36 00000216B0399FD8
+dist table len: 3084 00000216B01EA0B8
+dupli_alloc len: 424 00000216B0209040
+dupli_alloc len: 36 00000216B039A048
+dupli_alloc len: 3084 00000216B01EB078
+IDProperty group len: 144 00000216B01EDFE0
+idp_group_children_map_ensure len: 200 00000216B0210F80
+idp_generic_copy len: 144 00000216B01EE7C0
+idp_generic_copy len: 144 00000216B01EEFA0
+dupli_alloc len: 8 00000216B01FB318
+idp_group_children_map_ensure len: 200 00000216B02115C0
+IDProperty string len: 144 00000216B01EF160
+id property string 2 len: 28 00000216B02C5A58
+C:\dev\blender\main\source\blender\blenlib\BLI_array.hh:476 len: 256 00000216B02DD040
+C:\dev\blender\main\source\blender\blenlib\BLI_vector_set.hh:1102 len: 128 00000216B01ECAE0
+IDProperty int len: 144 00000216B01EF320
+IDProperty array len: 144 00000216B01EEEC0
+id property array len: 32 00000216B02C5698
+IDProperty int len: 144 00000216B01EEDE0
+IDProperty string len: 144 00000216B01EED00
+id property string 2 len: 12 00000216B01FBC78
+IDProperty string len: 144 00000216B01EF780
+id property string 2 len: 8 00000216B01FB138
+IDProperty prop array len: 144 00000216B01EE360
+IDP_ResizeIDPArray len: 720 00000216B02375B8
+IDProperty double len: 144 00000216B01EE280
+idp_group_children_map_ensure len: 200 00000216B02133C0
+IDProperty double len: 144 00000216B01EE1A0
+IDProperty string len: 144 00000216B01EEB40
+id property string 2 len: 8 00000216B01FB188
+IDProperty double len: 144 00000216B01EC140
+idp_group_children_map_ensure len: 200 00000216B0213F00
+IDProperty double len: 144 00000216B01EC220
+IDProperty string len: 144 00000216B01EC300
+id property string 2 len: 8 00000216B01FBC28
+new curvemap len: 424 00000216B0209840
+BKE_curvemapping_from_idprop len: 24 00000216B02C5758
+dist table len: 3084 00000216B01E8138
+dupli_alloc len: 424 00000216B0209A40
+dupli_alloc len: 24 00000216B02C6EF8
+dupli_alloc len: 3084 00000216B01E60B8
+new curvemap len: 424 00000216B0208C40
+BKE_curvemapping_from_idprop len: 24 00000216B02C6A78
+dist table len: 3084 00000216B01F3078
+idp_generic_copy len: 144 00000216B0227780
+idp_generic_copy len: 144 00000216B0224E60
+dupli_alloc len: 28 00000216B02C5938
+idp_group_children_map_ensure len: 200 00000216B0211AC0
+idp_generic_copy len: 144 00000216B0224F40
+idp_generic_copy len: 144 00000216B0225020
+dupli_alloc len: 32 00000216B02C5998
+idp_generic_copy len: 144 00000216B0224A00
+idp_generic_copy len: 144 00000216B02244C0
+dupli_alloc len: 16 00000216B01FB4F8
+C:\dev\blender\main\source\blender\blenlib\BLI_array.hh:476 len: 128 00000216B0224140
+idp_generic_copy len: 144 00000216B02243E0
+dupli_alloc len: 8 00000216B01FB3B8
+IDP_CopyIDPArray len: 144 00000216B02266E0
+dupli_alloc len: 720 00000216B0237938
+idp_generic_copy len: 144 00000216B0225C60
+idp_group_children_map_ensure len: 200 00000216B0211C00
+idp_generic_copy len: 144 00000216B02251E0
+idp_generic_copy len: 144 00000216B020D800
+dupli_alloc len: 8 00000216B01FB408
+idp_generic_copy len: 144 00000216B020E1A0
+idp_group_children_map_ensure len: 200 00000216B0212240
+idp_generic_copy len: 144 00000216B020C760
+idp_generic_copy len: 144 00000216B020CBC0
+dupli_alloc len: 8 00000216B01FB458
+dupli_alloc len: 424 00000216B0208A40
+dupli_alloc len: 24 00000216B02C5638
+dupli_alloc len: 3084 00000216B01F20B8
+new curvemap len: 424 00000216B01A7640
+BKE_curvemapping_from_idprop len: 24 00000216B02C53F8
+dist table len: 3084 00000216B01AA0B8
+dupli_alloc len: 424 00000216B01A7440
+dupli_alloc len: 24 00000216B02C4438
+dupli_alloc len: 3084 00000216B01A90F8
+IDProperty group len: 144 00000216B01DA600
+idp_group_children_map_ensure len: 200 00000216B0214300
+IDProperty string len: 144 00000216B01DB080
+id property string 2 len: 28 00000216B02C4D98
+IDProperty int len: 144 00000216B01D98E0
+C:\dev\blender\main\source\blender\blenlib\BLI_array.hh:476 len: 256 00000216B02DD7C0
+C:\dev\blender\main\source\blender\blenlib\BLI_vector_set.hh:1102 len: 128 00000216B01D9AA0
+IDProperty array len: 144 00000216B01D9F00
+id property array len: 32 00000216B02C4DF8
+IDProperty int len: 144 00000216B01D9E20
+IDProperty string len: 144 00000216B01D9D40
+id property string 2 len: 16 00000216B01FAFF8
+IDProperty string len: 144 00000216B01D9C60
+id property string 2 len: 8 00000216B01FB0E8
+IDProperty prop array len: 144 00000216B01D8E60
+IDP_ResizeIDPArray len: 720 00000216B0234BB8
+IDProperty double len: 144 00000216B01D93A0
+idp_group_children_map_ensure len: 200 00000216B02150C0
+IDProperty double len: 144 00000216B01D9480
+IDProperty string len: 144 00000216B01DAB40
+id property string 2 len: 8 00000216B01FAF58
+IDProperty double len: 144 00000216B01DAA60
+idp_group_children_map_ensure len: 200 00000216B0215200
+IDProperty double len: 144 00000216B01DA980
+IDProperty string len: 144 00000216B01DA7C0
+id property string 2 len: 8 00000216B01FAEB8
+new curvemap len: 424 00000216B01A7040
+BKE_curvemapping_from_idprop len: 24 00000216B02C4E58
+dist table len: 3084 00000216B01BF078
+dupli_alloc len: 424 00000216B01A7240
+dupli_alloc len: 24 00000216B02C4D38
+dupli_alloc len: 3084 00000216B01BE0B8
+new curvemap len: 424 00000216AFF2EC40
+BKE_curvemapping_from_idprop len: 24 00000216AFEE9758
+dist table len: 3084 00000216AFEE60B8
+idp_generic_copy len: 144 00000216AFF334E0
+idp_generic_copy len: 144 00000216AFF33400
+dupli_alloc len: 28 00000216AFECF9B0
+idp_group_children_map_ensure len: 200 00000216B014E740
+idp_generic_copy len: 144 00000216AFF33320
+idp_generic_copy len: 144 00000216AFF33240
+dupli_alloc len: 32 00000216AFECD480
+idp_generic_copy len: 144 00000216AFF33160
+idp_generic_copy len: 144 00000216AFF33080
+dupli_alloc len: 12 00000216AFEE9820
+C:\dev\blender\main\source\blender\blenlib\BLI_array.hh:476 len: 128 00000216AFF32FA0
+idp_generic_copy len: 144 00000216AFF32EC0
+dupli_alloc len: 8 00000216AFEAD7A0
+IDP_CopyIDPArray len: 144 00000216AFF32DE0
+dupli_alloc len: 288 00000216AFEF9AC0
+idp_generic_copy len: 144 00000216AFF32C20
+idp_group_children_map_ensure len: 200 00000216B014E600
+idp_generic_copy len: 144 00000216AFF32B40
+idp_generic_copy len: 144 00000216AFF32A60
+dupli_alloc len: 8 00000216AFEAD7F0
+idp_generic_copy len: 144 00000216AFF32980
+idp_group_children_map_ensure len: 200 00000216B014E4C0
+idp_generic_copy len: 144 00000216AFF328A0
+idp_generic_copy len: 144 00000216AFF327C0
+dupli_alloc len: 8 00000216AFEAE970
+idp_generic_copy len: 144 00000216AFF32D00
+idp_generic_copy len: 144 00000216AFF326E0
+dupli_alloc len: 8 00000216AFEAD840
+idp_group_children_map_ensure len: 200 00000216B014E380
+dupli_alloc len: 424 00000216AFF2EA40
+dupli_alloc len: 24 00000216AFEE98D8
+dupli_alloc len: 3084 00000216AFEE7078
+
+Blender quit
+Error: Not freed memory blocks: 400, total unfreed memory 0.173237 MB

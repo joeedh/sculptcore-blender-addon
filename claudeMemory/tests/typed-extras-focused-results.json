@@ -1,0 +1,17 @@
+[
+  {
+    "suite": "test_brush_typed_extras",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_brush_typed_extras"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_brush_typed_extras.cc_out.exe",
+    "returncode": 0,
+    "passed": true,
+    "binary_sha256": "e6a5c3a37a45cc49b6a803e6cb4986e5dc1c47891f3b5e467892ada83759c48c",
+    "stdout": "",
+    "stderr": "typed extra registry, authored/cache writes and packed bytes passed\r\ntyped extra mesh program geometry passed\r\ntyped extra grid program geometry passed\r\n"
+  }
+]

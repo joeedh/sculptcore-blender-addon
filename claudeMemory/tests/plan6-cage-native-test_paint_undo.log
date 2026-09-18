@@ -1,0 +1,15 @@
+{
+  "suite": "test_paint_undo",
+  "command": [
+    "C:\\Program Files\\nodejs\\node.EXE",
+    "make.mjs",
+    "test",
+    "test_paint_undo"
+  ],
+  "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_paint_undo.cc_out.exe",
+  "returncode": 0,
+  "passed": true,
+  "binary_sha256": "d6b612b9d2259a1700cd261dd3808c513b8267c562a0402981f8a58d64bba8ff",
+  "stdout": "Info: attribute color changed index in mesh\r\nInfo: attribute .spatial.v.mask changed index in mesh\r\n",
+  "stderr": "color: painted=88\r\ncolor: notRestored=0\r\nmask: painted=88\r\nmask: notRestored=0\r\n"
+}

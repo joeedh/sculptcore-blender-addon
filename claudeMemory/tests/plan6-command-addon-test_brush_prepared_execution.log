@@ -1,0 +1,15 @@
+{
+  "suite": "test_brush_prepared_execution",
+  "command": [
+    "C:\\Program Files\\nodejs\\node.EXE",
+    "make.mjs",
+    "test",
+    "test_brush_prepared_execution"
+  ],
+  "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_brush_prepared_execution.cc_out.exe",
+  "returncode": 0,
+  "passed": true,
+  "binary_sha256": "6505b7fbe3c8b714ee648cdb469fe5f049b22bdf692009a9932be204a824a4d9",
+  "stdout": "Info: attribute normals changed index in mesh\r\nInfo: attribute normals changed index in mesh\r\nInfo: attribute .face.normal changed index in mesh\r\nInfo: attribute .face.normal changed index in mesh\r\nInfo: attribute normals changed index in mesh\r\nInfo: attribute normals changed index in mesh\r\nInfo: attribute .face.normal changed index in mesh\r\nInfo: attribute .face.normal changed index in mesh\r\nInfo: attribute normals changed index in mesh\r\nInfo: attribute normals changed index in mesh\r\nInfo: attribute .face.normal changed index in mesh\r\n",
+  "stderr": "SculptCore: rejected strength (property status 16)\r\nSculptCore: rejected command[0].strength (property status 16)\r\nSculptCore: rejected stray (property status 16)\r\nSculptCore: rejected command[0].stray (property status 16)\r\nSculptCore: rejected strength (property status 16)\r\nSculptCore: rejected command[0].strength (property status 16)\r\nSculptCore: rejected stray (property status 16)\r\nSculptCore: rejected command[0].stray (property status 16)\r\nraw mesh/grid nonfirst empty-region validation and repair passed\r\nresolved DRAW expanded region, rejection and undo passed (337 outside raw leaves)\r\nresolved grid DRAW expanded region and exact undo passed (593 outside raw leaves)\r\nresolved grid capabilities and lifecycle rejection passed\r\nresolved grid SMOOTH raw-reference and deferred normals passed\r\nSculptCore: rejected command[0].typed overrides require resolved execution (property status 4)\r\nSculptCore: rejected command[0].typed overrides require resolved execution (property status 4)\r\nuniform declaration 'typed program requires resolved execution': registration error 4\r\nSculptCore: rejected command[0].unsupported raw grid override (property status 4)\r\nSculptCore: rejected command[0].unsupported raw grid override (property status 4)\r\nresolved mesh/grid programs, widened raw reference and atomic rejection passed\r\nresolved mesh capability and neighbor dispatch passed\r\n"
+}

@@ -1,0 +1,10 @@
+Blender 5.3.0 Alpha
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+PLAN6_STROKE_SETTINGS_PASS 15
+
+Blender quit
+
+C:\dev\blender\sculptcore-blender-addon\claudeMemory\scripts\test_plan6_stroke_settings.py:33: DeprecationWarning: 'UnifiedPaintSettings.use_unified_size' is expected to be removed in Blender 6.0
+  scene.tool_settings.sculpt.unified_paint_settings.use_unified_size = False
+C:\dev\blender\sculptcore-blender-addon\claudeMemory\scripts\test_plan6_stroke_settings.py:34: DeprecationWarning: 'UnifiedPaintSettings.use_unified_strength' is expected to be removed in Blender 6.0
+  scene.tool_settings.sculpt.unified_paint_settings.use_unified_strength = False

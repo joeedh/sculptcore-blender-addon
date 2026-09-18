@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "comparisons": 543,
+  "bitwise_float32": true,
+  "dll": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\sculptcore_capi.dll",
+  "sha256": "5bb7bfff9145095cca4faa2f74cff6d4b2beaa82d4777970815510085fb31d8f",
+  "seed": 9182026
+}

@@ -38,6 +38,7 @@ class Session:
         # the Mesh view, and the per-session Brush + CommandExecutor.
         "mesh_obj",
         "brush_obj",
+        "generic_runtime",
         "executor",
         # What brush_obj's 256-entry LUTs (falloff, cavity, pressure response)
         # were last loaded with, so a stroke that changes none of them skips the
@@ -188,6 +189,7 @@ class Session:
         self.filter_high_water = 0.0
         self.mesh_obj = None
         self.brush_obj = None
+        self.generic_runtime = None
         self.curve_cache = {}
         self.tex_script_type = None
         self.tex_script_param_index = None
@@ -268,6 +270,9 @@ class Session:
         if self._freed:
             return
         self._freed = True
+        if self.generic_runtime is not None:
+            self.generic_runtime.close()
+            self.generic_runtime = None
         # Owning engine wrappers (Brush, CommandExecutor, MeshLog) dispose their
         # C++ objects; the Mesh view is non-owning (freed via freeMesh below).
         # The executor goes before the meshlog it points at.

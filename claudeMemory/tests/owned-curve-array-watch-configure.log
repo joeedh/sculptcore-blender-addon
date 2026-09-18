@@ -1,0 +1,13 @@
+-- Clang version 22.1.3 detected, masquerading as MSVC 1951
+-- Found required Ceres dependency: absl version 20250814 in C:/dev/blender/main/lib/windows_x64/abseil/lib/cmake/absl
+-- Found required Ceres dependency: Eigen version 5.0.1 in C:/dev/blender/main/lib/windows_x64/eigen/share/eigen3/cmake
+-- Found Ceres version: 2.3.0 installed in: C:/dev/blender/main/lib/windows_x64/ceres with components: [EigenSparse, SparseLinearAlgebraLibrary, SchurSpecializations]
+-- Using NINJA_POOL_JOBS:
+--   NINJA_MAX_NUM_PARALLEL_LINK_JOBS: max concurrent linking jobs (computed): 1
+--   NINJA_MAX_NUM_PARALLEL_COMPILE_HEAVY_JOBS: max concurrent heavy compile jobs (computed): 7
+--   NINJA_MAX_NUM_PARALLEL_COMPILE_JOBS: max concurrent regular compile jobs (computed): 15
+-- Could NOT find OptiX (missing: OPTIX_INCLUDE_DIR) (Required is at least version "8.0.0")
+-- OptiX not found, disabling WITH_CYCLES_DEVICE_OPTIX
+-- Configuring done (7.8s)
+-- Generating done (16.7s)
+-- Build files have been written to: C:/dev/blender/build_windows_x64_clang_RelWithDebInfo

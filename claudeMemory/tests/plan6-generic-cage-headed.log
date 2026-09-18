@@ -1,0 +1,11 @@
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+PLAN6_GENERIC_ROUTE_USED
+PLAN6_CAGE_MODAL_CASE_PASS PAINT False
+PLAN6_GENERIC_ROUTE_USED
+PLAN6_GENERIC_ROUTE_USED
+PLAN6_CAGE_MODAL_CASE_PASS PAINT True
+PLAN6_CAGE_MODAL_PASS
+00:22.688  blend            | Saved session recovery to "C:\Users\joeed\AppData\Local\Temp\quit.blend"
+
+[error] toml::parse: Error opening file "C:\Users\joeed\AppData\Roaming\Blender Foundation\Blender\5.3\config\recents.toml"
+

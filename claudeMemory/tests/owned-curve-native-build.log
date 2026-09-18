@@ -1,0 +1,544 @@
+[0/1] Re-running CMake...
+-- Clang version 22.1.3 detected, masquerading as MSVC 1951
+-- Found required Ceres dependency: absl version 20250814 in C:/dev/blender/main/lib/windows_x64/abseil/lib/cmake/absl
+-- Found required Ceres dependency: Eigen version 5.0.1 in C:/dev/blender/main/lib/windows_x64/eigen/share/eigen3/cmake
+-- Found Ceres version: 2.3.0 installed in: C:/dev/blender/main/lib/windows_x64/ceres with components: [EigenSparse, SparseLinearAlgebraLibrary, SchurSpecializations]
+-- Using NINJA_POOL_JOBS:
+--   NINJA_MAX_NUM_PARALLEL_LINK_JOBS: max concurrent linking jobs (computed): 1
+--   NINJA_MAX_NUM_PARALLEL_COMPILE_HEAVY_JOBS: max concurrent heavy compile jobs (computed): 7
+--   NINJA_MAX_NUM_PARALLEL_COMPILE_JOBS: max concurrent regular compile jobs (computed): 15
+-- Could NOT find OptiX (missing: OPTIX_INCLUDE_DIR) (Required is at least version "8.0.0")
+-- OptiX not found, disabling WITH_CYCLES_DEVICE_OPTIX
+-- Found Git: C:/Program Files/Git/mingw64/bin/git.exe (found version "2.55.0.windows.5")
+-- Configuring done (11.0s)
+-- Generating done (22.3s)
+CMake Error in CMakeLists.txt:
+  IMPORTED_LOCATION not set for imported target "Git::Git" configuration
+  "Release".
+
+
+CMake Error in CMakeLists.txt:
+  IMPORTED_LOCATION not set for imported target "Git::Git" configuration
+  "Release".
+
+
+-- Build files have been written to: C:/dev/blender/build_windows_x64_clang_RelWithDebInfo
+[1/436] Building CXX object source\blender\makesdna\intern\CMakeFiles\makesdna.dir\makesdna.cc.obj
+makesdna.cc
+[2/436] Linking CXX executable bin\makesdna.exe
+[3/436] Generating dna.cc, dna_defaults.cc, dna_struct_ids.cc, dna_type_offsets.h, dna_verify.cc
+[4/436] Building CXX object source\blender\makesdna\intern\CMakeFiles\bf_dna.dir\dna.cc.obj
+dna.cc
+[5/436] Building CXX object source\blender\makesdna\intern\CMakeFiles\bf_dna.dir\dna_struct_ids.cc.obj
+dna_struct_ids.cc
+[6/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\makesrna.cc.obj
+makesrna.cc
+[7/436] Building CXX object source\blender\makesdna\intern\CMakeFiles\bf_dna.dir\dna_verify.cc.obj
+dna_verify.cc
+[8/436] Linking CXX static library lib\bf_dna.lib
+[9/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_define.cc.obj
+rna_define.cc
+[10/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_ID.cc.obj
+rna_ID.cc
+[11/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_animation.cc.obj
+rna_animation.cc
+[12/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_action.cc.obj
+rna_action.cc
+[13/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_animviz.cc.obj
+rna_animviz.cc
+[14/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_asset.cc.obj
+rna_asset.cc
+[15/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_annotations.cc.obj
+rna_annotations.cc
+[16/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_armature.cc.obj
+rna_armature.cc
+[17/436] Building CXX object source\blender\makesdna\intern\CMakeFiles\bf_dna_defaults.dir\dna_defaults.cc.obj
+dna_defaults.cc
+[18/436] Linking CXX static library lib\bf_dna_defaults.lib
+[19/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_blender_project.cc.obj
+rna_blender_project.cc
+[20/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_attribute.cc.obj
+rna_attribute.cc
+[21/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_blendfile_import.cc.obj
+rna_blendfile_import.cc
+[22/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_boid.cc.obj
+rna_boid.cc
+[23/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_cachefile.cc.obj
+rna_cachefile.cc
+[24/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_camera.cc.obj
+rna_camera.cc
+[25/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_cloth.cc.obj
+rna_cloth.cc
+[26/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_brush.cc.obj
+rna_brush.cc
+[27/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_context.cc.obj
+rna_context.cc
+[28/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_collection.cc.obj
+rna_collection.cc
+[29/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_color.cc.obj
+rna_color.cc
+[30/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_constraint.cc.obj
+rna_constraint.cc
+[31/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_curveprofile.cc.obj
+rna_curveprofile.cc
+[32/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_curves.cc.obj
+rna_curves.cc
+[33/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_curve.cc.obj
+rna_curve.cc
+[34/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_depsgraph.cc.obj
+rna_depsgraph.cc
+[35/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_fcurve.cc.obj
+rna_fcurve.cc
+[36/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_dynamicpaint.cc.obj
+rna_dynamicpaint.cc
+[37/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_fluid.cc.obj
+rna_fluid.cc
+[38/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_grease_pencil.cc.obj
+rna_grease_pencil.cc
+[39/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_image.cc.obj
+rna_image.cc
+[40/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_lattice.cc.obj
+rna_lattice.cc
+[41/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_key.cc.obj
+rna_key.cc
+[42/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_layer.cc.obj
+rna_layer.cc
+[43/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_light.cc.obj
+rna_light.cc
+[44/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_lightprobe.cc.obj
+rna_lightprobe.cc
+[45/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_main.cc.obj
+rna_main.cc
+[46/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_linestyle.cc.obj
+rna_linestyle.cc
+[47/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_meta.cc.obj
+rna_meta.cc
+[48/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_mask.cc.obj
+rna_mask.cc
+[49/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_material.cc.obj
+rna_material.cc
+[50/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_mesh.cc.obj
+rna_mesh.cc
+[51/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_movieclip.cc.obj
+rna_movieclip.cc
+[52/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_nla.cc.obj
+rna_nla.cc
+[53/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_node_socket.cc.obj
+rna_node_socket.cc
+[54/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_node_tree_interface.cc.obj
+rna_node_tree_interface.cc
+[55/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_object.cc.obj
+rna_object.cc
+[56/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_object_force.cc.obj
+rna_object_force.cc
+[57/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_nodetree.cc.obj
+rna_nodetree.cc
+[58/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_packedfile.cc.obj
+rna_packedfile.cc
+[59/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_modifier.cc.obj
+rna_modifier.cc
+[60/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_object_mode.cc.obj
+rna_object_mode.cc
+[61/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_palette.cc.obj
+rna_palette.cc
+[62/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_pointcloud.cc.obj
+rna_pointcloud.cc
+[63/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_pose.cc.obj
+rna_pose.cc
+[64/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_particle.cc.obj
+rna_particle.cc
+[65/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_rigidbody.cc.obj
+rna_rigidbody.cc
+[66/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_render.cc.obj
+rna_render.cc
+[67/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_rna.cc.obj
+rna_rna.cc
+[68/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_scene.cc.obj
+rna_scene.cc
+[69/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_screen.cc.obj
+rna_screen.cc
+[70/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_sculpt_paint.cc.obj
+rna_sculpt_paint.cc
+[71/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_sequencer.cc.obj
+rna_sequencer.cc
+[72/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_sound.cc.obj
+rna_sound.cc
+[73/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_shader_fx.cc.obj
+rna_shader_fx.cc
+[74/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_speaker.cc.obj
+rna_speaker.cc
+[75/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_test.cc.obj
+rna_test.cc
+[76/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_text.cc.obj
+rna_text.cc
+[77/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_texture.cc.obj
+rna_texture.cc
+[78/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_space.cc.obj
+rna_space.cc
+[79/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_timeline.cc.obj
+rna_timeline.cc
+[80/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_tracking.cc.obj
+rna_tracking.cc
+[81/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_vfont.cc.obj
+rna_vfont.cc
+[82/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_ui.cc.obj
+rna_ui.cc
+[83/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_userdef.cc.obj
+rna_userdef.cc
+[84/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_volume.cc.obj
+rna_volume.cc
+[85/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_wm_gizmo.cc.obj
+rna_wm_gizmo.cc
+[86/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_wm.cc.obj
+rna_wm.cc
+[87/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_wm_undo.cc.obj
+rna_wm_undo.cc
+[88/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_workspace.cc.obj
+rna_workspace.cc
+[89/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_world.cc.obj
+rna_world.cc
+[90/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_xr.cc.obj
+rna_xr.cc
+[91/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_usd.cc.obj
+rna_usd.cc
+[92/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_action_api.cc.obj
+rna_action_api.cc
+[93/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_armature_api.cc.obj
+rna_armature_api.cc
+[94/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_camera_api.cc.obj
+rna_camera_api.cc
+[95/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_animation_api.cc.obj
+rna_animation_api.cc
+[96/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_curve_api.cc.obj
+rna_curve_api.cc
+[97/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_curves_api.cc.obj
+rna_curves_api.cc
+[98/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_image_api.cc.obj
+rna_image_api.cc
+[99/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_fcurve_api.cc.obj
+rna_fcurve_api.cc
+[100/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_grease_pencil_api.cc.obj
+rna_grease_pencil_api.cc
+[101/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_lattice_api.cc.obj
+rna_lattice_api.cc
+[102/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_material_api.cc.obj
+rna_material_api.cc
+[103/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_mesh_api.cc.obj
+rna_mesh_api.cc
+[104/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_meta_api.cc.obj
+rna_meta_api.cc
+[105/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_main_api.cc.obj
+rna_main_api.cc
+[106/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_pose_api.cc.obj
+rna_pose_api.cc
+[107/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_object_api.cc.obj
+rna_object_api.cc
+[108/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_scene_api.cc.obj
+rna_scene_api.cc
+[109/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_sequencer_api.cc.obj
+rna_sequencer_api.cc
+[110/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_sound_api.cc.obj
+rna_sound_api.cc
+[111/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_space_api.cc.obj
+rna_space_api.cc
+[112/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_text_api.cc.obj
+rna_text_api.cc
+[113/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_texture_api.cc.obj
+rna_texture_api.cc
+[114/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_vfont_api.cc.obj
+rna_vfont_api.cc
+[115/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_ui_api.cc.obj
+rna_ui_api.cc
+[116/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_wm_gizmo_api.cc.obj
+rna_wm_gizmo_api.cc
+[117/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_workspace_api.cc.obj
+rna_workspace_api.cc
+[118/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_wm_api.cc.obj
+rna_wm_api.cc
+[119/436] Linking CXX executable bin\makesrna.exe
+[120/436] Generating rna_ID_gen.cc, rna_action_gen.cc, rna_animation_gen.cc, rna_animviz_gen.cc, rna_annotations_gen.cc, rna_armature_gen.cc, rna_asset_gen.cc, rna_attribute_gen.cc, rna_blender_project_gen.cc, rna_blendfile_import_gen.cc, rna_boid_gen.cc, rna_brush_gen.cc, rna_cachefile_gen.cc, rna_camera_gen.cc, rna_cloth_gen.cc, rna_collection_gen.cc, rna_color_gen.cc, rna_constraint_gen.cc, rna_context_gen.cc, rna_curve_gen.cc, rna_curveprofile_gen.cc, rna_curves_gen.cc, rna_depsgraph_gen.cc, rna_dynamicpaint_gen.cc, rna_fcurve_gen.cc, rna_fluid_gen.cc, rna_grease_pencil_gen.cc, rna_image_gen.cc, rna_key_gen.cc, rna_lattice_gen.cc, rna_layer_gen.cc, rna_light_gen.cc, rna_lightprobe_gen.cc, rna_linestyle_gen.cc, rna_main_gen.cc, rna_mask_gen.cc, rna_material_gen.cc, rna_mesh_gen.cc, rna_meta_gen.cc, rna_modifier_gen.cc, rna_movieclip_gen.cc, rna_nla_gen.cc, rna_node_socket_gen.cc, rna_node_tree_interface_gen.cc, rna_nodetree_gen.cc, rna_object_gen.cc, rna_object_force_gen.cc, rna_packedfile_gen.cc, rna_object_mode_gen.cc, rna_palette_gen.cc, rna_particle_gen.cc, rna_pointcloud_gen.cc, rna_pose_gen.cc, rna_render_gen.cc, rna_rigidbody_gen.cc, rna_rna_gen.cc, rna_scene_gen.cc, rna_screen_gen.cc, rna_sculpt_paint_gen.cc, rna_sequencer_gen.cc, rna_shader_fx_gen.cc, rna_sound_gen.cc, rna_space_gen.cc, rna_speaker_gen.cc, rna_test_gen.cc, rna_text_gen.cc, rna_texture_gen.cc, rna_timeline_gen.cc, rna_tracking_gen.cc, rna_ui_gen.cc, rna_userdef_gen.cc, rna_vfont_gen.cc, rna_volume_gen.cc, rna_wm_gen.cc, rna_wm_gizmo_gen.cc, rna_wm_undo_gen.cc, rna_workspace_gen.cc, rna_world_gen.cc, rna_xr_gen.cc, rna_usd_gen.cc, rna_prototypes_gen.hh, ../RNA_prototypes.hh
+[121/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_path.cc.obj
+rna_path.cc
+[122/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_access_compare_override.cc.obj
+rna_access_compare_override.cc
+[123/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_define.cc.obj
+rna_define.cc
+[124/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_access.cc.obj
+rna_access.cc
+[125/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_animation_gen.cc.obj
+rna_animation_gen.cc
+[126/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_action_gen.cc.obj
+rna_action_gen.cc
+[127/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_ID_gen.cc.obj
+rna_ID_gen.cc
+[128/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_animviz_gen.cc.obj
+rna_animviz_gen.cc
+[129/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_annotations_gen.cc.obj
+rna_annotations_gen.cc
+[130/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_asset_gen.cc.obj
+rna_asset_gen.cc
+[131/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_armature_gen.cc.obj
+rna_armature_gen.cc
+[132/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_blender_project_gen.cc.obj
+rna_blender_project_gen.cc
+[133/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_blendfile_import_gen.cc.obj
+rna_blendfile_import_gen.cc
+[134/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_attribute_gen.cc.obj
+rna_attribute_gen.cc
+[135/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_boid_gen.cc.obj
+rna_boid_gen.cc
+[136/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_cachefile_gen.cc.obj
+rna_cachefile_gen.cc
+[137/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_camera_gen.cc.obj
+rna_camera_gen.cc
+[138/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_cloth_gen.cc.obj
+rna_cloth_gen.cc
+[139/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_brush_gen.cc.obj
+rna_brush_gen.cc
+[140/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_collection_gen.cc.obj
+rna_collection_gen.cc
+[141/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_context_gen.cc.obj
+rna_context_gen.cc
+[142/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_color_gen.cc.obj
+rna_color_gen.cc
+[143/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_curve_gen.cc.obj
+rna_curve_gen.cc
+[144/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_curveprofile_gen.cc.obj
+rna_curveprofile_gen.cc
+[145/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_constraint_gen.cc.obj
+rna_constraint_gen.cc
+[146/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_curves_gen.cc.obj
+rna_curves_gen.cc
+[147/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_depsgraph_gen.cc.obj
+rna_depsgraph_gen.cc
+[148/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_dynamicpaint_gen.cc.obj
+rna_dynamicpaint_gen.cc
+[149/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_fcurve_gen.cc.obj
+rna_fcurve_gen.cc
+[150/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_fluid_gen.cc.obj
+rna_fluid_gen.cc
+[151/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_key_gen.cc.obj
+rna_key_gen.cc
+[152/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_image_gen.cc.obj
+rna_image_gen.cc
+[153/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_grease_pencil_gen.cc.obj
+rna_grease_pencil_gen.cc
+[154/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_lattice_gen.cc.obj
+rna_lattice_gen.cc
+[155/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_light_gen.cc.obj
+rna_light_gen.cc
+[156/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_lightprobe_gen.cc.obj
+rna_lightprobe_gen.cc
+[157/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_layer_gen.cc.obj
+rna_layer_gen.cc
+[158/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_mask_gen.cc.obj
+rna_mask_gen.cc
+[159/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_linestyle_gen.cc.obj
+rna_linestyle_gen.cc
+[160/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_material_gen.cc.obj
+rna_material_gen.cc
+[161/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_meta_gen.cc.obj
+rna_meta_gen.cc
+[162/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_main_gen.cc.obj
+rna_main_gen.cc
+[163/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_movieclip_gen.cc.obj
+rna_movieclip_gen.cc
+[164/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_mesh_gen.cc.obj
+rna_mesh_gen.cc
+[165/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_nla_gen.cc.obj
+rna_nla_gen.cc
+[166/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_node_socket_gen.cc.obj
+rna_node_socket_gen.cc
+[167/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_node_tree_interface_gen.cc.obj
+rna_node_tree_interface_gen.cc
+[168/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_modifier_gen.cc.obj
+rna_modifier_gen.cc
+[169/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_object_gen.cc.obj
+rna_object_gen.cc
+[170/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_packedfile_gen.cc.obj
+rna_packedfile_gen.cc
+[171/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_object_mode_gen.cc.obj
+rna_object_mode_gen.cc
+[172/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_object_force_gen.cc.obj
+rna_object_force_gen.cc
+[173/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_palette_gen.cc.obj
+rna_palette_gen.cc
+[174/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_pointcloud_gen.cc.obj
+rna_pointcloud_gen.cc
+[175/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_pose_gen.cc.obj
+rna_pose_gen.cc
+[176/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_particle_gen.cc.obj
+rna_particle_gen.cc
+[177/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_render_gen.cc.obj
+rna_render_gen.cc
+[178/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_rigidbody_gen.cc.obj
+rna_rigidbody_gen.cc
+[179/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_rna_gen.cc.obj
+rna_rna_gen.cc
+[180/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_screen_gen.cc.obj
+rna_screen_gen.cc
+[181/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_sculpt_paint_gen.cc.obj
+rna_sculpt_paint_gen.cc
+[182/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_shader_fx_gen.cc.obj
+rna_shader_fx_gen.cc
+[183/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_sound_gen.cc.obj
+rna_sound_gen.cc
+[184/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_sequencer_gen.cc.obj
+rna_sequencer_gen.cc
+[185/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_scene_gen.cc.obj
+rna_scene_gen.cc
+[186/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_test_gen.cc.obj
+rna_test_gen.cc
+[187/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_speaker_gen.cc.obj
+rna_speaker_gen.cc
+[188/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_text_gen.cc.obj
+rna_text_gen.cc
+[189/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_texture_gen.cc.obj
+rna_texture_gen.cc
+[190/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_timeline_gen.cc.obj
+rna_timeline_gen.cc
+[191/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_tracking_gen.cc.obj
+rna_tracking_gen.cc
+[192/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_space_gen.cc.obj
+rna_space_gen.cc
+[193/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_vfont_gen.cc.obj
+rna_vfont_gen.cc
+[194/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_volume_gen.cc.obj
+rna_volume_gen.cc
+[195/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_ui_gen.cc.obj
+rna_ui_gen.cc
+[196/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_wm_gizmo_gen.cc.obj
+rna_wm_gizmo_gen.cc
+[197/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_wm_undo_gen.cc.obj
+rna_wm_undo_gen.cc
+[198/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_wm_gen.cc.obj
+rna_wm_gen.cc
+[199/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_workspace_gen.cc.obj
+rna_workspace_gen.cc
+[200/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_userdef_gen.cc.obj
+rna_userdef_gen.cc
+[201/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_world_gen.cc.obj
+rna_world_gen.cc
+[202/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_usd_gen.cc.obj
+rna_usd_gen.cc
+[203/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_nodetree_gen.cc.obj
+rna_nodetree_gen.cc
+[204/436] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_xr_gen.cc.obj
+rna_xr_gen.cc
+[205/436] Linking CXX static library lib\bf_rna.lib
+[206/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\action_bones.cc.obj
+action_bones.cc
+[207/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\action_mirror.cc.obj
+action_mirror.cc
+[208/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\action.cc.obj
+action.cc
+[209/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\anim_data.cc.obj
+anim_data.cc
+[210/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\anim_data_bmain_utils.cc.obj
+anim_data_bmain_utils.cc
+[211/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\anim_path.cc.obj
+anim_path.cc
+[212/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\anim_visualization.cc.obj
+anim_visualization.cc
+[213/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\armature_deform.cc.obj
+armature_deform.cc
+[214/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\armature_selection.cc.obj
+armature_selection.cc
+[215/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\armature.cc.obj
+armature.cc
+[216/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\anim_sys.cc.obj
+anim_sys.cc
+[217/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\armature_update.cc.obj
+armature_update.cc
+[218/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\asset_weak_reference.cc.obj
+asset_weak_reference.cc
+[219/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\asset_edit.cc.obj
+asset_edit.cc
+[220/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\attribute_storage_access.cc.obj
+attribute_storage_access.cc
+[221/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\attribute.cc.obj
+attribute.cc
+[222/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\attribute_legacy_convert.cc.obj
+attribute_legacy_convert.cc
+[223/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\attribute_access.cc.obj
+attribute_access.cc
+[224/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\bake_geometry_nodes_modifier_pack.cc.obj
+bake_geometry_nodes_modifier_pack.cc
+[225/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\bake_geometry_nodes_modifier.cc.obj
+bake_geometry_nodes_modifier.cc
+[226/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\blender_copybuffer.cc.obj
+blender_copybuffer.cc
+[227/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\blender.cc.obj
+blender.cc
+[228/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\blender_undo.cc.obj
+blender_undo.cc
+[229/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\bake_values.cc.obj
+bake_values.cc
+[230/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\blendfile.cc.obj
+blendfile.cc
+[231/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\bake_items_serialize.cc.obj
+bake_items_serialize.cc
+[232/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\boids.cc.obj
+boids.cc
+[233/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\blendfile_link_append.cc.obj
+blendfile_link_append.cc
+[234/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\bpath.cc.obj
+bpath.cc
+[235/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\bvh.cc.obj
+bvh.cc
+[236/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\brush.cc.obj
+brush.cc
+[237/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\bvhutils.cc.obj
+bvhutils.cc
+[238/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\callbacks.cc.obj
+callbacks.cc
+[239/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\cachefile.cc.obj
+cachefile.cc
+[240/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\camera.cc.obj
+camera.cc
+[241/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\cloth.cc.obj
+cloth.cc
+[242/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\collection.cc.obj
+collection.cc
+[243/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\curvemapping_idprop.cc.obj
+FAILED: [code=1] source/blender/blenkernel/CMakeFiles/bf_blenkernel.dir/intern/curvemapping_idprop.cc.obj 
+sccache C:\PROGRA~1\MICROS~3\18\COMMUN~1\VC\Tools\Llvm\x64\bin\clang-cl.exe  /nologo -TP -DBLENDER_WIN_APPID=\"blender.5.3\" -DBLENDER_WIN_APPID_FRIENDLY_NAME="\"Blender 5.3\"" -DNDEBUG -DNOMINMAX -DPYTHON_EXECUTABLE_NAME=python.exe -DWIN32 -DWIN32_LEAN_AND_MEAN -DWITH_ALEMBIC -DWITH_ASSERT_ABORT -DWITH_AUDASPACE -DWITH_BULLET -DWITH_EMBREE -DWITH_FFMPEG -DWITH_FFTW3 -DWITH_FLUID -DWITH_FREESTYLE -DWITH_IMAGE_CINEON -DWITH_IMAGE_OPENJPEG -DWITH_IMAGE_WEBP -DWITH_INPUT_IME -DWITH_LIBMV -DWITH_OCEANSIM -DWITH_OPENSUBDIV -DWITH_OPENVDB -DWITH_OPENVDB_BLOSC -DWITH_PYTHON -DWITH_PYTHON_SECURITY -DWITH_QUADRIFLOW -DWITH_RUBBERBAND -DWITH_TBB -DWITH_TBB_MALLOC -DWITH_USD -DWITH_XR_OPENXR -D_ALLOW_KEYWORD_MACROS -D_CONSOLE -D_CRT_NONSTDC_NO_DEPRECATE -D_CRT_SECURE_NO_DEPRECATE -D_LIB -D_SCL_SECURE_NO_DEPRECATE -D_USE_MATH_DEFINES -D_WIN32_WINNT=0x603 -D__LITTLE_ENDIAN__ -IC:\dev\blender\main\source\blender\blenkernel -IC:\dev\blender\main\source\blender\ikplugin -IC:\dev\blender\main\source\blender\makesrna -IC:\dev\blender\main\source\blender\modifiers -IC:\dev\blender\main\source\blender\nodes\geometry\include -IC:\dev\blender\main\source\blender\shader_fx -IC:\dev\blender\main\source\blender\simulation -IC:\dev\blender\main\source\blender\windowmanager -IC:\dev\blender\main\intern\eigen -IC:\dev\blender\main\intern\ghost -IC:\dev\blender\main\intern\iksolver\extern -IC:\dev\blender\main\intern\libmv -IC:\dev\blender\main\intern\mantaflow\extern -IC:\dev\blender\main\intern\memutil -IC:\dev\blender\main\intern\mikktspace -IC:\dev\blender\main\intern\opensubdiv -IC:\dev\blender\build_windows_x64_clang_RelWithDebInfo\source\blender\makesrna -IC:\dev\blender\main\intern\utfconv -IC:\dev\blender\main\intern\rigidbody -IC:\dev\blender\main\source\blender\python -IC:\dev\blender\main\source\blender\io\alembic -IC:\dev\blender\main\source\blender\io\usd -IC:\dev\blender\main\intern\quadriflow -IC:\dev\blender\main\source\blender\animrig -IC:\dev\blender\main\source\blender\asset_system -IC:\dev\blender\main\source\blender\blenfont -IC:\dev\blender\main\source\blender\blenlib -IC:\dev\blender\main\source\blender\makesdna -IC:\dev\blender\build_windows_x64_clang_RelWithDebInfo\source\blender\makesdna\intern -IC:\dev\blender\main\intern\profile -IC:\dev\blender\main\source\blender\blenloader -IC:\dev\blender\main\source\blender\blenloader_core -IC:\dev\blender\main\source\blender\blentranslation -IC:\dev\blender\main\source\blender\bmesh -IC:\dev\blender\main\source\blender\depsgraph -IC:\dev\blender\main\source\blender\draw -IC:\dev\blender\main\extern\curve_fit_nd -IC:\dev\blender\main\source\blender\functions -IC:\dev\blender\main\source\blender\gpu -IC:\dev\blender\build_windows_x64_clang_RelWithDebInfo\source\blender\compositor -IC:\dev\blender\build_windows_x64_clang_RelWithDebInfo\source\blender\draw -IC:\dev\blender\build_windows_x64_clang_RelWithDebInfo\source\blender\imbuf\opencolorio -IC:\dev\blender\build_windows_x64_clang_RelWithDebInfo\intern\opensubdiv -IC:\dev\blender\main\source\blender\imbuf -IC:\dev\blender\main\source\blender\imbuf\opencolorio\. -IC:\dev\blender\main\source\blender\imbuf\movie -IC:\dev\blender\main\intern\clog -IC:\dev\blender\main\intern\guardedalloc -IC:\dev\blender\main\intern\openvdb -IC:\dev\blender\main\intern\mikktspace\. -IC:\dev\blender\main\source\blender\nodes -IC:\dev\blender\main\source\blender\render -IC:\dev\blender\main\source\blender\sequencer -IC:\dev\blender\main\extern\xxhash -IC:\dev\blender\main\intern\atomic -imsvcC:\dev\blender\main\lib\windows_x64\pthreads\include -imsvcC:\dev\blender\main\lib\windows_x64\OpenImageIO\include -imsvcC:\dev\blender\main\lib\windows_x64\fmt\include -imsvcC:\dev\blender\main\lib\windows_x64\tbb\include -imsvcC:\dev\blender\main\lib\windows_x64\opencolorio\include -imsvcC:\dev\blender\main\lib\windows_x64\vulkan\include -imsvcC:\dev\blender\main\lib\windows_x64\openVDB\include -imsvcC:\dev\blender\main\extern\toml11\. -imsvcC:\dev\blender\main\lib\windows_x64\zlib\include -imsvcC:\dev\blender\main\lib\windows_x64\zstd\include -imsvcC:\dev\blender\main\lib\windows_x64\freetype\include -imsvcC:\dev\blender\main\lib\windows_x64\freetype\include\freetype2 -imsvcC:\dev\blender\main\lib\windows_x64\fftw3\include -imsvcC:\dev\blender\main\lib\windows_x64\opensubdiv\include -imsvcC:\dev\blender\main\extern\audaspace\include -imsvcC:\dev\blender\build_windows_x64_clang_RelWithDebInfo\extern\audaspace -imsvcC:\dev\blender\main\extern\audaspace\bindings -imsvcC:\dev\blender\main\lib\windows_x64\embree\include -imsvcC:\dev\blender\main\extern\bullet2\src /W3 -Wno-tautological-compare -Wno-unknown-pragmas -Wno-char-subscripts -Wno-overloaded-virtual -Wno-sign-compare -Wno-invalid-offsetof -Wno-suggest-override -Wundef -Wundef-prefix -Wunused-parameter -Wmismatched-tags -Werror=unguarded-availability-new   /Gy /MP /nologo /J /Gd /showFilenames /EHsc -Wno-unused-command-line-argument -Wno-microsoft-enum-forward-reference /clang:-funsigned-char /clang:-fno-strict-aliasing /clang:-ffp-contract=off -march=x86-64-v2  /O2 /Ob2 /DNDEBUG /MD /Z7 -std:c++20 -MD -clang:-MD -clang:-MTsource\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\curvemapping_idprop.cc.obj -clang:-MFsource\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\curvemapping_idprop.cc.obj.d /Fosource\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\curvemapping_idprop.cc.obj /Fdsource\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\bf_blenkernel.pdb -c -- C:\dev\blender\main\source\blender\blenkernel\intern\curvemapping_idprop.cc
+curvemapping_idprop.cc
+C:\dev\blender\main\source\blender\blenkernel\intern\curvemapping_idprop.cc(182,58): error: no matching conversion for functional-style cast from 'const double[4]' to 'Span<double>'
+  182 |   IDP_ReplaceInGroup(result, bke::idprop::create("clip", Span<double>(clip)).release());
+      |                                                          ^~~~~~~~~~~~~~~~~~
+C:\dev\blender\main\source\blender\blenlib\BLI_span.hh(74,28): note: candidate constructor (the implicit copy constructor) not viable: no known conversion from 'const double[4]' to 'const Span<double>' for 1st argument
+   74 | template<typename T> class Span {
+      |                            ^~~~
+C:\dev\blender\main\source\blender\blenlib\BLI_span.hh(74,28): note: candidate constructor (the implicit move constructor) not viable: no known conversion from 'const double[4]' to 'Span<double>' for 1st argument
+   74 | template<typename T> class Span {
+      |                            ^~~~
+C:\dev\blender\main\source\blender\blenlib\BLI_span.hh(118,13): note: candidate constructor not viable: no known conversion from 'const double[4]' to 'const std::initializer_list<double>' for 1st argument
+  118 |   constexpr Span(const std::initializer_list<T> &list) : Span(list.begin(), int64_t(list.size()))
+      |             ^    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:\dev\blender\main\source\blender\blenlib\BLI_span.hh(122,13): note: candidate constructor not viable: no known conversion from 'const double[4]' to 'const std::vector<double>' for 1st argument
+  122 |   constexpr Span(const std::vector<T> &vector) : Span(vector.data(), int64_t(vector.size())) {}
+      |             ^    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:\dev\blender\main\source\blender\blenlib\BLI_span.hh(124,37): note: candidate template ignored: could not match 'const std::array<double, N>' against 'const double[4]'
+  124 |   template<std::size_t N> constexpr Span(const std::array<T, N> &array) : Span(array.data(), N) {}
+      |                                     ^
+C:\dev\blender\main\source\blender\blenlib\BLI_span.hh(131,13): note: candidate template ignored: could not match 'Span<U>' against 'const double *'
+  131 |   constexpr Span(Span<U> span)
+      |             ^
+C:\dev\blender\main\source\blender\blenlib\BLI_span.hh(92,13): note: candidate constructor not viable: requires 0 arguments, but 1 was provided
+   92 |   constexpr Span() = default;
+      |             ^
+C:\dev\blender\main\source\blender\blenlib\BLI_span.hh(94,13): note: candidate constructor not viable: requires 2 arguments, but 1 was provided
+   94 |   constexpr Span(const T *start, int64_t size) : data_(start), size_(size)
+      |             ^    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:\dev\blender\main\source\blender\blenlib\BLI_span.hh(100,13): note: candidate constructor template not viable: requires 2 arguments, but 1 was provided
+  100 |   constexpr Span(const U *start, int64_t size)
+      |             ^    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+[244/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\colortools.cc.obj
+colortools.cc
+[245/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\collision.cc.obj
+collision.cc
+[246/436] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\compositor.cc.obj
+compositor.cc
+ninja: build stopped: subcommand failed.

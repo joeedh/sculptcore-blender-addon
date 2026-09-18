@@ -1,0 +1,63 @@
+{
+  "recorded_at": "2026-09-16T01:14:05.1744805-07:00",
+  "scope": "Plan 3 typed core, checked access and member validation foundation; full Plan 3 incomplete",
+  "build_log": "typed-foundation-build-final.log",
+  "suites": [
+    {
+      "suite": "test_props_checked_access",
+      "observed_exit_code": 0,
+      "executable": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_props_checked_access.cc_out.exe",
+      "sha256": "fef7c82bdb032035e4a0b7015921b6e3c2295d1423e25e992e7d14bc1df778b1",
+      "log": "typed-foundation-test_props_checked_access.log"
+    },
+    {
+      "suite": "test_sbrush_member_types",
+      "observed_exit_code": 0,
+      "executable": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_sbrush_member_types.cc_out.exe",
+      "sha256": "722fd9706c4f0b1caa30c7238a23462945ac1ce4323412a1289716283cba2364",
+      "log": "typed-foundation-test_sbrush_member_types.log"
+    },
+    {
+      "suite": "test_props_typed_dynamics",
+      "observed_exit_code": 0,
+      "executable": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_props_typed_dynamics.cc_out.exe",
+      "sha256": "d7081426e80e46db1262075b86487356098b96c6fdaa1a2b55dbdbc199a338cc",
+      "log": "typed-foundation-test_props_typed_dynamics.log"
+    },
+    {
+      "suite": "test_props",
+      "observed_exit_code": 0,
+      "executable": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_props.cc_out.exe",
+      "sha256": "883aa46538e252b5546a6b1f121a46b12349fb420be41399a85ec6217bf995ea",
+      "log": "typed-foundation-test_props.log"
+    },
+    {
+      "suite": "test_brush_dynamics",
+      "observed_exit_code": 0,
+      "executable": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_brush_dynamics.cc_out.exe",
+      "sha256": "05cf76455ddcae1469f1978308ff05f0e3f4bbe08c55f62d6abb06066b467bc0",
+      "log": "typed-foundation-test_brush_dynamics.log"
+    },
+    {
+      "suite": "test_brush_uniform_validate",
+      "observed_exit_code": 0,
+      "executable": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_brush_uniform_validate.cc_out.exe",
+      "sha256": "3a4d842a1c58b9103bbece70bfc008a1eb4f0606d36fc6e9f38c5089e8b1237c",
+      "log": "typed-foundation-test_brush_uniform_validate.log"
+    },
+    {
+      "suite": "test_sbrush_attr_writes",
+      "observed_exit_code": 0,
+      "executable": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_sbrush_attr_writes.cc_out.exe",
+      "sha256": "f766871b6d3c2ec5bc401731c81200a8003b299b36fe9fc86146afe3f2b7f2cf",
+      "log": "typed-foundation-test_sbrush_attr_writes.log"
+    },
+    {
+      "suite": "test_gpu_uniform_pack",
+      "observed_exit_code": 0,
+      "executable": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_gpu_uniform_pack.cc_out.exe",
+      "sha256": "23dc488aab8e163cfbb6d33401b8ae27a329bba62e05d5de6db9dcc5e825cc52",
+      "log": "typed-foundation-test_gpu_uniform_pack.log"
+    }
+  ]
+}

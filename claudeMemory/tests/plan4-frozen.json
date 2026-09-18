@@ -1,0 +1,15 @@
+{
+  "command": [
+    "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+    "--factory-startup",
+    "--python-exit-code",
+    "1",
+    "--background",
+    "--python",
+    "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_frozen_authoring.py"
+  ],
+  "passed": true,
+  "sha256": "5583eb91668107e4c02680eded13398f0bca8f9d68f438fe729a9ee45b26053e",
+  "returncode": 0,
+  "seconds": 14.133709399990039
+}

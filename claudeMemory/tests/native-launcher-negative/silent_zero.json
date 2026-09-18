@@ -1,0 +1,24 @@
+{
+  "command": [
+    "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\5.3\\python\\bin\\python.exe",
+    "-c",
+    "pass"
+  ],
+  "cwd": "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin",
+  "expected_count": 2,
+  "timeout_seconds": 10,
+  "binary_sha256": "d6fc04d5348fdcf121d34ea3fc36221c779de9771949b68863002f7a2dc892d5",
+  "returncode": 0,
+  "status_hex": "0x00000000",
+  "stdout": "",
+  "stderr": "",
+  "passed": false,
+  "error": "Nonzero exit or missing/mismatched completed GTest counts",
+  "runtime_search_path": [
+    "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.shared",
+    "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin"
+  ],
+  "completed_counts": [],
+  "passed_counts": [],
+  "elapsed_seconds": 0.05890910000016447
+}

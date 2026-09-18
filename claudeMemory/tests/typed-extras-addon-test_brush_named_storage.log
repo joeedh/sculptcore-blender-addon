@@ -1,0 +1,15 @@
+{
+  "suite": "test_brush_named_storage",
+  "command": [
+    "C:\\Program Files\\nodejs\\node.EXE",
+    "make.mjs",
+    "test",
+    "test_brush_named_storage"
+  ],
+  "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_brush_named_storage.cc_out.exe",
+  "returncode": 0,
+  "passed": true,
+  "binary_sha256": "97775b7be2a1e5001b542b06d14b8d080c5906159b37b9b784114d02ea4152d3",
+  "stdout": "",
+  "stderr": ""
+}

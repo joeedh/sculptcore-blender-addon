@@ -1,0 +1,11 @@
+[
+  "first edit undoes without caller-pushed baseline",
+  "disabled global undo rejected",
+  "rollback-only scope works with global undo disabled",
+  "zero history steps rejected",
+  "nested undo operator rejected before editing",
+  "token cannot survive undo",
+  "hidden history boundary leaves authoring unchanged",
+  "bounded count/memory history restores retained steps exactly",
+  "retained limited history redoes exactly"
+]

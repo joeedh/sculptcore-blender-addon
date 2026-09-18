@@ -1,0 +1,17 @@
+[1/10] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\lib_id_delete.cc.obj
+lib_id_delete.cc
+[2/10] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\curvemapping_owned.cc.obj
+curvemapping_owned.cc
+[3/10] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\idprop.cc.obj
+idprop.cc
+[4/10] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\colortools.cc.obj
+colortools.cc
+[5/10] Building CXX object source\blender\blenkernel\CMakeFiles\blenkernel_curvemapping_owned_test.dir\intern\curvemapping_owned_test.cc.obj
+curvemapping_owned_test.cc
+[6/10] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\lib_id.cc.obj
+lib_id.cc
+[7/10] Linking CXX static library lib\bf_blenkernel.lib
+[8/10] Linking CXX executable bin\tests\blenkernel_curvemapping_idprop_test.exe
+[9/10] Linking CXX executable bin\tests\blenkernel_curvemapping_owned_test.exe
+[10/10] Linking CXX executable bin\blender.exe; Stripping PDB file...
+Run: "ninja install" to copy runtime files and scripts to: C:/dev/blender/build_windows_x64_clang_RelWithDebInfo/bin/5.3

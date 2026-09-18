@@ -1,0 +1,475 @@
+[1/241] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_19_c.c.obj
+unity_19_c.c
+[2/241] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_15_c.c.obj
+unity_15_c.c
+[3/241] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_13_c.c.obj
+unity_13_c.c
+[4/241] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_17_c.c.obj
+unity_17_c.c
+[5/241] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_12_c.c.obj
+unity_12_c.c
+[6/241] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_14_c.c.obj
+unity_14_c.c
+[7/241] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_16_c.c.obj
+unity_16_c.c
+[8/241] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_18_c.c.obj
+unity_18_c.c
+[9/241] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_11_c.c.obj
+unity_11_c.c
+[10/241] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_10_c.c.obj
+unity_10_c.c
+[11/241] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_9_c.c.obj
+unity_9_c.c
+[12/241] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_8_c.c.obj
+unity_8_c.c
+[13/241] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_6_c.c.obj
+unity_6_c.c
+[14/241] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_7_c.c.obj
+unity_7_c.c
+[15/241] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_5_c.c.obj
+unity_5_c.c
+[16/241] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_4_c.c.obj
+unity_4_c.c
+[17/241] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_3_c.c.obj
+unity_3_c.c
+[18/241] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_2_c.c.obj
+unity_2_c.c
+[19/241] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_0_c.c.obj
+unity_0_c.c
+[20/241] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_1_c.c.obj
+unity_1_c.c
+[21/241] Linking C static library lib\bf_gpu_shaders.lib
+[22/241] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_owned_curve.cc.obj
+rna_owned_curve.cc
+[23/241] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_access.cc.obj
+rna_access.cc
+[24/241] Linking CXX static library lib\bf_rna.lib
+[25/241] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\lib_id_delete.cc.obj
+lib_id_delete.cc
+[26/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_batch_presets.cc.obj
+gpu_batch_presets.cc
+[27/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_batch_utils.cc.obj
+gpu_batch_utils.cc
+[28/241] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\idprop.cc.obj
+idprop.cc
+[29/241] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\curvemapping_owned.cc.obj
+curvemapping_owned.cc
+[30/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_capabilities.cc.obj
+gpu_capabilities.cc
+[31/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_batch.cc.obj
+gpu_batch.cc
+[32/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_compute.cc.obj
+gpu_compute.cc
+[33/241] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\lib_id.cc.obj
+lib_id.cc
+[34/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_debug.cc.obj
+gpu_debug.cc
+[35/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_codegen.cc.obj
+gpu_codegen.cc
+[36/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_framebuffer.cc.obj
+gpu_framebuffer.cc
+[37/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_immediate_util.cc.obj
+gpu_immediate_util.cc
+[38/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_immediate.cc.obj
+gpu_immediate.cc
+[39/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_index_buffer.cc.obj
+gpu_index_buffer.cc
+[40/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_init_exit.cc.obj
+gpu_init_exit.cc
+[41/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_context.cc.obj
+gpu_context.cc
+[42/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_platform.cc.obj
+gpu_platform.cc
+[43/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_query.cc.obj
+gpu_query.cc
+[44/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_matrix.cc.obj
+gpu_matrix.cc
+[45/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_material.cc.obj
+gpu_material.cc
+[46/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_node_graph.cc.obj
+gpu_node_graph.cc
+[47/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_pass.cc.obj
+gpu_pass.cc
+[48/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_select.cc.obj
+gpu_select.cc
+[49/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_ray_tracing.cc.obj
+gpu_ray_tracing.cc
+[50/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_select_next.cc.obj
+gpu_select_next.cc
+[51/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_select_pick.cc.obj
+gpu_select_pick.cc
+[52/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_select_sample_query.cc.obj
+gpu_select_sample_query.cc
+[53/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_shader_builtin.cc.obj
+gpu_shader_builtin.cc
+[54/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_shader_interface.cc.obj
+gpu_shader_interface.cc
+[55/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_shader_log.cc.obj
+gpu_shader_log.cc
+[56/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_state.cc.obj
+gpu_state.cc
+[57/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\cmake_pch.cxx.obj
+cmake_pch.cxx
+[58/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_storage_buffer.cc.obj
+gpu_storage_buffer.cc
+[59/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_shader.cc.obj
+gpu_shader.cc
+[60/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_shader_preprocessor.cc.obj
+gpu_shader_preprocessor.cc
+[61/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_texture.cc.obj
+gpu_texture.cc
+[62/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_texture_mipmap.cc.obj
+gpu_texture_mipmap.cc
+[63/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_texture_pool.cc.obj
+gpu_texture_pool.cc
+[64/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_uniform_buffer.cc.obj
+gpu_uniform_buffer.cc
+[65/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_vertex_format_normals.cc.obj
+gpu_vertex_format_normals.cc
+[66/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_vertex_buffer.cc.obj
+gpu_vertex_buffer.cc
+[67/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_vertex_format.cc.obj
+gpu_vertex_format.cc
+[68/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_worker.cc.obj
+gpu_worker.cc
+[69/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_work_in_flight.cc.obj
+gpu_work_in_flight.cc
+[70/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\ast.cc.obj
+ast.cc
+[71/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_viewport.cc.obj
+gpu_viewport.cc
+[72/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_shader_create_info.cc.obj
+gpu_shader_create_info.cc
+[73/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\attribute.cc.obj
+attribute.cc
+[74/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\grammar.cc.obj
+grammar.cc
+[75/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\enum.cc.obj
+enum.cc
+[76/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\intermediate.cc.obj
+intermediate.cc
+[77/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\flow_control.cc.obj
+flow_control.cc
+[78/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\metadata.cc.obj
+metadata.cc
+[79/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\function.cc.obj
+function.cc
+[80/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\string.cc.obj
+string.cc
+[81/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\namespace.cc.obj
+namespace.cc
+[82/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\lexit\lexit.cc.obj
+lexit.cc
+[83/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\template.cc.obj
+template.cc
+[84/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\bsl\constructor.cc.obj
+constructor.cc
+[85/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\bsl\grammar.cc.obj
+grammar.cc
+[86/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\bsl\operator.cc.obj
+operator.cc
+[87/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\resource_table.cc.obj
+resource_table.cc
+[88/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\bsl\resource.cc.obj
+resource.cc
+[89/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\union.cc.obj
+union.cc
+[90/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\bsl\symbol_class.cc.obj
+symbol_class.cc
+[91/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\bsl\codegen.cc.obj
+codegen.cc
+[92/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\struct.cc.obj
+struct.cc
+[93/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\bsl\symbol_function.cc.obj
+symbol_function.cc
+[94/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\bsl\symbol.cc.obj
+symbol.cc
+[95/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\bsl\symbol_variable.cc.obj
+symbol_variable.cc
+[96/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\bsl\symbol_template.cc.obj
+symbol_template.cc
+[97/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\bsl\symbol_scope.cc.obj
+symbol_scope.cc
+[98/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\processor.cc.obj
+processor.cc
+[99/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\bsl\type_checker.cc.obj
+type_checker.cc
+[100/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_compilation_subprocess.cc.obj
+gl_compilation_subprocess.cc
+[101/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_batch.cc.obj
+gl_batch.cc
+[102/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_compute.cc.obj
+gl_compute.cc
+[103/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_backend.cc.obj
+gl_backend.cc
+[104/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_context.cc.obj
+gl_context.cc
+[105/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_query.cc.obj
+gl_query.cc
+[106/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_debug.cc.obj
+gl_debug.cc
+[107/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_framebuffer.cc.obj
+gl_framebuffer.cc
+[108/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_immediate.cc.obj
+gl_immediate.cc
+[109/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\bsl\symbol_table.cc.obj
+symbol_table.cc
+[110/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_index_buffer.cc.obj
+gl_index_buffer.cc
+[111/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_shader_interface.cc.obj
+gl_shader_interface.cc
+[112/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_shader_log.cc.obj
+gl_shader_log.cc
+[113/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_state.cc.obj
+gl_state.cc
+[114/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_storage_buffer.cc.obj
+gl_storage_buffer.cc
+[115/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_texture.cc.obj
+gl_texture.cc
+[116/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_texture_pool.cc.obj
+gl_texture_pool.cc
+[117/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_work_in_flight.cc.obj
+gl_work_in_flight.cc
+[118/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_shader.cc.obj
+gl_shader.cc
+[119/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_vertex_array.cc.obj
+gl_vertex_array.cc
+[120/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_uniform_buffer.cc.obj
+gl_uniform_buffer.cc
+[121/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_vertex_buffer.cc.obj
+gl_vertex_buffer.cc
+[122/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_shader_dependency.cc.obj
+gpu_shader_dependency.cc
+[123/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_data_conversion.cc.obj
+vk_data_conversion.cc
+[124/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_buffer.cc.obj
+vk_buffer.cc
+[125/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_batch.cc.obj
+vk_batch.cc
+[126/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_buffer_pool.cc.obj
+vk_buffer_pool.cc
+[127/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_backend.cc.obj
+vk_backend.cc
+[128/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_common.cc.obj
+vk_common.cc
+[129/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_context.cc.obj
+vk_context.cc
+[130/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_debug.cc.obj
+vk_debug.cc
+[131/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_descriptor_pools.cc.obj
+vk_descriptor_pools.cc
+[132/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_descriptor_set_layouts.cc.obj
+vk_descriptor_set_layouts.cc
+[133/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_descriptor_set.cc.obj
+vk_descriptor_set.cc
+[134/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_fence.cc.obj
+vk_fence.cc
+[135/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_device.cc.obj
+vk_device.cc
+[136/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_device_submission.cc.obj
+vk_device_submission.cc
+[137/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_framebuffer.cc.obj
+vk_framebuffer.cc
+[138/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_memory_layout.cc.obj
+vk_memory_layout.cc
+[139/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_image_view.cc.obj
+vk_image_view.cc
+[140/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_immediate.cc.obj
+vk_immediate.cc
+[141/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_index_buffer.cc.obj
+vk_index_buffer.cc
+[142/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_memory_pool.cc.obj
+vk_memory_pool.cc
+[143/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_pixel_buffer.cc.obj
+vk_pixel_buffer.cc
+[144/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_push_constants.cc.obj
+vk_push_constants.cc
+[145/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_pipeline_pool.cc.obj
+vk_pipeline_pool.cc
+[146/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_query.cc.obj
+vk_query.cc
+[147/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\render_graph\vk_command_buffer_wrapper.cc.obj
+vk_command_buffer_wrapper.cc
+[148/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_ray_tracing.cc.obj
+vk_ray_tracing.cc
+[149/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\render_graph\nodes\vk_pipeline_data.cc.obj
+vk_pipeline_data.cc
+[150/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\render_graph\vk_render_graph.cc.obj
+vk_render_graph.cc
+[151/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\render_graph\vk_command_builder.cc.obj
+vk_command_builder.cc
+[152/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\render_graph\vk_render_graph_links.cc.obj
+vk_render_graph_links.cc
+[153/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\render_graph\vk_resource_state_tracker.cc.obj
+vk_resource_state_tracker.cc
+[154/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\render_graph\vk_resource_access_info.cc.obj
+vk_resource_access_info.cc
+[155/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_samplers.cc.obj
+vk_samplers.cc
+[156/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\render_graph\vk_scheduler.cc.obj
+vk_scheduler.cc
+[157/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_sampler.cc.obj
+vk_sampler.cc
+[158/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_resource_pool.cc.obj
+vk_resource_pool.cc
+[159/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_shader_log.cc.obj
+vk_shader_log.cc
+[160/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_shader_compiler.cc.obj
+vk_shader_compiler.cc
+[161/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_shader_interface.cc.obj
+vk_shader_interface.cc
+[162/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_shader.cc.obj
+vk_shader.cc
+[163/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_staging_buffer.cc.obj
+vk_staging_buffer.cc
+[164/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_shader_module.cc.obj
+vk_shader_module.cc
+[165/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_state_manager.cc.obj
+vk_state_manager.cc
+[166/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_streaming_buffer.cc.obj
+vk_streaming_buffer.cc
+[167/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_storage_buffer.cc.obj
+vk_storage_buffer.cc
+[168/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_to_string.cc.obj
+vk_to_string.cc
+[169/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_texture.cc.obj
+vk_texture.cc
+[170/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_texture_pool.cc.obj
+vk_texture_pool.cc
+[171/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_uniform_buffer.cc.obj
+vk_uniform_buffer.cc
+[172/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_armature_utils.cc.obj
+usd_armature_utils.cc
+[173/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_vertex_attribute_object_cache.cc.obj
+vk_vertex_attribute_object_cache.cc
+[174/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_asset_utils.cc.obj
+usd_asset_utils.cc
+[175/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_vertex_attribute_object.cc.obj
+vk_vertex_attribute_object.cc
+[176/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_work_in_flight.cc.obj
+vk_work_in_flight.cc
+[177/241] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_vertex_buffer.cc.obj
+vk_vertex_buffer.cc
+[178/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_colorspace_utils.cc.obj
+usd_colorspace_utils.cc
+[179/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_blend_shape_utils.cc.obj
+usd_blend_shape_utils.cc
+[180/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_capi_import.cc.obj
+usd_capi_import.cc
+[181/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_instancing_utils.cc.obj
+usd_instancing_utils.cc
+[182/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_hierarchy_iterator.cc.obj
+usd_hierarchy_iterator.cc
+[183/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_utils.cc.obj
+usd_utils.cc
+[184/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_capi_export.cc.obj
+usd_capi_export.cc
+[185/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_mesh_utils.cc.obj
+usd_mesh_utils.cc
+[186/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_hook.cc.obj
+usd_hook.cc
+[187/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_light_convert.cc.obj
+usd_light_convert.cc
+[188/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_attribute_utils.cc.obj
+usd_attribute_utils.cc
+[189/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_writer_armature.cc.obj
+usd_writer_armature.cc
+[190/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_writer_abstract.cc.obj
+usd_writer_abstract.cc
+[191/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_writer_hair.cc.obj
+usd_writer_hair.cc
+[192/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_writer_camera.cc.obj
+usd_writer_camera.cc
+[193/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_writer_light.cc.obj
+usd_writer_light.cc
+[194/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_writer_metaball.cc.obj
+usd_writer_metaball.cc
+[195/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_writer_text.cc.obj
+usd_writer_text.cc
+[196/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_writer_curves.cc.obj
+usd_writer_curves.cc
+[197/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_writer_transform.cc.obj
+usd_writer_transform.cc
+[198/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_writer_points.cc.obj
+usd_writer_points.cc
+[199/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_camera.cc.obj
+usd_reader_camera.cc
+[200/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_writer_material.cc.obj
+usd_writer_material.cc
+[201/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_writer_mesh.cc.obj
+usd_writer_mesh.cc
+[202/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_geom.cc.obj
+usd_reader_geom.cc
+[203/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_writer_pointinstancer.cc.obj
+usd_writer_pointinstancer.cc
+[204/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_domelight.cc.obj
+usd_reader_domelight.cc
+[205/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_writer_volume.cc.obj
+usd_writer_volume.cc
+[206/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_curve.cc.obj
+usd_reader_curve.cc
+[207/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_instance.cc.obj
+usd_reader_instance.cc
+[208/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_light.cc.obj
+usd_reader_light.cc
+[209/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_prim.cc.obj
+usd_reader_prim.cc
+[210/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_skeleton.cc.obj
+usd_reader_skeleton.cc
+[211/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_nurbs.cc.obj
+usd_reader_nurbs.cc
+[212/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_points.cc.obj
+usd_reader_points.cc
+[213/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_utils.cc.obj
+usd_reader_utils.cc
+[214/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_pointinstancer.cc.obj
+usd_reader_pointinstancer.cc
+[215/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_volume.cc.obj
+usd_reader_volume.cc
+[216/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_shape.cc.obj
+usd_reader_shape.cc
+[217/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_material.cc.obj
+usd_reader_material.cc
+[218/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_xform.cc.obj
+usd_reader_xform.cc
+[219/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_mesh.cc.obj
+usd_reader_mesh.cc
+[220/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_skel_root_utils.cc.obj
+usd_skel_root_utils.cc
+[221/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\hydra\instancer.cc.obj
+instancer.cc
+[222/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\hydra\camera_delegate.cc.obj
+camera_delegate.cc
+[223/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\hydra\image.cc.obj
+image.cc
+[224/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_stage.cc.obj
+usd_reader_stage.cc
+[225/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\hydra\light.cc.obj
+light.cc
+[226/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_skel_convert.cc.obj
+usd_skel_convert.cc
+[227/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\hydra\curves.cc.obj
+curves.cc
+[228/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\hydra\usd_scene_index.cc.obj
+usd_scene_index.cc
+[229/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\hydra\volume_modifier.cc.obj
+volume_modifier.cc
+[230/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\hydra\populate_context.cc.obj
+populate_context.cc
+[231/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\hydra\volume.cc.obj
+volume.cc
+[232/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\hydra\material.cc.obj
+material.cc
+[233/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\hydra\mesh.cc.obj
+mesh.cc
+[234/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\hydra\scene_index.cc.obj
+scene_index.cc
+[235/241] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\hydra\world.cc.obj
+world.cc
+[236/241] Linking CXX static library lib\bf_blenkernel.lib
+[237/241] Linking CXX static library lib\bf_gpu.lib
+[238/241] Linking CXX static library lib\bf_io_usd.lib
+[239/241] Building CXX object source\blender\blenkernel\CMakeFiles\blenkernel_curvemapping_owned_test.dir\intern\curvemapping_owned_test.cc.obj
+curvemapping_owned_test.cc
+[240/241] Linking CXX executable bin\tests\blenkernel_curvemapping_idprop_test.exe
+[241/241] Linking CXX executable bin\tests\blenkernel_curvemapping_owned_test.exe

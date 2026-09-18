@@ -1,0 +1,17 @@
+Blender 5.3.0 Alpha
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+00:08.000  blend            | Read blend: "C:\dev\blender\sculptcore-blender-addon\claudeMemory\tests\generic-brush-v0\legacy.blend"
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+
+Blender quit
+
+Traceback (most recent call last):
+  File "C:\dev\blender\sculptcore-blender-addon\claudeMemory\scripts\generic_brush_baseline.py", line 356, in <module>
+    main()
+    ~~~~^^
+  File "C:\dev\blender\sculptcore-blender-addon\claudeMemory\scripts\generic_brush_baseline.py", line 281, in main
+    assert np.array_equal(positions, np.load(out / (key + ".npy"))), key
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: fixture_draw_plain
+
+Error: script failed, file: 'C:\dev\blender\sculptcore-blender-addon\claudeMemory\scripts\generic_brush_baseline.py', exiting.

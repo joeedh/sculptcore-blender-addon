@@ -1,0 +1,6 @@
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+00:12.782  blend            | Read blend: "C:\dev\blender\sculptcore-blender-addon\claudeMemory\tests\plan5-customized.blend"
+Info: Saved as "plan5-customized.blend"
+PLAN5_CURVE_UNDO_PASS 11
+00:13.797  blend            | Saved session recovery to "C:\Users\joeed\AppData\Local\Temp\quit.blend"
+

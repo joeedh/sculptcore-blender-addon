@@ -1,0 +1,26 @@
+{
+  "passed": true,
+  "dll": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\sculptcore_capi.dll",
+  "sha256": "947fab064364abfc3a8399fe9b37cf6bba1049442a2f11b878232a22e7bdd9d1",
+  "scope": "Legacy float calls and manifest transport; typed bindings remain pending",
+  "manifest": {
+    "mu": {
+      "type": 0,
+      "default": 1.0,
+      "has_default": true,
+      "max": 100.0
+    },
+    "nu": {
+      "type": 0,
+      "default": 0.4,
+      "has_default": true,
+      "max": 0.499
+    },
+    "radius": {
+      "type": 0,
+      "default": 0.0,
+      "has_default": false,
+      "max": 0.0
+    }
+  }
+}

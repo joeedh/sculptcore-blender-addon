@@ -1,0 +1,52 @@
+Test project C:/dev/blender/build_windows_x64_clang_RelWithDebInfo
+    Start 117: blenkernel_curvemapping_idprop
+1/2 Test #117: blenkernel_curvemapping_idprop ...   Passed    1.09 sec
+    Start 118: blenkernel_curvemapping_owned
+2/2 Test #118: blenkernel_curvemapping_owned ....***Failed    0.44 sec
+[==========] Running 8 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 8 tests from OwnedCurveRuntimeTest
+[ RUN      ] OwnedCurveRuntimeTest.CommitAndImmutableCopies
+[       OK ] OwnedCurveRuntimeTest.CommitAndImmutableCopies (1 ms)
+[ RUN      ] OwnedCurveRuntimeTest.RejectedTransactionsAndExplicitSync
+[       OK ] OwnedCurveRuntimeTest.RejectedTransactionsAndExplicitSync (0 ms)
+[ RUN      ] OwnedCurveRuntimeTest.ReadOnlyAndEditableAssets
+[       OK ] OwnedCurveRuntimeTest.ReadOnlyAndEditableAssets (0 ms)
+[ RUN      ] OwnedCurveRuntimeTest.DetachReattachAndAncestorReplacement
+[       OK ] OwnedCurveRuntimeTest.DetachReattachAndAncestorReplacement (0 ms)
+[ RUN      ] OwnedCurveRuntimeTest.SystemCollectionGrowthMoveAndDeletion
+[       OK ] OwnedCurveRuntimeTest.SystemCollectionGrowthMoveAndDeletion (0 ms)
+[ RUN      ] OwnedCurveRuntimeTest.OwnerCopySwapDeleteAndUnregisteredWorkerFree
+[       OK ] OwnedCurveRuntimeTest.OwnerCopySwapDeleteAndUnregisteredWorkerFree (0 ms)
+[ RUN      ] OwnedCurveRuntimeTest.ExactDataComparisonAndPresentation
+C:\dev\blender\main\source\blender\blenkernel\intern\curvemapping_owned_test.cc(266): error: Value of: owned_curve_definition_equal(*bytes_a, *bytes_b)
+  Actual: true
+Expected: false
+
+[  FAILED  ] OwnedCurveRuntimeTest.ExactDataComparisonAndPresentation (0 ms)
+[ RUN      ] OwnedCurveRuntimeTest.GuardedEvaluation
+C:\dev\blender\main\source\blender\blenkernel\intern\curvemapping_owned_test.cc(286): error: Expected equality of these values:
+  value
+    Which is: 0.999999523
+  1
+
+[  FAILED  ] OwnedCurveRuntimeTest.GuardedEvaluation (0 ms)
+[----------] 8 tests from OwnedCurveRuntimeTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 8 tests from 1 test suite ran. (199 ms total)
+[  PASSED  ] 6 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] OwnedCurveRuntimeTest.ExactDataComparisonAndPresentation
+[  FAILED  ] OwnedCurveRuntimeTest.GuardedEvaluation
+
+ 2 FAILED TESTS
+
+
+50% tests passed, 1 tests failed out of 2
+
+Total Test time (real) =   3.92 sec
+
+The following tests FAILED:
+	118 - blenkernel_curvemapping_owned (Failed)
+Errors while running CTest

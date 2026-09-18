@@ -1,0 +1,6 @@
+Blender 5.3.0 Alpha
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+00:10.875  blend            | Read blend: "C:\dev\blender\sculptcore-blender-addon\claudeMemory\tests\owned-curve-system-compat-v1\system-resaved.blend"
+OWNED_CURVE_SYSTEM_STORAGE_COMPAT_PASS verify
+
+Blender quit

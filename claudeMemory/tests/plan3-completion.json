@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "date": "2026-09-17",
+  "hashes": {
+    "blender": "cd15fa6c69b5a17a408a534c260f918a085e7efe792b542545c6319016153673",
+    "native": "26af66125c314935a50cc3b6a31737050a6f3a47fa613b2922df086b7c9331c7",
+    "runtime": "4e5961047db841289d9d52c6fd1b48eef689fd1e60c0c1b09204646199441a4e",
+    "installed": "4e5961047db841289d9d52c6fd1b48eef689fd1e60c0c1b09204646199441a4e",
+    "workspace": "4e5961047db841289d9d52c6fd1b48eef689fd1e60c0c1b09204646199441a4e"
+  },
+  "blender_checks": [
+    "plan3-final-modal-inputs",
+    "plan3-package-smoke",
+    "plan3-baseline-verify",
+    "plan3-geometry-verify",
+    "plan3-batch-parity",
+    "plan3-event-inputs",
+    "plan3-modal-cancel"
+  ],
+  "native_suites_per_configuration": 17
+}

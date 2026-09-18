@@ -1,0 +1,1 @@
+@brush("invalid") brush Invalid { uniform float nonaccum; vertex void apply(inout Vertex v) {} }

@@ -2,6 +2,10 @@
 
 Guidance for working in this repository.
 
+## Debugging
+
+- **Maintain a running debugging guide/lessons-learned in claudeMemory/debugging.md**
+
 ## What this repo is
 
 The **SculptCore sculpt mode** for Blender, shipped as an addon. It registers
@@ -341,6 +345,7 @@ the fork's artifacts) and `contents:write` on `joeedh/sculptblender-builds`.
   function bodies are fine (and preferred for startup-cost-sensitive paths).
 - **Engine (C++)** follows the engine repo's own conventions — see
   `engine/CLAUDE.md` / `engine/AGENTS.MD`.
-- Every new source file needs an SPDX header
+- Every new addon-repository source file needs an SPDX header
   (`GPL-2.0-or-later`, `2026 Blender Authors`), matching the addon's existing
-  files.
+  files. This rule does not apply inside `engine/` or its nested submodules;
+  follow each repository's own LICENSE and source-header conventions there.

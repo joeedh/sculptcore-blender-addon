@@ -1,0 +1,2 @@
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+PLAN3_PUBLIC_INPUTS_PYTHON_PASS {"passed": true, "dll": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\sculptcore_capi.dll", "sha256": "4589006e4e6c860ba658a8a5b9de959eafa490470ba1d4690cb05f1e6d3f136c", "checks": ["Public per-dab float/int/bool geometry", "Exact integer command override", "Missing input after present input", "Invalid batch rejects without changing dab state"]}

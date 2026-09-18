@@ -1,0 +1,7 @@
+[
+  "brush_widget_create",
+  "staged_widget_edit_applies_once",
+  "one_undo_restores_brush_widget_edit",
+  "second_undo_removes_brush_widget_creation",
+  "two_redos_restore_creation_and_edit"
+]

@@ -1,0 +1,160 @@
+[0/1] Re-running CMake...
+-- Clang version 22.1.3 detected, masquerading as MSVC 1951
+-- Found required Ceres dependency: absl version 20250814 in C:/dev/blender/main/lib/windows_x64/abseil/lib/cmake/absl
+-- Found required Ceres dependency: Eigen version 5.0.1 in C:/dev/blender/main/lib/windows_x64/eigen/share/eigen3/cmake
+-- Found Ceres version: 2.3.0 installed in: C:/dev/blender/main/lib/windows_x64/ceres with components: [EigenSparse, SparseLinearAlgebraLibrary, SchurSpecializations]
+-- Using NINJA_POOL_JOBS:
+--   NINJA_MAX_NUM_PARALLEL_LINK_JOBS: max concurrent linking jobs (computed): 1
+--   NINJA_MAX_NUM_PARALLEL_COMPILE_HEAVY_JOBS: max concurrent heavy compile jobs (computed): 7
+--   NINJA_MAX_NUM_PARALLEL_COMPILE_JOBS: max concurrent regular compile jobs (computed): 15
+-- Could NOT find OptiX (missing: OPTIX_INCLUDE_DIR) (Required is at least version "8.0.0")
+-- OptiX not found, disabling WITH_CYCLES_DEVICE_OPTIX
+-- Configuring done (4.5s)
+-- Generating done (15.2s)
+-- Build files have been written to: C:/dev/blender/build_windows_x64_clang_RelWithDebInfo
+[1/310] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_vert.dir\draw_debug_draw_display_vert.glsl.cc.obj
+draw_debug_draw_display_vert.glsl.cc
+[2/310] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_vert.dir\draw_curves_test.glsl.cc.obj
+draw_curves_test.glsl.cc
+[3/310] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_frag.dir\draw_debug_draw_display_frag.glsl.cc.obj
+draw_debug_draw_display_frag.glsl.cc
+[4/310] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\draw_command_generate_comp.glsl.cc.obj
+draw_command_generate_comp.glsl.cc
+[5/310] Building CXX object source\blender\python\intern\CMakeFiles\bf_python.dir\bpy_rna_types_capi.cc.obj
+bpy_rna_types_capi.cc
+[6/310] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\draw_view_finalize_comp.glsl.cc.obj
+draw_view_finalize_comp.glsl.cc
+[7/310] Building CXX object source\blender\python\intern\CMakeFiles\bf_python.dir\bpy_rna_authoring.cc.obj
+bpy_rna_authoring.cc
+[8/310] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\draw_curves_topology_comp.glsl.cc.obj
+draw_curves_topology_comp.glsl.cc
+[9/310] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\draw_visibility_comp.glsl.cc.obj
+draw_visibility_comp.glsl.cc
+[10/310] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\draw_curves_length_intercept_comp.glsl.cc.obj
+draw_curves_length_intercept_comp.glsl.cc
+[11/310] Linking CXX static library lib\bf_python.lib
+[12/310] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\draw_curves_interpolation_comp.glsl.cc.obj
+draw_curves_interpolation_comp.glsl.cc
+[13/310] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\subdiv_ibo_lines_comp.glsl.cc.obj
+subdiv_ibo_lines_comp.glsl.cc
+[14/310] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\subdiv_ibo_tris_comp.glsl.cc.obj
+subdiv_ibo_tris_comp.glsl.cc
+[15/310] Building CXX object source\blender\editors\undo\CMakeFiles\bf_editor_undo.dir\custom_mode_undo.cc.obj
+custom_mode_undo.cc
+[16/310] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\subdiv_vbo_edge_fac_comp.glsl.cc.obj
+subdiv_vbo_edge_fac_comp.glsl.cc
+[17/310] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\subdiv_vbo_edituv_stretch_angle_comp.glsl.cc.obj
+subdiv_vbo_edituv_stretch_angle_comp.glsl.cc
+[18/310] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\subdiv_vbo_sculpt_data_comp.glsl.cc.obj
+subdiv_vbo_sculpt_data_comp.glsl.cc
+[19/310] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\subdiv_custom_data_interp_comp.glsl.cc.obj
+subdiv_custom_data_interp_comp.glsl.cc
+[20/310] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\subdiv_vbo_edituv_stretch_area_comp.glsl.cc.obj
+subdiv_vbo_edituv_stretch_area_comp.glsl.cc
+[21/310] Building CXX object source\blender\editors\undo\CMakeFiles\bf_editor_undo.dir\authoring_undo.cc.obj
+FAILED: [code=1] source/blender/editors/undo/CMakeFiles/bf_editor_undo.dir/authoring_undo.cc.obj 
+sccache C:\PROGRA~1\MICROS~3\18\COMMUN~1\VC\Tools\Llvm\x64\bin\clang-cl.exe  /nologo -TP -DBLENDER_WIN_APPID=\"blender.5.3\" -DBLENDER_WIN_APPID_FRIENDLY_NAME="\"Blender 5.3\"" -DNDEBUG -DNOMINMAX -DWIN32 -DWIN32_LEAN_AND_MEAN -DWITH_ASSERT_ABORT -DWITH_INPUT_NDOF -DWITH_OPENVDB -DWITH_OPENVDB_BLOSC -DWITH_TBB -DWITH_TBB_MALLOC -D_ALLOW_KEYWORD_MACROS -D_CONSOLE -D_CRT_NONSTDC_NO_DEPRECATE -D_CRT_SECURE_NO_DEPRECATE -D_LIB -D_SCL_SECURE_NO_DEPRECATE -D_USE_MATH_DEFINES -D_WIN32_WINNT=0x603 -D__LITTLE_ENDIAN__ -IC:\dev\blender\main\source\blender\depsgraph -IC:\dev\blender\main\source\blender\editors\include -IC:\dev\blender\main\source\blender\makesrna -IC:\dev\blender\build_windows_x64_clang_RelWithDebInfo\source\blender\makesrna -IC:\dev\blender\main\source\blender\asset_system -IC:\dev\blender\main\source\blender\blenkernel -IC:\dev\blender\main\intern\profile -IC:\dev\blender\main\intern\ghost -IC:\dev\blender\main\intern\openvdb -IC:\dev\blender\main\intern\mikktspace\. -IC:\dev\blender\main\source\blender\makesdna -IC:\dev\blender\build_windows_x64_clang_RelWithDebInfo\source\blender\makesdna\intern -IC:\dev\blender\main\source\blender\blenlib -IC:\dev\blender\main\intern\utfconv -IC:\dev\blender\main\source\blender\blenloader -IC:\dev\blender\main\source\blender\blenloader_core -IC:\dev\blender\main\source\blender\blentranslation -IC:\dev\blender\main\source\blender\bmesh -IC:\dev\blender\main\intern\clog -IC:\dev\blender\main\intern\guardedalloc -IC:\dev\blender\main\source\blender\windowmanager -imsvcC:\dev\blender\main\lib\windows_x64\pthreads\include -imsvcC:\dev\blender\main\lib\windows_x64\vulkan\include -imsvcC:\dev\blender\main\lib\windows_x64\openVDB\include -imsvcC:\dev\blender\main\lib\windows_x64\tbb\include -imsvcC:\dev\blender\main\lib\windows_x64\OpenImageIO\include -imsvcC:\dev\blender\main\lib\windows_x64\fmt\include /W3 -Wno-tautological-compare -Wno-unknown-pragmas -Wno-char-subscripts -Wno-overloaded-virtual -Wno-sign-compare -Wno-invalid-offsetof -Wno-suggest-override -Wundef -Wundef-prefix -Wunused-parameter -Wmismatched-tags -Werror=unguarded-availability-new   /Gy /MP /nologo /J /Gd /showFilenames /EHsc -Wno-unused-command-line-argument -Wno-microsoft-enum-forward-reference /clang:-funsigned-char /clang:-fno-strict-aliasing /clang:-ffp-contract=off -march=x86-64-v2  /O2 /Ob2 /DNDEBUG /MD /Z7 -std:c++20 -MD -clang:-MD -clang:-MTsource\blender\editors\undo\CMakeFiles\bf_editor_undo.dir\authoring_undo.cc.obj -clang:-MFsource\blender\editors\undo\CMakeFiles\bf_editor_undo.dir\authoring_undo.cc.obj.d /Fosource\blender\editors\undo\CMakeFiles\bf_editor_undo.dir\authoring_undo.cc.obj /Fdsource\blender\editors\undo\CMakeFiles\bf_editor_undo.dir\bf_editor_undo.pdb -c -- C:\dev\blender\main\source\blender\editors\undo\authoring_undo.cc
+authoring_undo.cc
+C:\dev\blender\main\source\blender\editors\undo\authoring_undo.cc(219,25): error: expected expression
+  219 |       LISTBASE_FOREACH (const IDProperty *, child, &p->data.group) {
+      |                         ^
+C:\dev\blender\main\source\blender\editors\undo\authoring_undo.cc(219,45): error: use of undeclared identifier 'child'
+  219 |       LISTBASE_FOREACH (const IDProperty *, child, &p->data.group) {
+      |                                             ^~~~~
+C:\dev\blender\main\source\blender\editors\undo\authoring_undo.cc(219,67): error: expected ';' after expression
+  219 |       LISTBASE_FOREACH (const IDProperty *, child, &p->data.group) {
+      |                                                                   ^
+      |                                                                   ;
+C:\dev\blender\main\source\blender\editors\undo\authoring_undo.cc(220,21): error: use of undeclared identifier 'child'
+  220 |         property(w, child, refs, depth + 1);
+      |                     ^~~~~
+C:\dev\blender\main\source\blender\editors\undo\authoring_undo.cc(295,23): error: 'IDProperty' does not refer to a value
+  295 |     LISTBASE_FOREACH (IDProperty *, child, &p->data.group) {
+      |                       ^
+C:\dev\blender\main\source\blender\windowmanager\WM_api.hh(43,8): note: declared here
+   43 | struct IDProperty;
+      |        ^
+C:\dev\blender\main\source\blender\editors\undo\authoring_undo.cc(295,35): error: expected expression
+  295 |     LISTBASE_FOREACH (IDProperty *, child, &p->data.group) {
+      |                                   ^
+C:\dev\blender\main\source\blender\editors\undo\authoring_undo.cc(295,37): error: use of undeclared identifier 'child'
+  295 |     LISTBASE_FOREACH (IDProperty *, child, &p->data.group) {
+      |                                     ^~~~~
+C:\dev\blender\main\source\blender\editors\undo\authoring_undo.cc(295,59): error: expected ';' after expression
+  295 |     LISTBASE_FOREACH (IDProperty *, child, &p->data.group) {
+      |                                                           ^
+      |                                                           ;
+C:\dev\blender\main\source\blender\editors\undo\authoring_undo.cc(296,15): error: use of undeclared identifier 'child'
+  296 |       each_id(child, fn);
+      |               ^~~~~
+C:\dev\blender\main\source\blender\editors\undo\authoring_undo.cc(338,25): error: use of undeclared identifier 'CUMA_VECTOR'
+  338 |       w.value(p.flag & (CUMA_VECTOR | CUMA_AUTO_ANIM));
+      |                         ^~~~~~~~~~~
+C:\dev\blender\main\source\blender\editors\undo\authoring_undo.cc(338,39): error: use of undeclared identifier 'CUMA_AUTO_ANIM'; did you mean 'HD_AUTO_ANIM'?
+  338 |       w.value(p.flag & (CUMA_VECTOR | CUMA_AUTO_ANIM));
+      |                                       ^~~~~~~~~~~~~~
+      |                                       HD_AUTO_ANIM
+C:\dev\blender\main\source\blender\makesdna\DNA_curve_enums.h(185,3): note: 'HD_AUTO_ANIM' declared here
+  185 |   HD_AUTO_ANIM = 4,        /* auto-clamped handles for animation */
+      |   ^
+C:\dev\blender\main\source\blender\editors\undo\authoring_undo.cc(614,15): error: member access into incomplete type 'bke::library::LibraryRuntime'
+  614 |   if (!id || !ID_IS_EDITABLE(id) ||
+      |               ^
+C:\dev\blender\main\source\blender\makesdna\DNA_ID.h(708,44): note: expanded from macro 'ID_IS_EDITABLE'
+  708 |    ((id_cast<const ID *>(_id)->lib->runtime->tag & LIBRARY_ASSET_EDITABLE) && \
+      |                                            ^
+C:\dev\blender\main\source\blender\makesdna\DNA_ID.h(34,8): note: forward declaration of 'blender::bke::library::LibraryRuntime'
+   34 | struct LibraryRuntime;
+      |        ^
+C:\dev\blender\main\source\blender\editors\undo\authoring_undo.cc(614,15): error: use of undeclared identifier 'LIBRARY_ASSET_EDITABLE'
+  614 |   if (!id || !ID_IS_EDITABLE(id) ||
+      |               ^~~~~~~~~~~~~~~~~~
+C:\dev\blender\main\source\blender\makesdna\DNA_ID.h(708,52): note: expanded from macro 'ID_IS_EDITABLE'
+  708 |    ((id_cast<const ID *>(_id)->lib->runtime->tag & LIBRARY_ASSET_EDITABLE) && \
+      |                                                    ^~~~~~~~~~~~~~~~~~~~~~
+C:\dev\blender\main\source\blender\editors\undo\authoring_undo.cc(700,56): error: member access into incomplete type 'bke::library::LibraryRuntime'
+  700 |       !BKE_id_is_in_main(CTX_data_main(C), &owner) || !ID_IS_EDITABLE(&owner) ||
+      |                                                        ^
+C:\dev\blender\main\source\blender\makesdna\DNA_ID.h(708,44): note: expanded from macro 'ID_IS_EDITABLE'
+  708 |    ((id_cast<const ID *>(_id)->lib->runtime->tag & LIBRARY_ASSET_EDITABLE) && \
+      |                                            ^
+C:\dev\blender\main\source\blender\makesdna\DNA_ID.h(34,8): note: forward declaration of 'blender::bke::library::LibraryRuntime'
+   34 | struct LibraryRuntime;
+      |        ^
+C:\dev\blender\main\source\blender\editors\undo\authoring_undo.cc(700,56): error: use of undeclared identifier 'LIBRARY_ASSET_EDITABLE'
+  700 |       !BKE_id_is_in_main(CTX_data_main(C), &owner) || !ID_IS_EDITABLE(&owner) ||
+      |                                                        ^~~~~~~~~~~~~~~~~~~~~~
+C:\dev\blender\main\source\blender\makesdna\DNA_ID.h(708,52): note: expanded from macro 'ID_IS_EDITABLE'
+  708 |    ((id_cast<const ID *>(_id)->lib->runtime->tag & LIBRARY_ASSET_EDITABLE) && \
+      |                                                    ^~~~~~~~~~~~~~~~~~~~~~
+C:\dev\blender\main\source\blender\editors\undo\authoring_undo.cc(745,8): error: member access into incomplete type 'bke::library::LibraryRuntime'
+  745 |       !ID_IS_EDITABLE(&owner) || ID_IS_OVERRIDE_LIBRARY(&owner))
+      |        ^
+C:\dev\blender\main\source\blender\makesdna\DNA_ID.h(708,44): note: expanded from macro 'ID_IS_EDITABLE'
+  708 |    ((id_cast<const ID *>(_id)->lib->runtime->tag & LIBRARY_ASSET_EDITABLE) && \
+      |                                            ^
+C:\dev\blender\main\source\blender\makesdna\DNA_ID.h(34,8): note: forward declaration of 'blender::bke::library::LibraryRuntime'
+   34 | struct LibraryRuntime;
+      |        ^
+C:\dev\blender\main\source\blender\editors\undo\authoring_undo.cc(745,8): error: use of undeclared identifier 'LIBRARY_ASSET_EDITABLE'
+  745 |       !ID_IS_EDITABLE(&owner) || ID_IS_OVERRIDE_LIBRARY(&owner))
+      |        ^~~~~~~~~~~~~~~~~~~~~~
+C:\dev\blender\main\source\blender\makesdna\DNA_ID.h(708,52): note: expanded from macro 'ID_IS_EDITABLE'
+  708 |    ((id_cast<const ID *>(_id)->lib->runtime->tag & LIBRARY_ASSET_EDITABLE) && \
+      |                                                    ^~~~~~~~~~~~~~~~~~~~~~
+17 errors generated.
+[22/310] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\subdiv_vbo_lnor_comp.glsl.cc.obj
+subdiv_vbo_lnor_comp.glsl.cc
+[23/310] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\subdiv_vbo_paint_overlay_flag_comp.glsl.cc.obj
+subdiv_vbo_paint_overlay_flag_comp.glsl.cc
+[24/310] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_bsl.dir\bsl_shader_linting.cc.cc.obj
+bsl_shader_linting.cc.cc
+[25/310] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\subdiv_normals_accumulate_comp.glsl.cc.obj
+subdiv_normals_accumulate_comp.glsl.cc
+[26/310] Building CXX object source\blender\editors\undo\CMakeFiles\bf_editor_undo.dir\undo_system_types.cc.obj
+undo_system_types.cc
+[27/310] Building CXX object source\blender\editors\undo\CMakeFiles\bf_editor_undo.dir\ed_undo.cc.obj
+ed_undo.cc
+[28/310] Building CXX object source\blender\editors\undo\CMakeFiles\bf_editor_undo.dir\memfile_undo.cc.obj
+memfile_undo.cc
+ninja: build stopped: subcommand failed.

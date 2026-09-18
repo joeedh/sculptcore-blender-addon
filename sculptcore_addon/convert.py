@@ -1640,6 +1640,8 @@ def ensure_multires_slot(session):
     lib.Multires_setActiveLevel(session.multires_ptr, level)
     session.mesh_ptr = lib.Multires_activeMesh(session.multires_ptr)
     session.tree_ptr = lib.Multires_activeTree(session.multires_ptr)
+    if session.executor is not None:
+        session.executor.tree = session.tree()
     # The Mesh wrapper is cached against the pointer it was bound to, and the
     # slot just moved from absent to resident.
     session.mesh_obj = None

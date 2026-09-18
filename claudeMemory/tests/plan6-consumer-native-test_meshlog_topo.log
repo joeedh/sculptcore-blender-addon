@@ -1,0 +1,15 @@
+{
+  "suite": "test_meshlog_topo",
+  "command": [
+    "C:\\Program Files\\nodejs\\node.EXE",
+    "make.mjs",
+    "test",
+    "test_meshlog_topo"
+  ],
+  "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_meshlog_topo.cc_out.exe",
+  "returncode": 0,
+  "passed": true,
+  "binary_sha256": "cea65d93330bb2c945be32c391b549662c34d8c73794d939c1283875ff46a589",
+  "stdout": "  create undo: v=4 e=4 c=4 l=1 f=1\r\n  create redo: v=5 e=4 c=4 l=1 f=1\r\n  kill_face after: v=4 e=4 c=0 l=0 f=0\r\n  kill_face undone: v=4 e=4 c=4 l=1 f=1\r\n  kill_face redone: v=4 e=4 c=0 l=0 f=0\r\n  flip after: v=4 e=5 c=6 l=2 f=2\r\n  flip undone: v=4 e=5 c=6 l=2 f=2\r\n  flip redone: v=4 e=5 c=6 l=2 f=2\r\n  split after: v=5 e=8 c=12 l=4 f=4\r\n  split undone: v=4 e=5 c=6 l=2 f=2\r\n  split redone: v=5 e=8 c=12 l=4 f=4\r\n",
+  "stderr": ""
+}

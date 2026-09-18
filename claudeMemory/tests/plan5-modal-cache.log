@@ -1,0 +1,15 @@
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+PLAN5_WARM_COUNTS 0 [3, 2, 2, 1]
+PLAN5_MODAL_CASE_PASS False True False 27
+PLAN5_WARM_COUNTS 1 [0, 0, 0, 0]
+PLAN5_MODAL_CASE_PASS False True False 27
+PLAN5_WARM_COUNTS 2 [1, 2, 0, 0]
+PLAN5_MODAL_CASE_PASS False True False 27
+PLAN5_WARM_COUNTS 3 [0, 2, 0, 0]
+PLAN5_MODAL_CASE_PASS False True False 27
+PLAN5_WARM_COUNTS 4 [3, 2, 2, 1]
+PLAN5_MODAL_CASE_PASS False True False 27
+PLAN5_MODAL_CACHE_PASS
+00:37.547  blend            | Saved session recovery to "C:\Users\joeed\AppData\Local\Temp\quit.blend"
+

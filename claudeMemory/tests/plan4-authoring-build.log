@@ -1,0 +1,96 @@
+[0/1] Re-running CMake...
+-- Clang version 22.1.3 detected, masquerading as MSVC 1951
+-- Found required Ceres dependency: absl version 20250814 in C:/dev/blender/main/lib/windows_x64/abseil/lib/cmake/absl
+-- Found required Ceres dependency: Eigen version 5.0.1 in C:/dev/blender/main/lib/windows_x64/eigen/share/eigen3/cmake
+-- Found Ceres version: 2.3.0 installed in: C:/dev/blender/main/lib/windows_x64/ceres with components: [EigenSparse, SparseLinearAlgebraLibrary, SchurSpecializations]
+-- Using NINJA_POOL_JOBS:
+--   NINJA_MAX_NUM_PARALLEL_LINK_JOBS: max concurrent linking jobs (computed): 1
+--   NINJA_MAX_NUM_PARALLEL_COMPILE_HEAVY_JOBS: max concurrent heavy compile jobs (computed): 7
+--   NINJA_MAX_NUM_PARALLEL_COMPILE_JOBS: max concurrent regular compile jobs (computed): 15
+-- Could NOT find OptiX (missing: OPTIX_INCLUDE_DIR) (Required is at least version "8.0.0")
+-- OptiX not found, disabling WITH_CYCLES_DEVICE_OPTIX
+-- Configuring done (10.9s)
+-- Generating done (21.5s)
+-- Build files have been written to: C:/dev/blender/build_windows_x64_clang_RelWithDebInfo
+[1/308] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_vert.dir\draw_debug_draw_display_vert.glsl.cc.obj
+draw_debug_draw_display_vert.glsl.cc
+[2/308] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_frag.dir\draw_debug_draw_display_frag.glsl.cc.obj
+draw_debug_draw_display_frag.glsl.cc
+[3/308] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_vert.dir\draw_curves_test.glsl.cc.obj
+draw_curves_test.glsl.cc
+[4/308] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\draw_command_generate_comp.glsl.cc.obj
+draw_command_generate_comp.glsl.cc
+[5/308] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\draw_view_finalize_comp.glsl.cc.obj
+draw_view_finalize_comp.glsl.cc
+[6/308] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\draw_curves_topology_comp.glsl.cc.obj
+draw_curves_topology_comp.glsl.cc
+[7/308] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\draw_visibility_comp.glsl.cc.obj
+draw_visibility_comp.glsl.cc
+[8/308] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\draw_curves_interpolation_comp.glsl.cc.obj
+draw_curves_interpolation_comp.glsl.cc
+[9/308] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\draw_curves_length_intercept_comp.glsl.cc.obj
+draw_curves_length_intercept_comp.glsl.cc
+[10/308] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\subdiv_ibo_lines_comp.glsl.cc.obj
+subdiv_ibo_lines_comp.glsl.cc
+[11/308] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\subdiv_ibo_tris_comp.glsl.cc.obj
+subdiv_ibo_tris_comp.glsl.cc
+[12/308] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\subdiv_vbo_edge_fac_comp.glsl.cc.obj
+subdiv_vbo_edge_fac_comp.glsl.cc
+[13/308] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\subdiv_custom_data_interp_comp.glsl.cc.obj
+subdiv_custom_data_interp_comp.glsl.cc
+[14/308] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\subdiv_vbo_sculpt_data_comp.glsl.cc.obj
+subdiv_vbo_sculpt_data_comp.glsl.cc
+[15/308] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\subdiv_vbo_edituv_stretch_area_comp.glsl.cc.obj
+subdiv_vbo_edituv_stretch_area_comp.glsl.cc
+[16/308] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\subdiv_vbo_edituv_stretch_angle_comp.glsl.cc.obj
+subdiv_vbo_edituv_stretch_angle_comp.glsl.cc
+[17/308] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\subdiv_vbo_lnor_comp.glsl.cc.obj
+subdiv_vbo_lnor_comp.glsl.cc
+[18/308] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\subdiv_vbo_paint_overlay_flag_comp.glsl.cc.obj
+subdiv_vbo_paint_overlay_flag_comp.glsl.cc
+[19/308] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\subdiv_normals_accumulate_comp.glsl.cc.obj
+subdiv_normals_accumulate_comp.glsl.cc
+[20/308] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_bsl.dir\bsl_shader_linting.cc.cc.obj
+bsl_shader_linting.cc.cc
+[21/308] Building CXX object source\blender\draw\engines\gpencil\shaders\CMakeFiles\gpencil_cpp_shaders_vert.dir\gpencil_antialiasing_vert.glsl.cc.obj
+gpencil_antialiasing_vert.glsl.cc
+[22/308] Building CXX object source\blender\draw\engines\gpencil\shaders\CMakeFiles\gpencil_cpp_shaders_vert.dir\gpencil_depth_merge_vert.glsl.cc.obj
+gpencil_depth_merge_vert.glsl.cc
+[23/308] Building CXX object source\blender\draw\engines\gpencil\shaders\CMakeFiles\gpencil_cpp_shaders_vert.dir\gpencil_fullscreen_vert.glsl.cc.obj
+gpencil_fullscreen_vert.glsl.cc
+[24/308] Building CXX object source\blender\draw\engines\gpencil\shaders\CMakeFiles\gpencil_cpp_shaders_frag.dir\gpencil_antialiasing_accumulation_frag.glsl.cc.obj
+gpencil_antialiasing_accumulation_frag.glsl.cc
+[25/308] Building CXX object source\blender\draw\engines\gpencil\shaders\CMakeFiles\gpencil_cpp_shaders_vert.dir\gpencil_vert.glsl.cc.obj
+gpencil_vert.glsl.cc
+[26/308] Building CXX object source\blender\python\intern\CMakeFiles\bf_python.dir\bpy_rna_authoring.cc.obj
+FAILED: [code=1] source/blender/python/intern/CMakeFiles/bf_python.dir/bpy_rna_authoring.cc.obj 
+sccache C:\PROGRA~1\MICROS~3\18\COMMUN~1\VC\Tools\Llvm\x64\bin\clang-cl.exe  /nologo -TP -DBLENDER_WIN_APPID=\"blender.5.3\" -DBLENDER_WIN_APPID_FRIENDLY_NAME="\"Blender 5.3\"" -DNDEBUG -DNOMINMAX -DPYTHON_SSL_CERT_FILE=\"lib/site-packages/certifi/cacert.pem\" -DWIN32 -DWIN32_LEAN_AND_MEAN -DWITH_ALEMBIC -DWITH_ASSERT_ABORT -DWITH_AUDASPACE -DWITH_AUDASPACE_PY -DWITH_BULLET -DWITH_CYCLES -DWITH_CYCLES_OSL -DWITH_EMBREE -DWITH_EXPERIMENTAL_FEATURES -DWITH_FFMPEG -DWITH_FLUID -DWITH_FREESTYLE -DWITH_HARU -DWITH_HYDRA -DWITH_IMAGE_CINEON -DWITH_IMAGE_OPENJPEG -DWITH_IMAGE_WEBP -DWITH_INPUT_NDOF -DWITH_INSTALL_PORTABLE -DWITH_INTERNATIONAL -DWITH_IO_FBX -DWITH_IO_GREASE_PENCIL -DWITH_IO_PLY -DWITH_IO_STL -DWITH_IO_WAVEFRONT_OBJ -DWITH_LIBMV -DWITH_MOD_REMESH -DWITH_OCEANSIM -DWITH_OPENAL -DWITH_OPENSUBDIV -DWITH_OPENVDB -DWITH_OPENVDB_BLOSC -DWITH_POTRACE -DWITH_PUGIXML -DWITH_PYTHON -DWITH_RUBBERBAND -DWITH_SNDFILE -DWITH_TBB -DWITH_TBB_MALLOC -DWITH_USD -DWITH_WASAPI -DWITH_XR_OPENXR -D_ALLOW_KEYWORD_MACROS -D_CONSOLE -D_CRT_NONSTDC_NO_DEPRECATE -D_CRT_SECURE_NO_DEPRECATE -D_LIB -D_SCL_SECURE_NO_DEPRECATE -D_USE_MATH_DEFINES -D_WIN32_WINNT=0x603 -D__LITTLE_ENDIAN__ -IC:\dev\blender\main\source\blender\python -IC:\dev\blender\main\source\blender\editors\include -IC:\dev\blender\main\source\blender\imbuf\intern\oiio -IC:\dev\blender\main\source\blender\makesrna -IC:\dev\blender\main\intern\mantaflow\extern -IC:\dev\blender\build_windows_x64_clang_RelWithDebInfo\source\blender\makesrna -IC:\dev\blender\main\intern\cycles\blender -IC:\dev\blender\main\source\blender\freestyle\intern\python -IC:\dev\blender\main\intern\opensubdiv -IC:\dev\blender\main\source\blender\io\alembic -IC:\dev\blender\main\source\blender\io\usd -IC:\dev\blender\main\source\blender\blenkernel -IC:\dev\blender\main\intern\profile -IC:\dev\blender\main\intern\ghost -IC:\dev\blender\main\intern\openvdb -IC:\dev\blender\main\intern\mikktspace\. -IC:\dev\blender\main\source\blender\makesdna -IC:\dev\blender\build_windows_x64_clang_RelWithDebInfo\source\blender\makesdna\intern -IC:\dev\blender\main\source\blender\blenlib -IC:\dev\blender\main\intern\utfconv -IC:\dev\blender\main\source\blender\blenloader -IC:\dev\blender\main\source\blender\blenloader_core -IC:\dev\blender\main\source\blender\blentranslation -IC:\dev\blender\main\source\blender\depsgraph -IC:\dev\blender\main\source\blender\gpu -IC:\dev\blender\build_windows_x64_clang_RelWithDebInfo\source\blender\compositor -IC:\dev\blender\build_windows_x64_clang_RelWithDebInfo\source\blender\draw -IC:\dev\blender\build_windows_x64_clang_RelWithDebInfo\source\blender\imbuf\opencolorio -IC:\dev\blender\build_windows_x64_clang_RelWithDebInfo\intern\opensubdiv -IC:\dev\blender\main\source\blender\imbuf -IC:\dev\blender\main\intern\clog -IC:\dev\blender\main\intern\guardedalloc -IC:\dev\blender\main\source\blender\animrig -IC:\dev\blender\main\source\blender\imbuf\opencolorio\. -IC:\dev\blender\main\source\blender\nodes -IC:\dev\blender\main\source\blender\windowmanager -imsvcC:\dev\blender\main\lib\windows_x64\pthreads\include -imsvcC:\dev\blender\main\lib\windows_x64\vulkan\include -imsvcC:\dev\blender\main\lib\windows_x64\openVDB\include -imsvcC:\dev\blender\main\lib\windows_x64\tbb\include -imsvcC:\dev\blender\main\lib\windows_x64\OpenImageIO\include -imsvcC:\dev\blender\main\lib\windows_x64\fmt\include -imsvcC:\dev\blender\main\lib\windows_x64\opencolorio\include -imsvcC:\dev\blender\main\lib\windows_x64\python\313\include -imsvcC:\dev\blender\main\lib\windows_x64\ffmpeg\include -imsvcC:\dev\blender\main\lib\windows_x64\ffmpeg\include\msvc -imsvcC:\dev\blender\main\extern\audaspace\include -imsvcC:\dev\blender\build_windows_x64_clang_RelWithDebInfo\extern\audaspace -imsvcC:\dev\blender\main\extern\audaspace\bindings /W3 -Wno-tautological-compare -Wno-unknown-pragmas -Wno-char-subscripts -Wno-overloaded-virtual -Wno-sign-compare -Wno-invalid-offsetof -Wno-suggest-override -Wundef -Wundef-prefix -Wunused-parameter -Wmismatched-tags -Werror=unguarded-availability-new   /Gy /MP /nologo /J /Gd /showFilenames /EHsc -Wno-unused-command-line-argument -Wno-microsoft-enum-forward-reference /clang:-funsigned-char /clang:-fno-strict-aliasing /clang:-ffp-contract=off -march=x86-64-v2  /O2 /Ob2 /DNDEBUG /MD /Z7 -std:c++20 -MD -clang:-MD -clang:-MTsource\blender\python\intern\CMakeFiles\bf_python.dir\bpy_rna_authoring.cc.obj -clang:-MFsource\blender\python\intern\CMakeFiles\bf_python.dir\bpy_rna_authoring.cc.obj.d /Fosource\blender\python\intern\CMakeFiles\bf_python.dir\bpy_rna_authoring.cc.obj /Fdsource\blender\python\intern\CMakeFiles\bf_python.dir\bf_python.pdb -c -- C:\dev\blender\main\source\blender\python\intern\bpy_rna_authoring.cc
+bpy_rna_authoring.cc
+C:\dev\blender\main\source\blender\python\intern\bpy_rna_authoring.cc(149,40): error: no member named 'get' in 'std::optional<blender::PointerRNA>'
+  149 |   if (!RNA_path_resolve_full(self->ptr.get(), path, &ptr, &prop, nullptr) || prop ||
+      |                              ~~~~~~~~~ ^
+C:\dev\blender\main\source\blender\python\intern\bpy_rna_authoring.cc(150,16): error: comparison of distinct pointer types ('StructRNA *' and 'struct StructRNA **')
+  150 |       ptr.type != &RNA_CurveMapping || ptr.owner_id != owner || !ptr.data)
+      |       ~~~~~~~~ ^  ~~~~~~~~~~~~~~~~~
+2 errors generated.
+[27/308] Building CXX object source\blender\draw\engines\gpencil\shaders\CMakeFiles\gpencil_cpp_shaders_frag.dir\gpencil_antialiasing_frag.glsl.cc.obj
+gpencil_antialiasing_frag.glsl.cc
+[28/308] Building CXX object source\blender\draw\engines\gpencil\shaders\CMakeFiles\gpencil_cpp_shaders_frag.dir\gpencil_depth_merge_frag.glsl.cc.obj
+gpencil_depth_merge_frag.glsl.cc
+[29/308] Building CXX object source\blender\python\intern\CMakeFiles\bf_python.dir\bpy_rna_types_capi.cc.obj
+bpy_rna_types_capi.cc
+[30/308] Building CXX object source\blender\editors\undo\CMakeFiles\bf_editor_undo.dir\authoring_undo.cc.obj
+FAILED: [code=1] source/blender/editors/undo/CMakeFiles/bf_editor_undo.dir/authoring_undo.cc.obj 
+sccache C:\PROGRA~1\MICROS~3\18\COMMUN~1\VC\Tools\Llvm\x64\bin\clang-cl.exe  /nologo -TP -DBLENDER_WIN_APPID=\"blender.5.3\" -DBLENDER_WIN_APPID_FRIENDLY_NAME="\"Blender 5.3\"" -DNDEBUG -DNOMINMAX -DWIN32 -DWIN32_LEAN_AND_MEAN -DWITH_ASSERT_ABORT -DWITH_INPUT_NDOF -DWITH_OPENVDB -DWITH_OPENVDB_BLOSC -DWITH_TBB -DWITH_TBB_MALLOC -D_ALLOW_KEYWORD_MACROS -D_CONSOLE -D_CRT_NONSTDC_NO_DEPRECATE -D_CRT_SECURE_NO_DEPRECATE -D_LIB -D_SCL_SECURE_NO_DEPRECATE -D_USE_MATH_DEFINES -D_WIN32_WINNT=0x603 -D__LITTLE_ENDIAN__ -IC:\dev\blender\main\source\blender\editors\include -IC:\dev\blender\main\source\blender\makesrna -IC:\dev\blender\build_windows_x64_clang_RelWithDebInfo\source\blender\makesrna -IC:\dev\blender\main\source\blender\asset_system -IC:\dev\blender\main\source\blender\blenkernel -IC:\dev\blender\main\intern\profile -IC:\dev\blender\main\intern\ghost -IC:\dev\blender\main\intern\openvdb -IC:\dev\blender\main\intern\mikktspace\. -IC:\dev\blender\main\source\blender\makesdna -IC:\dev\blender\build_windows_x64_clang_RelWithDebInfo\source\blender\makesdna\intern -IC:\dev\blender\main\source\blender\blenlib -IC:\dev\blender\main\intern\utfconv -IC:\dev\blender\main\source\blender\blenloader -IC:\dev\blender\main\source\blender\blenloader_core -IC:\dev\blender\main\source\blender\blentranslation -IC:\dev\blender\main\source\blender\bmesh -IC:\dev\blender\main\intern\clog -IC:\dev\blender\main\intern\guardedalloc -IC:\dev\blender\main\source\blender\windowmanager -imsvcC:\dev\blender\main\lib\windows_x64\pthreads\include -imsvcC:\dev\blender\main\lib\windows_x64\vulkan\include -imsvcC:\dev\blender\main\lib\windows_x64\openVDB\include -imsvcC:\dev\blender\main\lib\windows_x64\tbb\include -imsvcC:\dev\blender\main\lib\windows_x64\OpenImageIO\include -imsvcC:\dev\blender\main\lib\windows_x64\fmt\include /W3 -Wno-tautological-compare -Wno-unknown-pragmas -Wno-char-subscripts -Wno-overloaded-virtual -Wno-sign-compare -Wno-invalid-offsetof -Wno-suggest-override -Wundef -Wundef-prefix -Wunused-parameter -Wmismatched-tags -Werror=unguarded-availability-new   /Gy /MP /nologo /J /Gd /showFilenames /EHsc -Wno-unused-command-line-argument -Wno-microsoft-enum-forward-reference /clang:-funsigned-char /clang:-fno-strict-aliasing /clang:-ffp-contract=off -march=x86-64-v2  /O2 /Ob2 /DNDEBUG /MD /Z7 -std:c++20 -MD -clang:-MD -clang:-MTsource\blender\editors\undo\CMakeFiles\bf_editor_undo.dir\authoring_undo.cc.obj -clang:-MFsource\blender\editors\undo\CMakeFiles\bf_editor_undo.dir\authoring_undo.cc.obj.d /Fosource\blender\editors\undo\CMakeFiles\bf_editor_undo.dir\authoring_undo.cc.obj /Fdsource\blender\editors\undo\CMakeFiles\bf_editor_undo.dir\bf_editor_undo.pdb -c -- C:\dev\blender\main\source\blender\editors\undo\authoring_undo.cc
+authoring_undo.cc
+C:\dev\blender\main\source\blender\editors\undo\authoring_undo.cc(24,10): fatal error: 'DEG_depsgraph.hh' file not found
+   24 | #include "DEG_depsgraph.hh"
+      |          ^~~~~~~~~~~~~~~~~~
+1 error generated.
+[31/308] Building CXX object source\blender\python\intern\CMakeFiles\bf_python.dir\bpy_rna_idprops.cc.obj
+bpy_rna_idprops.cc
+[32/308] Building CXX object source\blender\editors\undo\CMakeFiles\bf_editor_undo.dir\undo_system_types.cc.obj
+undo_system_types.cc
+[33/308] Building CXX object source\blender\draw\engines\eevee\shaders\CMakeFiles\eevee_cpp_shaders_bsl.dir\bsl_shader_linting.cc.cc.obj
+bsl_shader_linting.cc.cc
+ninja: build stopped: subcommand failed.

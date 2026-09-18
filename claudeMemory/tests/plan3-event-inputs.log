@@ -1,0 +1,4 @@
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+PLAN3_EVENT_INPUTS_PASS: precision, presence, validation, queued INBETWEEN delivery
+00:15.516  blend            | Saved session recovery to "C:\Users\joeed\AppData\Local\Temp\quit.blend"
+

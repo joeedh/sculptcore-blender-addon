@@ -1,0 +1,60 @@
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Info: attribute .face.normal changed index in mesh
+Info: attribute normals changed index in mesh
+Info: attribute normals changed index in mesh
+Info: attribute .face.normal changed index in mesh
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Info: attribute normals changed index in mesh
+Info: attribute normals changed index in mesh
+Info: attribute .face.normal changed index in mesh
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Info: attribute normals changed index in mesh
+Info: attribute normals changed index in mesh
+Info: attribute .face.normal changed index in mesh
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Info: attribute .face.normal changed index in mesh
+Info: attribute normals changed index in mesh
+Info: attribute normals changed index in mesh
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Info: attribute .face.normal changed index in mesh
+Info: attribute normals changed index in mesh
+Info: attribute normals changed index in mesh
+Info: attribute .face.normal changed index in mesh
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Info: attribute .face.normal changed index in mesh
+Info: attribute normals changed index in mesh
+Info: attribute normals changed index in mesh
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Info: attribute normals changed index in mesh
+Info: attribute normals changed index in mesh
+Info: attribute .face.normal changed index in mesh
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Info: attribute .face.normal changed index in mesh
+Info: attribute normals changed index in mesh
+Info: attribute normals changed index in mesh
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+PLAN6_DYNTOPO_HOST_PASS {"passed": true, "checks": [{"nonaccum": false, "cavity": false, "smooth": false, "calls": [-1, -1, 70, 0, 21], "vertices": [169, 239, 218]}, {"nonaccum": false, "cavity": false, "smooth": true, "calls": [-1, -1, 70, 0, 23], "vertices": [169, 239, 216]}, {"nonaccum": false, "cavity": true, "smooth": false, "calls": [-1, -1, 70, 0, 23], "vertices": [169, 239, 216]}, {"nonaccum": false, "cavity": true, "smooth": true, "calls": [-1, -1, 70, 0, 18], "vertices": [169, 239, 221]}, {"nonaccum": true, "cavity": false, "smooth": false, "calls": [-1, -1, 70, 0, 21], "vertices": [169, 239, 218]}, {"nonaccum": true, "cavity": false, "smooth": true, "calls": [-1, -1, 70, 0, 23], "vertices": [169, 239, 216]}, {"nonaccum": true, "cavity": true, "smooth": false, "calls": [-1, -1, 70, 0, 23], "vertices": [169, 239, 216]}, {"nonaccum": true, "cavity": true, "smooth": true, "calls": [-1, -1, 70, 0, 18], "vertices": [169, 239, 221]}], "legacy": [{"nonaccum": false, "resolved": false, "vertices": 216}, {"nonaccum": false, "resolved": true, "vertices": 216}, {"nonaccum": true, "resolved": false, "vertices": 216}, {"nonaccum": true, "resolved": true, "vertices": 216}], "dll": "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\5.3\\scripts\\addons_core\\sculptcore_addon\\lib\\sculptcore\\sculptcore_capi.dll", "sha256": "b41fdcaf8485a5ac151d1abc9c59d52e776c9cd677cf905738ac4561372998a2"}
+00:15.531  blend            | Saved session recovery to "C:\Users\joeed\AppData\Local\Temp\quit.blend"
+
+[error] toml::parse: Error opening file "C:\Users\joeed\AppData\Roaming\Blender Foundation\Blender\5.3\config\recents.toml"
+
+SculptCore: rejected command[1].radius (property status 1)
+SculptCore: rejected dyntopo settings (property status 4)
+SculptCore: rejected command[1].radius (property status 1)
+SculptCore: rejected dyntopo settings (property status 4)
+SculptCore: rejected command[1].radius (property status 1)
+SculptCore: rejected dyntopo settings (property status 4)
+SculptCore: rejected command[1].radius (property status 1)
+SculptCore: rejected dyntopo settings (property status 4)
+SculptCore: rejected command[1].radius (property status 1)
+SculptCore: rejected dyntopo settings (property status 4)
+SculptCore: rejected command[1].radius (property status 1)
+SculptCore: rejected dyntopo settings (property status 4)
+SculptCore: rejected command[1].radius (property status 1)
+SculptCore: rejected dyntopo settings (property status 4)
+SculptCore: rejected command[1].radius (property status 1)
+SculptCore: rejected dyntopo settings (property status 4)

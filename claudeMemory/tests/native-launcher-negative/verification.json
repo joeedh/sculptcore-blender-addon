@@ -1,0 +1,182 @@
+[
+  {
+    "command": [
+      "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\5.3\\python\\bin\\python.exe",
+      "-c",
+      "print('partial', flush=True); raise SystemExit(7)"
+    ],
+    "cwd": "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin",
+    "expected_count": 2,
+    "timeout_seconds": 10,
+    "binary_sha256": "d6fc04d5348fdcf121d34ea3fc36221c779de9771949b68863002f7a2dc892d5",
+    "returncode": 7,
+    "status_hex": "0x00000007",
+    "stdout": "partial\r\n",
+    "stderr": "",
+    "passed": false,
+    "error": "Nonzero exit or missing/mismatched completed GTest counts",
+    "runtime_search_path": [
+      "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.shared",
+      "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin"
+    ],
+    "completed_counts": [],
+    "passed_counts": [],
+    "elapsed_seconds": 0.058174700010567904
+  },
+  {
+    "command": [
+      "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\5.3\\python\\bin\\python.exe",
+      "-c",
+      "pass"
+    ],
+    "cwd": "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin",
+    "expected_count": 2,
+    "timeout_seconds": 10,
+    "binary_sha256": "d6fc04d5348fdcf121d34ea3fc36221c779de9771949b68863002f7a2dc892d5",
+    "returncode": 0,
+    "status_hex": "0x00000000",
+    "stdout": "",
+    "stderr": "",
+    "passed": false,
+    "error": "Nonzero exit or missing/mismatched completed GTest counts",
+    "runtime_search_path": [
+      "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.shared",
+      "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin"
+    ],
+    "completed_counts": [],
+    "passed_counts": [],
+    "elapsed_seconds": 0.05890910000016447
+  },
+  {
+    "command": [
+      "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\5.3\\python\\bin\\python.exe",
+      "-c",
+      "print('[==========] 0 tests from 0 test suites ran.\\n[  PASSED  ] 0 tests.')"
+    ],
+    "cwd": "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin",
+    "expected_count": 2,
+    "timeout_seconds": 10,
+    "binary_sha256": "d6fc04d5348fdcf121d34ea3fc36221c779de9771949b68863002f7a2dc892d5",
+    "returncode": 0,
+    "status_hex": "0x00000000",
+    "stdout": "[==========] 0 tests from 0 test suites ran.\r\n[  PASSED  ] 0 tests.\r\n",
+    "stderr": "",
+    "passed": false,
+    "error": "Nonzero exit or missing/mismatched completed GTest counts",
+    "runtime_search_path": [
+      "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.shared",
+      "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin"
+    ],
+    "completed_counts": [
+      0
+    ],
+    "passed_counts": [
+      0
+    ],
+    "elapsed_seconds": 0.07124520000070333
+  },
+  {
+    "command": [
+      "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\5.3\\python\\bin\\python.exe",
+      "-c",
+      "print('[==========] 1 test from 1 test suite ran.\\n[  PASSED  ] 1 test.')"
+    ],
+    "cwd": "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin",
+    "expected_count": 2,
+    "timeout_seconds": 10,
+    "binary_sha256": "d6fc04d5348fdcf121d34ea3fc36221c779de9771949b68863002f7a2dc892d5",
+    "returncode": 0,
+    "status_hex": "0x00000000",
+    "stdout": "[==========] 1 test from 1 test suite ran.\r\n[  PASSED  ] 1 test.\r\n",
+    "stderr": "",
+    "passed": false,
+    "error": "Nonzero exit or missing/mismatched completed GTest counts",
+    "runtime_search_path": [
+      "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.shared",
+      "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin"
+    ],
+    "completed_counts": [
+      1
+    ],
+    "passed_counts": [
+      1
+    ],
+    "elapsed_seconds": 0.055673599999863654
+  },
+  {
+    "command": [
+      "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\5.3\\python\\bin\\python.exe",
+      "-c",
+      "import time; print('partial', flush=True); time.sleep(30)"
+    ],
+    "cwd": "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin",
+    "expected_count": 2,
+    "timeout_seconds": 0.5,
+    "binary_sha256": "d6fc04d5348fdcf121d34ea3fc36221c779de9771949b68863002f7a2dc892d5",
+    "returncode": null,
+    "status_hex": null,
+    "stdout": "partial\r\n",
+    "stderr": "",
+    "passed": false,
+    "error": "Timeout",
+    "runtime_search_path": [
+      "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.shared",
+      "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin"
+    ],
+    "elapsed_seconds": 0.5167166000028374
+  },
+  {
+    "command": [
+      "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\native-launcher-negative\\missing-test.exe"
+    ],
+    "cwd": "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin",
+    "expected_count": 1,
+    "timeout_seconds": 5,
+    "binary_sha256": null,
+    "returncode": null,
+    "status_hex": null,
+    "stdout": "",
+    "stderr": "",
+    "passed": false,
+    "error": "FileNotFoundError: [Errno 2] No such file or directory: 'C:\\\\dev\\\\blender\\\\sculptcore-blender-addon\\\\claudeMemory\\\\tests\\\\native-launcher-negative\\\\missing-test.exe'",
+    "runtime_search_path": [
+      "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.shared",
+      "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin"
+    ],
+    "elapsed_seconds": 7.570000889245421e-05
+  },
+  {
+    "command": [
+      "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\tests\\blenkernel_curvemapping_owned_test.exe",
+      "--gtest_list_tests"
+    ],
+    "cwd": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\native-launcher-negative",
+    "expected_count": 14,
+    "timeout_seconds": 10,
+    "binary_sha256": "ace5e87dbc4c1c451d87e1f1a02ff80a6743c0745d7ea525f99a3510326b6384",
+    "returncode": 3221225781,
+    "status_hex": "0xc0000135",
+    "stdout": "",
+    "stderr": "",
+    "passed": false,
+    "error": "Nonzero exit or missing/mismatched completed GTest counts",
+    "runtime_search_path": [
+      "C:\\WINDOWS\\System32"
+    ],
+    "completed_counts": [],
+    "passed_counts": [],
+    "elapsed_seconds": 0.9477627999876859
+  },
+  {
+    "case": "cli_missing",
+    "returncode": 1,
+    "stdout": "missing-test: FAIL (status None, counts None)\r\n",
+    "stderr": ""
+  },
+  {
+    "case": "cli_traversal",
+    "returncode": 2,
+    "stdout": "",
+    "stderr": "usage: run_blender_native_tests.py [-h] --blender-bin BLENDER_BIN\r\n                                   --assets-dir ASSETS_DIR\r\n                                   --release-dir RELEASE_DIR\r\n                                   --output-dir OUTPUT_DIR --test TEST\r\n                                   [--timeout TIMEOUT]\r\nrun_blender_native_tests.py: error: argument --test: Use an executable basename without extension and positive count: NAME=COUNT\r\n"
+  }
+]

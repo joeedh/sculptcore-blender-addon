@@ -1,0 +1,15 @@
+{
+  "suite": "test_grid_stroke",
+  "command": [
+    "C:\\Program Files\\nodejs\\node.EXE",
+    "make.mjs",
+    "test",
+    "test_grid_stroke"
+  ],
+  "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_grid_stroke.cc_out.exe",
+  "returncode": 0,
+  "passed": true,
+  "binary_sha256": "0c81ff2c467f8e888d727fc835b6f1e4ddc6fc4dd53b70f8adb9f0bc3c2eb9d8",
+  "stdout": "0.77k triangles\r\n",
+  "stderr": "A/B draw: max pos diff 0.00000000 (eps 0.00000100)\r\nA/B draw store: max disp diff 0.00000000\r\nA/B clay: max pos diff 0.00000000 (eps 0.00000100)\r\nA/B pinch: max pos diff 0.00000000 (eps 0.00000100)\r\nA/B sharp: max pos diff 0.00000000 (eps 0.00200000)\r\nA/B inflate: max pos diff 0.03649945 (eps 0.05000000)\r\nA/B smooth: max pos diff 0.00000003 (eps 0.00200000)\r\nA/B snakehook: max pos diff 0.00000000 (eps 0.00000100)\r\nA/B wingscrape: max pos diff 0.00000000 (eps 0.00000100)\r\nE3 mirror-stamp smooth: max pos diff 0.00000003\r\nE1 bsmooth A/B: tangent 0.00000001 normal 0.00000003\r\nE2 program A/B: tangent 0.00000003 normal 0.00000002\r\nE2 pressure A/B: tangent 0.00000001 normal 0.00000001\r\nE2 program undo: 7632 bytes (single-stage ref 7632)\r\nundo log: 2 steps, 13464 bytes\r\nmask stroke: max mask 0.7985\r\nlayer stroke: channel 1 max |d| 0.061894, ch0 same 1\r\nlayerdraw stroke: channel 1 max |d| 0.124030, ch0 same 1\r\nlayerdraw recomposite: off 0.00e+00 on 5.96e-08\r\nA/B layerdraw: max pos diff 0.00000003\r\nA/B layerdraw store: max disp diff 0.00000002\r\ngrab stroke: 40 verts touched\r\ndraw source: 1 nodes, 1 dirty after dab\r\ndraw source small-target: 12 nodes, 2 dirty\r\nS4 batch-program: moved 367 (loop 367)\r\nS5 mesh batch-program: nodes 40 (loop 40)\r\nzero-disp round trip: max diff 0.00000003\r\nseed vs materialize path: top max diff 0.00000003\r\nseed vs materialize path: settled L-1 max diff 0.00000000\r\nnormal topology arrays parity: tris=768 same=1\r\nundo blocks survived removeChannel\r\nattr debt round-tripped through undo/redo\r\ngrid attr colour: 34 painted samples, max r 0.4987\r\ngrid attr colour undo bit-exact\r\ngrid attr colour: 34 of 600 samples published per dab\r\ngrid attr colour draw samples seeded + bit-exact through undo\r\ngrid attr polygroup: 55 of 600 samples differ per dab\r\ngrid attr polygroup: 27 cells set to the active group\r\ngrid attr polygroup undo bit-exact\r\ngrid attr polygroup: 1 cage faces adopted the group\r\ngrid stroke gates passed\r\n"
+}

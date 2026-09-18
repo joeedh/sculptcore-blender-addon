@@ -1,0 +1,15 @@
+{
+  "suite": "test_brush_props",
+  "command": [
+    "C:\\Program Files\\nodejs\\node.EXE",
+    "make.mjs",
+    "test",
+    "test_brush_props"
+  ],
+  "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_brush_props.cc_out.exe",
+  "returncode": 0,
+  "passed": true,
+  "binary_sha256": "bedc544b5ae4cbc80f5b68aa8eb6e420fe588d1262b69eab3053c13f6dd684ae",
+  "stdout": "",
+  "stderr": "kelvinlet: mu=1 nu=0.4\r\nplane: planeSide=7 (untouched), planeoff registered\r\n"
+}

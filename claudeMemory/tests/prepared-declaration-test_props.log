@@ -1,0 +1,15 @@
+{
+  "suite": "test_props",
+  "command": [
+    "C:\\Program Files\\nodejs\\node.EXE",
+    "make.mjs",
+    "test",
+    "test_props"
+  ],
+  "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_props.cc_out.exe",
+  "returncode": 0,
+  "passed": true,
+  "binary_sha256": "89c56dd74863ba63deba03274fe8001b1f4c6fa745cc83f70a49f72b6530bc40",
+  "stdout": "f value: 3.000000\r\n",
+  "stderr": ""
+}

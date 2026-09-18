@@ -1,0 +1,7 @@
+Test project C:/dev/blender/build_windows_x64_clang_RelWithDebInfo
+    Start 124: blenkernel_curvemapping_idprop
+1/1 Test #124: blenkernel_curvemapping_idprop ...   Passed    2.30 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   4.92 sec

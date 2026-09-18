@@ -1,0 +1,15 @@
+{
+  "suite": "test_boundary",
+  "command": [
+    "C:\\Program Files\\nodejs\\node.EXE",
+    "make.mjs",
+    "test",
+    "test_boundary"
+  ],
+  "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_boundary.cc_out.exe",
+  "returncode": 0,
+  "passed": true,
+  "binary_sha256": "09e8d5226a9829f108773095d89373b860270237832a700876552cfa276e4433",
+  "stdout": "",
+  "stderr": "boundary: vclass v0=34 v1=42 v4=40\r\npath: verts=4 weight=3\r\n"
+}

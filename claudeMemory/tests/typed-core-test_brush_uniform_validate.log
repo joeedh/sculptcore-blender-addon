@@ -1,0 +1,17 @@
+manifest tool=13 retargetable=1
+manifest tool=18 retargetable=1
+manifest tool=20 retargetable=1
+manifest tool=14 retargetable=1
+bsmooth vclass entry=1
+happy: ok=1 msgs=0
+stray: ok=0 contains=1
+static: ok=0 contains=1
+unbaked: ok=0 contains=1
+oorange: ok=0 contains=1
+inverted: ok=0 contains=1
+wave5: count=3 (expect 3)
+wave5: configured ok=1
+wave5: cleared devices=0 (expect 0)
+brush uniform validation: stray dynamic on 'mu': not a uniform of the active brush
+integration-skip: changed=0 (expect 0)
+integration-mutate: changed=88 (expect >0)

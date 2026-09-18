@@ -1,0 +1,15 @@
+{
+  "command": [
+    "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+    "--factory-startup",
+    "--python-exit-code",
+    "1",
+    "--background",
+    "--python",
+    "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_custom_curve_assets.py"
+  ],
+  "passed": true,
+  "sha256": "a21349628224edde45d623237abc3fa78e9f711fbbf37ab37e1494bc47a912b4",
+  "returncode": 0,
+  "seconds": 13.550702699983958
+}

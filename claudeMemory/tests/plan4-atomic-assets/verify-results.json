@@ -1,0 +1,7 @@
+{
+  "passed": true,
+  "checks": [
+    "fresh external asset scalar readback",
+    "fresh external asset curve readback"
+  ]
+}

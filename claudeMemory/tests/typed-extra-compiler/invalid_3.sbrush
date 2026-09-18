@@ -1,0 +1,1 @@
+@brush("invalid") brush Invalid { ctx int state = 2147483648; vertex void apply(inout Vertex v) {} }

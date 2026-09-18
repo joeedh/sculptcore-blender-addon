@@ -1,0 +1,15 @@
+{
+  "suite": "test_brush_configuration",
+  "command": [
+    "C:\\Program Files\\nodejs\\node.EXE",
+    "make.mjs",
+    "test",
+    "test_brush_configuration"
+  ],
+  "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_brush_configuration.cc_out.exe",
+  "returncode": 0,
+  "passed": true,
+  "binary_sha256": "ead9c3003af8b8d179e6776d03a79e61e7381014531c77ac563472ff38a8fcae",
+  "stdout": "",
+  "stderr": "checked scalar IEEE and FTZ/DAZ transport, atomicity and preflight passed\r\nbrush property 'legacy': configuration error 1\r\n"
+}

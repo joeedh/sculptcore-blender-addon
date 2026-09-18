@@ -1,0 +1,38 @@
+Blender 5.3.0 Alpha
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+PLAN5_CHECK generated response allocates no mapping
+PLAN5_CHECK identical preset shares immutable table
+PLAN5_CHECK customize seeds 256 points
+PLAN5_CHECK custom seed matches preset
+PLAN5_CHECK custom seed vector handles
+PLAN5_CHECK owned unchanged revision reuses samples
+PLAN5_CHECK selection does not bake
+PLAN5_CHECK copied owner shares canonical samples
+PLAN5_CHECK old mapping reference rejects
+EDIT_SAMPLE 0.7499995231628418 BAKES 2 3
+PLAN5_CHECK actual owned point edit bakes once
+PLAN5_CHECK CUSTOM restores dormant curve
+PLAN5_CHECK step reseed reports approximation
+PLAN5_CHECK seed preserves out of range levels
+PLAN5_CHECK overflow seed rejects before mutation
+PLAN5_CHECK overflow preserved mapping
+PLAN5_CHECK seed failure rolls back
+PLAN5_CHECK rollback restores exact mapping
+PLAN5_CHECK native pressure CUSTOM preserves dormant authority
+PLAN5_CHECK native warm reuse
+NATIVE_EDIT_SAMPLE 0.6249999403953552 BAKES 4 5
+PLAN5_CHECK native edit rebakes
+PLAN5_CHECK evaluation field invalidates use_clip
+PLAN5_CHECK evaluation field invalidates clip_max_y
+PLAN5_CHECK evaluation field invalidates extend
+PLAN5_CHECK cache and revision indices bounded
+PLAN5_CHECK eviction leaves active immutable response usable
+PLAN5_CHECK owner switching leaves bounded value-only indices
+PLAN5_CHECK read-only asset is actually linked
+PLAN5_CHECK read-only customization rejects
+PLAN5_CHECK lifecycle clears samples and increments upload epoch
+PLAN5_CHECK lifecycle retires old store
+PLAN5_CURVES_PASSED 30
+
+Blender quit
+

@@ -58,7 +58,32 @@ def draw(context, x, y):
         return
     # Pixel *radius* (Brush.size is a diameter) — #paint_cursor.cc scales the
     # vanilla cursor by BKE_brush_radius_get too, so the ring matches the dab.
-    radius = mapping.pixel_radius(sculpt, brush) * _size_scale
+    if context.scene.sculptcore_generic_properties:
+        from . import stroke
+        from .brush_properties import authoring
+        from .brush_properties.adapters import SIZE
+        from .brush_properties.resolver import resolve_value
+        from .brush_properties.stroke_settings import pixel_radius
+        from .brush_properties.registry import PropertyError
+        try:
+            session = engine.sessions[ob.name]
+            if session.generic_runtime is not None:
+                size = session.generic_runtime.settings.size
+            else:
+                resolved = resolve_value(authoring.registry, SIZE, authoring.store(brush), authoring.store(context.scene))
+                size = resolved.value_owner._native.size_block()
+            position = (0, 0, 0)
+            if size.mode == 'SCENE':
+                origin, direction = stroke._ray_origin_dir(context, (x, y))
+                hit = stroke.raycast(session, origin, direction)
+                if hit is not None:
+                    position = hit[0]
+            scale = session.generic_runtime.cursor_scale if session.generic_runtime is not None else 1.0
+            radius = pixel_radius(context, size, position) * scale
+        except (PropertyError, ReferenceError, ValueError):
+            return
+    else:
+        radius = mapping.pixel_radius(sculpt, brush) * _size_scale
 
     try:
         import gpu

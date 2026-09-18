@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "checks": [
+    "fresh typed stack FLOAT32",
+    "fresh typed stack INT32",
+    "fresh typed stack BOOL",
+    "fresh Scene stack",
+    "fresh opaque sibling"
+  ]
+}

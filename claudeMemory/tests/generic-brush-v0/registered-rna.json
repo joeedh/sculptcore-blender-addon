@@ -1,0 +1,70 @@
+{
+  "mu": {
+    "default": 1.0,
+    "description": "",
+    "hard_max": 100.0,
+    "hard_min": 9.999999974752427e-07,
+    "readonly": false,
+    "soft_max": 100.0,
+    "soft_min": 9.999999974752427e-07,
+    "subtype": "NONE",
+    "type": "FLOAT",
+    "unit": "NONE"
+  },
+  "name": {
+    "default": "",
+    "description": "Unique name used in the code and scripting",
+    "readonly": false,
+    "subtype": "NONE",
+    "type": "STRING",
+    "unit": "NONE"
+  },
+  "nu": {
+    "default": 0.4000000059604645,
+    "description": "",
+    "hard_max": 0.49900001287460327,
+    "hard_min": 0.0,
+    "readonly": false,
+    "soft_max": 0.49900001287460327,
+    "soft_min": 0.0,
+    "subtype": "NONE",
+    "type": "FLOAT",
+    "unit": "NONE"
+  },
+  "nudgeProjection": {
+    "default": 1.0,
+    "description": "",
+    "hard_max": 1.0,
+    "hard_min": 0.0,
+    "readonly": false,
+    "soft_max": 1.0,
+    "soft_min": 0.0,
+    "subtype": "NONE",
+    "type": "FLOAT",
+    "unit": "NONE"
+  },
+  "planeSide": {
+    "default": 1.0,
+    "description": "",
+    "hard_max": 3.4028234663852886e+38,
+    "hard_min": -3.4028234663852886e+38,
+    "readonly": false,
+    "soft_max": 3.4028234663852886e+38,
+    "soft_min": -3.4028234663852886e+38,
+    "subtype": "NONE",
+    "type": "FLOAT",
+    "unit": "NONE"
+  },
+  "projection": {
+    "default": 0.0,
+    "description": "",
+    "hard_max": 3.4028234663852886e+38,
+    "hard_min": -3.4028234663852886e+38,
+    "readonly": false,
+    "soft_max": 3.4028234663852886e+38,
+    "soft_min": -3.4028234663852886e+38,
+    "subtype": "NONE",
+    "type": "FLOAT",
+    "unit": "NONE"
+  }
+}

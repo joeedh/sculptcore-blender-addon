@@ -1,0 +1,8 @@
+Blender 5.3.0 Alpha
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+00:05.953  blend            | Read blend: "C:\dev\blender\sculptcore-blender-addon\claudeMemory\tests\plan6-snapshots.blend"
+Info: Saved as "plan6-snapshots.blend"
+PLAN6_SNAPSHOTS_PASS 93
+
+Blender quit
+

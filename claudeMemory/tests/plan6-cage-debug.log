@@ -1,0 +1,61 @@
+
+Microsoft (R) Windows Debugger Version 10.0.22621.2428 AMD64
+Copyright (c) Microsoft Corporation. All rights reserved.
+
+CommandLine: C:\dev\blender\sculptcore-blender-addon\engine\build\native\tests\test_multires_attrs.cc_out.exe
+
+************* Path validation summary **************
+Response                         Time (ms)     Location
+OK                                             C:\dev\blender\sculptcore-blender-addon\engine\build\native
+Symbol search path is: C:\dev\blender\sculptcore-blender-addon\engine\build\native
+Executable search path is: 
+ModLoad: 00007ff6`3e400000 00007ff6`3e8ed000   test_multires_attrs.cc_out.exe
+ModLoad: 00007ff9`438a0000 00007ff9`43b07000   ntdll.dll
+ModLoad: 00007ff9`42250000 00007ff9`4231b000   C:\WINDOWS\System32\KERNEL32.DLL
+ModLoad: 00007ff9`40f10000 00007ff9`41312000   C:\WINDOWS\System32\KERNELBASE.dll
+ModLoad: 00007ff9`41320000 00007ff9`4146c000   C:\WINDOWS\System32\ucrtbase.dll
+ModLoad: 00007ff9`2b520000 00007ff9`2b5bd000   C:\WINDOWS\SYSTEM32\MSVCP140.dll
+ModLoad: 00007ff8`897e0000 00007ff8`89823000   C:\WINDOWS\SYSTEM32\MSVCP140_2.dll
+ModLoad: 00007ff9`2b4f0000 00007ff9`2b51c000   C:\WINDOWS\SYSTEM32\VCRUNTIME140.dll
+ModLoad: 00007ff9`3dd30000 00007ff9`3df7c000   C:\WINDOWS\SYSTEM32\dbghelp.dll
+ModLoad: 00007ff9`433d0000 00007ff9`43755000   C:\WINDOWS\System32\combase.dll
+ModLoad: 00007ff9`2b4e0000 00007ff9`2b4ec000   C:\WINDOWS\SYSTEM32\VCRUNTIME140_1.dll
+ModLoad: 00000189`6f650000 00000189`6f65c000   C:\WINDOWS\SYSTEM32\VCRUNTIME140_1.dll
+ModLoad: 00007ff9`415c0000 00007ff9`416d8000   C:\WINDOWS\System32\RPCRT4.dll
+ModLoad: 00007ff9`41870000 00007ff9`41949000   C:\WINDOWS\System32\OLEAUT32.dll
+ModLoad: 00007ff9`41510000 00007ff9`415b3000   C:\WINDOWS\System32\msvcp_win.dll
+(1d734.15bbc): Break instruction exception - code 80000003 (first chance)
+ntdll!RtlGetReturnAddressHijackTarget+0x749:
+00007ff9`439c2239 cc              int     3
+0:000> cdb: Reading initial command 'g; .ecxr; k; q'
+ModLoad: 00007ff9`3f730000 00007ff9`3f74b000   C:\WINDOWS\SYSTEM32\kernel.appcore.dll
+ModLoad: 00007ff9`42400000 00007ff9`424a9000   C:\WINDOWS\System32\msvcrt.dll
+(1d734.15bbc): Access violation - code c0000005 (first chance)
+First chance exceptions are reported before any exception handling.
+This exception may be expected and handled.
+Unable to get exception context, HRESULT 0x8000FFFF
+*** WARNING: Unable to verify checksum for test_multires_attrs.cc_out.exe
+Child-SP          RetAddr               Call Site
+(Inline Function) --------`--------     test_multires_attrs_cc_out!sculptcore::brush::LiveDiskNbr::range+0x41
+00000027`1f3503b0 00007ff6`3e552e60     test_multires_attrs_cc_out!sculptcore::brush::command::colorsmooth<sculptcore::brush::CommandExecutor,sculptcore::brush::LiveDiskNbr,sculptcore::brush::AccumLive>+0x23b
+(Inline Function) --------`--------     test_multires_attrs_cc_out!std::_Func_class<void,sculptcore::brush::CommandCtx<sculptcore::brush::CommandExecutor> &>::operator()+0x19
+00000027`1f3506a0 00007ff6`3e56ac0a     test_multires_attrs_cc_out!sculptcore::brush::CommandExecutor::exec+0x4040
+00000027`1f351050 00007ff6`3e50b68d     test_multires_attrs_cc_out!sculptcore::brush::CageSmoothSession::dabResolved+0xa8a
+00000027`1f3526b0 00007ff6`3e4fe9f4     test_multires_attrs_cc_out!gateCageColorSmooth+0xf4d
+00000027`1f35b300 00007ff6`3e7841ef     test_multires_attrs_cc_out!main+0x5e44
+(Inline Function) --------`--------     test_multires_attrs_cc_out!invoke_main+0x22
+00000027`1f35f930 00007ff9`4227cd87     test_multires_attrs_cc_out!__scrt_common_main_seh+0x10f
+00000027`1f35f970 00007ff9`4394caec     KERNEL32!BaseThreadInitThunk+0x17
+00000027`1f35f9a0 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+quit:
+NatVis script unloaded from 'C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\Visualizers\atlmfc.natvis'
+NatVis script unloaded from 'C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\Visualizers\ObjectiveC.natvis'
+NatVis script unloaded from 'C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\Visualizers\concurrency.natvis'
+NatVis script unloaded from 'C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\Visualizers\cpp_rest.natvis'
+NatVis script unloaded from 'C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\Visualizers\stl.natvis'
+NatVis script unloaded from 'C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Data.Json.natvis'
+NatVis script unloaded from 'C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Devices.Geolocation.natvis'
+NatVis script unloaded from 'C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Devices.Sensors.natvis'
+NatVis script unloaded from 'C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Media.natvis'
+NatVis script unloaded from 'C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\Visualizers\windows.natvis'
+NatVis script unloaded from 'C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\Visualizers\winrt.natvis'

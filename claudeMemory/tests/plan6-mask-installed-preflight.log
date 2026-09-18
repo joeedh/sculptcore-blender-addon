@@ -1,0 +1,25 @@
+Blender 5.3.0 Alpha
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+PLAN6_MASK_PREFLIGHT_PASS 42
+
+Blender quit
+
+SculptCore: rejected unsupported resolved capability (property status 4)
+SculptCore: rejected command[1].mask channel (property status 64)
+SculptCore: rejected command[1].mask channel (property status 64)
+SculptCore: rejected command[1].unsupported resolved capability (property status 4)
+SculptCore: rejected command[1].mask channel (property status 64)
+SculptCore: rejected command[1].mask channel (property status 64)
+SculptCore: rejected unsupported resolved capability (property status 4)
+SculptCore: rejected command[1].mask channel (property status 64)
+SculptCore: rejected command[1].mask channel (property status 64)
+SculptCore: rejected command[1].unsupported resolved capability (property status 4)
+SculptCore: rejected command[1].mask channel (property status 64)
+SculptCore: rejected command[1].mask channel (property status 64)
+SculptCore: rejected unsupported resolved capability (property status 4)
+SculptCore: rejected command[1].mask channel (property status 64)
+SculptCore: rejected command[1].mask channel (property status 64)
+SculptCore: rejected command[1].unsupported resolved capability (property status 4)
+SculptCore: rejected command[1].mask channel (property status 64)
+SculptCore: rejected command[1].mask channel (property status 64)
+SculptCore: rejected command[2].kernel (property status 2)

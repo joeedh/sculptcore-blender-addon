@@ -17,9 +17,8 @@ refuses cleanly rather than crashing.
 """
 
 # Engine constants for the device-dynamics seam (brush.h BrushProp ids,
-# prop_dynamics.h DeviceType, litestl mix.h BasicMix). The string-keyed
-# dynamics API is unreachable from Python (util::string args), so the stroke
-# operator configures pressure through these int-keyed ids.
+# prop_dynamics.h DeviceType, litestl mix.h BasicMix). Legacy pressure uses
+# the checked CommonProperties adapter with these fixed property IDs.
 PROP_STRENGTH = 0
 PROP_RADIUS = 1
 DEVICE_PRESSURE = 0
@@ -203,7 +202,6 @@ def pressure_prop_names(bl_brush):
 # SculptCore FalloffKind / FalloffShape enum values (brush.h).
 _FALLOFF_KIND_CURVE = 3
 _FALLOFF_SHAPE_SPHERICAL = 0
-_FALLOFF_CURVE_SIZE = 256
 
 
 # Closed-form preset falloffs, keyed by `curve_distance_falloff_preset`. `t`
@@ -223,63 +221,48 @@ _PRESET_FALLOFF = {
 }
 
 
-def _upload_lut(cache, key, values, setter):
-    """Push a baked 256-entry LUT to the engine, skipping it when the same
-    table was uploaded last time.
-
-    Every entry crosses the ctypes marshaller separately (~0.08 ms), so a
-    re-upload costs far more than the bake that produced it, and a stroke
-    almost never changes the curve. ``cache`` is the session's dict (None
-    disables the memo); the baked values themselves are the identity, so an
-    actual curve edit still re-uploads.
-    """
+def _upload_lut(cache, key, values, sc_brush):
+    """Keep immutable table installation scoped to a live target and lifecycle epoch."""
+    from .brush_properties import sampling
     values = tuple(values)
-    if cache is not None and cache.get(key) == values:
+    previous = cache.get(key) if cache is not None else None
+    if (previous is not None and previous[0] is sc_brush
+            and previous[1:] == (sampling.epoch, values)):
         return
-    for i, value in enumerate(values):
-        setter(i, value)
+    if len(values) != 256:
+        raise ValueError("Legacy falloff and cavity tables require exactly 256 entries")
+    from . import engine
+    from sculptcore.brush_properties import replace_fixed_curve
+    replace_fixed_curve(engine.manager(), sc_brush, key, values)
     if cache is not None:
-        cache[key] = values
+        cache[key] = (sc_brush, sampling.epoch, values)
+        cache['table_uploads'] = cache.get('table_uploads', 0) + 1
 
 
 def _bake_falloff(bl_brush, sc_brush, cache=None):
-    """Bake the Blender falloff (preset formula, or the editable curve for
-    CUSTOM) into the engine's 256-entry LUT, folding in `hardness`, so brush
-    feel matches Blender. `t` = 1 - normalized distance (the value the engine
-    feeds falloffEval); hardness remaps the distance before the falloff so the
-    inner `hardness` fraction reads full strength."""
-    fn = _PRESET_FALLOFF.get(bl_brush.curve_distance_falloff_preset)
-    if fn is None:  # CUSTOM: strength(p) = curve(1 - p), matching BKE.
-        cumap = bl_brush.curve_distance_falloff
-        cumap.update()
-        curve = cumap.curves[0]
-        def fn(p, _c=cumap, _cv=curve):
-            return _c.evaluate(_cv, 1.0 - p)
-
-    hardness = min(1.0, max(0.0, bl_brush.hardness))
-    n = _FALLOFF_CURVE_SIZE
-    lut = []
-    for i in range(n):
-        t = i / (n - 1)
-        d = 1.0 - t  # normalized distance
-        if hardness >= 1.0:
-            v = 1.0 if d < 1.0 else 0.0  # hard disc
-        elif hardness > 0.0:
-            v = 1.0 if d < hardness else fn(1.0 - (d - hardness) / (1.0 - hardness))
-        else:
-            v = fn(t)
-        lut.append(min(1.0, max(0.0, v)))
-    _upload_lut(cache, "falloff", lut, sc_brush.setFalloffCurveEntry)
+    from .brush_properties import sampling
+    from .brush_properties.responses import PreparedResponse, SampleConfig, sample
+    preset = bl_brush.curve_distance_falloff_preset
+    fn = _PRESET_FALLOFF.get(preset)
+    config = SampleConfig(reverse=fn is None, clamp_output=True,
+                          hardness=min(1.0, max(0.0, bl_brush.hardness)))
+    if fn is None:
+        response = sampling.native_response(bl_brush, 'curve_distance_falloff', config)
+    else:
+        key = ('LEGACY_FALLOFF', preset, config)
+        response = sampling.cache.get(key)
+        if response is None:
+            response = PreparedResponse('TABLE', sample(fn, config))
+            sampling.cache.bakes += 1
+            sampling.cache.put(key, response, config)
+    _upload_lut(cache, 'falloff', response.samples, sc_brush)
     sc_brush.falloff_kind = _FALLOFF_KIND_CURVE
-    # PROJECTED (2D view falloff) has no distinct engine metric yet; both use
-    # the spherical distance for now.
     sc_brush.falloff_shape = _FALLOFF_SHAPE_SPHERICAL
 
 
 # Cavity automasking. The engine mirrors Blender's estimator and remap
 # (automask.h, ported from `calc_cavity_factor`), so the mapping is a direct
 # field copy plus the optional custom curve baked into the engine's LUT.
-_CAVITY_CURVE_SIZE = 256
 
 
 def cavity_settings(bl_brush, paint):
@@ -316,12 +299,14 @@ def _apply_cavity(settings, sc_brush, cache=None):
         return
     # The engine samples the LUT in un-inverted space and inverts afterwards,
     # the same order Blender evaluates the curve in, so bake it as authored.
-    cumap = settings.cavity_curve
-    cumap.update()
-    curve = cumap.curves[0]
-    n = _CAVITY_CURVE_SIZE
-    lut = [min(1.0, max(0.0, cumap.evaluate(curve, i / (n - 1)))) for i in range(n)]
-    _upload_lut(cache, "cavity", lut, sc_brush.setCavityCurveEntry)
+    from .brush_properties import sampling
+    from .brush_properties.responses import SampleConfig
+    owner = settings.id_data
+    path = ('mesh_automasking_settings.cavity_curve' if owner.bl_rna.identifier == 'Brush'
+            else 'tool_settings.sculpt.mesh_automasking_settings.cavity_curve')
+    response = sampling.native_response(owner, path, SampleConfig(clamp_output=True))
+    _upload_lut(cache, 'cavity', response.samples, sc_brush)
+
 
 
 # Pen-pressure response curves. Blender maps tablet pressure to a strength /
@@ -329,18 +314,14 @@ def _apply_cavity(settings, sc_brush, cache=None):
 # CurveMappings (vanilla BKE_curvemapping_evaluateF(curve, 0, pressure)). The
 # engine mirrors this with a per-device response table (prop_dynamics.h
 # DynamicDevice.curveTable); the smooth brush folds pressure in Python-side, so
-# the same table is also sampled directly. Baked once per stroke, never per dab.
-_PRESSURE_CURVE_SIZE = 256
+# the same table is also sampled directly. Definitions synchronize at stroke
+# start; unchanged curves reuse immutable tables. No baking occurs per dab.
 
 
-def sample_pressure_curve(cumap):
-    """Sample a Blender pressure CurveMapping into a list mapping pressure
-    (0..1, in ``_PRESSURE_CURVE_SIZE`` steps) to a response factor, matching
-    vanilla's ``BKE_curvemapping_evaluateF(curve, 0, pressure)``."""
-    cumap.update()
-    curve = cumap.curves[0]
-    n = _PRESSURE_CURVE_SIZE
-    return [cumap.evaluate(curve, i / (n - 1)) for i in range(n)]
+def sample_pressure_curve(owner, path):
+    """Resolve native authority once at stroke start; unchanged definitions reuse samples."""
+    from .brush_properties.sampling import native_response
+    return native_response(owner, path).samples
 
 
 def eval_pressure_lut(lut, pressure):
@@ -358,35 +339,24 @@ def eval_pressure_lut(lut, pressure):
 
 def apply_pressure_dynamics(bl_brush, sc_brush, *, use_strength, use_size, cache=None):
     """Configure the engine's per-stroke pressure dynamics: a MULTIPLY device
-    layer per pressure-enabled channel, carrying the baked response curve from
-    the matching Brush CurveMapping. Runs once per stroke (the 256-sample bakes
-    are far too slow per dab); the stroke operator refills the device sample
+    layer per pressure-enabled channel, carrying the cached response curve from
+    the matching Brush CurveMapping. Runs once per stroke; the operator refills the device sample
     with the event pressure each dab. Passing both flags false — a smooth or
     grab-class stroke — clears both channels, so no stale dynamic survives.
 
     ``cache`` is the session's curve memo: a stroke asking for the configuration
     the engine already holds reuses it instead of re-marshalling 512 samples
     across the ctypes boundary."""
-    # addPropDynamic appends a device with an *identity* curve, so the samples
-    # can never be memoized on their own — the memo has to cover the whole
-    # clear/add/upload, i.e. skip it only when the engine already holds exactly
-    # this configuration.
-    want = (tuple(sample_pressure_curve(bl_brush.curve_strength)) if use_strength else None,
-            tuple(sample_pressure_curve(bl_brush.curve_size)) if use_size else None)
-    if cache is not None and cache.get("pressure") == want:
-        return
+    from . import engine
+    from .brush_properties.uploads import StackUploads
+    from sculptcore.brush_properties import CommonProperties, DeviceLayer
+    want = (sample_pressure_curve(bl_brush, 'curve_strength') if use_strength else None,
+            sample_pressure_curve(bl_brush, 'curve_size') if use_size else None)
+    memo = cache.setdefault('pressure_uploads', StackUploads()) if cache is not None else StackUploads()
+    stacks = tuple((prop, () if table is None else (DeviceLayer(DEVICE_PRESSURE, samples=table),))
+                   for prop, table in ((PROP_STRENGTH, want[0]), (PROP_RADIUS, want[1])))
+    memo.install(sc_brush, CommonProperties(engine.manager(), sc_brush), stacks, command='legacy-pressure')
 
-    sc_brush.clearPropDynamics(PROP_STRENGTH)
-    sc_brush.clearPropDynamics(PROP_RADIUS)
-    for prop_id, table in ((PROP_STRENGTH, want[0]), (PROP_RADIUS, want[1])):
-        if table is None:
-            continue
-        sc_brush.addPropDynamic(prop_id, DEVICE_PRESSURE, MIX_MULTIPLY, 1.0)
-        n = len(table)
-        for i, value in enumerate(table):
-            sc_brush.setPropDynamicSample(prop_id, DEVICE_PRESSURE, i, n, value)
-    if cache is not None:
-        cache["pressure"] = want
 
 
 # For UI / diagnostics: every mapped type (supported or not).
@@ -410,10 +380,9 @@ def kernel_enum(mgr, bl_brush):
 
 def apply_brush_settings(bl_brush, unified, sc_brush, *, paint=None, cache=None):
     """Configure the stroke-constant part of a SculptCore Brush from a
-    Blender Brush: the scalar settings, per-type extras, and the falloff /
-    cavity curve bakes. The bakes are 256 engine calls each (~3-5 ms), far
-    too slow for the per-dab path, and none of their inputs can change while
-    a stroke is running — so this runs once at stroke start and
+    Blender Brush: scalar settings, per-type extras, and cached falloff/cavity
+    tables. Changed tables upload in bulk; their inputs stay fixed while
+    a stroke is running, so this runs once at stroke start and
     ``apply_dab_state`` writes the per-dab values on top.
 
     ``unified`` is the per-Paint ``UnifiedPaintSettings`` (may be None).
@@ -445,9 +414,10 @@ def apply_brush_settings(bl_brush, unified, sc_brush, *, paint=None, cache=None)
     # after the mapping so table-driven fields keep authority.
     from . import engine_props
     engine_props.apply(bl_brush, sc_brush)
+    sc_brush.writeProps()
 
 
-def overlap_attenuation(bl_brush):
+def overlap_attenuation(bl_brush, cache=None):
     """Vanilla's "Adjust Strength for Spacing"
     (#paint_stroke_integrate_overlap): normalize the strength by the
     worst-case sum of overlapping falloff dabs along the stroke line,
@@ -466,6 +436,13 @@ def overlap_attenuation(bl_brush):
         return 1.0
     if is_grab_class(bl_brush) or is_snake_hook(bl_brush):
         return 1.0
+    from .brush_properties import sampling
+    preset = bl_brush.curve_distance_falloff_preset
+    source = (bl_brush.authoring_native_curve_key('curve_distance_falloff') if preset == 'CUSTOM' else preset)
+    key = (sampling.epoch, source, bl_brush.spacing)
+    previous = cache.get('overlap') if cache is not None else None
+    if previous is not None and previous[0] == key:
+        return previous[1]
     fn = _PRESET_FALLOFF.get(bl_brush.curve_distance_falloff_preset)
     if fn is None:  # CUSTOM: strength(p) = curve(1 - p), matching BKE.
         cumap = bl_brush.curve_distance_falloff
@@ -487,7 +464,11 @@ def overlap_attenuation(bl_brush):
             if xx < 1.0:
                 total += fn(1.0 - xx)
         peak = max(peak, abs(total))
-    return 1.0 / peak if peak > 0.0 else 1.0
+    result = 1.0 / peak if peak > 0.0 else 1.0
+    if cache is not None:
+        cache['overlap'] = (key, result)
+        cache['overlap_bakes'] = cache.get('overlap_bakes', 0) + 1
+    return result
 
 
 def pixel_radius(sculpt, bl_brush):
@@ -553,8 +534,7 @@ def apply_dab_state(bl_brush, unified, sc_brush, *, world_radius, invert,
     else:
         sc_brush.invert = False
 
-    # writeProps() bakes the scalar fields into the kernel's uniform block.
-    sc_brush.writeProps()
+    sc_brush.writeDabProps()
 
 
 def apply_brush(bl_brush, unified, sc_brush, *, world_radius, invert, paint=None):

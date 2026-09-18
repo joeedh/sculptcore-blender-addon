@@ -1,0 +1,8 @@
+[1/4] Building CXX object source\blender\python\intern\CMakeFiles\bf_python.dir\bpy_rna_idprops.cc.obj
+bpy_rna_idprops.cc
+[2/4] Linking CXX static library lib\bf_python.lib
+[3/4] Linking CXX executable bin\blender.exe; Stripping PDB file...
+Run: "ninja install" to copy runtime files and scripts to: C:/dev/blender/build_windows_x64_clang_RelWithDebInfo/bin/5.3
+[3/4] Install the project...
+-- Install configuration: "Release"
+-- Installing: C:/dev/blender/build_windows_x64_clang_RelWithDebInfo/bin/./blender.pdb

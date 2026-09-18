@@ -6,20 +6,20 @@
 Generated engine-only brush properties (brush-mapping M2).
 
 At registration the per-kernel uniform manifest is walked (through a
-throwaway engine mesh/tree/brush/executor) and every engine-only float
-uniform becomes a ``FloatProperty`` on ``Brush.sculptcore`` — name, default
+throwaway engine mesh/tree/brush/executor) and engine-only float, integer and
+boolean uniforms become typed properties on ``Brush.sculptcore`` — name, default
 and range straight from the manifest. The group serializes with the Brush
-datablock (asset-compatible). ``mapping.apply_brush`` copies the active
-kernel's generated values into the engine brush fields each dab, and the
-N-panel draws them in an "Engine" section (M3).
+datablock (asset-compatible). The mapper copies the active kernel's values
+into native fields and typed slots at stroke setup. The N-panel draws them
+in an "Engine" section (M3).
 
 Uniforms the Blender mapping already drives (the common scalar props and the
-per-type extras) are excluded, as are non-float uniforms and manifest names
-with no bound engine-brush field (the plain ``execBrush`` path reads fields,
-not props).
+per-type extras) are excluded. Typed extra slots and native fields retain their
+storage types; supported dynamic values enter authored storage at stroke start.
 """
 
 import bpy
+import math
 
 from . import engine, mapping
 
@@ -33,6 +33,7 @@ _kernel_props = {}
 # uniforms with no Brush member; written via setNamedFloat, not setattr).
 # Slots are per-build — always taken from the loaded DLL's manifest.
 _store_slots = {}
+_scalar_types = {}
 
 
 def props_for_type(sculpt_brush_type):
@@ -55,14 +56,34 @@ def apply(bl_brush, sc_brush):
     for name in names:
         slot = _store_slots.get(name, -1)
         if slot >= 0:
-            sc_brush.setNamedFloat(slot, getattr(group, name))
+            suffix = {0: "Float", 4: "Int", 10: "Bool"}[_scalar_types[name]]
+            getattr(sc_brush, "setNamed" + suffix)(slot, getattr(group, name))
         else:
             setattr(sc_brush, name, getattr(group, name))
 
 
+def sync_authored(session, executor, kernel):
+    """Seed active dynamic uniforms from the authoritative values just mapped by the host."""
+    from sculptcore.brush_properties import UniformProperties, FLOAT32, INT32, BOOL
+    access = UniformProperties(engine.manager(), executor, int(kernel))
+    for uniform in access.uniforms:
+        if not uniform.dynamic or uniform.name in {"strength", "radius", "spacing", "planeoff", "autosmooth", "invert"}:
+            continue
+        if uniform.scalar_type not in {FLOAT32, INT32, BOOL}:
+            continue
+        slot = _store_slots.get(uniform.name, -1)
+        if slot >= 0:
+            suffix = {FLOAT32: "Float", INT32: "Int", BOOL: "Bool"}[uniform.scalar_type]
+            value = getattr(session.brush_obj, "getNamed" + suffix)(slot)
+        else:
+            value = getattr(session.brush_obj, uniform.name)
+        if access.read(uniform.index) != value:
+            access.write(uniform.index, value)
+
+
 def _walk_manifests():
     """Per-kernel engine-only float uniforms via a throwaway executor:
-    {kernel_name: [(name, default, has_range, min, max)]}."""
+    {kernel_name: [(name, default, has_range, min, max, slot, scalar_type)]}."""
     import numpy as np
 
     lib = engine.capi().lib
@@ -83,8 +104,11 @@ def _walk_manifests():
     # The reflected `name` member is a litestl string wrapper; read its
     # contents through the runtime's string reader.
     from sculptcore._descriptors import read_litestl_string
+    from .brush_properties import authoring
+    from .brush_properties.legacy import ASSOCIATIONS
 
     manifests = {}
+    contracts = []
     try:
         items = mgr.get("sculptcore::brush::SculptBrushes").items
         for kernel_name in sorted(set(mapping.KERNEL_BY_TYPE.values())):
@@ -96,12 +120,18 @@ def _walk_manifests():
                       "skipping its props".format(kernel_name))
                 continue
             count = executor.queryUniformManifest(int(enum_value))
+            if count < 0:
+                raise RuntimeError("Uniform declaration registration failed for kernel {!r}".format(kernel_name))
             entries = []
             for i in range(count):
                 entry = executor.queriedUniformEntry(i)
-                if entry is None or not entry.isFloat:
+                if entry is None or int(entry.scalarType) not in {0, 4, 10}:
                     continue
                 name = read_litestl_string(entry.name.ptr)
+                for identifier, association in ASSOCIATIONS.items():
+                    if association == (kernel_name, name):
+                        contracts.append((identifier, {0: 'FLOAT32', 4: 'INT32', 10: 'BOOL'}[int(entry.scalarType)],
+                                          bool(entry.dynamic)))
                 # storeSlot >= 0: an extra-kernel uniform living in the
                 # Brush.namedFloats store (no member). getattr(entry, ...)
                 # tolerates a pre-wave-2 DLL without the field.
@@ -114,11 +144,13 @@ def _walk_manifests():
                 # in the DSL — a generated 0 would break the plane family).
                 # Store slots were just default-seeded by the manifest query's
                 # command creation, so the same read works for them.
-                default = (brush.getNamedFloat(slot) if slot >= 0
-                           else float(getattr(brush, name)))
+                scalar_type = int(entry.scalarType)
+                suffix = {0: "Float", 4: "Int", 10: "Bool"}[scalar_type]
+                default = (getattr(brush, "getNamed" + suffix)(slot) if slot >= 0
+                           else getattr(brush, name))
                 entries.append((name, default,
                                 bool(entry.hasRange),
-                                float(entry.rangeMin), float(entry.rangeMax), slot))
+                                float(entry.rangeMin), float(entry.rangeMax), slot, scalar_type))
             if entries:
                 manifests[kernel_name] = entries
     finally:
@@ -126,6 +158,9 @@ def _walk_manifests():
         brush.dispose()
         lib.SpatialTree_free(tree_ptr)
         lib.freeMesh(mesh_ptr)
+    required = ('SemanticScalars_create', 'SemanticScalars_evaluate',
+                'SemanticScalars_replaceDynamics', 'SemanticScalars_add')
+    authoring.refresh_manifest(contracts, execution_ready=all(hasattr(lib, name) for name in required))
     return manifests
 
 
@@ -146,18 +181,25 @@ def register():
     union = {}
     for kernel_name, entries in sorted(manifests.items()):
         names = []
-        for name, default, has_range, range_min, range_max, store_slot in entries:
+        for name, default, has_range, range_min, range_max, store_slot, scalar_type in entries:
             names.append(name)
+            if name in _scalar_types and _scalar_types[name] != scalar_type:
+                raise RuntimeError("Conflicting scalar types for " + name)
+            _scalar_types[name] = scalar_type
             if store_slot >= 0:
                 _store_slots[name] = store_slot
             if name in union and (union[name] or not has_range):
                 continue
             union[name] = has_range
             kwargs = {"name": name, "default": default}
-            if has_range:
-                kwargs["min"] = range_min
-                kwargs["max"] = range_max
-            annotations[name] = bpy.props.FloatProperty(**kwargs)
+            if scalar_type == 10:
+                annotations[name] = bpy.props.BoolProperty(**kwargs)
+            else:
+                if has_range:
+                    kwargs["min"] = math.ceil(range_min) if scalar_type == 4 else range_min
+                    kwargs["max"] = math.floor(range_max) if scalar_type == 4 else range_max
+                factory = bpy.props.IntProperty if scalar_type == 4 else bpy.props.FloatProperty
+                annotations[name] = factory(**kwargs)
         _kernel_props[kernel_name] = tuple(names)
 
     if not annotations:
@@ -172,8 +214,11 @@ def register():
 
 def unregister():
     global _group_cls
+    from .brush_properties import authoring
+    authoring.refresh_manifest(())
     _kernel_props.clear()
     _store_slots.clear()
+    _scalar_types.clear()
     if _group_cls is None:
         return
     if hasattr(bpy.types.Brush, "sculptcore"):

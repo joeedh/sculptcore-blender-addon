@@ -1,0 +1,15 @@
+{
+  "suite": "test_sbrush_attr_writes",
+  "command": [
+    "C:\\Program Files\\nodejs\\node.EXE",
+    "make.mjs",
+    "test",
+    "test_sbrush_attr_writes"
+  ],
+  "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_sbrush_attr_writes.cc_out.exe",
+  "returncode": 0,
+  "passed": true,
+  "binary_sha256": "582783053fc5e261f009152e9359df1fc118b7b2b25c10d50cf97bd2475b2cf7",
+  "stdout": "",
+  "stderr": ""
+}

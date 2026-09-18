@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "checks": [
+    "reads and identical writes keep both assets clean",
+    "rejected duplicate leaves both clean",
+    "inactive stack edit dirties only actual owner",
+    "stack publication preserves owned curve runtime key",
+    "Revert restores saved disabled generated stack",
+    "Revert retires old stack store",
+    "Scene stack write keeps both assets clean",
+    "late transaction failure preserves root and clean assets"
+  ]
+}

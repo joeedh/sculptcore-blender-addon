@@ -1,0 +1,3287 @@
+Reading additional input from stdin...
+OpenAI Codex v0.154.0-alpha.6.2
+--------
+workdir: C:\dev\blender\sculptcore-blender-addon
+model: gpt-6-astra
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 01a0b444-c867-7d53-92aa-df6fa0761bd5
+--------
+user
+Fresh adversarial review of claudeMemory/plans/generic-brush-execution-domains.md.
+Your independent lens is integration. For numerics, try to kill FLOAT32/FLOAT64 parity,
+typed ranges, overflow, interpolation and actual native verification. For integration,
+try to kill semantic/native domains, spacing/snake/strength conversion order, the
+special projected SIZE boundary, independent owners and the real acceptance gates.
+All relevant source follows with line numbers. Use only supplied source. No tools,
+commands, edits, builds or delegation. Report concrete blockers and corrections with
+citations, or explicitly no blockers. This is the evaluator prerequisite, not full
+modal adoption. Do not claim missing out-of-scope integration is a blocker unless
+the proposed boundary itself prevents correct subsequent integration. The main
+agent is already running the required multiple independent reviews.
+
+<stdin>
+SOURCE FILE: AGENTS.md
+1: Read the contents of CLAUDE.md
+SOURCE FILE: CLAUDE.md
+1: # CLAUDE.md — SculptCore Blender Addon
+2: 
+3: Guidance for working in this repository.
+4: 
+5: ## Debugging
+6: 
+7: - **Maintain a running debugging guide/lessons-learned in claudeMemory/debugging.md**
+8: 
+9: ## What this repo is
+10: 
+11: The **SculptCore sculpt mode** for Blender, shipped as an addon. It registers
+12: a first-class object mode (`bpy.types.ObjectModeType`, `bl_idname
+13: "sculptcore.sculpt"`) with real enter/exit lifecycle, wrapped undo, and an
+14: external draw path — all on top of the custom-mode API that a companion
+15: Blender fork provides. The sculpting itself runs in the native **SculptCore
+16: engine**, loaded at runtime through a ctypes package that wraps
+17: `sculptcore_capi.dll`.
+18: 
+19: ### Three-repo topology
+20: 
+21: This addon is one of three coupled repositories:
+22: 
+23: - **Blender fork** — branch `custom-object-modes` (in the sibling Blender
+24:   checkout, e.g. `C:\dev\blender\main`). Carries only the engine-agnostic core
+25:   changes that make Python-registered custom object modes possible:
+26:   `OB_MODE_CUSTOM`, the `bpy.types.ObjectModeType` RNA type, custom-mode undo,
+27:   the external draw provider hooks, the multires reshape API,
+28:   `Object.custom_mode_state` (a counter a custom mode bumps when it rebuilds
+29:   its live state from the object's data, so it can tell an undo step whose
+30:   data it already mirrors from one whose data it does not — see
+31:   `sculptcore_addon/handlers.py::_resync_foreign_states`),
+32:   `Object.multires_grid_vert_indices` (which grid sample is which subdivided
+33:   vertex — the pairing every reshape walk computes internally and none exposed;
+34:   see [claudeMemory/research/grid-correspondence.md](./claudeMemory/research/grid-correspondence.md)),
+35:   and `Mesh.vertex_group_data_get`/`_set` (bulk CSR read/write of the whole
+36:   `MDeformVert` table — the addon's vertex-group bridge would otherwise be a
+37:   Python loop over every vertex and influence), the vetoable
+38:   `bpy.app.handlers.quit_pre` callback (a handler returning true cancels the
+39:   quit — the only hook that runs while a quit can still be stopped) and
+40:   `bpy.ops.brush.asset_save_all()` (every other brush-asset operator saves the
+41:   *active* brush only). It knows nothing about SculptCore. A stock Blender without these changes cannot load this addon's
+42:   mode.
+43: - **This repo** (`sculptcore-blender-addon`) — the addon Python
+44:   (`sculptcore_addon/`) plus the engine as a submodule (`engine/`) and the
+45:   build tooling that ties them to a Blender build.
+46: - **Engine** (`engine/`, submodule → `joeedh/sculptcore.git`) — the C++
+47:   sculpting engine. Built and documented on its own; see
+48:   [engine/CLAUDE.md](./engine/CLAUDE.md).
+49: 
+50: ## Layout
+51: 
+52: ```
+53: sculptcore_addon/        The addon package Blender loads (bl_info; registers the mode).
+54:   __init__.py            SculptCoreMode(ObjectModeType) + register()/unregister().
+55:   engine.py              Single load point for the `sculptcore` ctypes package + DLL.
+56:   convert.py             Mesh <-> engine conversion (enter/exit/flush/refresh).
+57:   stroke.py, ops.py ...  Stroke operator, brush mapping, gestures, undo, UI, keymap.
+58:   texture.py             Brush-texture bridge: 2D bakes, runtime .stex programs, samplers.
+59:   stex/                  Texture scripts the engine compiles at runtime (clouds.stex);
+60:                          3D-mapped procedurals route here instead of the 2D bake.
+61:                          See engine/documentation/textureScripts.md.
+62:   lib/                   Vendored engine runtime (ctypes pkg + DLLs). Build product; gitignored.
+63: brush_save_reminder/     A second, standalone addon (shares nothing with the above): warns on
+64:                          quit about brush assets with unsaved changes, which neither the file
+65:                          save nor Blender's own quit prompt covers. Needs two fork additions —
+66:                          `bpy.app.handlers.quit_pre` and `bpy.ops.brush.asset_save_all()`.
+67:                          See brush_save_reminder/README.md.
+68: brushes/                 Addon-authored .sbrush kernels compiled into the DLL at build
+69:                          time (engine "extra kernel dirs"); see brushes/README.md.
+70: engine/                  SculptCore engine (git submodule). Builds sculptcore_capi.dll.
+71: tools/                   build-blender-dist.mjs  build Blender locally, stage the addon (below).
+72:                          fetch-blender-dist.mjs  the same, from CI artifacts instead of a build.
+73:                          verify_addon.py         headless "did it come up enabled?" check.
+74:                          smoke_test_package.py   headless "does its engine load?" check.
+75:                          record-release.mjs      builds-repo manifest + RELEASES.md index.
+76: .github/workflows/       Packaging CI (build-packages.yml) + the package smoke test
+77:                          (smoke-test-packages.yml) — see below.
+78: claudeMemory/            Claude's plans, research, and validated reference notes for THIS repo.
+79: ```
+80: 
+81: ## How the engine reaches the addon
+82: 
+83: The addon does **not** compile into `blender.exe`. A change to the C++ engine
+84: (`engine/source/**`) reaches Blender by **rebuilding the DLL and re-vendoring**
+85: it into `sculptcore_addon/lib/`; a change to the addon Python needs nothing
+86: rebuilt. Build the DLL with the engine's own dispatcher (run inside `engine/`):
+87: 
+88: ```
+89: cd engine
+90: node make.mjs build python     # builds sculptcore_capi.dll + wgpu_native.dll under engine/build/python/
+91: ```
+92: 
+93: Then the runtime (the `sculptcore` ctypes package + those DLLs) is vendored
+94: into `sculptcore_addon/lib/sculptcore/`. The build/install helper (below)
+95: performs this vendoring against a Blender install tree; see
+96: `engine/CLAUDE.md` for the engine's own `make.mjs bundle` target.
+97: 
+98: **Discovery** (see `sculptcore_addon/engine.py` and the package's `_capi.py`):
+99: - The `sculptcore` package is found via, in order: an already-importable
+100:   `sculptcore`; `$SCULPTCORE_PYTHON_PATH` (a dev checkout, which wins); or the
+101:   vendored `sculptcore_addon/lib/sculptcore/`.
+102: - The DLL is found via, in order: `$SCULPTCORE_CAPI_PATH`; a copy beside the
+103:   package (the vendored case; `wgpu_native.dll` resolves via
+104:   `add_dll_directory` on that directory); or `engine/build/python/`.
+105: 
+106: To iterate on the engine without touching the vendored copy:
+107: 
+108: ```
+109: $env:SCULPTCORE_PYTHON_PATH = "C:\dev\blender\sculptcore-blender-addon\engine\python"
+110: $env:PATH = "C:\dev\blender\sculptcore-blender-addon\engine\build\python;$env:PATH"
+111: ```
+112: 
+113: `engine.py`'s `init()` refuses an ABI-mismatched DLL; on any load failure the
+114: addon reports it to the system console (Window → Toggle System Console).
+115: 
+116: ## The build/install helper (`tools/build-blender-dist.mjs`)
+117: 
+118: One command assembles a runnable Blender with the sculpt mode bundled and
+119: **enabled by default**:
+120: 
+121: ```
+122: node tools/build-blender-dist.mjs [--build-dir DIR] [--dist DIR] [--config CFG]
+123:                                   [--skip-blender] [--skip-engine] [--run]
+124: ```
+125: 
+126: The chain (`node tools/build-blender-dist.mjs --help` for the full option list):
+127: 
+128: 1. Build the Blender fork's `install` target (its Windows `bin/` tree is a
+129:    portable Blender). Skipped with `--skip-blender`. The build tree is
+130:    autodetected as `../build_*_<config>` beside the fork (`../main`), or passed
+131:    with `--build-dir`.
+132: 2. Pick the install folder: a clean mirror at `--dist DIR`, or the build's
+133:    `bin/` in place (default, fast for dev).
+134: 3. Copy `sculptcore_addon/` and `brush_save_reminder/` into
+135:    `<install>/<ver>/scripts/addons_core/` (fresh; `lib/` excluded). Blender 5.x only scans `scripts/addons_core` in an install
+136:    tree, not the legacy `scripts/addons`.
+137: 4. Vendor the engine runtime into the addon's `lib/` via the engine's own
+138:    `node make.mjs bundle <lib> ` (builds the DLL too; `--skip-engine` restages
+139:    existing outputs only).
+140: 5. Write `<install>/<ver>/scripts/addons_core/.always_enable` (one module name
+141:    per line — both addons) so the mode is on at startup, then verify it headlessly
+142:    (`--background --factory-startup --python tools/verify_addon.py`).
+143: 
+144:    **Enabled-by-default without owning the user config.** The fork's
+145:    `scripts/modules/addon_utils.py` reads `.always_enable` from each add-on
+146:    directory in `_initialize_once()` and folds those names into
+147:    `_addons_hidden_core`, which is enabled with `default_set=False` (never
+148:    written to `preferences.addons`, so no `userpref.blend` is touched) and
+149:    `persistent=True` (`check()` then reports it as enabled-by-default, so
+150:    `reset_all()` will not unload it on a preferences reload). Timing matters:
+151:    this runs in `load_scripts_extensions()`, *outside* the `RestrictBlend` block
+152:    that `scripts/startup` modules register under — the addon's
+153:    `keymap.register()` needs a live `bpy.context.window_manager`. Being
+154:    hidden-core also means the addon does not appear in the Add-ons list and is
+155:    exempt from per-workspace add-on filtering. It is enabled under
+156:    `--factory-startup` too, which is what makes the verify pass meaningful.
+157: 
+158:    The install therefore ships **no user config**: it reads and writes the
+159:    machine's global Blender config like any other install. Do not create a
+160:    directory named `portable` beside the executable — Blender 5.x treats that
+161:    alone as the portable marker (`get_path_user_ex()` in `appdir.cc`) and
+162:    redirects *all* user resources under `<base>/portable/<folder>`, which is
+163:    exactly what this no longer wants. `build-blender-dist.mjs` deletes a stale
+164:    one left by earlier revisions when staging in place.
+165: 
+166: The fork's side of this is engine-agnostic (it names no add-on); the
+167: `.always_enable` marker and the vendored `lib/` are build products, never
+168: committed. For tight engine iteration without a full restage, use the env-var
+169: flow above pointed at a Blender fork build.
+170: 
+171: Prerequisites for step 4 are the engine's own (Node + CMake + toolchain; see
+172: `engine/CLAUDE.md`). The script has no npm dependencies.
+173: 
+174: ## Packaging CI (`.github/workflows/build-packages.yml`)
+175: 
+176: The shippable, downloadable builds. Manual dispatch only. One matrix job per
+177: target OS (ubuntu / macos-arm64 / windows), and each job **is** the target OS,
+178: so `tools/fetch-blender-dist.mjs` takes its host path — extract, stage, mark
+179: always-enabled, and verify by actually running Blender — and the final
+180: tar.gz/zip is packed natively, preserving exec bits and symlinks.
+181: 
+182: **It is the second of two workflows.** The fork's own `build.yml` (manual
+183: dispatch on `custom-object-modes`, ~2.5 h) builds all three platforms and uploads
+184: `blender-install-<OS>`; on Linux/macOS that is a single *uncompressed* tar,
+185: because the artifact store re-zips everything and a zip carries no exec bits or
+186: symlinks. Run it first whenever the fork moved, then dispatch packaging with
+187: `blender_run` set to that run id — left blank it takes the latest successful run
+188: on `blender_branch`, which may predate the fork change being packaged. A fork
+189: build without the `.always_enable` support fails packaging at the verify step
+190: rather than shipping a Blender whose sculpt mode never turns on. The other
+191: dispatch inputs are `config` (engine build config), `tag` (default
+192: `build-<UTC date>-<short sha>`) and `prerelease`.
+193: 
+194: Per job:
+195: 
+196: 1. Build the engine libs here, with `node make.mjs bundle ci-staging
+197:    --kernels-extra ../brushes`. This is why packaging can't live in the engine
+198:    repo: only this repo has the addon's `.sbrush` kernels, and libs built
+199:    without them make the addon report `kernel 'NUDGE' missing from engine enum`.
+200: 
+201:    `--publish-deps-to staged-deps` also exports any *freshly compiled* native
+202:    deps combo (OpenBLAS + SuiteSparse/CHOLMOD) as a `deps-<label>-<config>`
+203:    artifact — a cold deps cache dominates this job's runtime, so the combo is
+204:    worth keeping. Nothing is pushed from the runner: feed the artifact to the
+205:    engine's `tools/publish-deps-from-package.mjs --commit --push` to land it in
+206:    `joeedh/sculptcore-deps` (the libs go through git-LFS, so publish from a
+207:    machine that has it). Combos are keyed
+208:    `{platform}/clang-<major>-<arch>/{config}` and only hit on a matching
+209:    toolchain — a runner image that bumps clang's major version misses and
+210:    re-exports. Worth doing promptly: a warm cache is the difference between a
+211:    ~2 h job and a ~7 min one.
+212: 2. `fetch-blender-dist.mjs --blender-repo joeedh/blender --engine-libs enginelibs`
+213:    — the two CI-only flags. `--engine-libs` also bypasses the ABI pin, which is
+214:    safe here because the libs were just built from the same submodule commit
+215:    whose ctypes package gets vendored.
+216: 
+217:    Vendoring also **relinks the engine libs** (`fixLibLinkage()`). The prebuilt
+218:    `wgpu_native` has no SONAME, so on Linux `libsculptcore_capi.so` records the
+219:    build machine's *absolute path* to it as `DT_NEEDED` — unresolvable anywhere
+220:    else, no matter that the lib is colocated. `patchelf` (hence its apt entry)
+221:    sets a SONAME, rewrites the `NEEDED`, and sets `$ORIGIN` as the rpath. macOS
+222:    is the same bug in milder form — the install name is already `@rpath`-relative
+223:    but the only `LC_RPATH` is the runner's `extern/wgpu_native/lib` — fixed with
+224:    `install_name_tool` (`-delete_rpath` / `-add_rpath @loader_path`) plus an
+225:    ad-hoc `codesign`, since editing load commands voids the signature.
+226: 
+227:    Windows needs no *relinking* — PE resolves imports by bare name, and ctypes
+228:    loads the capi with `LOAD_WITH_ALTERED_SEARCH_PATH`, so the DLL's own
+229:    directory wins over System32 — but it does need the dependencies to be
+230:    present. The engine is a clang build and imports `libomp140.x86_64.dll`,
+231:    which ships with Visual Studio / LLVM and *not* with the VC++
+232:    redistributable, so it resolved out of System32 on the builder and was
+233:    missing from every package until `tools/lib/windows-deps.mjs` landed: it
+234:    parses the PE import table (no `dumpbin` on a runner), copies in every
+235:    non-system import — following the copies, which have imports of their own —
+236:    and fails the build if one cannot be found. `build-blender-dist.mjs` runs it
+237:    too, so a dev install is as self-contained as a package.
+238: 
+239:    None of this shows up on a dev box, where the recorded build paths and the
+240:    toolchain runtimes exist — which is what the package smoke test (below) is
+241:    for.
+242: 3. Pack, having first renamed `dist/<os>` to the package name, so the archive
+243:    holds a single top-level `sculptblender-<tag>-<platform>/` directory —
+244:    extracting one must not scatter ~1.5 GB across the user's current directory.
+245: 
+246:    The archive **file**, unlike that directory, carries no tag:
+247:    `sculptblender-<platform>.(tar.gz|zip)`. GitHub's only stable-download URL is
+248:    `/releases/latest/download/<asset name>`, which matches by exact name, so a
+249:    tagged file name can never be linked to; the tag stays on the inner
+250:    directory, where it still keeps two extracted builds from colliding and
+251:    remains visible after unpacking. The same rule is why `prerelease` defaults
+252:    to **false** — GitHub's "latest" skips pre-releases entirely, and while every
+253:    release was one, `/releases/latest` 302'd to the plain releases list.
+254: 4. Upload straight into a draft release on `joeedh/sculptblender-builds`
+255:    (created by the `prepare` job, un-drafted by `finalize`), so a ~1.5 GB
+256:    package crosses the wire once instead of twice through the artifact store.
+257: 
+258: `finalize` also runs `tools/record-release.mjs` against a clone of the builds
+259: repo: binaries stay release assets, and git gets only `releases/<tag>.json` plus
+260: a regenerated `RELEASES.md`. The index orders on each manifest's `created_at`
+261: timestamp — several builds land on one day, and ordering by date alone fell
+262: through to the tag's sha suffix, i.e. alphabetical noise. `--reindex`
+263: regenerates `RELEASES.md` from the manifests already on disk, which is how the
+264: published index gets repaired without waiting for the next build.
+265: 
+266: `RELEASES.md` leads with a **Latest build** table of `/releases/latest/download/`
+267: links, but only when a manifest on disk actually satisfies both halves of that
+268: contract — not a pre-release, and carrying assets under the tag-free names.
+269: Releases predating the rename fail the second test, so the section stays absent
+270: rather than publishing links that 404.
+271: 
+272: ## Package smoke test (`.github/workflows/smoke-test-packages.yml`)
+273: 
+274: Packaging verifies the tree it assembles **on the machine that just built the
+275: engine libraries** — where every build path still exists, every toolchain
+276: runtime is installed, and nothing has been through a pack/unpack round trip. So
+277: it structurally cannot catch a mis-linked library, a lost exec bit, or a
+278: dependency satisfied from the builder. This workflow closes that gap: it takes
+279: the most recent published release from `joeedh/sculptblender-builds` (or a
+280: dispatched `tag`), unpacks it on a clean runner of the target OS, and launches
+281: Blender against `tools/verify_addon.py` (enabled?) and
+282: `tools/smoke_test_package.py` (does the engine load, and from where?).
+283: 
+284: A third step, `tools/verify_texture_parity.py`, grades the shipped `.stex`
+285: texture programs against Blender's own texture evaluation — the only job where a
+286: Blender and the engine coexist, and the copy it grades is the one users get. It
+287: also covers what the other two cannot see: a `.stex` that ships in the archive
+288: but no longer compiles against the vendored DLL.
+289: 
+290: Triggered manually, and automatically on a successful **Build packages** run
+291: (`workflow_run`) — packaging un-drafts the release in its `finalize` job, so by
+292: then the assets are the "most recent".
+293: 
+294: **It installs nothing an ordinary user would not already have**, and that
+295: constraint is the point: a compiler, patchelf, git-lfs or an OpenMP runtime on
+296: the test machine would let a package that only loads on a build machine pass.
+297: The one exception is the standard X11/GL runtime any Linux desktop carries
+298: (Blender links it even under `--background`); a bare CI container has *less*
+299: than a user's machine, not more. Unpacking uses only OS-provided tools —
+300: including Windows' own `System32\tar.exe`, since the Git bash on PATH there
+301: ships GNU tar, which cannot read a zip.
+302: 
+303: `smoke_test_package.py` asserts provenance, not just success: the `sculptcore`
+304: ctypes package and every engine shared library the *process actually mapped*
+305: (read from `/proc/self/maps`, `_dyld_get_image_name`, or `EnumProcessModules`)
+306: must resolve inside the add-on's vendored `lib/sculptcore/`. A system copy
+307: quietly satisfying the load fails the job instead of hiding in it. It also
+308: requires `Brush.sculptcore` to exist (proving the engine was live during the
+309: add-on's own registration — `engine_props.register()`'s failure path is a
+310: `print`, not an exception), every kernel in `mapping.KERNEL_BY_TYPE` to be in
+311: the engine enum (how libs built without `--kernels-extra ../brushes` show up),
+312: and a one-triangle mesh to round-trip through the c-api. Both scripts are
+313: launched with `--python-exit-code 1`: without it Blender prints an unhandled
+314: exception and still exits 0.
+315: 
+316: The builds repo's `Readme.MD` is the user-facing install doc (nothing regenerates
+317: it) — it describes the archive layout, the always-enabled add-on and the global
+318: config, so a change to any of those means editing it by hand.
+319: 
+320: Needs the repo secret **`BUILDS_TOKEN`** — a PAT with `actions:read` on
+321: `joeedh/blender` (the default `GITHUB_TOKEN` is repo-scoped and cannot download
+322: the fork's artifacts) and `contents:write` on `joeedh/sculptblender-builds`.
+323: 
+324: ## Working conventions for Claude (this repo)
+325: 
+326: - Put everything Claude generates under `claudeMemory/` (plans → `plans/`,
+327:   research → `research/`, validated reference docs → `codebase/`, designs →
+328:   `design/`). Index in [claudeMemory/README.md](./claudeMemory/README.md).
+329: - Prefix scaffolding/helper comments with `CLAUDENOTE:` so they are greppable;
+330:   strip them before a task is considered done, then audit every comment you
+331:   touched for accuracy.
+332: - **Pressure-test every plan after formulation.** Launch multiple adversarial
+333:   agents with fresh contexts (one lens each — per-workstream buildability,
+334:   semantics/correctness, cross-cutting seams and gates) whose brief is to
+335:   *kill* the plan against the actual code, then fold every surviving finding
+336:   back into the plan before any phase starts. A citation audit is not a
+337:   substitute: it verifies references, not buildability.
+338: 
+339: ## Coding style
+340: 
+341: - **Python** follows Blender's guidelines: PEP 8, 4-space indent, 120-column
+342:   lines, `underscore_case` (CamelCase for classes), single quotes for enum
+343:   literals (`ob.type == 'MESH'`) and double quotes elsewhere. Prefer
+344:   `str.format()` over f-strings in code that may be translated. Imports inside
+345:   function bodies are fine (and preferred for startup-cost-sensitive paths).
+346: - **Engine (C++)** follows the engine repo's own conventions — see
+347:   `engine/CLAUDE.md` / `engine/AGENTS.MD`.
+348: - Every new source file needs an SPDX header
+349:   (`GPL-2.0-or-later`, `2026 Blender Authors`), matching the addon's existing
+350:   files.
+SOURCE FILE: claudeMemory/plans/generic-brush-execution-domains.md
+1: # Plan 6B: typed semantic evaluation and unit conversion
+2: 
+3: Draft for independent numerical and integration-seam adversarial reviews.
+4: Review launch status, 2026-09-18: built-in fresh-agent creation reached its thread
+5: limit. Automatic approval rejected both external review launches as a new source
+6: payload outside the earlier snapshot-review approval. Approval for the remaining
+7: Plan 6–8 read-only reviews is pending. Implementation has not started.
+8: The immutable authoring snapshot prerequisite is complete. This slice supplies
+9: the evaluated scalar boundary needed by host consumers and validates it against
+10: the actual native evaluator before wiring modal consumers. It does not complete
+11: Plan 6, activate authoring execution capabilities, or change the default path.
+12: 
+13: ## Concrete implementation
+14: 
+15: 1. Add a DLL-independent evaluator over immutable PropertySnapshot values and
+16:    prepared ExecutionLayers. Input is four positional optional device channels
+17:    in PRESSURE/TILT_X/TILT_Y/SPEED order. Quantize finite samples to FLOAT32 to
+18:    match the native transport; absent/nonfinite samples are missing. Reject
+19:    malformed channels, including bool. Clamp response inputs to [0,1].
+20: 2. Reproduce native ordered-stack arithmetic: FLOAT32 rounds each arithmetic
+21:    operation; INT32/BOOL use FLOAT64 and convert only after all layers. Table
+22:    interpolation uses the respective arithmetic width. Analytic thresholds
+23:    remain double and compare against the transported FLOAT32 input. Disabled
+24:    layers and missing inputs skip; a nonfinite response, combination or result
+25:    retains the prior layer value. Preserve the native intermediate-overflow
+26:    behavior (including factor-zero cases). Clamp to the effective native/declared
+27:    domain and storage range, then ties-away INT32 or BOOL >= .5. Do not mutate
+28:    authored values or cached tables. Never sample/hash curves during evaluation.
+29: 3. Expose semantic evaluation separately from engine unit conversion. Native
+30:    spacing evaluates as INT32 percent and rounds before division by 100. Snake
+31:    pinch evaluates in its native FLOAT32 [0,1] domain before 2*(.5-value).
+32:    Strength applies dynamics in its native domain before explicit family/overlap
+33:    compensation; smoothing's pass decomposition follows the resulting value.
+34:    PINCH's historical extra remains a separate local-source adapter, not the
+35:    effective strength. These orderings must be explicit in tests and docs.
+36: 4. SIZE is the exception fixed by the contract: generic scalar evaluation of
+37:    semantic SIZE rejects unless supplied an already-projected object-space
+38:    radius. Evaluate its stack as FLOAT32 on that radius, with [0,FLOAT32_MAX]
+39:    bounds; do not round to integer pixels or apply the native diameter bounds
+40:    to object-space radius. Projection selects the immutable effective owner's
+41:    mode/pair and happens in the consumer. This API must make double application
+42:    difficult: the result is a primitive evaluated radius, with no stack attached.
+43: 5. Keep the existing curve cache/PreparedResponse.evaluate behavior unchanged;
+44:    the new evaluator supplies width-aware interpolation for exact native parity.
+45:    Do not use a second bpy-dependent authoring resolver in the per-dab path.
+46: 
+47: ## Acceptance gate
+48: 
+49: - Pure independent expected results: all five operations, ordering, skipped
+50:   channels/layers, clamp, integer half ties/sign/saturation, INT32 above 2^24,
+51:   boolean threshold, analytic double thresholds between neighboring floats,
+52:   intermediate overflow, explicit zero radius and immutable source survival.
+53: - Compare prepared float/int/bool stacks to actual native UniformProperties
+54:   evaluation using the typed fixture DLL. Include deterministic randomized
+55:   tables, negative/out-of-range normalized inputs, missing/nonfinite samples,
+56:   exact integer/boolean results, and bitwise FLOAT32 results where the engine's
+57:   build arithmetic permits. Investigate any mismatch rather than weaken tests.
+58: - Real Blender snapshot-to-evaluation: opposed owners/native curves, spacing
+59:   integer quantization before translation, snake remap order, compensated strength,
+60:   and size after projection with unequal native modes/values. Assert no bpy reads
+61:   during evaluation, no persistent allocations, no new bakes or uploads on reuse.
+62: - Read engine instructions/status before building. Use the dispatcher, restore
+63:   addon-only native configuration after fixture testing, and retain binary hashes.
+64:   Record evidence and update only the bounded subtask; modal/cursor/filter/texture,
+65:   world projection, full command capability work and Plans 7/8 remain open.
+66: 
+67: The [current consumer audit](../codebase/generic-brush-consumer-audit.md) records
+68: the existing single-strength-per-batch transport constraint. The evaluator is
+69: not a substitute for a reviewed batch adapter: current per-row native inputs
+70: must continue to drive the corresponding per-dab values. No raw fallback is
+71: authorized for unsupported generic command configurations.
+SOURCE FILE: claudeMemory/design/generic-brush-contract-v1.md
+1: # Generic brush contract, version 1
+2: 
+3: Status: Plan 1 fixture gate passed (2026-09-15); downstream implementation in progress.
+4: These are implementation decisions, not additional user requirements.
+5: The eight gates in [the task list](../plans/generic-brush-properties-tasks.md)
+6: remain mandatory. This contract does not enable the new path.
+7: 
+8: ## Identity and migration
+9: 
+10: Saved schema version is 1. Definitions, authored records and immutable resolved
+11: records are distinct. IDs are explicit registry strings; labels, collection
+12: indices, manifest order, named-float slots and memory addresses are never IDs.
+13: Common native settings use `sculptcore.brush.<semantic_name>`; kernel uniforms
+14: use `sculptcore.kernel.<kernel_name_lowercase>.<uniform_name>` preserving the
+15: uniform's case. Kernel names become permanent registry namespaces: renaming a
+16: kernel requires an explicit alias. Only the common native adapter table shares
+17: IDs across kernels. For example, `strength` is shared; each kernel's `projection`
+18: has a separate ID even if today's C++ storage happens to be the same field.
+19: 
+20: Freeze the old generated RNA declarations and every kernel/name association
+21: from the baseline runtime, including registered defaults/ranges and live Brush
+22: defaults. Migration uses that frozen data without querying a new DLL. For each
+23: legacy `Brush.sculptcore[name]`, fan the authored value out to every frozen
+24: kernel ID associated with that name. Do this even for inactive kernels, so
+25: changing brush type later retains the old shared setting. If unset, resolve
+26: the frozen *registered RNA default* for all those IDs, not a new DSL default.
+27: Keep `authored=false` distinct from explicit set-to-default. Preserve the raw
+28: legacy group for rollback; never delete it on read. Unknown names and newer
+29: schema records are retained opaquely and cannot be downgraded. Missing kernels
+30: disable execution of their records without rewriting values or IDs.
+31: 
+32: Native values and curves remain authoritative in their native RNA. Migration
+33: adds metadata and unmapped storage only. Legacy assets are migrated lazily in
+34: memory after activation; persistence requires explicit asset save. Read-only
+35: assets expose resolved reads and require Save As for changes. No library scan
+36: rewrites assets. Existing native RNA paths stay intact; generated legacy paths
+37: need aliases with fan-out writes in Plan 8. Drivers on ambiguous shared legacy
+38: paths continue to affect all associated IDs until explicitly migrated.
+39: 
+40: Legacy alias reads select the active kernel's ID when it owns the name;
+41: otherwise return the preserved legacy value/default. Unset clears all fan-out
+42: authoring flags and restores their frozen defaults. A legacy animated path is
+43: an explicit resolver-time overlay on every associated ID, even after those IDs
+44: diverge; removing/muting that animation reveals the independent values. Raw
+45: legacy writes are detected by comparing value/presence at synchronization.
+46: Use evaluated animation data, not update callbacks, as the overlay source.
+47: Freeze union-declaration winning provenance, hard/soft ranges and DLL/source
+48: identity alongside manifest associations.
+49: 
+50: ## Ownership and resolution
+51: 
+52: Value modes: `UNIFIED` (default), `ALWAYS`, `NEVER`. Scene per-property unified
+53: defaults to false, except native size/strength use the current native flag.
+54: Scene is the root. A scene's own value never inherits. Stacks have the simpler
+55: `inherit_stack` boolean, default false for every brush. This preserves native
+56: unified values with brush-local native or shadow pressure controls.
+57: 
+58: Compatibility policy for the initial rollout is `LEGACY_SCENE`: preserve the
+59: deprecated UnifiedPaintSettings flags read by today's SculptCore. The fork's
+60: new Brush.use_unified_* flags are retained but do not silently replace this
+61: policy. Generic controls show the effective policy. Conversion to per-brush
+62: native-unified behavior is explicit, with a preview of differing values;
+63: the user has been asked whether immediate conversion is preferred. Keep the
+64: two flags independent until that compatibility choice is settled.
+65: 
+66: | Brush mode | Scene unified | Value owner | Edit strength .2 local / .8 scene to .6 |
+67: | --- | --- | --- | --- |
+68: | UNIFIED | false | Brush | local=.6, scene=.8 |
+69: | UNIFIED | true | Scene | local=.2, scene=.6 |
+70: | ALWAYS | either | Scene | local=.2, scene=.6 |
+71: | NEVER | either | Brush | local=.6, scene=.8 |
+72: 
+73: Changing mode/flags never copies or resets values. With local=.2 and scene=.8,
+74: ALWAYS then NEVER restores .2. Stack ownership resolves independently: with
+75: ALWAYS and `inherit_stack=false`, rows edit scene values and brush pressure
+76: curves; with NEVER and `inherit_stack=true`, they edit brush values and scene
+77: stacks. Disabling pressure toggles its unique entry, preserving order, curve,
+78: mix and factor. Adding an existing device updates it in place; explicit move
+79: changes order. Imported duplicate types are a validation error, preserved for
+80: repair rather than silently merged. Empty and fully disabled stacks are identity.
+81: 
+82: An absent value record uses the definition's default at the selected owner
+83: without allocation. An absent stack record is an empty stack at that owner;
+84: legacy native pressure adapters supply virtual entries without storing them.
+85: If the requested parent lacks a *definition/capability*, resolve locally with
+86: an explicit `parent_unavailable` diagnostic and local write target. Do not
+87: invent parent records. Unknown local definitions cannot execute. Future parent
+88: links must be validated as an acyclic graph before mutation; resolution also
+89: detects cycles and fails before any stroke mutation.
+90: 
+91: Read resolution never allocates saved records or curves. Explicit setters
+92: materialize only the selected owner, validate editability/type/range and notify
+93: that owner. Radial controls and bracket sizing use these same setters, capture
+94: the owner at invocation, and restore its old authored value on cancel. Owner
+95: changes during a modal edit cancel it safely. Placement is brush metadata with
+96: definition defaults; expansion is WindowManager runtime state. Neither inherits.
+97: Positions have unique stable location IDs, each carrying one integer sort index;
+98: ties sort by property ID. One property may occupy header, panel and context menu.
+99: 
+100: Size is a coupled adapter block: pixel diameter, world diameter and locked-size
+101: mode share one value owner and inheritance policy. The current native pixel
+102: setter rescales its world partner; the current world setter leaves pixels
+103: unchanged (its scale helper divides the new value by itself). Preserve that
+104: existing asymmetry in authoring adapters. Modal cancel snapshots/restores both values exactly through an
+105: atomic native restoration operation (including authored presence where relevant).
+106: The new path will honor SCENE size as world diameter/2, transformed to object
+107: space, and honor the effective owner on off-screen fallback. These are explicit
+108: corrections: the old stroke always pixel-unprojects and falls back to local
+109: Brush.unprojected_size. Preserve pixel-mode baselines; test world-mode corrected
+110: expectations independently with unequal object scale and paired non-round sizes.
+111: The common stack ID is `sculptcore.brush.size`; pixel/world diameter fields
+112: are two native representations of that semantic size. Apply its stack once
+113: to the projected/effective radius; cursor uses the same evaluated size. Do not
+114: attach separate pressure stacks to pixel and world representations.
+115: 
+116: For strength/size brush-owned pressure entries, enabled always reads the native
+117: or shadow flag selected by current native capabilities, even after richer stack
+118: metadata exists. CUSTOM always edits/evaluates the native curve; selecting a
+119: generated preset preserves it dormant. A script edit to the dormant native
+120: curve does not switch the preset; returning to CUSTOM reveals the edit.
+121: Changing brush type reselects the native/shadow flag without copying either;
+122: stack curve/mix/order metadata survives. Scene-owned pressure uses addon-owned
+123: storage because there is no equivalent native scene curve/enable pair.
+124: PINCH currently uses local Brush.strength for its `pinch` extra even while
+125: unified strength drives the strength uniform. Retain that local-source family
+126: adapter for legacy parity; expose the distinction in diagnostics. AIRBRUSH,
+127: LINE and CURVE currently use the ordinary spacer; retain this behavior without
+128: claiming native airbrush timing or line/curve authoring support. Texture angle,
+129: rake/randomization, stencil placement and secondary mask texture are retained
+130: native data with unsupported/approximate execution explicitly identified.
+131: 
+132: ## Compound cavity adapter and automasking
+133: 
+134: Retain the existing specialized cavity block adapter for migrated data. The
+135: block's ownership policy is `NATIVE_CAVITY` until explicitly changed to generic
+136: UNIFIED/ALWAYS/NEVER; changing policy never rewrites either native block.
+137: All cavity rows share the block policy, including enables, inversion, factor,
+138: blur, curve toggle and custom curve. Do not independently inherit those fields.
+139: Native precedence is recomputed on each synchronization, including script edits.
+140: 
+141: Let B/S mean either cavity enable is true on Brush/Paint. Fixtures use local
+142: factor=1.75, blur=3, curve endpoint=.375 and scene factor=.625, blur=1,
+143: curve endpoint=.875, with custom curves enabled on both.
+144: 
+145: | B | S | Effective block | factor / blur / endpoint | inversion |
+146: | --- | --- | --- | --- | --- |
+147: | false | false | disabled; edit Brush | no cavity effect | false |
+148: | false | true | Paint (Scene ID) | .625 / 1 / .875 | scene inverted flag |
+149: | true | false | Brush | 1.75 / 3 / .375 | brush inverted flag |
+150: | true | true | Brush | 1.75 / 3 / .375 | brush inverted flag |
+151: 
+152: If both normal and inverted flags are true, inverted wins as in today's bridge.
+153: Ordinary native RNA setters mutually exclude these flags; the both-true case is
+154: a defensive malformed/raw-legacy case tested through an independent adapter
+155: stub, not manufactured by two ordinary RNA assignments.
+156: Editing the effective scene enable off can reveal the brush fallback; subsequent
+157: rows re-resolve. UI shows the block owner and offers explicit local override.
+158: 
+159: | Native control | Engine target / defaults | Current bridge | v1 disposition |
+160: | --- | --- | --- | --- |
+161: | cavity and inverted cavity | automask_cavity=false, cavity_inverted=false | wired block | equivalent enable and inversion |
+162: | cavity factor | cavity_factor=1, dimensionless | wired | equivalent remap, retain native authored value |
+163: | cavity blur steps | cavity_blur_steps=2, integer neighborhood radius | wired | translated mesh/grid neighborhood estimator; no claim of geometric parity |
+164: | custom cavity toggle/curve | cavity_use_curve=false, identity table | wired, 256 samples | equivalent curve-before-invert order; native owned curve |
+165: | view normal enable/limit/falloff | automask_view_normal=false; limit=pi/2, falloff=25*pi/180 | not wired | new engine-owned settings, radians; do not adopt native defaults |
+166: | front-face / backface controls | cull_backfaces=false | not wired | engine culling is part of view-normal mask; expose with view-normal enable |
+167: | view direction | viewDir, object-space eye-to-surface ray | not wired for mask | transient per-dab sample, reflected with symmetry, all mesh/grid/batch paths |
+168: | topology, face sets, boundary edges/face sets, propagation steps | no matching bridge | unsupported | omit SculptCore controls; retain native data |
+169: | start normal / occlusion / normal falloff | no matching bridge | unsupported | omit; do not relabel as engine view-normal |
+170: 
+171: Engine view-normal uses abs(dot) when culling is off, so back faces fade like
+172: front faces. Factor reaches zero at limit, ramps over falloff radians before
+173: limit, and uses a hard cutoff for falloff<=1e-6. Degenerate normals/rays give
+174: identity. This differs from native controls; store its settings separately.
+175: All additional native automasking RNA fields are unsupported unless this table
+176: explicitly maps them. Cavity is stroke-cached; view-normal is evaluated per dab.
+177: The full advanced panel and header popover will share SculptCore's renderer;
+178: remove `SCULPTCORE_PT_automasking` only after that renderer reaches execution.
+179: Plan 2 must also correct native MeshAutomaskingSettings notifications to use
+180: ptr.owner_id and mark the owning Brush dirty. Its current callback notifies
+181: the active brush and never tags the edited asset. Test inactive-Brush scalar
+182: and native curve edits, plus Scene edits leaving all Brush assets clean.
+183: Cavity parameters are stroke-static, not device-dynamic in v1. Independent
+184: command cavity configurations require separate configuration-keyed caches
+185: (stroke generation plus full blur/factor/inversion/curve identity); a vertex's
+186: fully remapped factor must not be reused for a different command configuration.
+187: 
+188: ## Typed dynamics
+189: 
+190: v1 dynamic storage types are FLOAT32, INT32 and BOOL. Integer enums, bit masks,
+191: IDs, vectors, strings, FLOAT64 and other integer widths are not dynamic-capable.
+192: Static uniforms are never eligible. Capability is the intersection of type,
+193: kernel metadata, execution-path support and delivered inputs; unsupported
+194: configuration fails preflight before geometry mutation.
+195: 
+196: Preserve the authored base; evaluate a separate working value each dab.
+197: FLOAT32 uses IEEE float32 operations matching the existing float evaluator.
+198: INT32/BOOL arithmetic uses float64 (all int32 bases are exact); convert once
+199: after the ordered stack. BOOL begins as 0 or 1. Given value v, response r and
+200: mix factor a in [0,1], compute c as r (REPLACE), v*r (MULTIPLY), v+r (ADD),
+201: v-r (SUBTRACT), or abs(v-r) (DIFFERENCE), then v=v+(c-v)*a.
+202: Disabled/missing-sample entries are skipped. No conversion between layers.
+203: 
+204: At the end clamp to the declared numeric range intersected with the storage
+205: range. INT32 then rounds ties away from zero and saturates before casting;
+206: BOOL converts with >=.5 true after clamping to [0,1]. FLOAT32 retains its
+207: declared finite range. Empty stacks return the valid authored base exactly.
+208: Non-finite bases, factors, parameters and curve samples are rejected at write
+209: or upload. A non-finite/missing device sample skips that layer for this dab;
+210: no old sample persists. Non-finite intermediate arithmetic abandons that
+211: layer and retains its previous finite v. No fast-math reassociation at typed
+212: conversion boundaries. CPU/grid/program/batch tests use the same contract.
+213: 
+214: Independent examples: INT32 base 3, multiply .5 => 2; base -3 => -2;
+215: base 3, multiply .5 then add .4 => 2 (conversion only at end); BOOL base true,
+216: multiply .49 => false, multiply .5 => true; base false, add .75 => true.
+217: INT32 max plus 1 saturates at 2147483647. Disabled ADD yields the original base.
+218: 
+219: ## Input acquisition and sampling
+220: 
+221: Pressure domain [0,1], mouse pressure=1. Missing tablet pressure skips pressure
+222: for that dab. Tilt X/Y arrive signed [-1,1], normalized as (x+1)/2 for curves;
+223: missing tilt skips the respective layer. Tilt is a screen/tablet input, so
+224: symmetry copies it unchanged. viewDir is geometric and is reflected instead.
+225: ANGLE, CURVATURE and TWIST stay unavailable in v1.
+226: 
+227: Choose acquisition-time speed, requiring a generic fork timestamp API in
+228: Plan 3. `Event.time` is monotonic seconds (double), sourced from GHOST event
+229: time through queued/coalesced/INBETWEEN events. Synthetic event APIs accept an
+230: explicit time with the same units; absence makes speed unavailable, never
+231: handler-time speed. No timestamp is persisted in a brush.
+232: The fork extension also preserves an input-presence mask from the device API
+233: through GHOST/wmEvent/RNA and synthetic events. Pressure, tilt X and tilt Y
+234: have independent validity bits; zero tilt is a valid sample, not absence.
+235: Platforms must advertise only channels whose availability they can establish.
+236: 
+237: Speed is screen pixels/second, normalized by an authored positive
+238: `speed_reference` (default 1000 px/s), clamped to [0,1]. First sample speed=0.
+239: Each positive-time segment uses distance/delta-time; duplicate or decreasing
+240: times yield missing speed and reset the derivative anchor. A pause contributes
+241: to the next segment's time, so subsequent movement is slower. New strokes reset
+242: all sample history. Motion is measured in region pixels, before symmetry.
+243: 
+244: Dabs emitted at arc fractions interpolate pressure, tilt and time between
+245: the segment's event endpoints; speed is constant on that segment. Missing input
+246: at either endpoint skips that input for interpolated dabs. Release flush uses
+247: the final event and emits only residual dabs required by the existing spacer;
+248: it never reuses a later pressure across an earlier segment. Example: x=0..100,
+249: t=0..1, pressure=.2..1: dabs at x=25,50,75 have pressure=.4,.6,.8 and speed=.1
+250: with default normalization. Delaying handler delivery changes none of these.
+251: Constant-pressure baselines must remain unchanged; old variable-pressure
+252: geometry is not an oracle for the corrected sampler.
+253: Dab interpolation uses traveled arc length divided by the full segment arc
+254: length, not cubic parameter t. Preserve that fraction in the spacer output.
+255: Raw, anchored and drag-dot dabs use current-event inputs and speed even when
+256: their geometric center stays at the anchor. Test a curved uneven-knot segment
+257: in addition to the straight example.
+258: 
+259: ## Curves and cache contract
+260: 
+261: Canonical device input x is clamped to [0,1]. Generated responses are:
+262: CONSTANT(c)=c (default 1); TWO_STEP(t,lo,hi)=lo for x<t and hi for x>=t
+263: (defaults .5,0,1); LINEAR=x; ROOT=sqrt(x); SQUARE=x*x;
+264: SMOOTHSTEP=x*x*(3-2*x); SMOOTHERSTEP=x^3*(6*x*x-15*x+10);
+265: SPHERE=sqrt(max(0,2*x-x*x)); POW4=x^4; INVSQUARE=x*(2-x).
+266: Nonconstant default responses have endpoints 0,1. Threshold t is in [0,1],
+267: including explicit endpoint behavior. TWO_STEP uses an analytic engine tag,
+268: never a linearly interpolated LUT. Native distance falloff evaluates at
+269: distance d; generated falloff uses x=1-d, whereas native pressure/cavity uses x.
+270: Preserve hardness remapping and existing native falloff clamping from mapping.py.
+271: Pressure curves may exceed [0,1]; final property range, not a curve clamp,
+272: limits the result. Generated constant/step levels must be finite.
+273: 
+274: Switching to CUSTOM explicitly initializes an editable approximation of the
+275: current preset (256 samples); discontinuous presets warn that editable Bezier
+276: curves approximate the jump. Returning to a preset keeps dormant custom data;
+277: returning to CUSTOM restores it. Reset/reseed is an explicit action.
+278: 
+279: Cache immutable LUTs by complete canonical definition and sample/domain config;
+280: use hashes only as lookup accelerators. Native/custom fingerprints include all
+281: evaluation-affecting points, handles, clipping, extension and mapping fields.
+282: Check fingerprints at stroke start. Runtime generations accelerate known edits;
+283: undo/load/deletion invalidates owner references and all engine upload state.
+284: Cache capacity is 256 tables, LRU; active resolved strokes own their immutable
+285: tables until completion. Track uploads separately per engine brush and command;
+286: clear/rebuild invalidates uploads even when definitions match. No sampling,
+287: hashing, ownership resolution or ctypes table upload occurs per dab.
+288: 
+289: ## Owned CurveMapping API selected for Plan 2
+290: 
+291: Declare `bpy.props.CurveMappingProperty(name="", description="", update=None)`.
+292: v1 is a single scalar channel; no color-space variants. It is an RNA pointer
+293: property whose unset read is None. Explicit
+294: `owner.curve_mapping_initialize("property_name", preset='LINEAR')` allocates
+295: once and returns the owned mapping; `owner.property_unset("property_name")`
+296: removes it. Nesting in PropertyGroup and CollectionProperty resolves the true
+297: Brush/Scene ID. `template_curve_mapping` draws an Initialize control for None
+298: without allocation; its undoable first-edit operation initializes the property.
+299: 
+300: Persistence uses ONLY existing IDProperty GROUP/IDPARRAY/array/scalar/string
+301: types: a tagged, versioned group under the declared property name. It contains
+302: channel definitions, points/handles, clip/extension settings and required
+303: evaluation metadata. No new IDProperty type, DNA payload, ID dependency, owner
+304: pointer, sampled table or Python address is serialized. Old readers preserve
+305: these ordinary properties even when the declaration is absent. Add an API
+306: capability signal (`hasattr(bpy.props, 'CurveMappingProperty')`); old forks can
+307: preserve data but cannot edit it with the widget. Unsupported stock readers
+308: cannot run SculptCore mode; Plan 2 must prove curve-definition preservation
+309: through open/resave independently of that mode capability.
+310: 
+311: The fork provides a runtime CurveMapping materialization of the saved group.
+312: All widget/RNA mutations synchronize definitions and tag the actual owner;
+313: Brush changes mark that brush's asset dirty, Scene changes tag Scene. Optional
+314: Python callbacks run once after the complete mutation and are removed on
+315: unregister. Essential notifications remain native and do not depend on callbacks.
+316: No self-assignment of unrelated brush properties. Two declarations retain their
+317: own callback identity. Read-only owners reject mutations before touching cache.
+318: 
+319: Raw writes to the backing IDProperty group are NOT a supported edit API.
+320: After raw writes, callers must explicitly call
+321: `owner.curve_mapping_sync("property_name")` before save/dirty-state inspection.
+322: Sync validates the complete definition, rebuilds runtime state and notifies the
+323: owner; invalid definitions raise without deleting or replacing saved data.
+324: Access/evaluation can detect changes opportunistically, but raw writes alone
+325: do not promise dirty propagation or save-reminder detection. File serializers
+326: preserve raw data as ordinary IDProperties without callbacks or mutation.
+327: When declarations are absent, raw definitions are opaque preserved properties;
+328: re-register validates before use. Raw writes follow Blender's explicit undo
+329: conventions. Runtime revisions are monotonic within a lifetime only.
+330: 
+331: Retained curve/point wrappers must carry runtime lifetime/identity tokens,
+332: independent of movable arrays or IDProperty addresses. On point removal/reset,
+333: owner removal, undo/load or unregister, invalidate wrappers with ReferenceError.
+334: Insertion/reorder may preserve logical identity or invalidate safely. Open
+335: widgets must re-resolve through an owner/record identity and close safely after
+336: deletion. Do not ship raw pointers into point arrays as retained handles.
+337: Copying owners deep-copies ordinary IDProperties and creates new runtime
+338: identities. Revert reloads owned definitions with the Brush itself.
+339: 
+340: Implementation requires an owned-curve RNA property discriminator ahead of
+341: generic IDProperty verification/pointer dispatch, which otherwise deletes
+342: wrong-type storage or returns an IDProperty pointer as CurveMapping data.
+343: Get/never-create-get, presence and unset must use this dispatch. Initialization,
+344: unset and sync are native transactions: check editability, validate, invalidate
+345: old handles, mutate storage, tag owner and run the declaring callback. Unknown
+346: schema versions raise on edit/access but remain preserved on save.
+347: 
+348: Use heap-stable runtime owner records with lifetime generations checked at
+349: RNA/Python access boundaries. Invalidate all affected owner-record wrappers,
+350: collections, iterators and widget handles on any structural parent/point change;
+351: v1 need not preserve their identity across such changes. No retained parent
+352: IDProperty addresses. UI popup callbacks hold validated handles and reacquire
+353: native pointers only for their immediate operation. One native commit path
+354: handles RNA setters, methods and widget edits; callback once per RNA operation
+355: or interactive widget update, with the enclosing drag forming one undo step.
+356: Nested unset PropertyGroup lookup also needs a non-allocating path. Freeze the
+357: exact tagged-group serialization schema before native code is written; its
+358: supported compatibility matrix begins with the current pre-change fork and a
+359: stock Blender 5.x reader, whose actual binary identity is recorded by tests.
+360: The exact payload is specified in [owned-curve-storage-v1.md](owned-curve-storage-v1.md).
+361: 
+362: ## Commands and integration
+363: 
+364: Commands have explicit parent links to the resolved brush by default, optional
+365: links to a named command, or no parent. Order is execution order only. Validate
+366: cycles and missing parents before a stroke. Each command has sparse typed value
+367: overrides and independently local/inherited whole stacks (default inherited).
+368: Resolve all links on the host and upload complete typed command state without
+369: inheritance flags. Existing main-plus-smooth programs retain their explicit
+370: strength/invert behavior. A command without a parent uses registry defaults.
+371: 
+372: Evaluate command radius/extents before node selection, pinning, undo capture or
+373: mutation. Use conservative union regions (all nodes for unbounded policies),
+374: then execute with exactly the preflighted values. Restore authored brush and
+375: command state on success, errors and cancellation. No previous-command leakage.
+376: Preflight the union of topology/host-preparation requirements too. Classify
+377: hooks as configuration-invariant or command-dependent; only invariant hooks
+378: may be deduplicated by function pointer. Dependent hooks execute with resolved
+379: command state and configuration-specific cache identity (including ENHANCE
+380: rings/inner values). Test later-command cavity enable and differently configured
+381: ENHANCE commands; shared-brush hook execution cannot satisfy this contract.
+382: New per-command UI is outside this migration. New path remains opt-in until
+383: all eight gates pass; gate tests assert which path actually executed.
+SOURCE FILE: engine/source/props/prop_dynamics.h
+1: #pragma once
+2: 
+3: #include "litestl/math/mix.h"
+4: #include "litestl/util/string.h"
+5: #include "litestl/util/vector.h"
+6: #include "props/prop_curve.h"
+7: 
+8: #include <algorithm>
+9: #include <cmath>
+10: #include <limits>
+11: #include <type_traits>
+12: 
+13: using namespace litestl;
+14: namespace sculptcore::props {
+15: inline constexpr int kDeviceCurveSampleLimit = 65536;
+16: enum class DynamicFlags {
+17:   NONE = 0, //
+18:   DISABLED = 1 << 1,
+19:   NO_INHERIT = 1 << 2
+20: };
+21: FlagOperators(DynamicFlags);
+22: 
+23: enum class DeviceType {
+24:   PRESSURE = 0,
+25:   TILTX = 1,
+26:   TILTY = 2,
+27:   SPEED = 3,
+28:   ANGLE = 4,
+29:   CURVATURE = 5,
+30:   TWIST = 6
+31: };
+32: 
+33: struct DeviceInput {
+34:   DeviceType type;
+35:   float value;
+36: };
+37: struct DeviceInputCtx {
+38:   util::Vector<DeviceInput, 8> inputs;
+39: 
+40:   // Per-dab device samples â€” refilled each dab by the bridge before loadProps.
+41:   void push(int type, float value)
+42:   {
+43:     for (size_t i = inputs.size(); i > 0; i--) {
+44:       auto &input = inputs[i - 1];
+45:       if (int(input.type) == type) {
+46:         input.value = value;
+47:         return;
+48:       }
+49:     }
+50:     inputs.append(DeviceInput{static_cast<DeviceType>(type), value});
+51:   }
+52:   void clear()
+53:   {
+54:     inputs.clear();
+55:   }
+56: };
+57: 
+58: struct DynamicDevice {
+59:   DeviceType type = DeviceType::PRESSURE;
+60:   util::string name;
+61:   util::string uiName;
+62:   util::string description;
+63: 
+64:   float curDeviceValue = 0.0f;
+65:   bool hasDeviceValue = false;
+66:   // Zero samples means identity; a response table requires at least two samples.
+67:   util::Vector<float> curveTable;
+68:   // 0 table/identity, 1 constant, 2 two-step. Parameters stay double even for float
+69:   // inputs.
+70:   int responseKind = 0;
+71:   double responseThreshold = 0, responseLow = 0, responseHigh = 0;
+72:   math::BasicMix mixMode = math::BasicMix::MULTIPLY;
+73:   float mixFactor = 1.0f;
+74: 
+75:   DynamicFlags flag = DynamicFlags::NONE;
+76: 
+77:   DynamicDevice() = default;
+78: 
+79:   bool valid(bool allowPending = false) const
+80:   {
+81:     if (int(type) < int(DeviceType::PRESSURE) || int(type) > int(DeviceType::SPEED) ||
+82:         !std::isfinite(mixFactor) || mixFactor < 0.0f || mixFactor > 1.0f ||
+83:         curveTable.size() == 1 || curveTable.size() > kDeviceCurveSampleLimit ||
+84:         (int(flag) & ~int(DynamicFlags::DISABLED | DynamicFlags::NO_INHERIT)) != 0 ||
+85:         (!allowPending && hasPendingCurve()))
+86:     {
+87:       return false;
+88:     }
+89:     if (responseKind < 0 || responseKind > 2 || !std::isfinite(responseThreshold) ||
+90:         !std::isfinite(responseLow) || !std::isfinite(responseHigh) ||
+91:         responseThreshold < 0 || responseThreshold > 1 ||
+92:         (responseKind == 0 &&
+93:          (responseThreshold != 0 || responseLow != 0 || responseHigh != 0)) ||
+94:         (responseKind == 1 && (responseThreshold != 0 || responseHigh != 0)) ||
+95:         (responseKind != 0 && curveTable.size() != 0))
+96:     {
+97:       return false;
+98:     }
+99:     switch (mixMode) {
+100:     case math::BasicMix::MULTIPLY:
+101:     case math::BasicMix::ADD:
+102:     case math::BasicMix::SUBTRACT:
+103:     case math::BasicMix::DIFFERENCE:
+104:     case math::BasicMix::LINEAR:
+105:       break;
+106:     default:
+107:       return false;
+108:     }
+109:     for (float sample : curveTable) {
+110:       if (!std::isfinite(sample)) {
+111:         return false;
+112:       }
+113:     }
+114:     return true;
+115:   }
+116: 
+117:   bool hasPendingCurve() const
+118:   {
+119:     return pendingSamples_.size() != 0;
+120:   }
+121: 
+122:   bool setCurveTable(const util::Vector<float> &samples)
+123:   {
+124:     if (samples.size() == 1 || samples.size() > kDeviceCurveSampleLimit) {
+125:       return false;
+126:     }
+127:     for (float sample : samples) {
+128:       if (!std::isfinite(sample)) {
+129:         return false;
+130:       }
+131:     }
+132:     curveTable = samples;
+133:     responseKind = 0;
+134:     responseThreshold = responseLow = responseHigh = 0;
+135:     pendingSamples_.clear();
+136:     pendingPresent_.clear();
+137:     pendingCount_ = 0;
+138:     return true;
+139:   }
+140: 
+141:   /** Resized uploads publish only when every sample has been provided. */
+142:   bool setCurveSample(int index, int count, float value)
+143:   {
+144:     if (count < 2 || count > kDeviceCurveSampleLimit || index < 0 || index >= count ||
+145:         !std::isfinite(value))
+146:     {
+147:       return false;
+148:     }
+149:     if (!hasPendingCurve() && int(curveTable.size()) == count) {
+150:       curveTable[index] = value;
+151:       return true;
+152:     }
+153:     if (int(pendingSamples_.size()) != count) {
+154:       pendingSamples_.resize(count);
+155:       pendingPresent_.resize(count);
+156:       for (int i = 0; i < count; i++) {
+157:         pendingSamples_[i] = 0;
+158:         pendingPresent_[i] = false;
+159:       }
+160:       pendingCount_ = 0;
+161:     }
+162:     pendingSamples_[index] = value;
+163:     if (!pendingPresent_[index]) {
+164:       pendingPresent_[index] = true;
+165:       pendingCount_++;
+166:     }
+167:     if (pendingCount_ == count) {
+168:       curveTable = std::move(pendingSamples_);
+169:       responseKind = 0;
+170:       responseThreshold = responseLow = responseHigh = 0;
+171:       pendingSamples_.clear();
+172:       pendingPresent_.clear();
+173:       pendingCount_ = 0;
+174:     }
+175:     return true;
+176:   }
+177: 
+178:   bool sameConfiguration(const DynamicDevice &other) const
+179:   {
+180:     auto equal = [](const auto &a, const auto &b) {
+181:       if (a.size() != b.size()) {
+182:         return false;
+183:       }
+184:       for (size_t i = 0; i < a.size(); i++) {
+185:         if (a[i] != b[i]) {
+186:           return false;
+187:         }
+188:       }
+189:       return true;
+190:     };
+191:     return responseKind == other.responseKind &&
+192:            responseThreshold == other.responseThreshold &&
+193:            responseLow == other.responseLow && responseHigh == other.responseHigh &&
+194:            type == other.type && name == other.name && uiName == other.uiName &&
+195:            description == other.description && mixMode == other.mixMode &&
+196:            mixFactor == other.mixFactor && flag == other.flag &&
+197:            equal(curveTable, other.curveTable) &&
+198:            equal(pendingSamples_, other.pendingSamples_) &&
+199:            equal(pendingPresent_, other.pendingPresent_) &&
+200:            pendingCount_ == other.pendingCount_;
+201:   }
+202: 
+203: private:
+204:   util::Vector<float> pendingSamples_;
+205:   util::Vector<bool> pendingPresent_;
+206:   int pendingCount_ = 0;
+207: 
+208: public:
+209:   template <typename Real = float> Real deviceFactor() const
+210:   {
+211:     return deviceFactor<Real>(curDeviceValue);
+212:   }
+213: 
+214:   template <typename Real = float> Real deviceFactor(float input) const
+215:   {
+216:     if (responseKind == 1) {
+217:       return Real(responseLow);
+218:     }
+219:     if (responseKind == 2) {
+220:       // Do not round the threshold onto the input before choosing the branch.
+221:       return Real(std::clamp(double(input), 0.0, 1.0) < responseThreshold ? responseLow
+222:                                                                           : responseHigh);
+223:     }
+224:     int n = int(curveTable.size());
+225:     Real x = std::clamp(Real(input), Real(0), Real(1));
+226:     if (n < 2) {
+227:       return x;
+228:     }
+229:     x *= Real(n - 1);
+230:     int i = int(x);
+231:     if (i >= n - 1) {
+232:       return curveTable[n - 1];
+233:     }
+234:     Real t = x - Real(i);
+235:     return Real(curveTable[i]) * (Real(1) - t) + Real(curveTable[i + 1]) * t;
+236:   }
+237: 
+238:   template <typename Real> Real apply(Real value) const
+239:   {
+240:     return apply(value, curDeviceValue);
+241:   }
+242: 
+243:   template <typename Real> Real apply(Real value, float input) const
+244:   {
+245:     Real factor = deviceFactor<Real>(input);
+246:     if (!std::isfinite(factor)) {
+247:       return value;
+248:     }
+249:     Real combined;
+250:     switch (mixMode) {
+251:     case math::BasicMix::MULTIPLY:
+252:       combined = value * factor;
+253:       break;
+254:     case math::BasicMix::ADD:
+255:       combined = value + factor;
+256:       break;
+257:     case math::BasicMix::SUBTRACT:
+258:       combined = value - factor;
+259:       break;
+260:     case math::BasicMix::DIFFERENCE:
+261:       combined = value > factor ? value - factor : factor - value;
+262:       break;
+263:     case math::BasicMix::LINEAR:
+264:     default:
+265:       combined = factor;
+266:       break;
+267:     }
+268:     if (!std::isfinite(combined)) {
+269:       return value;
+270:     }
+271:     Real result = value + (combined - value) * Real(mixFactor);
+272:     return std::isfinite(result) ? result : value;
+273:   }
+274: };
+275: 
+276: struct Dynamics {
+277:   util::Vector<DynamicDevice> devices;
+278: 
+279:   Dynamics() = default;
+280:   Dynamics(const Dynamics &other) : devices(other.devices)
+281:   {
+282:     resetInputs();
+283:   }
+284:   Dynamics &operator=(const Dynamics &other)
+285:   {
+286:     devices = other.devices;
+287:     resetInputs();
+288:     return *this;
+289:   }
+290: 
+291:   void resetInputs()
+292:   {
+293:     for (auto &layer : devices) {
+294:       layer.hasDeviceValue = false;
+295:       layer.curDeviceValue = 0.0f;
+296:     }
+297:   }
+298: 
+299:   static bool validStack(const util::Vector<DynamicDevice> &layers,
+300:                          bool allowPending = false)
+301:   {
+302:     unsigned seen = 0;
+303:     for (const auto &layer : layers) {
+304:       if (!layer.valid(allowPending)) {
+305:         return false;
+306:       }
+307:       unsigned bit = 1u << unsigned(layer.type);
+308:       if (seen & bit) {
+309:         return false;
+310:       }
+311:       seen |= bit;
+312:     }
+313:     return true;
+314:   }
+315: 
+316:   bool replaceStack(const util::Vector<DynamicDevice> &layers)
+317:   {
+318:     if (!validStack(layers)) {
+319:       return false;
+320:     }
+321:     devices = layers;
+322:     resetInputs();
+323:     return true;
+324:   }
+325: 
+326:   bool configure(DeviceType type, math::BasicMix mode, float factor)
+327:   {
+328:     DynamicDevice candidate;
+329:     candidate.type = type;
+330:     candidate.mixMode = mode;
+331:     candidate.mixFactor = factor;
+332:     if (!candidate.valid() || !validStack(devices, true)) {
+333:       return false;
+334:     }
+335:     for (auto &layer : devices) {
+336:       if (layer.type == type) {
+337:         layer.mixMode = mode;
+338:         layer.mixFactor = factor;
+339:         return true;
+340:       }
+341:     }
+342:     devices.append(candidate);
+343:     return true;
+344:   }
+345: 
+346:   void inputDeviceDatas(const DeviceInputCtx &ctx)
+347:   {
+348:     resetInputs();
+349:     for (auto &device : ctx.inputs) {
+350:       for (auto &layer : devices) {
+351:         if (layer.type == device.type) {
+352:           layer.curDeviceValue = device.value;
+353:           layer.hasDeviceValue = std::isfinite(device.value);
+354:         }
+355:       }
+356:     }
+357:   }
+358: 
+359:   template <typename T>
+360:   bool evaluateChecked(T value, T minimum, T maximum, T &result) const
+361:   {
+362:     return evaluateCheckedImpl(value, minimum, maximum, nullptr, result);
+363:   }
+364: 
+365:   // Preparation reads the current samples without changing cached inputs or
+366:   // copying response tables. The cached compatibility path shares the math.
+367:   template <typename T>
+368:   bool evaluateChecked(
+369:       T value, T minimum, T maximum, const DeviceInputCtx &ctx, T &result) const
+370:   {
+371:     return evaluateCheckedImpl(value, minimum, maximum, &ctx, result);
+372:   }
+373: 
+374: private:
+375:   template <typename T>
+376:   bool evaluateCheckedImpl(
+377:       T value, T minimum, T maximum, const DeviceInputCtx *ctx, T &result) const
+378:   {
+379:     static_assert(std::is_same_v<T, float> || std::is_same_v<T, int32_t> ||
+380:                   std::is_same_v<T, bool>);
+381:     using Real = std::conditional_t<std::is_same_v<T, float>, float, double>;
+382:     if (!std::isfinite(Real(value)) || !std::isfinite(Real(minimum)) ||
+383:         !std::isfinite(Real(maximum)) || minimum > maximum || !validStack(devices))
+384:     {
+385:       return false;
+386:     }
+387:     Real f = Real(value);
+388:     bool applied = false;
+389:     for (const auto &device : devices) {
+390:       float input = device.curDeviceValue;
+391:       bool present = device.hasDeviceValue;
+392:       if (ctx) {
+393:         present = false;
+394:         for (size_t i = ctx->inputs.size(); i > 0; i--) {
+395:           if (ctx->inputs[i - 1].type == device.type) {
+396:             input = ctx->inputs[i - 1].value;
+397:             present = std::isfinite(input);
+398:             break;
+399:           }
+400:         }
+401:       }
+402:       if ((int(device.flag) & int(DynamicFlags::DISABLED)) != 0 || !present ||
+403:           !std::isfinite(input))
+404:       {
+405:         continue;
+406:       }
+407:       f = device.apply(f, input);
+408:       applied = true;
+409:     }
+410:     if (!applied && value >= minimum && value <= maximum) {
+411:       result = value;
+412:       return true;
+413:     }
+414:     f = std::clamp(f, Real(minimum), Real(maximum));
+415:     if constexpr (std::is_same_v<T, int32_t>) {
+416:       f = std::clamp(std::round(f),
+417:                      double(std::numeric_limits<int32_t>::lowest()),
+418:                      double(std::numeric_limits<int32_t>::max()));
+419:       result = int32_t(f);
+420:     } else if constexpr (std::is_same_v<T, bool>) {
+421:       result = f >= 0.5;
+422:     } else {
+423:       result = f;
+424:     }
+425:     return true;
+426:   }
+427: 
+428: public:
+429:   float evaluate(float value) const
+430:   {
+431:     float result = value;
+432:     evaluateChecked(value,
+433:                     std::numeric_limits<float>::lowest(),
+434:                     std::numeric_limits<float>::max(),
+435:                     result);
+436:     return result;
+437:   }
+438: }; //
+439: } // namespace sculptcore::props
+SOURCE FILE: sculptcore_addon/brush_properties/snapshots.py
+1: # SPDX-FileCopyrightText: 2026 Blender Authors
+2: # SPDX-License-Identifier: GPL-2.0-or-later
+3: """Immutable effective authoring state, captured before execution-domain translation.
+4: 
+5: Capture runs synchronously on the main thread. Results own no RNA, owner stores,
+6: curve references or inheritance metadata; native values retain their actual type.
+7: """
+8: from dataclasses import dataclass
+9: 
+10: from .adapters import BY_ID, PIXELS, SIZE, WORLD, ValueDomain
+11: from .commands import ExecutionLayer, prepare_stack
+12: from .lifecycle import _main_thread
+13: from .registry import Definition, PropertyError
+14: from .resolver import resolve
+15: 
+16: 
+17: def _typed(domain, value):
+18:     if type(domain) not in (ValueDomain, Definition):
+19:         raise PropertyError("Snapshot requires an immutable scalar domain")
+20:     kind = domain.kind if type(domain) is ValueDomain else domain.scalar_type
+21:     expected = {'FLOAT32': float, 'INT32': int, 'BOOL': bool}.get(kind)
+22:     if type(value) is not expected:
+23:         raise PropertyError("Snapshot scalar has the wrong primitive type")
+24:     if domain.validate(value) != value:
+25:         raise PropertyError("Snapshot scalar is not canonical in its domain")
+26:     return value
+27: 
+28: 
+29: @dataclass(frozen=True)
+30: class SizeSnapshot:
+31:     pixels: int
+32:     world: float
+33:     mode: str
+34:     pixel_domain: ValueDomain
+35:     world_domain: ValueDomain
+36: 
+37:     def __post_init__(self):
+38:         if (type(self.pixel_domain) is not ValueDomain or type(self.world_domain) is not ValueDomain
+39:                 or self.pixel_domain.kind != 'INT32' or self.pixel_domain.path != 'size'
+40:                 or self.world_domain.kind != 'FLOAT32' or self.world_domain.path != 'unprojected_size'
+41:                 or type(self.mode) is not str or self.mode not in ('VIEW', 'SCENE')):
+42:             raise PropertyError("Invalid native size domains or mode")
+43:         _typed(self.pixel_domain, self.pixels)
+44:         _typed(self.world_domain, self.world)
+45: 
+46:     @property
+47:     def active_value(self):
+48:         return self.pixels if self.mode == 'VIEW' else self.world
+49: 
+50:     @property
+51:     def active_domain(self):
+52:         return self.pixel_domain if self.mode == 'VIEW' else self.world_domain
+53: 
+54: 
+55: @dataclass(frozen=True)
+56: class PropertySnapshot:
+57:     definition: Definition
+58:     value_domain: Definition | ValueDomain
+59:     value: bool | int | float
+60:     present: bool
+61:     source: str
+62:     stack: tuple
+63:     stack_available: bool
+64:     execution_available: bool
+65:     diagnostics: tuple
+66:     size: SizeSnapshot | None = None
+67: 
+68:     def __post_init__(self):
+69:         if (type(self.definition) is not Definition or type(self.source) is not str
+70:                 or any(type(flag) is not bool for flag in
+71:                        (self.present, self.stack_available, self.execution_available))):
+72:             raise PropertyError("Invalid snapshot metadata")
+73:         _typed(self.value_domain, self.value)
+74:         stack, diagnostics = tuple(self.stack), tuple(self.diagnostics)
+75:         if (any(type(layer) is not ExecutionLayer for layer in stack)
+76:                 or len({layer.device for layer in stack}) != len(stack)
+77:                 or any(type(item) is not str for item in diagnostics)):
+78:             raise PropertyError("Snapshot requires immutable prepared layers and diagnostics")
+79:         if (not self.stack_available and (self.definition.dynamic or stack or self.execution_available)
+80:                 or stack and not self.definition.dynamic):
+81:             raise PropertyError("Invalid snapshot stack capability")
+82:         if self.definition.identifier == SIZE:
+83:             if (type(self.size) is not SizeSnapshot or self.value_domain != self.size.active_domain
+84:                     or type(self.value) is not type(self.size.active_value) or self.value != self.size.active_value):
+85:                 raise PropertyError("Native size pair does not match the resolved scalar")
+86:         elif self.size is not None:
+87:             raise PropertyError("Only semantic size carries a paired native state")
+88:         object.__setattr__(self, 'stack', stack)
+89:         object.__setattr__(self, 'diagnostics', diagnostics)
+90: 
+91: 
+92: def capture(registry, identifiers, local, parent=None):
+93:     """Resolve a complete candidate; failure returns no partial snapshot.
+94: 
+95:     Fresh resolution validates owner lifetimes even when stacks are empty. Native
+96:     size uses its effective value owner's entire pair, independent of stack owner.
+97:     Execution capability remains exactly as reported by the authoring resolver.
+98:     """
+99:     _main_thread()
+100:     identifiers = tuple(identifiers)
+101:     if any(type(identifier) is not str for identifier in identifiers) or len(set(identifiers)) != len(identifiers):
+102:         raise PropertyError("Snapshot IDs must be unique strings")
+103:     for identifier in identifiers:
+104:         registry.get(identifier)
+105:     properties = []
+106:     for identifier in identifiers:
+107:         resolved = resolve(registry, identifier, local, parent)
+108:         size = None
+109:         if identifier == SIZE:
+110:             native = getattr(resolved.value_owner, '_native', None)
+111:             if native is None:
+112:                 raise PropertyError("Semantic size requires an authoritative native owner")
+113:             block = native.size_block()
+114:             size = SizeSnapshot(block.pixels, block.world, block.mode,
+115:                                 native.value_domain(BY_ID[PIXELS]), native.value_domain(BY_ID[WORLD]))
+116:         stack = (prepare_stack(resolved) if resolved.stack_available else ())
+117:         properties.append(PropertySnapshot(
+118:             resolved.definition, resolved.value_domain, resolved.value,
+119:             resolved.value_source.present, resolved.value_source.source, stack,
+120:             resolved.stack_available, resolved.execution_available, resolved.diagnostics, size))
+121:     return tuple(properties)
+SOURCE FILE: sculptcore_addon/brush_properties/commands.py
+1: # SPDX-FileCopyrightText: 2026 Blender Authors
+2: # SPDX-License-Identifier: GPL-2.0-or-later
+3: """Owner-free command snapshots. Inputs use normalized execution definitions.
+4: 
+5: Native size projection and other semantic adapters run before this boundary.
+6: Ancestry uses stable IDs; native names are only introduced during serialization.
+7: """
+8: from dataclasses import dataclass
+9: 
+10: from .registry import Definition, DEVICE_TYPES, PropertyError, finite, scalar
+11: from .responses import PreparedResponse
+12: 
+13: 
+14: def _name(value):
+15:     if type(value) is not str or not value or '\0' in value:
+16:         raise PropertyError("Expected a nonempty name without NUL")
+17:     try:
+18:         value.encode('utf-8')
+19:     except UnicodeError:
+20:         raise PropertyError("Name must be valid UTF-8") from None
+21:     return value
+22: 
+23: 
+24: @dataclass(frozen=True)
+25: class ExecutionLayer:
+26:     device: str
+27:     response: PreparedResponse
+28:     enabled: bool = True
+29:     operation: str = 'MULTIPLY'
+30:     factor: float = 1.0
+31: 
+32:     def __post_init__(self):
+33:         if (self.device not in DEVICE_TYPES or type(self.response) is not PreparedResponse
+34:                 or type(self.enabled) is not bool or self.operation not in
+35:                 ('REPLACE', 'MULTIPLY', 'ADD', 'SUBTRACT', 'DIFFERENCE')
+36:                 or not finite(self.factor) or not 0 <= self.factor <= 1):
+37:             raise PropertyError("Invalid prepared device layer")
+38:         object.__setattr__(self, 'factor', scalar('FLOAT32', self.factor))
+39: 
+40: 
+41: def _stack(layers):
+42:     if layers is None:
+43:         raise PropertyError("Unavailable stacks cannot execute")
+44:     layers = tuple(layers)
+45:     if any(type(layer) is not ExecutionLayer for layer in layers):
+46:         raise PropertyError("Execution stacks require owner-free prepared responses")
+47:     if len({layer.device for layer in layers}) != len(layers):
+48:         raise PropertyError("Duplicate command input device")
+49:     return layers
+50: 
+51: 
+52: def prepare_stack(resolved):
+53:     """Sample using the effective stack owner at the synchronization boundary.
+54: 
+55:     This prepares responses only; it does not activate execution capabilities or
+56:     translate semantic scalar domains (e.g. native size) into engine domains.
+57:     """
+58:     from .registry import validated_stack
+59:     from .resolver import Resolved
+60:     from .sampling import resolved_response
+61: 
+62:     if type(resolved) is not Resolved or not resolved.stack_available or resolved.stack is None:
+63:         raise PropertyError("Effective stack is unavailable")
+64:     layers = validated_stack(resolved.stack)
+65:     if layers and not resolved.definition.dynamic:
+66:         raise PropertyError("Static properties cannot have device stacks")
+67:     return tuple(ExecutionLayer(layer.device,
+68:                                 resolved_response(resolved.stack_owner, resolved.definition, layer.curve),
+69:                                 layer.enabled, layer.operation, layer.factor) for layer in layers)
+70: 
+71: 
+72: @dataclass(frozen=True)
+73: class ExecutionValue:
+74:     definition: Definition
+75:     value: object
+76:     stack: tuple = ()
+77: 
+78:     def __post_init__(self):
+79:         if type(self.definition) is not Definition:
+80:             raise PropertyError("Expected an execution definition")
+81:         object.__setattr__(self, 'value', self.definition.validate(self.value))
+82:         object.__setattr__(self, 'stack', _stack(self.stack))
+83:         if self.stack and not self.definition.dynamic:
+84:             raise PropertyError("Static properties cannot have device stacks")
+85: 
+86: 
+87: @dataclass(frozen=True)
+88: class Parent:
+89:     kind: str = 'BRUSH'
+90:     name: str = ""
+91: 
+92:     def __post_init__(self):
+93:         if self.kind not in ('BRUSH', 'COMMAND', 'DEFAULTS'):
+94:             raise PropertyError("Unknown command parent kind")
+95:         if self.kind == 'COMMAND':
+96:             _name(self.name)
+97:         elif self.name != "":
+98:             raise PropertyError("Only command parents have names")
+99: 
+100: 
+101: def _pairs(items, convert):
+102:     result = []
+103:     seen = set()
+104:     for identifier, value in items:
+105:         _name(identifier)
+106:         if identifier in seen:
+107:             raise PropertyError("Duplicate override: " + identifier)
+108:         seen.add(identifier)
+109:         result.append((identifier, convert(value)))
+110:     return tuple(result)
+111: 
+112: 
+113: @dataclass(frozen=True)
+114: class Command:
+115:     name: str
+116:     kernel: int
+117:     definitions: tuple
+118:     parent: Parent = Parent()
+119:     values: tuple = ()
+120:     stacks: tuple = ()
+121: 
+122:     def __post_init__(self):
+123:         _name(self.name)
+124:         if type(self.kernel) is not int or not 0 <= self.kernel <= 2147483647:
+125:             raise PropertyError("Invalid command kernel")
+126:         if type(self.parent) is not Parent:
+127:             raise PropertyError("Command parent must be explicitly tagged")
+128:         definitions = tuple(self.definitions)
+129:         if any(type(item) is not Definition for item in definitions):
+130:             raise PropertyError("Expected target-specific execution definitions")
+131:         by_id = {item.identifier: item for item in definitions}
+132:         if len(by_id) != len(definitions):
+133:             raise PropertyError("Duplicate target property")
+134:         values = _pairs(self.values, lambda value: value)
+135:         stacks = _pairs(self.stacks, _stack)
+136:         for identifier, value in values:
+137:             if identifier not in by_id:
+138:                 raise PropertyError("Override is outside the command target: " + identifier)
+139:             by_id[identifier].validate(value)
+140:         for identifier, stack in stacks:
+141:             if identifier not in by_id or not by_id[identifier].dynamic:
+142:                 raise PropertyError("Stack override requires a target dynamic property: " + identifier)
+143:         object.__setattr__(self, 'definitions', definitions)
+144:         object.__setattr__(self, 'values', tuple((key, by_id[key].validate(value)) for key, value in values))
+145:         object.__setattr__(self, 'stacks', stacks)
+146: 
+147: 
+148: @dataclass(frozen=True)
+149: class ResolvedCommand:
+150:     name: str
+151:     kernel: int
+152:     properties: tuple
+153: 
+154:     def __post_init__(self):
+155:         _name(self.name)
+156:         if type(self.kernel) is not int or not 0 <= self.kernel <= 2147483647:
+157:             raise PropertyError("Invalid resolved kernel")
+158:         properties = tuple(self.properties)
+159:         if any(type(item) is not ExecutionValue for item in properties):
+160:             raise PropertyError("Expected immutable execution properties")
+161:         if len({item.definition.identifier for item in properties}) != len(properties):
+162:             raise PropertyError("Duplicate resolved property")
+163:         object.__setattr__(self, 'properties', properties)
+164: 
+165: 
+166: def resolve_commands(commands, brush):
+167:     """Flatten a DAG in execution order; missing parent IDs use target defaults.
+168: 
+169:     Every eligible property carries an explicit stack, including empty. No RNA,
+170:     owner stores, inheritance flags, or mutable containers survive in the result.
+171:     """
+172:     commands, brush = tuple(commands), tuple(brush)
+173:     if any(type(command) is not Command for command in commands):
+174:         raise PropertyError("Expected immutable commands")
+175:     if any(type(item) is not ExecutionValue for item in brush):
+176:         raise PropertyError("Expected an owner-free brush snapshot")
+177:     by_name = {command.name: command for command in commands}
+178:     brush_values = {item.definition.identifier: item for item in brush}
+179:     if len(by_name) != len(commands) or len(brush_values) != len(brush):
+180:         raise PropertyError("Duplicate command or brush property")
+181:     resolved = {}
+182:     visiting = set()
+183: 
+184:     def visit(command):
+185:         if command.name in resolved:
+186:             return resolved[command.name]
+187:         if command.name in visiting:
+188:             raise PropertyError("Command inheritance cycle: " + command.name)
+189:         visiting.add(command.name)
+190:         if command.parent.kind == 'COMMAND':
+191:             if command.parent.name not in by_name:
+192:                 raise PropertyError("Missing parent command: " + command.parent.name)
+193:             parent = {item.definition.identifier: item for item in visit(by_name[command.parent.name]).properties}
+194:         else:
+195:             parent = brush_values if command.parent.kind == 'BRUSH' else {}
+196:         values, stacks = dict(command.values), dict(command.stacks)
+197:         properties = []
+198:         for definition in command.definitions:
+199:             identifier = definition.identifier
+200:             inherited = parent.get(identifier)
+201:             if inherited is not None and inherited.definition != definition:
+202:                 raise PropertyError("Incompatible execution definition: " + identifier)
+203:             value = values.get(identifier, inherited.value if inherited is not None else definition.default)
+204:             stack = stacks.get(identifier, inherited.stack if inherited is not None else ())
+205:             properties.append(ExecutionValue(definition, value, stack))
+206:         result = ResolvedCommand(command.name, command.kernel, tuple(properties))
+207:         visiting.remove(command.name)
+208:         resolved[command.name] = result
+209:         return result
+210: 
+211:     # Iterative ancestry walk avoids Python recursion limits for valid long chains.
+212:     for command in commands:
+213:         chain, seen, current = [], set(), command
+214:         while current.name not in resolved:
+215:             if current.name in seen:
+216:                 raise PropertyError("Command inheritance cycle: " + current.name)
+217:             seen.add(current.name)
+218:             chain.append(current)
+219:             if current.parent.kind != 'COMMAND':
+220:                 break
+221:             if current.parent.name not in by_name:
+222:                 raise PropertyError("Missing parent command: " + current.parent.name)
+223:             current = by_name[current.parent.name]
+224:         for entry in reversed(chain):
+225:             visit(entry)
+226:     return tuple(resolved[command.name] for command in commands)
+227: 
+228: 
+229: def build_program(manager, commands, names):
+230:     """Create a candidate native program; caller publishes only the returned object.
+231: 
+232:     names maps (kernel, stable ID) to authoritative manifest spelling. Every
+233:     command uploads complete values and explicit eligible stacks, even empties.
+234:     Dispose the returned program when replacing it. A failed build disposes only
+235:     its candidate and never touches the caller's previous executable program.
+236:     """
+237:     from sculptcore.brush_properties import DeviceLayer, replace_command_stack, set_command_scalar
+238: 
+239:     commands = tuple(commands)
+240:     scalar_types = {'FLOAT32': 0, 'INT32': 4, 'BOOL': 10}
+241:     operations = {'REPLACE': 0, 'MULTIPLY': 1, 'ADD': 2, 'SUBTRACT': 3, 'DIFFERENCE': 4}
+242:     devices = {'PRESSURE': 0, 'TILT_X': 1, 'TILT_Y': 2, 'SPEED': 3}
+243:     payload = []
+244:     for command in commands:
+245:         if type(command) is not ResolvedCommand or type(command.properties) is not tuple:
+246:             raise PropertyError("Expected a resolved command")
+247:         used = set()
+248:         properties = []
+249:         for item in command.properties:
+250:             if type(item) is not ExecutionValue:
+251:                 raise PropertyError("Expected a resolved execution value")
+252:             try:
+253:                 name = _name(names[command.kernel, item.definition.identifier])
+254:             except KeyError:
+255:                 raise PropertyError("Missing native property translation") from None
+256:             if name in used:
+257:                 raise PropertyError("Duplicate native command target: " + name)
+258:             used.add(name)
+259:             layers = tuple(DeviceLayer(devices[layer.device], operations[layer.operation], layer.factor,
+260:                                        layer.enabled, layer.response.samples, layer.response.kind,
+261:                                        layer.response.parameters) for layer in item.stack)
+262:             properties.append((name, scalar_types[item.definition.scalar_type], item.value,
+263:                                layers if item.definition.dynamic else None))
+264:         payload.append((command.kernel, tuple(properties)))
+265:     program = manager.construct('sculptcore::brush::BrushProgram')
+266:     try:
+267:         for kernel, properties in payload:
+268:             index = program.addCommand(kernel)
+269:             for name, kind, value, layers in properties:
+270:                 set_command_scalar(manager, program, index, name, kind, value)
+271:                 if layers is not None:
+272:                     replace_command_stack(manager, program, index, name, kind, layers)
+273:         return program
+274:     except BaseException:
+275:         program.dispose()
+276:         raise
+SOURCE FILE: sculptcore_addon/brush_properties/responses.py
+1: # SPDX-FileCopyrightText: 2026 Blender Authors
+2: # SPDX-License-Identifier: GPL-2.0-or-later
+3: """Canonical generated responses and immutable engine-ready response descriptions."""
+4: from dataclasses import dataclass
+5: import math
+6: 
+7: from .registry import PropertyError, ResponseCurve, finite, scalar
+8: 
+9: 
+10: def evaluate(curve, x):
+11:     """Evaluate the frozen response formulas on normalized device input."""
+12:     if type(curve) is not ResponseCurve or not finite(x):
+13:         raise PropertyError("Expected a generated response and finite input")
+14:     curve = ResponseCurve(curve.preset, curve.parameters)
+15:     x = min(1.0, max(0.0, x))
+16:     name, parameters = curve.preset, curve.parameters
+17:     if name == 'CONSTANT':
+18:         return parameters[0]
+19:     if name == 'TWO_STEP':
+20:         threshold, low, high = parameters
+21:         return low if x < threshold else high
+22:     if name == 'LINEAR':
+23:         return x
+24:     if name == 'ROOT':
+25:         return math.sqrt(x)
+26:     if name == 'SQUARE':
+27:         return x * x
+28:     if name == 'SMOOTHSTEP':
+29:         return x * x * (3.0 - 2.0 * x)
+30:     if name == 'SMOOTHERSTEP':
+31:         return x * x * x * (x * (x * 6.0 - 15.0) + 10.0)
+32:     if name == 'SPHERE':
+33:         return math.sqrt(max(0.0, 2.0 * x - x * x))
+34:     if name == 'POW4':
+35:         return x * x * x * x
+36:     if name == 'INVSQUARE':
+37:         return x * (2.0 - x)
+38:     raise PropertyError("Unknown response preset")
+39: 
+40: 
+41: @dataclass(frozen=True)
+42: class SampleConfig:
+43:     count: int = 256
+44:     reverse: bool = False
+45:     clamp_output: bool = False
+46:     hardness: float = 0.0
+47: 
+48:     def __post_init__(self):
+49:         if (type(self.count) is not int or not 2 <= self.count <= 65536
+50:                 or type(self.reverse) is not bool or type(self.clamp_output) is not bool
+51:                 or not finite(self.hardness) or not 0 <= self.hardness <= 1):
+52:             raise PropertyError("Invalid response sampling configuration")
+53: 
+54: 
+55: @dataclass(frozen=True)
+56: class PreparedResponse:
+57:     """TABLE samples or an analytic CONSTANT/TWO_STEP; no saved mapping or owner."""
+58:     kind: str
+59:     samples: tuple = ()
+60:     parameters: tuple = ()
+61: 
+62:     def __post_init__(self):
+63:         if type(self.samples) is not tuple or type(self.parameters) is not tuple:
+64:             raise PropertyError("Prepared responses must be immutable")
+65:         if self.kind == 'TABLE':
+66:             if self.parameters or not 2 <= len(self.samples) <= 65536:
+67:                 raise PropertyError("Invalid response table")
+68:             for value in self.samples:
+69:                 if scalar('FLOAT32', value) != value:
+70:                     raise PropertyError("Response samples must be float32")
+71:         elif self.kind in ('CONSTANT', 'TWO_STEP') and not self.samples:
+72:             ResponseCurve(self.kind, self.parameters)
+73:         else:
+74:             raise PropertyError("Invalid prepared response")
+75: 
+76:     def evaluate(self, x):
+77:         if not finite(x):
+78:             raise PropertyError("Expected finite response input")
+79:         if self.kind != 'TABLE':
+80:             return evaluate(ResponseCurve(self.kind, self.parameters), x)
+81:         x = min(1.0, max(0.0, x)) * (len(self.samples) - 1)
+82:         index = min(int(x), len(self.samples) - 2)
+83:         factor = x - index
+84:         return self.samples[index] * (1.0 - factor) + self.samples[index + 1] * factor
+85: 
+86: 
+87: def sample(function, config):
+88:     """Bake at synchronization time; preserve legacy falloff hardness ordering."""
+89:     if type(config) is not SampleConfig:
+90:         raise PropertyError("Expected a sampling configuration")
+91:     values = []
+92:     for index in range(config.count):
+93:         x = index / (config.count - 1)
+94:         distance = 1.0 - x
+95:         if config.hardness == 1:
+96:             value = 1.0 if distance < 1 else 0.0
+97:         elif config.hardness > 0 and distance < config.hardness:
+98:             value = 1.0
+99:         else:
+100:             if config.hardness:
+101:                 x = 1.0 - (distance - config.hardness) / (1.0 - config.hardness)
+102:             value = function(1.0 - x if config.reverse else x)
+103:         if not finite(value):
+104:             raise PropertyError("Curve produced a nonfinite sample")
+105:         if config.clamp_output:
+106:             value = min(1.0, max(0.0, value))
+107:         values.append(scalar('FLOAT32', value))
+108:     return tuple(values)
+SOURCE FILE: sculptcore_addon/brush_properties/registry.py
+1: # SPDX-FileCopyrightText: 2026 Blender Authors
+2: # SPDX-License-Identifier: GPL-2.0-or-later
+3: """Stable definitions and validated immutable scalar/stack descriptions, independent of Blender."""
+4: 
+5: from dataclasses import dataclass
+6: import math
+7: import re
+8: import struct
+9: from types import MappingProxyType
+10: 
+11: DEVICE_TYPES = ('PRESSURE', 'TILT_X', 'TILT_Y', 'SPEED')
+12: CURVE_PRESET_ARITY = MappingProxyType({
+13:     'LINEAR': 0, 'ROOT': 0, 'SQUARE': 0, 'SMOOTHSTEP': 0,
+14:     'SMOOTHERSTEP': 0, 'SPHERE': 0, 'POW4': 0, 'INVSQUARE': 0,
+15:     'CONSTANT': 1, 'TWO_STEP': 3,
+16: })
+17: 
+18: 
+19: class PropertyError(ValueError):
+20:     """An authoring request or stored description violates the v1 contract."""
+21: 
+22: 
+23: class UnknownDefinition(PropertyError):
+24:     pass
+25: 
+26: 
+27: def finite(value):
+28:     try:
+29:         return type(value) in (int, float) and math.isfinite(value)
+30:     except OverflowError:
+31:         return False
+32: 
+33: 
+34: def scalar(kind, value):
+35:     if kind == 'BOOL':
+36:         if type(value) is not bool:
+37:             raise PropertyError("Boolean values must be bool")
+38:         return value
+39:     if kind == 'INT32':
+40:         if type(value) is not int or not -2147483648 <= value <= 2147483647:
+41:             raise PropertyError("Integer values must fit signed int32")
+42:         return value
+43:     if kind != 'FLOAT32' or not finite(value):
+44:         raise PropertyError("Expected a finite scalar with a supported type")
+45:     try:
+46:         result = struct.unpack('f', struct.pack('f', value))[0]
+47:     except (OverflowError, struct.error):
+48:         raise PropertyError("Float value is outside float32 storage") from None
+49:     if not math.isfinite(result):
+50:         raise PropertyError("Float value is outside float32 storage")
+51:     return result
+52: 
+53: 
+54: @dataclass(frozen=True)
+55: class Position:
+56:     location: str
+57:     sort_index: int = 0
+58: 
+59:     def __post_init__(self):
+60:         if type(self.location) is not str or not self.location or '\0' in self.location:
+61:             raise PropertyError("Positions require a nonempty location without NUL")
+62:         try:
+63:             encoded = self.location.encode('utf-8')
+64:         except UnicodeError:
+65:             raise PropertyError("Position location must be valid UTF-8") from None
+66:         if len(encoded) > 1024 or type(self.sort_index) is not int:
+67:             raise PropertyError("Positions require a stable location and integer sort index")
+68:         scalar('INT32', self.sort_index)
+69: 
+70: 
+71: def validated_positions(positions):
+72:     positions = tuple(positions)
+73:     if len(positions) > 128 or any(type(position) is not Position for position in positions):
+74:         raise PropertyError("Expected at most 128 immutable positions")
+75:     positions = tuple(Position(position.location, position.sort_index) for position in positions)
+76:     if len({position.location for position in positions}) != len(positions):
+77:         raise PropertyError("A property can appear only once per UI location")
+78:     return positions
+79: 
+80: 
+81: @dataclass(frozen=True)
+82: class ResponseCurve:
+83:     """Generated curve descriptor; carries no saved mapping."""
+84: 
+85:     preset: str = 'LINEAR'
+86:     parameters: tuple = ()
+87: 
+88:     def __post_init__(self):
+89:         parameters = tuple(self.parameters)
+90:         object.__setattr__(self, "parameters", parameters)
+91:         if self.preset not in CURVE_PRESET_ARITY or len(parameters) != CURVE_PRESET_ARITY[self.preset]:
+92:             raise PropertyError("Unknown curve descriptor or incorrect parameter count")
+93:         if any(not finite(value) for value in parameters):
+94:             raise PropertyError("Curve parameters must be finite")
+95:         if self.preset == 'TWO_STEP' and not 0 <= parameters[0] <= 1:
+96:             raise PropertyError("Step threshold must be in [0, 1]")
+97: 
+98: 
+99: @dataclass(frozen=True)
+100: class CustomCurveReference:
+101:     """Operation-scoped identity; reconstruct from the destination owner, never serialize."""
+102: 
+103:     owner_identity: tuple
+104:     identifier: str
+105:     device: str
+106:     bank_generation: int
+107:     declaration_key: int
+108:     mapping_key: tuple
+109: 
+110:     def __post_init__(self):
+111:         if (type(self.owner_identity) is not tuple or len(self.owner_identity) != 4
+112:                 or any(type(self.owner_identity[index]) is not int for index in (0, 1, 3))
+113:                 or self.owner_identity[0] <= 0 or self.owner_identity[3] <= 0
+114:                 or type(self.owner_identity[2]) is not str or self.owner_identity[2] not in ('BRUSH', 'SCENE')
+115:                 or type(self.identifier) is not str or not self.identifier
+116:                 or type(self.device) is not str or self.device not in DEVICE_TYPES
+117:                 or type(self.bank_generation) is not int or self.bank_generation <= 0
+118:                 or type(self.declaration_key) is not int or self.declaration_key <= 0
+119:                 or type(self.mapping_key) is not tuple or len(self.mapping_key) != 2
+120:                 or any(type(value) is not int or value <= 0 for value in self.mapping_key)):
+121:             raise PropertyError("Malformed custom mapping reference")
+122: 
+123: 
+124: @dataclass(frozen=True)
+125: class NativeCurveReference:
+126:     """Canonical native mapping data and current capability-selected flag path."""
+127: 
+128:     owner_identity: tuple
+129:     identifier: str
+130:     device: str
+131:     path: str
+132:     enable_path: str
+133:     mapping_key: bytes
+134: 
+135:     def __post_init__(self):
+136:         if (type(self.owner_identity) is not tuple or len(self.owner_identity) != 4
+137:                 or self.owner_identity[2] != 'BRUSH'
+138:                 or any(type(self.owner_identity[i]) is not int for i in (0, 1, 3))
+139:                 or self.owner_identity[0] <= 0 or self.owner_identity[3] <= 0
+140:                 or self.identifier not in ('sculptcore.brush.strength', 'sculptcore.brush.size')
+141:                 or self.device != 'PRESSURE' or type(self.mapping_key) is not bytes or not self.mapping_key
+142:                 or self.path not in ('curve_strength', 'curve_size')
+143:                 or self.enable_path not in ('use_pressure_strength', 'use_pressure_size',
+144:                                             'sculptcore_use_pressure_strength', 'sculptcore_use_pressure_size')):
+145:             raise PropertyError("Malformed native curve reference")
+146: 
+147: 
+148: @dataclass(frozen=True)
+149: class DeviceLayer:
+150:     device: str
+151:     enabled: bool = True
+152:     operation: str = 'MULTIPLY'
+153:     factor: float = 1.0
+154:     curve: ResponseCurve | CustomCurveReference | NativeCurveReference = ResponseCurve()
+155: 
+156:     def __post_init__(self):
+157:         if self.device not in DEVICE_TYPES:
+158:             raise PropertyError("Device input is unavailable in v1")
+159:         if type(self.enabled) is not bool or self.operation not in (
+160:                 'REPLACE', 'MULTIPLY', 'ADD', 'SUBTRACT', 'DIFFERENCE'):
+161:             raise PropertyError("Invalid device enable state or mix operation")
+162:         if not finite(self.factor) or not 0 <= self.factor <= 1:
+163:             raise PropertyError("Mix factor must be finite in [0, 1]")
+164:         if type(self.curve) not in (ResponseCurve, CustomCurveReference, NativeCurveReference):
+165:             raise PropertyError("Expected an immutable curve descriptor")
+166:         if type(self.curve) in (CustomCurveReference, NativeCurveReference) and self.curve.device != self.device:
+167:             raise PropertyError("Custom mapping device differs from its layer")
+168: 
+169: 
+170: def validated_stack(layers):
+171:     layers = tuple(layers)
+172:     if any(type(layer) is not DeviceLayer for layer in layers):
+173:         raise PropertyError("Invalid device layer")
+174:     if len({layer.device for layer in layers}) != len(layers):
+175:         raise PropertyError("Duplicate input device; imported data requires explicit repair")
+176:     return layers
+177: 
+178: 
+179: @dataclass(frozen=True)
+180: class Definition:
+181:     identifier: str
+182:     label: str
+183:     scalar_type: str
+184:     default: object
+185:     minimum: float
+186:     maximum: float
+187:     soft_minimum: float
+188:     soft_maximum: float
+189:     description: str = ""
+190:     unit: str = 'NONE'
+191:     dynamic: bool = True
+192:     owners: frozenset = frozenset(('BRUSH', 'SCENE'))
+193:     positions: tuple = ()
+194: 
+195:     def __post_init__(self):
+196:         object.__setattr__(self, "owners", frozenset(self.owners))
+197:         object.__setattr__(self, "positions", validated_positions(self.positions))
+198:         if not isinstance(self.identifier, str) or not re.fullmatch(r"[A-Za-z][A-Za-z0-9_.]*", self.identifier):
+199:             raise PropertyError("Definition requires a stable identifier")
+200:         if (not isinstance(self.label, str) or not self.label or not isinstance(self.description, str)
+201:                 or not isinstance(self.unit, str) or type(self.dynamic) is not bool
+202:                 or not self.owners or not self.owners <= {'BRUSH', 'SCENE'}):
+203:             raise PropertyError("Invalid label, dynamics or owner capability")
+204:         bounds = (self.minimum, self.soft_minimum, self.soft_maximum, self.maximum)
+205:         if any(not finite(value) for value in bounds) or tuple(sorted(bounds)) != bounds:
+206:             raise PropertyError("Invalid hard/soft limits")
+207:         if self.scalar_type == 'INT32' and (math.ceil(self.minimum) > math.floor(self.maximum)
+208:                                           or self.minimum < -2147483648 or self.maximum > 2147483647):
+209:             raise PropertyError("Invalid integer domain")
+210:         if self.scalar_type == 'BOOL' and (self.minimum < 0 or self.maximum > 1):
+211:             raise PropertyError("Invalid boolean domain")
+212:         object.__setattr__(self, "default", self.validate(self.default))
+213: 
+214:     def validate(self, value):
+215:         converted = scalar(self.scalar_type, value)
+216:         if not self.minimum <= value <= self.maximum or not self.minimum <= converted <= self.maximum:
+217:             raise PropertyError("Value is outside the definition's range")
+218:         return converted
+219: 
+220: 
+221: class Registry:
+222:     def __init__(self):
+223:         self._definitions = {}
+224:         self._revision = 0
+225: 
+226:     @property
+227:     def revision(self):
+228:         return self._revision
+229: 
+230:     def register(self, definition):
+231:         if type(definition) is not Definition:
+232:             raise PropertyError("Expected an immutable definition")
+233:         old = self._definitions.get(definition.identifier)
+234:         if old is not None:
+235:             if old != definition:
+236:                 raise PropertyError("Conflicting definition for " + definition.identifier)
+237:             return old
+238:         self._definitions[definition.identifier] = definition
+239:         self._revision += 1
+240:         return definition
+241: 
+242:     def get(self, identifier):
+243:         try:
+244:             return self._definitions[identifier]
+245:         except KeyError:
+246:             raise UnknownDefinition(identifier) from None
+247: 
+248:     def definitions(self):
+249:         return tuple(self._definitions[key] for key in sorted(self._definitions))
+SOURCE FILE: sculptcore_addon/brush_properties/adapters.py
+1: # SPDX-FileCopyrightText: 2026 Blender Authors
+2: # SPDX-License-Identifier: GPL-2.0-or-later
+3: """Authoritative native numeric settings; no engine loading or shadow values."""
+4: from dataclasses import dataclass
+5: from types import MappingProxyType
+6: 
+7: from .lifecycle import OwnerGuard
+8: from .native import STRENGTH, STRENGTH_DEFINITION
+9: from .native_v0 import ROWS
+10: from .registry import Definition, Position, PropertyError, NativeCurveReference, scalar
+11: from .resolver import Capability, ValueSource
+12: 
+13: SIZE = 'sculptcore.brush.size'
+14: PIXELS = SIZE + '_pixels'
+15: WORLD = SIZE + '_world'
+16: SIZE_ALIASES = (PIXELS, WORLD)
+17: CAVITY = 'sculptcore.brush.cavity'
+18: SIZE_DEFINITION = Definition(SIZE, "Size", 'FLOAT32', 70.0, .0010000000474974513,
+19:                              3.4028234663852886e38, 1.0, 1000.0,
+20:                              "Native brush diameter in the selected size mode",
+21:                              positions=(Position('VIEW3D_HEADER', 10), Position('BRUSH_SETTINGS', 10)))
+22: DEFINITIONS = (STRENGTH_DEFINITION, SIZE_DEFINITION) + tuple(
+23:     Definition(identifier, path.rsplit('.', 1)[-1].replace('_', ' ').title(), kind, default,
+24:                minimum, maximum, soft_min, soft_max, description, dynamic=dynamic,
+25:                positions=(Position('BRUSH_SETTINGS', 30 + index),))
+26:     for index, (identifier, path, kind, default, minimum, maximum, soft_min, soft_max,
+27:                 description, dynamic) in enumerate(ROWS))
+28: BY_ID = MappingProxyType({definition.identifier: definition for definition in DEFINITIONS})
+29: PATHS = MappingProxyType({row[0]: row[1] for row in ROWS} | {STRENGTH: 'strength'})
+30: 
+31: 
+32: def policy_identifier(identifier):
+33:     if identifier in SIZE_ALIASES:
+34:         return SIZE
+35:     if identifier.startswith(CAVITY + '.'):
+36:         return CAVITY + '.cavity_factor'
+37:     return identifier
+38: 
+39: 
+40: @dataclass(frozen=True)
+41: class ValueDomain:
+42:     kind: str
+43:     minimum: float
+44:     maximum: float
+45:     soft_minimum: float
+46:     soft_maximum: float
+47:     unit: str
+48:     path: str
+49: 
+50:     def validate(self, value):
+51:         # The common semantic size may arrive as an exactly integral FLOAT32.
+52:         if self.kind == 'INT32' and type(value) is float and value.is_integer():
+53:             value = int(value)
+54:         converted = scalar(self.kind, value)
+55:         if not self.minimum <= value <= self.maximum or not self.minimum <= converted <= self.maximum:
+56:             raise PropertyError("Value is outside the current native domain")
+57:         return converted
+58: 
+59: 
+60: @dataclass(frozen=True)
+61: class SizeBlock:
+62:     pixels: int
+63:     world: float
+64:     mode: str
+65:     owner_identity: tuple
+66: 
+67: 
+68: class NativeOwner:
+69:     def __init__(self, owner, *, epoch=0):
+70:         self._guard = OwnerGuard(owner, epoch=epoch)
+71:         self.owner = owner
+72:         self.kind = self._guard.kind
+73: 
+74:     def handles(self, identifier):
+75:         self._guard.check()
+76:         return (identifier in BY_ID and
+77:                 (self.kind == 'BRUSH' or identifier in (STRENGTH, SIZE, *SIZE_ALIASES)
+78:                  or identifier.startswith(CAVITY + '.')))
+79: 
+80:     def settings(self):
+81:         self._guard.check()
+82:         if self.kind == 'BRUSH':
+83:             return self.owner
+84:         sculpt = self.owner.tool_settings.sculpt
+85:         return sculpt.unified_paint_settings if sculpt is not None else None
+86: 
+87:     def cavity(self):
+88:         self._guard.check()
+89:         parent = self.owner if self.kind == 'BRUSH' else self.owner.tool_settings.sculpt
+90:         return parent.mesh_automasking_settings if parent is not None else None
+91: 
+92:     def binding(self, identifier):
+93:         if not self.handles(identifier):
+94:             raise PropertyError("No authoritative native value binding")
+95:         if identifier.startswith(CAVITY + '.'):
+96:             parent, path = self.cavity(), PATHS[identifier].split('.', 1)[1]
+97:         else:
+98:             parent = self.settings() if identifier in (STRENGTH, SIZE, *SIZE_ALIASES) else self.owner
+99:             path = ('unprojected_size' if parent and parent.use_locked_size == 'SCENE' else 'size'
+100:                     ) if identifier == SIZE else PATHS[identifier]
+101:         if parent is None:
+102:             raise PropertyError("Native settings are unavailable")
+103:         return parent, path
+104: 
+105:     def capability(self, definition):
+106:         try:
+107:             self.binding(definition.identifier)
+108:         except PropertyError:
+109:             return Capability(False, False, False, 'native_owner_unavailable')
+110:         return Capability(True, definition.identifier not in SIZE_ALIASES, False,
+111:                           'generic_execution_adapter_pending')
+112: 
+113:     def value_domain(self, definition):
+114:         parent, path = self.binding(definition.identifier)
+115:         prop = parent.bl_rna.properties[path]
+116:         kind = {'FLOAT': 'FLOAT32', 'INT': 'INT32', 'BOOLEAN': 'BOOL'}[prop.type]
+117:         if kind == 'BOOL':
+118:             return ValueDomain(kind, 0, 1, 0, 1, 'NONE', path)
+119:         return ValueDomain(kind, prop.hard_min, prop.hard_max, prop.soft_min, prop.soft_max, prop.unit, path)
+120: 
+121:     def read_value(self, definition):
+122:         parent, path = self.binding(definition.identifier)
+123:         return ValueSource(getattr(parent, path), True, 'NATIVE')
+124: 
+125:     def validate_value(self, definition, value):
+126:         # Frozen registry validation remains fixed; native bounds further constrain it.
+127:         value = definition.validate(value)
+128:         return self.value_domain(definition).validate(value)
+129: 
+130:     def write_value(self, definition, value):
+131:         self._guard.check(write=True)
+132:         value = self.validate_value(definition, value)
+133:         parent, path = self.binding(definition.identifier)
+134:         if getattr(parent, path) == value:
+135:             return
+136:         if definition.identifier in (SIZE, *SIZE_ALIASES):
+137:             pixels, world = parent.size, parent.unprojected_size
+138:             if path == 'size':
+139:                 world = scalar('FLOAT32', world * scalar('FLOAT32', value / pixels))
+140:                 pixels = value
+141:             else:
+142:                 world = value
+143:             # Blender's pixel setter rescales its world partner without clamping.
+144:             for name, paired in (('size', pixels), ('unprojected_size', world)):
+145:                 prop = parent.bl_rna.properties[name]
+146:                 if not prop.hard_min <= paired <= prop.hard_max:
+147:                     raise PropertyError("Size edit would put the paired native value outside its range")
+148:         setattr(parent, path, value)
+149: 
+150:     def size_block(self):
+151:         parent = self.settings()
+152:         if parent is None:
+153:             raise PropertyError("Native size settings are unavailable")
+154:         return SizeBlock(parent.size, parent.unprojected_size, parent.use_locked_size, self._guard.identity)
+155: 
+156:     def write_size_mode(self, mode):
+157:         self._guard.check(write=True)
+158:         if mode not in ('VIEW', 'SCENE'):
+159:             raise PropertyError("Unknown native size mode")
+160:         parent = self.settings()
+161:         if parent is None:
+162:             raise PropertyError("Native size settings are unavailable")
+163:         if parent.use_locked_size != mode:
+164:             parent.use_locked_size = mode
+165: 
+166:     def unified(self, identifier):
+167:         parent = self.settings()
+168:         if self.kind != 'SCENE' or parent is None:
+169:             return False
+170:         return getattr(parent, 'use_unified_size' if policy_identifier(identifier) == SIZE
+171:                        else 'use_unified_strength')
+172: 
+173:     def write_unified(self, identifier, enabled):
+174:         self._guard.check(write=True)
+175:         if self.kind != 'SCENE' or type(enabled) is not bool:
+176:             raise PropertyError("Unified native flags belong to Scene")
+177:         parent = self.settings()
+178:         if parent is None:
+179:             raise PropertyError("Native unified settings are unavailable")
+180:         path = 'use_unified_size' if policy_identifier(identifier) == SIZE else 'use_unified_strength'
+181:         if getattr(parent, path) != enabled:
+182:             setattr(parent, path, enabled)
+183: 
+184:     def pressure_path(self, identifier):
+185:         self._guard.check()
+186:         if self.kind != 'BRUSH' or identifier not in (STRENGTH, SIZE):
+187:             raise PropertyError("Native pressure belongs to Brush strength/size")
+188:         suffix = 'strength' if identifier == STRENGTH else 'size'
+189:         supported = getattr(self.owner.sculpt_capabilities, 'has_' + suffix + '_pressure')
+190:         path = ('use_pressure_' if supported else 'sculptcore_use_pressure_') + suffix
+191:         if not hasattr(self.owner, path):
+192:             raise PropertyError("Native/shadow pressure capability is unavailable")
+193:         return path
+194: 
+195:     def pressure_enabled(self, identifier):
+196:         return getattr(self.owner, self.pressure_path(identifier))
+197: 
+198:     def write_pressure(self, identifier, enabled):
+199:         self._guard.check(write=True)
+200:         path = self.pressure_path(identifier)
+201:         if type(enabled) is not bool:
+202:             raise PropertyError("Pressure enable requires bool")
+203:         if getattr(self.owner, path) != enabled:
+204:             setattr(self.owner, path, enabled)
+205: 
+206:     def curve_reference(self, identifier):
+207:         flag = self.pressure_path(identifier)
+208:         path = 'curve_strength' if identifier == STRENGTH else 'curve_size'
+209:         try:
+210:             key = self.owner.authoring_native_curve_key(path)
+211:         except (ValueError, TypeError, PermissionError) as error:
+212:             raise PropertyError(str(error)) from error
+213:         return NativeCurveReference(self._guard.identity, identifier, 'PRESSURE', path, flag, key)
+214: 
+215:     def curve_mapping(self, reference):
+216:         reference = NativeCurveReference(reference.owner_identity, reference.identifier, reference.device,
+217:                                          reference.path, reference.enable_path, reference.mapping_key)
+218:         if self.curve_reference(reference.identifier) != reference:
+219:             raise PropertyError("Native curve reference is stale or belongs to another owner")
+220:         return getattr(self.owner, reference.path)
+221: 
+222: 
+223: def radius_from_diameter(diameter):
+224:     return scalar('FLOAT32', diameter) / 2.0
+225: 
+226: 
+227: def spacing_fraction(percent):
+228:     return max(1, percent) / 100.0
+229: 
+230: 
+231: def snake_pinch(factor):
+232:     return 2.0 * (.5 - factor)
+233: 
+234: 
+235: def strength_multiplier(brush_type):
+236:     return 2.0 if brush_type == 'DRAW_SHARP' else 1.0
+237: 
+238: 
+239: def accumulate_value(brush_type, authored, *, has_accumulate=True, operation_mode=None):
+240:     return (operation_mode in ('SMOOTH', 'MASK') or brush_type == 'DRAW_SHARP'
+241:             or not has_accumulate or authored)
+242: 
+243: 
+244: def direction_sign(direction, invert=False):
+245:     if direction not in ('ADD', 'SUBTRACT') or type(invert) is not bool:
+246:         raise PropertyError("Invalid brush direction")
+247:     return -1 if (direction == 'SUBTRACT') != invert else 1
+248: 
+249: 
+250: def invert_for_dab(direction, invert, *, allow_invert=True):
+251:     """Preserve the existing bridge's SUBTRACT test and smoothing override."""
+252:     if type(direction) is not str or type(invert) is not bool or type(allow_invert) is not bool:
+253:         raise PropertyError("Invalid dab direction policy")
+254:     return (invert != (direction == 'SUBTRACT')) if allow_invert else False
+SOURCE FILE: sculptcore_addon/stroke_input.py
+1: # SPDX-FileCopyrightText: 2026 Blender Authors
+2: # SPDX-License-Identifier: GPL-2.0-or-later
+3: 
+4: """Immutable device samples and acquisition-time derivatives for a stroke."""
+5: 
+6: from dataclasses import dataclass
+7: import math
+8: 
+9: 
+10: def _finite(value, low, high):
+11:     value = float(value)
+12:     return min(high, max(low, value)) if math.isfinite(value) else None
+13: 
+14: 
+15: @dataclass(frozen=True)
+16: class InputSample:
+17:     pressure: float | None = None
+18:     tilt_x: float | None = None
+19:     tilt_y: float | None = None
+20:     speed: float | None = None
+21:     time: float | None = None
+22:     invert: bool = False
+23: 
+24:     @property
+25:     def channels(self):
+26:         return (self.pressure, self.tilt_x, self.tilt_y, self.speed)
+27: 
+28:     def upload(self, brush):
+29:         brush.clearDeviceInputs()
+30:         for device, value in enumerate(self.channels):
+31:             if value is not None:
+32:                 brush.pushDeviceInput(device, value)
+33: 
+34:     def batch_row(self):
+35:         """Four normalized values followed by their exact small integer presence mask."""
+36:         mask = sum(1 << i for i, value in enumerate(self.channels) if value is not None)
+37:         return tuple(0.0 if value is None else value for value in self.channels) + (mask,)
+38: 
+39:     @staticmethod
+40:     def interpolate(a, b, fraction):
+41:         fraction = min(1.0, max(0.0, fraction))
+42: 
+43:         def mix(x, y):
+44:             return None if x is None or y is None else x + (y - x) * fraction
+45: 
+46:         return InputSample(
+47:             mix(a.pressure, b.pressure), mix(a.tilt_x, b.tilt_x), mix(a.tilt_y, b.tilt_y),
+48:             b.speed if a.time is not None and b.time is not None else None,
+49:             mix(a.time, b.time), b.invert,
+50:         )
+51: 
+52: 
+53: class InputSampler:
+54:     def __init__(self, speed_reference=1000.0):
+55:         self.speed_reference = float(speed_reference)
+56:         if not math.isfinite(self.speed_reference) or self.speed_reference <= 0:
+57:             raise ValueError("Speed reference must be finite and positive")
+58:         self._anchor = None
+59: 
+60:     def read(self, event, coord, invert=False):
+61:         # A redraw-generated move must not change spacing or derivative history.
+62:         if not getattr(event, "is_input_sample", True):
+63:             return None
+64:         tablet = bool(event.is_tablet)
+65:         pressure = 1.0 if not tablet else (
+66:             _finite(event.pressure, 0.0, 1.0) if getattr(event, "has_pressure", True) else None)
+67:         tilt = event.tilt if tablet else (0.0, 0.0)
+68:         axes = []
+69:         for index, name in enumerate(("has_tilt_x", "has_tilt_y")):
+70:             value = _finite(tilt[index], -1.0, 1.0) if tablet and getattr(event, name, False) else None
+71:             axes.append(None if value is None else (value + 1.0) * 0.5)
+72:         time = float(event.time) if getattr(event, "has_time", False) else None
+73:         if time is not None and (not math.isfinite(time) or time < 0):
+74:             time = None
+75:         speed = None
+76:         if time is None:
+77:             self._anchor = None
+78:         elif self._anchor is None:
+79:             speed = 0.0
+80:             self._anchor = (tuple(coord), time)
+81:         else:
+82:             previous, previous_time = self._anchor
+83:             if time <= previous_time:
+84:                 # Do not interpolate a segment through an invalid time transition.
+85:                 time = None
+86:                 self._anchor = None
+87:             else:
+88:                 speed = min(1.0, math.dist(previous, coord) / (time - previous_time) / self.speed_reference)
+89:                 self._anchor = (tuple(coord), time)
+90:         return InputSample(pressure, *axes, speed, time, bool(invert))
+SOURCE FILE: sculptcore_addon/mapping.py
+1: # SPDX-FileCopyrightText: 2026 Blender Authors
+2: #
+3: # SPDX-License-Identifier: GPL-2.0-or-later
+4: 
+5: """
+6: Blender Brush -> SculptCore Brush mapping (declarative table).
+7: 
+8: M1: the per-dab sculpting brushes. Each entry names the SculptCore kernel
+9: and (optionally) per-type field values applied on stroke start. World-space
+10: radius unprojection is the stroke operator's job; this layer copies
+11: engine-space fields only.
+12: 
+13: Pose is intentionally *not* supported yet: it needs per-stroke pose-cage
+14: anchor state a bare per-dab ``execBrush`` doesn't set up (and crashes
+15: without it). ``kernel_enum`` returns None for it so the stroke operator
+16: refuses cleanly rather than crashing.
+17: """
+18: 
+19: # Engine constants for the device-dynamics seam (brush.h BrushProp ids,
+20: # prop_dynamics.h DeviceType, litestl mix.h BasicMix). Legacy pressure uses
+21: # the checked CommonProperties adapter with these fixed property IDs.
+22: PROP_STRENGTH = 0
+23: PROP_RADIUS = 1
+24: DEVICE_PRESSURE = 0
+25: MIX_MULTIPLY = 1
+26: 
+27: # Blender sculpt_brush_type -> (SculptCore SculptBrushes name, extra fields).
+28: # `extra` is a dict of SculptCore Brush field -> value/callable(bl_brush).
+29: # Verified per-dab via the parity harness (test_brush_parity).
+30: _MAP = {
+31:     'DRAW': ("DRAW", {}),
+32:     # Vanilla Draw Sharp is a plain normal-offset draw with falloff factors
+33:     # from original coordinates (do_draw_sharp_brush) — no pinch. pinch is
+34:     # reset explicitly because the session Brush is shared across strokes and
+35:     # a prior PINCH stroke would otherwise leak its value into SHARP.
+36:     'DRAW_SHARP': ("SHARP", {"pinch": 0.0}),
+37:     'INFLATE': ("INFLATE", {}),
+38:     # Layer rides the layerdraw kernel: the dab writes a sculpt-layer channel
+39:     # (recomposited by weight) instead of base co, so a stroke can be
+40:     # re-weighted or disabled after the fact. The stroke operator creates the
+41:     # write target on first use (layers.ensure_stroke_target); vanilla's
+42:     # height cap and persistent base are out of scope for now.
+43:     'LAYER': ("LAYERDRAW", {}),
+44:     # Clay + plane family: map the plane offset; the default plane side (+1)
+45:     # produces sensible output at a convex surface (a -1 scrape side finds
+46:     # nothing above the tangent plane on a sphere). Blender's 'PLANE' is the
+47:     # unified flatten/fill brush and 'MULTIPLANE_SCRAPE' the scrape; precise
+48:     # per-mode side/offset semantics is a later refinement.
+49:     'CLAY': ("CLAY", {"planeoff": lambda b: b.plane_offset}),
+50:     'CLAY_STRIPS': ("CLAY", {"planeoff": lambda b: b.plane_offset}),
+51:     'PLANE': ("FILL", {"planeoff": lambda b: b.plane_offset}),
+52:     'MULTIPLANE_SCRAPE': ("SCRAPE", {"planeoff": lambda b: b.plane_offset}),
+53:     # BSMOOTH (boundary-aware smooth): identical to plain SMOOTH on meshes
+54:     # with no marked feature edges. Seam/sharp edge flags transfer to the
+55:     # engine on enter (convert._load_edge_flags), so marked features hold
+56:     # under smoothing (verified: a sharp-marked crest erodes 0% vs 66% of its
+57:     # height unmarked — claudeMemory/tests/bsmooth_boundary_test.py).
+58:     'SMOOTH': ("BSMOOTH", {}),
+59:     'PINCH': ("PINCH", {"pinch": lambda b: b.strength}),
+60:     # Nudge runs an addon-carried extra kernel (brushes/nudge.sbrush), compiled
+61:     # into the DLL at build time; a stale vendored DLL without it makes
+62:     # kernel_enum return None and the stroke cancel cleanly. Its tunable
+63:     # (nudgeProjection) is a namedFloats store uniform written by
+64:     # engine_props.apply, so no per-stroke field reset is needed here.
+65:     'NUDGE': ("NUDGE", {}),
+66:     'MASK': ("MASK", {}),
+67:     # Vertex paint: brushColor synced from the Blender brush color (see
+68:     # apply_brush); writes the `color` float4 vertex attr.
+69:     'PAINT': ("COLOR", {}),
+70:     # Face sets: paint the `group` face attr; the stroke operator assigns a
+71:     # fresh active group id per stroke (see FACE_SET_TYPES).
+72:     'DRAW_FACE_SETS': ("POLYGROUP", {}),
+73:     # Snake hook dabs along the stroke, but its kernel is driven by the grab
+74:     # ctx vectors (`@incremental`, see is_snake_hook); the stroke operator sets
+75:     # them per dab image and advances the dab center with the extruded tip.
+76:     # Blender's pinch
+77:     # control (crease_pinch_factor, labelled "Magnify" for this brush) is 0..1
+78:     # with 0.5 neutral and pinching below it; the kernel takes the engine's
+79:     # 0-means-off convention, so remap here — 2 * (0.5 - factor), positive
+80:     # pinching in, negative inflating. Written on every snake-hook stroke, so
+81:     # the shared `pinch` member cannot leak in from a prior PINCH stroke.
+82:     'SNAKE_HOOK': ("SNAKEHOOK", {"pinch": lambda b: 2.0 * (0.5 - b.crease_pinch_factor)}),
+83:     # Grab dabs at a fixed anchor and reads the cumulative cursor delta
+84:     # (grabTo/grabFrom); the stroke operator drives it via the grab-class path.
+85:     'GRAB': ("GRAB", {}),
+86:     # Elastic deform = a Kelvinlet soft-body grab (same grabFrom/grabTo state,
+87:     # engine mu/nu defaults ~ soft rubber).
+88:     'ELASTIC_DEFORM': ("KELVINLET", {}),
+89:     # Thumb is Grab with the drag flattened into the surface, so it smears
+90:     # sideways instead of pulling out — same kernel, different vector (see
+91:     # TANGENT_DRAG).
+92:     'THUMB': ("GRAB", {}),
+93: }
+94: 
+95: # Brush types whose cursor drag is projected into the tangent plane of the
+96: # stroke's sculpt normal before the GRAB kernel sees it, and scaled by strength
+97: # — vanilla's do_thumb_brush (`cross(cross(n, delta), n) * bstrength`; Grab
+98: # itself drags by the raw delta and ignores strength). This is not engine
+99: # policy: the kernel is the same anchored from-orig grab either way and only
+100: # the vector the host hands it differs, so it belongs in a host table next to
+101: # _MAP rather than in a kernel annotation.
+102: TANGENT_DRAG = {'THUMB'}
+103: 
+104: 
+105: def drag_offset(bl_brush, delta, normal, strength):
+106:     """The object-space drag to hand the GRAB kernel for one grab dab, given the
+107:     raw cursor delta. Identity outside TANGENT_DRAG."""
+108:     if bl_brush.sculpt_brush_type not in TANGENT_DRAG:
+109:         return delta
+110: 
+111:     import mathutils
+112: 
+113:     n = mathutils.Vector(normal)
+114:     if n.length_squared == 0.0:
+115:         return delta
+116:     n.normalize()
+117:     d = mathutils.Vector(delta)
+118:     return tuple(n.cross(d).cross(n) * strength)
+119: 
+120: # Types whose vanilla brush adds its offset EVERY dab regardless of the
+121: # Accumulate toggle (do_draw_sharp_brush has no accumulate branch; its
+122: # "sharp" stability comes from orig-coordinate falloff factors, not from
+123: # capping displacement). The engine's nonAccum instead freezes the stroke at
+124: # single-dab depth — near-invisible for a subtle brush — so the operator
+125: # forces per-dab accumulation for these.
+126: FORCE_ACCUMULATE = {'DRAW_SHARP'}
+127: 
+128: # Per-type strength compensation folded into every dab. The engine SHARP
+129: # kernel displaces by strength * radius * 0.5; vanilla's draw-sharp offset is
+130: # normal * radius * strength (no 0.5), so double the strength to match.
+131: STRENGTH_SCALE = {'DRAW_SHARP': 2.0}
+132: 
+133: # Brush types that paint face sets — the operator assigns a fresh `activeGroup`
+134: # id (max existing + 1) at stroke start.
+135: FACE_SET_TYPES = {'DRAW_FACE_SETS'}
+136: 
+137: # Brush types that paint the `color` vertex attr — on multires, the only ones
+138: # that pay for the cage colour write-back (convert.sync_cage_vert_color).
+139: COLOR_TYPES = {'PAINT'}
+140: 
+141: # Kernels that exist but need infrastructure not wired yet — kept for
+142: # reference / a future UI "unsupported" hint, never entered.
+143: UNSUPPORTED = {
+144:     'POSE': "needs the pose-cage anchor path",
+145: }
+146: 
+147: 
+148: def _policy(bl_brush):
+149:     """The engine-declared policy for the kernel this Blender brush maps to.
+150:     Which brush type maps to which kernel is a host decision (the table above);
+151:     how that kernel wants to be driven is not — it is queried, never listed
+152:     here, so a kernel's annotations can change without a host edit."""
+153:     from . import brush_policy, engine
+154: 
+155:     if bl_brush is None:
+156:         return brush_policy.for_kernel(None)
+157:     return brush_policy.for_kernel(kernel_enum(engine.manager(), bl_brush))
+158: 
+159: 
+160: def is_grab_class(bl_brush):
+161:     """Anchored, from-orig grab (`@grabmode`): the dab stays at the stroke's
+162:     anchor and the deform follows the cumulative cursor delta, rather than
+163:     dabbing along the stroke at the moving cursor."""
+164:     return _policy(bl_brush).grab_mode_capable
+165: 
+166: 
+167: def is_snake_hook(bl_brush):
+168:     """Path-style grab (`@incremental`): the kernel reads the grab ctx vectors
+169:     — grabFrom is the dab center, grabTo the step since the previous dab, and
+170:     it gathers toward grabFrom + grabTo — but keeps dabbing along the stroke, so
+171:     it takes the normal (spacer / preview) path rather than the anchored one.
+172:     Left unset, both vectors default to the origin and the kernel contracts
+173:     geometry toward the object origin instead of hooking. The spacer path also
+174:     walks the dab center out with the extruded tip rather than raycasting each
+175:     sample — see stroke._snake_hook_advance."""
+176:     return _policy(bl_brush).incremental
+177: 
+178: 
+179: def pressure_prop_names(bl_brush):
+180:     """The ``(strength, size)`` pen-pressure toggle property names to draw and
+181:     read for ``bl_brush`` — Blender's own where they mean something there, this
+182:     addon's shadow toggles (props._PRESSURE_PROPS) where they do not.
+183: 
+184:     Vanilla gates each row on ``sculpt_capabilities.has_*_pressure``, so on a
+185:     brush where that reads False its ``use_pressure_*`` is never drawn and never
+186:     consulted; whatever the shipped asset happens to store is noise (the Snake
+187:     Hook asset stores strength pressure on). This mode drives those brushes with
+188:     pressure all the same, so it substitutes toggles it owns — same rows, same
+189:     response curves, but a default it controls: off, which is what vanilla
+190:     effectively does. Brushes vanilla does support keep their own flags, so
+191:     nothing an artist already set changes.
+192:     """
+193:     caps = bl_brush.sculpt_capabilities
+194:     return (
+195:         "use_pressure_strength" if caps.has_strength_pressure
+196:         else "sculptcore_use_pressure_strength",
+197:         "use_pressure_size" if caps.has_size_pressure
+198:         else "sculptcore_use_pressure_size",
+199:     )
+200: 
+201: 
+202: # SculptCore FalloffKind / FalloffShape enum values (brush.h).
+203: _FALLOFF_KIND_CURVE = 3
+204: _FALLOFF_SHAPE_SPHERICAL = 0
+205: 
+206: 
+207: # Closed-form preset falloffs, keyed by `curve_distance_falloff_preset`. `t`
+208: # is 1 - normalized distance (1 at center, 0 at edge) — the same value the
+209: # engine feeds falloffEval. Mirrors BKE_brush_curve_strength so brush feel
+210: # matches Blender exactly; CUSTOM samples the editable CurveMapping instead.
+211: _PRESET_FALLOFF = {
+212:     'SHARP': lambda t: t * t,
+213:     'SMOOTH': lambda t: 3.0 * t * t - 2.0 * t * t * t,
+214:     'SMOOTHER': lambda t: t * t * t * (t * (t * 6.0 - 15.0) + 10.0),
+215:     'ROOT': lambda t: t ** 0.5,
+216:     'LIN': lambda t: t,
+217:     'CONSTANT': lambda t: 1.0,
+218:     'SPHERE': lambda t: max(0.0, 2.0 * t - t * t) ** 0.5,
+219:     'POW4': lambda t: t * t * t * t,
+220:     'INVSQUARE': lambda t: t * (2.0 - t),
+221: }
+222: 
+223: 
+224: def _upload_lut(cache, key, values, sc_brush):
+225:     """Keep immutable table installation scoped to a live target and lifecycle epoch."""
+226:     from .brush_properties import sampling
+227:     values = tuple(values)
+228:     previous = cache.get(key) if cache is not None else None
+229:     if (previous is not None and previous[0] is sc_brush
+230:             and previous[1:] == (sampling.epoch, values)):
+231:         return
+232:     if len(values) != 256:
+233:         raise ValueError("Legacy falloff and cavity tables require exactly 256 entries")
+234:     from . import engine
+235:     from sculptcore.brush_properties import replace_fixed_curve
+236:     replace_fixed_curve(engine.manager(), sc_brush, key, values)
+237:     if cache is not None:
+238:         cache[key] = (sc_brush, sampling.epoch, values)
+239:         cache['table_uploads'] = cache.get('table_uploads', 0) + 1
+240: 
+241: 
+242: def _bake_falloff(bl_brush, sc_brush, cache=None):
+243:     from .brush_properties import sampling
+244:     from .brush_properties.responses import PreparedResponse, SampleConfig, sample
+245:     preset = bl_brush.curve_distance_falloff_preset
+246:     fn = _PRESET_FALLOFF.get(preset)
+247:     config = SampleConfig(reverse=fn is None, clamp_output=True,
+248:                           hardness=min(1.0, max(0.0, bl_brush.hardness)))
+249:     if fn is None:
+250:         response = sampling.native_response(bl_brush, 'curve_distance_falloff', config)
+251:     else:
+252:         key = ('LEGACY_FALLOFF', preset, config)
+253:         response = sampling.cache.get(key)
+254:         if response is None:
+255:             response = PreparedResponse('TABLE', sample(fn, config))
+256:             sampling.cache.bakes += 1
+257:             sampling.cache.put(key, response, config)
+258:     _upload_lut(cache, 'falloff', response.samples, sc_brush)
+259:     sc_brush.falloff_kind = _FALLOFF_KIND_CURVE
+260:     sc_brush.falloff_shape = _FALLOFF_SHAPE_SPHERICAL
+261: 
+262: 
+263: # Cavity automasking. The engine mirrors Blender's estimator and remap
+264: # (automask.h, ported from `calc_cavity_factor`), so the mapping is a direct
+265: # field copy plus the optional custom curve baked into the engine's LUT.
+266: 
+267: 
+268: def cavity_settings(bl_brush, paint):
+269:     """The `MeshAutomaskingSettings` that governs cavity for this stroke, or
+270:     None when cavity automasking is off.
+271: 
+272:     Mirrors Blender's `automasking_flags_get` precedence: the brush's own
+273:     cavity flags win when it enables either cavity mode, otherwise the
+274:     Paint-level settings apply."""
+275:     for settings in (bl_brush.mesh_automasking_settings if bl_brush else None,
+276:                      paint.mesh_automasking_settings if paint else None):
+277:         if settings is not None and (settings.use_automasking_cavity
+278:                                      or settings.use_automasking_cavity_inverted):
+279:             return settings
+280:     return None
+281: 
+282: 
+283: def _apply_cavity(settings, sc_brush, cache=None):
+284:     """Copy the resolved cavity settings onto the engine brush. The executor
+285:     pre-fills a per-vertex factor once per stroke when `automask_cavity` is
+286:     set; every kernel that reads the strength intrinsic is masked by it."""
+287:     if settings is None:
+288:         sc_brush.automask_cavity = False
+289:         return
+290: 
+291:     sc_brush.automask_cavity = True
+292:     sc_brush.cavity_inverted = bool(settings.use_automasking_cavity_inverted)
+293:     sc_brush.cavity_factor = settings.cavity_factor
+294:     sc_brush.cavity_blur_steps = settings.cavity_blur_steps
+295: 
+296:     use_curve = bool(settings.use_automasking_custom_cavity_curve)
+297:     sc_brush.cavity_use_curve = use_curve
+298:     if not use_curve:
+299:         return
+300:     # The engine samples the LUT in un-inverted space and inverts afterwards,
+301:     # the same order Blender evaluates the curve in, so bake it as authored.
+302:     from .brush_properties import sampling
+303:     from .brush_properties.responses import SampleConfig
+304:     owner = settings.id_data
+305:     path = ('mesh_automasking_settings.cavity_curve' if owner.bl_rna.identifier == 'Brush'
+306:             else 'tool_settings.sculpt.mesh_automasking_settings.cavity_curve')
+307:     response = sampling.native_response(owner, path, SampleConfig(clamp_output=True))
+308:     _upload_lut(cache, 'cavity', response.samples, sc_brush)
+309: 
+310: 
+311: 
+312: # Pen-pressure response curves. Blender maps tablet pressure to a strength /
+313: # size factor through the Brush.curve_strength / Brush.curve_size
+314: # CurveMappings (vanilla BKE_curvemapping_evaluateF(curve, 0, pressure)). The
+315: # engine mirrors this with a per-device response table (prop_dynamics.h
+316: # DynamicDevice.curveTable); the smooth brush folds pressure in Python-side, so
+317: # the same table is also sampled directly. Definitions synchronize at stroke
+318: # start; unchanged curves reuse immutable tables. No baking occurs per dab.
+319: 
+320: 
+321: def sample_pressure_curve(owner, path):
+322:     """Resolve native authority once at stroke start; unchanged definitions reuse samples."""
+323:     from .brush_properties.sampling import native_response
+324:     return native_response(owner, path).samples
+325: 
+326: 
+327: def eval_pressure_lut(lut, pressure):
+328:     """Look up a pressure factor in a table from ``sample_pressure_curve``,
+329:     using the same clamped linear interpolation as the engine's ``deviceFactor``
+330:     so the Python-side (smooth) and engine-side paths agree."""
+331:     n = len(lut)
+332:     x = min(1.0, max(0.0, pressure)) * (n - 1)
+333:     i = int(x)
+334:     if i >= n - 1:
+335:         return lut[n - 1]
+336:     t = x - i
+337:     return lut[i] * (1.0 - t) + lut[i + 1] * t
+338: 
+339: 
+340: def apply_pressure_dynamics(bl_brush, sc_brush, *, use_strength, use_size, cache=None):
+341:     """Configure the engine's per-stroke pressure dynamics: a MULTIPLY device
+342:     layer per pressure-enabled channel, carrying the cached response curve from
+343:     the matching Brush CurveMapping. Runs once per stroke; the operator refills the device sample
+344:     with the event pressure each dab. Passing both flags false — a smooth or
+345:     grab-class stroke — clears both channels, so no stale dynamic survives.
+346: 
+347:     ``cache`` is the session's curve memo: a stroke asking for the configuration
+348:     the engine already holds reuses it instead of re-marshalling 512 samples
+349:     across the ctypes boundary."""
+350:     from . import engine
+351:     from .brush_properties.uploads import StackUploads
+352:     from sculptcore.brush_properties import CommonProperties, DeviceLayer
+353:     want = (sample_pressure_curve(bl_brush, 'curve_strength') if use_strength else None,
+354:             sample_pressure_curve(bl_brush, 'curve_size') if use_size else None)
+355:     memo = cache.setdefault('pressure_uploads', StackUploads()) if cache is not None else StackUploads()
+356:     stacks = tuple((prop, () if table is None else (DeviceLayer(DEVICE_PRESSURE, samples=table),))
+357:                    for prop, table in ((PROP_STRENGTH, want[0]), (PROP_RADIUS, want[1])))
+358:     memo.install(sc_brush, CommonProperties(engine.manager(), sc_brush), stacks, command='legacy-pressure')
+359: 
+360: 
+361: 
+362: # For UI / diagnostics: every mapped type (supported or not).
+363: KERNEL_BY_TYPE = {t: v[0] for t, v in _MAP.items()}
+364: 
+365: 
+366: def is_supported(bl_brush):
+367:     return bl_brush is not None and bl_brush.sculpt_brush_type in _MAP
+368: 
+369: 
+370: def kernel_enum(mgr, bl_brush):
+371:     """The SculptBrushes enum value for a Blender brush, or None when the
+372:     brush type is not supported for sculpting yet — or when the loaded DLL
+373:     lacks the kernel (a stale vendored build without an extra kernel)."""
+374:     entry = _MAP.get(bl_brush.sculpt_brush_type)
+375:     if entry is None:
+376:         return None
+377:     value = mgr.get("sculptcore::brush::SculptBrushes").items.get(entry[0])
+378:     return None if value is None else int(value)
+379: 
+380: 
+381: def apply_brush_settings(bl_brush, unified, sc_brush, *, paint=None, cache=None):
+382:     """Configure the stroke-constant part of a SculptCore Brush from a
+383:     Blender Brush: scalar settings, per-type extras, and cached falloff/cavity
+384:     tables. Changed tables upload in bulk; their inputs stay fixed while
+385:     a stroke is running, so this runs once at stroke start and
+386:     ``apply_dab_state`` writes the per-dab values on top.
+387: 
+388:     ``unified`` is the per-Paint ``UnifiedPaintSettings`` (may be None).
+389:     ``paint`` is the owning ``Paint`` (``tool_settings.sculpt``), consulted
+390:     for automasking settings the brush itself does not override; without it
+391:     only the brush's own settings apply.
+392:     """
+393:     strength = bl_brush.strength
+394:     if unified is not None and unified.use_unified_strength:
+395:         strength = unified.strength
+396: 
+397:     sc_brush.strength = strength
+398:     sc_brush.spacing = max(bl_brush.spacing, 1) / 100.0  # percent -> fraction
+399: 
+400:     entry = _MAP.get(bl_brush.sculpt_brush_type)
+401:     if entry is not None:
+402:         for field, value in entry[1].items():
+403:             setattr(sc_brush, field, value(bl_brush) if callable(value) else value)
+404: 
+405:     if bl_brush.sculpt_brush_type == 'PAINT':
+406:         col = bl_brush.color  # linear RGB
+407:         bc = sc_brush.brushColor.vec
+408:         bc[0], bc[1], bc[2], bc[3] = col[0], col[1], col[2], 1.0
+409: 
+410:     _bake_falloff(bl_brush, sc_brush, cache)
+411:     _apply_cavity(cavity_settings(bl_brush, paint), sc_brush, cache)
+412: 
+413:     # Generated engine-only uniforms (Brush.sculptcore, brush-mapping M2) —
+414:     # after the mapping so table-driven fields keep authority.
+415:     from . import engine_props
+416:     engine_props.apply(bl_brush, sc_brush)
+417:     sc_brush.writeProps()
+418: 
+419: 
+420: def overlap_attenuation(bl_brush, cache=None):
+421:     """Vanilla's "Adjust Strength for Spacing"
+422:     (#paint_stroke_integrate_overlap): normalize the strength by the
+423:     worst-case sum of overlapping falloff dabs along the stroke line,
+424:     sampled at 10 phase offsets. 1.0 when the flag is off or spacing has no
+425:     overlap (>= 100%).
+426: 
+427:     Never applied to the drag brushes (is_grab_class / is_snake_hook): vanilla
+428:     reads their strength straight off the brush (`brush_strength`'s
+429:     `root_alpha * feather` for GRAB and SNAKE_HOOK, no `overlap` term), and the
+430:     compensation would be wrong anyway — it cancels the repeated *additive*
+431:     dabs of an offset brush, whereas a drag brush's dabs each carry their own
+432:     step, summing to the cursor's total drag no matter how many there are.
+433:     Attenuating it just leaves the hook short of the cursor by 1/peak (a 5x
+434:     shortfall at the Snake Hook asset's 10% spacing)."""
+435:     if not (bl_brush.use_space_attenuation and bl_brush.spacing < 100):
+436:         return 1.0
+437:     if is_grab_class(bl_brush) or is_snake_hook(bl_brush):
+438:         return 1.0
+439:     from .brush_properties import sampling
+440:     preset = bl_brush.curve_distance_falloff_preset
+441:     source = (bl_brush.authoring_native_curve_key('curve_distance_falloff') if preset == 'CUSTOM' else preset)
+442:     key = (sampling.epoch, source, bl_brush.spacing)
+443:     previous = cache.get('overlap') if cache is not None else None
+444:     if previous is not None and previous[0] == key:
+445:         return previous[1]
+446:     fn = _PRESET_FALLOFF.get(bl_brush.curve_distance_falloff_preset)
+447:     if fn is None:  # CUSTOM: strength(p) = curve(1 - p), matching BKE.
+448:         cumap = bl_brush.curve_distance_falloff
+449:         cumap.update()
+450:         curve = cumap.curves[0]
+451: 
+452:         def fn(t, _c=cumap, _cv=curve):
+453:             return _c.evaluate(_cv, 1.0 - t)
+454: 
+455:     spacing = max(bl_brush.spacing, 0.1)
+456:     count = int(100 / spacing)
+457:     h = spacing / 50.0
+458:     peak = 0.0
+459:     for i in range(10):
+460:         x0 = i / 10.0 - 1.0
+461:         total = 0.0
+462:         for j in range(count):
+463:             xx = abs(x0 + j * h)
+464:             if xx < 1.0:
+465:                 total += fn(1.0 - xx)
+466:         peak = max(peak, abs(total))
+467:     result = 1.0 / peak if peak > 0.0 else 1.0
+468:     if cache is not None:
+469:         cache['overlap'] = (key, result)
+470:         cache['overlap_bakes'] = cache.get('overlap_bakes', 0) + 1
+471:     return result
+472: 
+473: 
+474: def pixel_radius(sculpt, bl_brush):
+475:     """The dab radius in screen pixels — the port of #BKE_brush_radius_get.
+476: 
+477:     ``Brush.size`` is a **diameter**: ``DNA_brush_types.h`` documents
+478:     ``unprojected_size`` as "diameter of the brush in Blender units", both RNA
+479:     properties are ``PROP_DISTANCE_DIAMETER``, and ``versioning_500.cc`` doubles
+480:     the field when reading pre-5.0 files. Native sculpt never reads it raw —
+481:     every consumer (``paint_stroke.cc``'s ``pixel_radius``, the spacing walk,
+482:     ``paint_cursor.cc``) goes through ``BKE_brush_radius_get()``, which halves
+483:     it. Taking ``.size`` for a radius makes every dab twice as wide as vanilla's
+484:     and so covers four times the area.
+485:     """
+486:     size = unified_size(sculpt, bl_brush)
+487:     return size / 2.0
+488: 
+489: 
+490: def unified_size(sculpt, bl_brush):
+491:     """The brush's pixel *diameter*, honouring the unified-size override."""
+492:     unified = sculpt.unified_paint_settings
+493:     return unified.size if unified.use_unified_size else bl_brush.size
+494: 
+495: 
+496: def unprojected_radius(bl_brush):
+497:     """Object-space fallback radius when a dab centre projects off-screen.
+498:     ``unprojected_size`` is a diameter too (#BKE_brush_unprojected_radius_get)."""
+499:     return bl_brush.unprojected_size / 2.0
+500: 
+501: 
+502: def apply_dab_state(bl_brush, unified, sc_brush, *, world_radius, invert,
+503:                     strength_scale=1.0, strength_override=None,
+504:                     allow_invert=True):
+505:     """Write the per-dab brush state: strength, radius and the invert flag
+506:     (a live Ctrl toggles it mid-stroke), folded with the brush direction.
+507:     Assumes ``apply_brush_settings`` ran at stroke start. ``strength_scale``
+508:     folds per-stroke factors in (overlap attenuation). ``allow_invert=False``
+509:     forces the invert flag off regardless of Ctrl/direction — smoothing has no
+510:     inverse (the engine negates kernel strength on invert, and an inverted
+511:     Laplacian moves verts away from their ring average, diverging within a few
+512:     dabs), matching vanilla, where smooth ignores the direction.
+513: 
+514:     Strength and radius must be rewritten every dab, not only at stroke
+515:     start: the engine's per-dab ``loadProps`` assigns the post-dynamics
+516:     values (e.g. strength x pen pressure) back into the Brush *fields*, so
+517:     the ``writeProps`` below would otherwise persist the decayed field into
+518:     the prop store and a pressure stroke would fade to nothing after the
+519:     first dab. Radius varies per dab anyway (depth-dependent unproject)."""
+520:     if strength_override is not None:
+521:         # Caller-computed strength (multi-pass smooth); scale/unified already
+522:         # folded in.
+523:         strength = strength_override
+524:     else:
+525:         strength = bl_brush.strength
+526:         if unified is not None and unified.use_unified_strength:
+527:             strength = unified.strength
+528:         strength *= strength_scale
+529: 
+530:     sc_brush.strength = strength
+531:     sc_brush.radius = world_radius
+532:     if allow_invert:
+533:         sc_brush.invert = bool(invert) ^ bool(bl_brush.direction == 'SUBTRACT')
+534:     else:
+535:         sc_brush.invert = False
+536: 
+537:     sc_brush.writeDabProps()
+538: 
+539: 
+540: def apply_brush(bl_brush, unified, sc_brush, *, world_radius, invert, paint=None):
+541:     """Configure a SculptCore Brush from a Blender Brush in one call —
+542:     ``apply_brush_settings`` plus ``apply_dab_state``. Single-dab convenience
+543:     for the headless tests; the stroke operator calls the two parts itself so
+544:     the curve bakes run once per stroke, not per dab."""
+545:     apply_brush_settings(bl_brush, unified, sc_brush, paint=paint)
+546:     apply_dab_state(bl_brush, unified, sc_brush,
+547:                     world_radius=world_radius, invert=invert)
+SOURCE FILE: claudeMemory/scripts/test_checked_brush_bindings.py
+1: # SPDX-FileCopyrightText: 2026 Blender Authors
+2: # SPDX-License-Identifier: GPL-2.0-or-later
+3: """Exercise checked configuration through the exact fixture-enabled native DLL."""
+4: 
+5: from contextlib import ExitStack
+6: import hashlib
+7: import json
+8: from pathlib import Path
+9: import sys
+10: import math
+11: from unittest.mock import patch
+12: import numpy as np
+13: 
+14: from run_blender_native_tests import suppress_error_dialogs
+15: 
+16: root = Path(__file__).resolve().parents[2]
+17: sys.path.insert(0, str(root / "engine/python"))
+18: import sculptcore
+19: from sculptcore._bulk import construct_from_items
+20: from sculptcore._descriptors import read_litestl_string
+21: from sculptcore.brush_properties import (
+22:     BOOL, FLOAT32, INT32, BrushPropertyError, CommonProperties, DeviceLayer, UniformProperties,
+23: )
+24: 
+25: dll = (root / "engine/build/native/sculptcore_capi.dll").resolve()
+26: checks = []
+27: 
+28: 
+29: def rejects(function, *args, **kwargs):
+30:     try:
+31:         function(*args, **kwargs)
+32:     except (BrushPropertyError, ValueError, TypeError, IndexError, OverflowError):
+33:         return
+34:     raise AssertionError("Expected rejection")
+35: 
+36: 
+37: def bulk(manager, executor, token, index, scalar_type, arrays):
+38:     with ExitStack() as stack:
+39:         vectors = [stack.enter_context(construct_from_items(manager, manager.get(kind), values))
+40:                    for kind, values in zip(("int32", "int32", "float", "int32", "int32", "float"), arrays)]
+41:         before = [list(vector) for vector in vectors]
+42:         status = executor.replaceUniformDynamicsChecked(token, index, scalar_type, *vectors)
+43:         assert before == [list(vector) for vector in vectors], "Native call modified caller arrays"
+44:         return status
+45: 
+46: 
+47: with suppress_error_dialogs(), ExitStack() as owners:
+48:     manager = sculptcore.init(str(dll))
+49:     assert Path(manager.capi.lib._name).resolve() == dll
+50:     brush = owners.enter_context(manager.construct("sculptcore::brush::Brush"))
+51:     other = owners.enter_context(manager.construct("sculptcore::brush::Brush"))
+52:     ctor = manager.get_struct("sculptcore::brush::CommandExecutor").find_constructor("main")
+53:     executor = owners.enter_context(manager.construct_with(ctor, None, brush))
+54:     second = owners.enter_context(manager.construct_with(ctor, None, brush))
+55:     items = manager.get("sculptcore::brush::SculptBrushes").items
+56:     view = UniformProperties(manager, executor, int(items["TYPEDPROBE"]))
+57:     by_name = {uniform.name: uniform for uniform in view.uniforms}
+58:     gain, count, enabled = [by_name[name].index for name in ("typed_gain", "typed_count", "typed_enabled")]
+59:     assert view.read(count) == 16777217 and type(view.read(count)) is int
+60:     assert view.read(enabled) is True and view.read(gain) == 0.25
+61:     assert view.read(by_name["typed_low"].index) == -(2 ** 31)
+62:     assert view.read(by_name["typed_high"].index) == 2 ** 31 - 1
+63:     view.write(count, 16777219)
+64:     view.write(enabled, False)
+65:     view.write(gain, 4.0)
+66:     assert view.read(count) == 16777219 and view.read(enabled) is False and view.read(gain) == 4
+67:     checks.append("Exact float/int/bool authored values and int32 endpoints")
+68: 
+69:     static_bool = by_name["typed_static"].index
+70:     static_int = by_name["typed_high"].index
+71:     limited = by_name["typed_limited"].index
+72:     view.write(static_bool, False)
+73:     view.write(static_int, 16777219)
+74:     assert view.read(static_bool) is False and view.read(static_int) == 16777219
+75:     generation = brush.configurationGeneration()
+76:     rejects(view.write, limited, 0)
+77:     rejects(view.read, static_bool, evaluate=True)
+78:     assert brush.configurationGeneration() == generation and view.read(limited) == 2
+79:     view = UniformProperties(manager, executor, int(items["TYPEDPROBE"]))
+80:     assert view.read(static_bool) is False and view.read(static_int) == 16777219
+81:     view.write(static_bool, True)
+82:     checks.append("Static checked values share native working slots and survive regenerated defaults")
+83: 
+84:     native_brush = owners.enter_context(manager.construct("sculptcore::brush::Brush"))
+85:     native_executor = owners.enter_context(manager.construct_with(ctor, None, native_brush))
+86:     native_view = UniformProperties(manager, native_executor, int(items["CLAY"]))
+87:     side = next(uniform.index for uniform in native_view.uniforms if uniform.name == "planeSide")
+88:     native_brush.planeSide = -1.0
+89:     assert native_view.read(side) == -1
+90:     native_view.write(side, 1.0)
+91:     assert native_brush.planeSide == 1
+92:     checks.append("Static native member reads and writes agree through the actual CLAY manifest")
+93: 
+94:     generation = brush.configurationGeneration()
+95:     for index, value in ((count, 1.5), (count, True), (count, 2 ** 32),
+96:                          (enabled, 1), (enabled, 0.5), (gain, float("inf")), (gain, True)):
+97:         rejects(view.write, index, value)
+98:     for index, scalar_type, value in ((count, INT32, 1.5), (count, INT32, 2 ** 31),
+99:                                      (enabled, BOOL, 0.5), (gain, FLOAT32, float("nan"))):
+100:         assert executor.writeUniformScalarChecked(view.token, index, scalar_type, value) != 0
+101:     assert executor.writeUniformScalarChecked(view.token, count, BOOL, 1) != 0
+102:     rejects(view.read, 2 ** 32)
+103:     rejects(view.read, gain, evaluate=1)
+104:     rejects(UniformProperties, manager, executor, 2 ** 32)
+105:     assert brush.configurationGeneration() == generation and view.read(count) == 16777219
+106:     checks.append("Python pre-marshalling and native numeric rejection preserve generation/values")
+107: 
+108:     brush.pushDeviceInput(0, 0.5)
+109:     brush.pushDeviceInput(1, 0.25)
+110:     view.replace_stack(gain, [DeviceLayer(0, mode=2), DeviceLayer(1)])
+111:     assert view.read(gain, evaluate=True) == 1.125
+112:     view.move(gain, 1, 0)
+113:     assert view.read(gain, evaluate=True) == 1.5
+114:     view.enable(gain, 0, False)
+115:     view.replace_table(gain, 0, (0.8, 0.8))
+116:     # Legacy duplicate add must preserve position, table and disabled flag.
+117:     executor.addUniformDynamic(gain, 0, 2, 1)
+118:     assert view.read(gain, evaluate=True) == 1
+119:     view.enable(gain, 0, True)
+120:     assert abs(view.read(gain, evaluate=True) - 1.8) < 1e-6
+121:     view.configure(gain, 0, 1, 1)
+122:     assert abs(view.read(gain, evaluate=True) - 0.8) < 1e-6
+123:     checks.append("Ordered mixes, move, upsert, enable and bulk table preservation")
+124: 
+125:     generation = brush.configurationGeneration()
+126:     expected = view.read(gain, evaluate=True)
+127:     for operation, args in (
+128:         (view.configure, (gain, 2 ** 32)), (view.enable, (gain, 0, 2)),
+129:         (view.move, (gain, 0, 3)), (view.replace_table, (gain, 0, (1,))),
+130:         (view.replace_stack, (gain, [DeviceLayer(0), DeviceLayer(0)])),
+131:         (view.replace_stack, (gain, [DeviceLayer(3, factor=float("nan"))])),
+132:         (view.configure, (by_name["typed_static"].index, 0)),
+133:     ):
+134:         rejects(operation, *args)
+135:     invalid = (
+136:         ([0, 0], [1, 1], [1, 1], [1, 1], [0, 0, 0], []),
+137:         ([0], [1], [1], [1], [1, 1], [0]),
+138:         ([0], [1], [1], [1], [0, 1], [0]),
+139:         ([0], [1], [1], [1], [0, 2], [0, float("inf")]),
+140:         ([0], [], [1], [1], [0, 0], []),
+141:         ([4], [1], [1], [1], [0, 0], []),
+142:         ([0], [9], [1], [1], [0, 0], []),
+143:         ([0], [1], [1.5], [1], [0, 0], []),
+144:         ([0], [1], [1], [2], [0, 0], []),
+145:     )
+146:     for arrays in invalid:
+147:         assert bulk(manager, executor, view.token, gain, FLOAT32, arrays) != 0
+148:     assert brush.configurationGeneration() == generation
+149:     assert view.read(gain, evaluate=True) == expected
+150:     checks.append("Failed bulk/configuration operations are atomic; vectors remain caller-owned")
+151: 
+152:     view.replace_stack(count, [DeviceLayer(0, mode=2)])
+153:     assert view.read(count, evaluate=True) == 16777220
+154:     view.write(enabled, True)
+155:     view.replace_stack(enabled, [DeviceLayer(0)])
+156:     brush.pushDeviceInput(0, 0.49)
+157:     assert view.read(enabled, evaluate=True) is False and view.read(enabled) is True
+158:     brush.pushDeviceInput(0, 0.5)
+159:     assert view.read(enabled, evaluate=True) is True
+160:     checks.append("Typed integer rounding and boolean threshold use changing device inputs")
+161: 
+162:     view.replace_stack(gain, [DeviceLayer(0, samples=(1, 1))])
+163:     view.set_sample(gain, 0, 0, 3, 0.1)
+164:     rejects(view.read, gain, evaluate=True)
+165:     view.enable(gain, 0, False)
+166:     rejects(view.read, gain, evaluate=True)
+167:     generation = brush.configurationGeneration()
+168:     assert executor.setUniformDynamicSampleChecked(view.token, gain, FLOAT32, 0, 4, 3, 1) != 0
+169:     assert brush.configurationGeneration() == generation
+170:     view.set_sample(gain, 0, 0, 3, 0.2)
+171:     view.set_sample(gain, 0, 1, 3, 0.3)
+172:     rejects(view.read, gain, evaluate=True)
+173:     view.set_sample(gain, 0, 2, 3, 0.4)
+174:     assert view.read(gain, evaluate=True) == 4
+175:     view.enable(gain, 0, True)
+176:     assert abs(view.read(gain, evaluate=True) - 1.2) < 1e-6
+177:     view.set_sample(gain, 0, 1, 3, 0.5)
+178:     assert view.read(gain, evaluate=True) == 2
+179:     view.set_sample(gain, 0, 0, 4, 0.1)
+180:     view.replace_table(gain, 0, ())
+181:     assert view.read(gain, evaluate=True) == 2
+182:     view.clear_stack(gain)
+183:     assert view.read(gain, evaluate=True) == 4
+184:     checks.append("Pending uploads reject evaluation until publication; bulk/clear cancel staging")
+185: 
+186:     token = view.token
+187:     snapshot = owners.enter_context(executor.uniformSnapshotChecked(token, count))
+188:     result = owners.enter_context(executor.readUniformScalarChecked(token, count, INT32, False))
+189:     assert result.status == 0 and result.value == 16777219
+190:     # Caller-writable legacy metadata cannot change checked mapping or snapshot.
+191:     executor.queriedUniformEntry(count).scalarType = BOOL
+192:     view.write(count, 16777221)
+193:     assert view.read(count) == 16777221 and snapshot.scalarType == INT32
+194:     other_view = UniformProperties(manager, second, int(items["TYPEDPROBE"]))
+195:     assert other_view.token != token
+196:     assert second.writeUniformScalarChecked(token, count, INT32, 1) != 0
+197:     executor.brush = other
+198:     rejects(view.read, count)
+199:     executor.brush = brush
+200:     assert view.read(count) == 16777221
+201:     fresh = UniformProperties(manager, executor, int(items["TYPEDPROBE"]))
+202:     assert fresh.token != token
+203:     rejects(view.read, count)
+204:     token = fresh.token
+205:     UniformProperties(manager, executor, int(items["KELVINLET"]))
+206:     assert executor.uniformQueryToken() != token
+207:     rejects(fresh.read, count)
+208:     token = executor.uniformQueryToken()
+209:     assert executor.queryUniformManifest(99999) == -1
+210:     assert executor.uniformQueryToken() != token
+211:     with executor.uniformSnapshotChecked(token, 0) as stale:
+212:         assert stale.status != 0
+213:     assert read_litestl_string(snapshot.name.ptr) == "typed_count"
+214:     assert getattr(snapshot, "def") == 16777217 and result.value == 16777219
+215:     checks.append("Stale/wrong-owner/wrong-executor queries reject; owned results survive requery")
+216: 
+217:     assert other.writeCommonScalarChecked(5, BOOL, 1) == 0
+218:     assert other.configureCommonDynamicChecked(5, BOOL, 0, 1, 1) == 0
+219:     other.pushDeviceInput(0, 0)
+220:     with other.readCommonScalarChecked(5, BOOL, True) as result:
+221:         assert result.status == 0 and result.value == 0
+222:     with other.readCommonScalarChecked(5, BOOL, False) as result:
+223:         assert result.status == 0 and result.value == 1
+224:     checks.append("Common invert adapter evaluates boolean dynamics without replacing authored value")
+225: 
+226:     common = CommonProperties(manager, other)
+227:     common.write(5, True)
+228:     assert common.read(5) is True and common.read(5, evaluate=True) is False
+229:     rejects(common.write, 5, 1)
+230:     rejects(common.read, 2 ** 32)
+231:     rejects(common.configure, 0, 2 ** 32)
+232:     common.write(0, 4.0)
+233:     other.pushDeviceInput(0, 0.5)
+234:     other.pushDeviceInput(1, 0.25)
+235:     common.replace_stack(0, [DeviceLayer(0, mode=2), DeviceLayer(1)])
+236:     assert common.read(0, evaluate=True) == 1.125
+237:     common.move(0, 1, 0)
+238:     common.enable(0, 0, False)
+239:     common.replace_table(0, 0, (0.8, 0.8))
+240:     common.configure(0, 0, 1)
+241:     assert common.read(0, evaluate=True) == 1
+242:     common.enable(0, 0, True)
+243:     common.set_sample(0, 0, 0, 3, 0.5)
+244:     rejects(common.read, 0, evaluate=True)
+245:     common.clear_stack(0)
+246:     assert common.read(0, evaluate=True) == 4
+247:     checks.append("Common Python adapter shares strict selectors, scalar transport and all stack operations")
+248: 
+249:     view = UniformProperties(manager, executor, int(items['TYPEDPROBE']))
+250:     for index, low, high in ((gain, .25, .75), (count, -3, 16777217), (enabled, 0, 1)):
+251:         for threshold in (0.0, .5, 1.0, math.nextafter(.5, 1.0)):
+252:             layer = DeviceLayer(0, mode=0, response_kind='TWO_STEP', parameters=(threshold, low, high))
+253:             # No scalar element assignment may be used to marshal these vectors.
+254:             with patch('sculptcore._bulk.BoundVector.set_uninitialized', side_effect=AssertionError('per-element copy')):
+255:                 view.replace_stack(index, (layer,))
+256:             for input_value in (np.nextafter(np.float32(threshold), np.float32(-np.inf)),
+257:                                 np.float32(threshold), np.nextafter(np.float32(threshold), np.float32(np.inf))):
+258:                 brush.pushDeviceInput(0, float(input_value))
+259:                 expected = low if min(1, max(0, float(input_value))) < threshold else high
+260:                 assert view.read(index, evaluate=True) == expected, (index, threshold, input_value, expected)
+261:         generation = brush.configurationGeneration()
+262:         for layer in (DeviceLayer(0, response_kind='CONSTANT', parameters=(math.inf,)),
+263:                       DeviceLayer(0, response_kind='TWO_STEP', parameters=(-1, 0, 1)),
+264:                       DeviceLayer(0, response_kind='CONSTANT', parameters=(1,), samples=(0, 1))):
+265:             rejects(view.replace_stack, index, (layer,))
+266:             assert brush.configurationGeneration() == generation
+267:         view.replace_stack(index, (DeviceLayer(0, mode=0, response_kind='CONSTANT', parameters=(high,)),))
+268:         assert view.read(index, evaluate=True) == high
+269:         view.replace_table(index, 0, (0, 1))
+270:         brush.pushDeviceInput(0, 1)
+271:         assert view.read(index, evaluate=True) == 1
+272:     checks.append('Analytic float/int/bool transport, float-adjacent step boundaries, table switching and bulk copy')
+273: 
+274:     from test_generic_property_foundation import load_package
+275:     load_package()
+276:     from generic_property_test_package import sampling
+277:     from generic_property_test_package.uploads import StackUploads
+278:     memo = StackUploads()
+279:     stack = ((0, (DeviceLayer(0, samples=(0, 1)),)), (5, (DeviceLayer(0),)))
+280:     assert memo.install(other, common, stack, command='A')
+281:     assert not memo.install(other, common, stack, command='A')
+282:     assert memo.install(other, common, stack, command='B')
+283:     assert memo.install(other, common, stack, command='A')
+284:     common.clear_stack(0)
+285:     assert memo.install(other, common, stack, command='A')
+286:     sampling.clear()
+287:     assert memo.install(other, common, stack, command='A')
+288:     another = owners.enter_context(manager.construct('sculptcore::brush::Brush'))
+289:     assert memo.install(another, CommonProperties(manager, another), stack, command='A')
+290:     assert not memo.install(another, CommonProperties(manager, another), stack, command='A')
+291:     checks.append('Upload memo isolates command A/B/A, cleared configurations, lifecycle epochs and engine instances')
+292:     uniform_memo = StackUploads()
+293:     uniform_stack = ((gain, (DeviceLayer(0, samples=[0, 1]),)),)
+294:     assert uniform_memo.install(brush, view, uniform_stack)
+295:     assert not uniform_memo.install(brush, view, uniform_stack)
+296:     executor.queryUniformManifest(int(items['DRAW']))
+297:     rejects(uniform_memo.install, brush, view, uniform_stack)
+298:     checks.append('Warm upload reuse still rejects stale Uniform manifest tokens')
+299: 
+300:     from sculptcore.brush_properties import replace_fixed_curve, _primitive_vector
+301:     for kind in ('falloff', 'cavity'):
+302:         replace_fixed_curve(manager, other, kind, tuple(i / 255 for i in range(256)))
+303:         rejects(replace_fixed_curve, manager, other, kind, (0, 1))
+304:         rejects(replace_fixed_curve, manager, other, kind, (float('nan'),) * 256)
+305:         method = other.replaceFalloffCurveChecked if kind == 'falloff' else other.replaceCavityCurveChecked
+306:         with _primitive_vector(manager, 'float', [0, 1]) as vector:
+307:             assert method(vector) is False
+308:             assert list(vector) == [0, 1]
+309:     checks.append('Fixed table bulk transport validates sizes/finiteness and preserves caller vectors')
+310: 
+311: report = {"passed": True, "dll": str(dll), "sha256": hashlib.sha256(dll.read_bytes()).hexdigest(),
+312:           "checks": checks}
+313: print(json.dumps(report, indent=2))
+</stdin>
+codex
+**One blocker: typed range finalization is underspecified for domains the supplied code accepts.** No additional integration blocker found within this evaluator prerequisite.
+
+The plan says to clamp to the native/declared domain, then round INT32 or threshold BOOL (plan:26–27). But `Definition` permits fractional integer bounds and restricted boolean bounds (`registry.py:204–212`).
+
+For example, an INT32 definition with bounds `[0.1, 2.9]` and base `1` is valid. REPLACE with `0` would clamp to `0.1`, then round to `0`—outside its declared domain. REPLACE with `3` similarly produces `3`. Native `evaluateChecked` receives **already-typed** bounds, so passing fractional metadata through an implicit conversion does not establish parity (`prop_dynamics.h:376–384,414–423`).
+
+**Correction:** specify how metadata becomes an executable typed domain before evaluation:
+
+- INT32: intersect with storage, then use `ceil(minimum)` and `floor(maximum)`; reject an empty interval.
+- BOOL: derive the permitted boolean endpoints, including singleton domains.
+- FLOAT32: define representable endpoints within the domain, or explicitly reject noncanonical bounds.
+
+Use identical effective bounds for the host and native oracle, and add fractional-bound and restricted-BOOL cases to the acceptance gate. This matters at the integration boundary because snapshots preserve `value_domain` separately from the semantic definition (`snapshots.py:56–65,73`); the evaluator must explicitly select that domain, with SIZE’s documented override.
+
+The remaining integration boundaries are viable:
+
+- Spacing quantization and snake remapping occur after semantic evaluation; strength compensation and PINCH’s local-source extra are explicitly separated (plan:29–35).
+- SIZE requires projected radius and returns a scalar without its stack; snapshots already capture the effective value owner’s complete pair independently of stack ownership (plan:36–42; `snapshots.py:95–96,109–120`; `commands.py:67–69`).
+- Actual native comparison and real Blender snapshot evaluation are required gates, not claimed completed checks (plan:53–65).
+
+Deferring modal adoption, batch adaptation, and world projection is therefore not a blocker here.
+tokens used
+58,894
+**One blocker: typed range finalization is underspecified for domains the supplied code accepts.** No additional integration blocker found within this evaluator prerequisite.
+
+The plan says to clamp to the native/declared domain, then round INT32 or threshold BOOL (plan:26–27). But `Definition` permits fractional integer bounds and restricted boolean bounds (`registry.py:204–212`).
+
+For example, an INT32 definition with bounds `[0.1, 2.9]` and base `1` is valid. REPLACE with `0` would clamp to `0.1`, then round to `0`—outside its declared domain. REPLACE with `3` similarly produces `3`. Native `evaluateChecked` receives **already-typed** bounds, so passing fractional metadata through an implicit conversion does not establish parity (`prop_dynamics.h:376–384,414–423`).
+
+**Correction:** specify how metadata becomes an executable typed domain before evaluation:
+
+- INT32: intersect with storage, then use `ceil(minimum)` and `floor(maximum)`; reject an empty interval.
+- BOOL: derive the permitted boolean endpoints, including singleton domains.
+- FLOAT32: define representable endpoints within the domain, or explicitly reject noncanonical bounds.
+
+Use identical effective bounds for the host and native oracle, and add fractional-bound and restricted-BOOL cases to the acceptance gate. This matters at the integration boundary because snapshots preserve `value_domain` separately from the semantic definition (`snapshots.py:56–65,73`); the evaluator must explicitly select that domain, with SIZE’s documented override.
+
+The remaining integration boundaries are viable:
+
+- Spacing quantization and snake remapping occur after semantic evaluation; strength compensation and PINCH’s local-source extra are explicitly separated (plan:29–35).
+- SIZE requires projected radius and returns a scalar without its stack; snapshots already capture the effective value owner’s complete pair independently of stack ownership (plan:36–42; `snapshots.py:95–96,109–120`; `commands.py:67–69`).
+- Actual native comparison and real Blender snapshot evaluation are required gates, not claimed completed checks (plan:53–65).
+
+Deferring modal adoption, batch adaptation, and world projection is therefore not a blocker here.

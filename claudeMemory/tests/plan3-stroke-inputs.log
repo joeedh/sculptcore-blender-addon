@@ -1,0 +1,12 @@
+test_curved_uneven_knots_use_arc (__main__.StrokeInputs.test_curved_uneven_knots_use_arc) ... ok
+test_legacy_positions_and_grouping (__main__.StrokeInputs.test_legacy_positions_and_grouping) ... ok
+test_lookahead_uses_source_segment (__main__.StrokeInputs.test_lookahead_uses_source_segment) ... ok
+test_missing_endpoint_and_fresh_upload (__main__.StrokeInputs.test_missing_endpoint_and_fresh_upload) ... ok
+test_presence_and_zero (__main__.StrokeInputs.test_presence_and_zero) ... ok
+test_straight_arc_interpolation_and_release (__main__.StrokeInputs.test_straight_arc_interpolation_and_release) ... ok
+test_time_reset_and_generated_moves (__main__.StrokeInputs.test_time_reset_and_generated_moves) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.005s
+
+OK

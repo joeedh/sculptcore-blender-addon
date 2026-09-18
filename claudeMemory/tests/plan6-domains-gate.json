@@ -1,0 +1,44 @@
+{
+  "passed": true,
+  "scope": "Plan 6B typed semantic evaluator prerequisite; consumers remain to adopt it",
+  "native": {
+    "passed": true,
+    "comparisons": 543,
+    "bitwise_float32": true,
+    "dll": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\sculptcore_capi.dll",
+    "sha256": "5bb7bfff9145095cca4faa2f74cff6d4b2beaa82d4777970815510085fb31d8f",
+    "seed": 9182026
+  },
+  "blender": {
+    "command": [
+      "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+      "--factory-startup",
+      "--python-exit-code",
+      "1",
+      "--background",
+      "--python",
+      "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_plan6_evaluation_blender.py"
+    ],
+    "passed": true,
+    "sha256": "1c93a65f4ed4f53ca3a18bf34c1808c5802341e9a26356b46bdc3ca74b28ba84",
+    "returncode": 0,
+    "seconds": 16.998753699997906
+  },
+  "checks": {
+    "passed": true,
+    "checks": [
+      "capture/compilation preserves persistent records and independent owners",
+      "Scene INT32 spacing rounds before percent conversion; dormant local is intact",
+      "native-domain snake dynamics precede its nonlinear-direction remap",
+      "Scene strength with Brush native custom curve evaluates before compensation",
+      "effective SIZE pair and Scene custom stack evaluate once on supplied object-space radius",
+      "800 warm evaluations survive owner deletion/cache retirement with no owner access or new bakes"
+    ],
+    "warm_evaluations": 800,
+    "extra_bakes": 0
+  },
+  "pure_tests": 6,
+  "source_sha256": "fc48a30e0e7680632fda78bb56adc11306bfdb44548f443c4ad9bb25acfb1221",
+  "addon_native_sha256": "91df88e8b59477f7bbfec377a33360fc294c3c157f88a4ef1ab334fd4a67721b",
+  "installed_python_dll_sha256": "1847947f3fc31a7bd9c1ead24112ef5364b065a06c1ef2fdf8393d0dc2370b32"
+}

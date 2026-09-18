@@ -1,0 +1,15 @@
+{
+  "suite": "test_brush_prepared_execution",
+  "command": [
+    "C:\\Program Files\\nodejs\\node.EXE",
+    "make.mjs",
+    "test",
+    "test_brush_prepared_execution"
+  ],
+  "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_brush_prepared_execution.cc_out.exe",
+  "returncode": 0,
+  "passed": true,
+  "binary_sha256": "884b4ec15da4f1c40bd4667539d2a4e97e8d351dc89629b03bbb50a7d9684a3a",
+  "stdout": "Info: attribute .face.normal changed index in mesh\r\nInfo: attribute normals changed index in mesh\r\nInfo: attribute normals changed index in mesh\r\nInfo: attribute .face.normal changed index in mesh\r\nInfo: attribute normals changed index in mesh\r\nInfo: attribute normals changed index in mesh\r\nInfo: attribute .face.normal changed index in mesh\r\nInfo: attribute .face.normal changed index in mesh\r\nInfo: attribute normals changed index in mesh\r\nInfo: attribute normals changed index in mesh\r\nInfo: attribute .face.normal changed index in mesh\r\n",
+  "stderr": "SculptCore: rejected strength (property status 16)\r\nSculptCore: rejected command[0].strength (property status 16)\r\nSculptCore: rejected stray (property status 16)\r\nSculptCore: rejected command[0].stray (property status 16)\r\nSculptCore: rejected strength (property status 16)\r\nSculptCore: rejected command[0].strength (property status 16)\r\nSculptCore: rejected stray (property status 16)\r\nSculptCore: rejected command[0].stray (property status 16)\r\nraw mesh/grid nonfirst empty-region validation and repair passed\r\nresolved DRAW expanded region, rejection and undo passed (337 outside raw leaves)\r\nresolved grid DRAW expanded region and exact undo passed (593 outside raw leaves)\r\nresolved grid capabilities and lifecycle rejection passed\r\nresolved grid SMOOTH raw-reference and deferred normals passed\r\nuniform declaration 'typed program requires resolved execution': registration error 4\r\nresolved mesh/grid programs, widened raw reference and atomic rejection passed\r\nresolved mesh capability and neighbor dispatch passed\r\n"
+}

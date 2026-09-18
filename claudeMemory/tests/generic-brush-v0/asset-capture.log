@@ -1,0 +1,21 @@
+Blender 5.3.0 Alpha
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+00:04.969  blend            | Read blend: "C:\dev\blender\sculptcore-blender-addon\claudeMemory\tests\generic-brush-v0\legacy.blend"
+00:05.437  asset.index      | ERROR Index not created: couldn't create folder "C:\Users\joeed\AppData\Local\Blender Foundation\Blender\Cache\asset-library-indices\ce9b558813ea0a2d\09e59b92121ba08d_GenericLegacyV0.asset.blend.index.json".
+00:05.453  asset.index      | ERROR Index not created: couldn't create folder "C:\Users\joeed\AppData\Local\Blender Foundation\Blender\Cache\asset-library-indices\ce9b558813ea0a2d\5582192e7caf5ac8_GenericLifecycleV0.asset.blend.index.json".
+00:05.453  asset.index      | ERROR Index not created: couldn't create folder "C:\Users\joeed\AppData\Local\Blender Foundation\Blender\Cache\asset-library-indices\ce9b558813ea0a2d\295b97209f06984f_GenericLifecycleV0Checked.asset.blend.index.json".
+00:05.469  asset.index      | ERROR Index not created: couldn't create folder "C:\Users\joeed\AppData\Local\Blender Foundation\Blender\Cache\asset-library-indices\ce9b558813ea0a2d\11d5bcac9cba7568_GenericLifecycleV0Reloaded.asset.blend.index.json".
+00:05.875  asset.index      | ERROR Index not created: couldn't create folder "C:\Users\joeed\AppData\Local\Blender Foundation\Blender\Cache\asset-library-indices\ce9b558813ea0a2d\09e59b92121ba08d_GenericLegacyV0.asset.blend.index.json".
+00:05.891  asset.index      | ERROR Index not created: couldn't create folder "C:\Users\joeed\AppData\Local\Blender Foundation\Blender\Cache\asset-library-indices\ce9b558813ea0a2d\5582192e7caf5ac8_GenericLifecycleV0.asset.blend.index.json".
+00:05.906  asset.index      | ERROR Index not created: couldn't create folder "C:\Users\joeed\AppData\Local\Blender Foundation\Blender\Cache\asset-library-indices\ce9b558813ea0a2d\295b97209f06984f_GenericLifecycleV0Checked.asset.blend.index.json".
+00:05.906  asset.index      | ERROR Index not created: couldn't create folder "C:\Users\joeed\AppData\Local\Blender Foundation\Blender\Cache\asset-library-indices\ce9b558813ea0a2d\1244668e9613dc3d_GenericLifecycleV0Ready.asset.blend.index.json".
+00:05.922  asset.index      | ERROR Index not created: couldn't create folder "C:\Users\joeed\AppData\Local\Blender Foundation\Blender\Cache\asset-library-indices\ce9b558813ea0a2d\11d5bcac9cba7568_GenericLifecycleV0Reloaded.asset.blend.index.json".
+00:06.281  asset.index      | ERROR Index not created: couldn't create folder "C:\Users\joeed\AppData\Local\Blender Foundation\Blender\Cache\asset-library-indices\ce9b558813ea0a2d\09e59b92121ba08d_GenericLegacyV0.asset.blend.index.json".
+00:06.281  asset.index      | ERROR Index not created: couldn't create folder "C:\Users\joeed\AppData\Local\Blender Foundation\Blender\Cache\asset-library-indices\ce9b558813ea0a2d\5582192e7caf5ac8_GenericLifecycleV0.asset.blend.index.json".
+00:06.297  asset.index      | ERROR Index not created: couldn't create folder "C:\Users\joeed\AppData\Local\Blender Foundation\Blender\Cache\asset-library-indices\ce9b558813ea0a2d\295b97209f06984f_GenericLifecycleV0Checked.asset.blend.index.json".
+00:06.297  asset.index      | ERROR Index not created: couldn't create folder "C:\Users\joeed\AppData\Local\Blender Foundation\Blender\Cache\asset-library-indices\ce9b558813ea0a2d\1244668e9613dc3d_GenericLifecycleV0Ready.asset.blend.index.json".
+00:06.297  asset.index      | ERROR Index not created: couldn't create folder "C:\Users\joeed\AppData\Local\Blender Foundation\Blender\Cache\asset-library-indices\ce9b558813ea0a2d\11d5bcac9cba7568_GenericLifecycleV0Reloaded.asset.blend.index.json".
+Info: Saved "C:\dev\blender\sculptcore-blender-addon\claudeMemory\tests\generic-brush-v0\library\Saved\Brushes\GenericLifecycleV0Ready.asset.blend"
+GENERIC_BRUSH_ASSET_BASELINE_PASS capture
+
+Blender quit

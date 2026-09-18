@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "C:\dev\blender\sculptcore-blender-addon\claudeMemory\scripts\test_typed_extra_compiler.py", line 76, in <module>
+    main()
+    ~~~~^^
+  File "C:\dev\blender\sculptcore-blender-addon\claudeMemory\scripts\test_typed_extra_compiler.py", line 47, in main
+    run([tint, str(shader), "--format", "wgsl", "-o", str(output / "typed_probe.validated.wgsl")])
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\dev\blender\sculptcore-blender-addon\claudeMemory\scripts\test_typed_extra_compiler.py", line 35, in run
+    raise AssertionError(results[-1])
+AssertionError: {'command': ['C:\\dev\\tint\\tint.exe', 'C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\typed_probe.wgsl', '--format', 'wgsl', '-o', 'C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\typed_probe.validated.wgsl'], 'returncode': 1, 'passed': False, 'stdout': '', 'stderr': "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\typed_probe.wgsl:252:7 error: 'active' is a reserved keyword\r\n  var active: bool = ((((brush_u.typed_enabled != 0u) && (brush_u.typed_static != 0u)) && (ctx_u.typed_gate != 0u)) && (!(brush_u.invert != 0u)));\r\n      ^^^^^^\r\n\r\n"}

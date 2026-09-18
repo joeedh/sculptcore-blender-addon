@@ -1,0 +1,12 @@
+Blender 5.3.0 Alpha
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+00:05.469  blend            | Read blend: "C:\dev\blender\sculptcore-blender-addon\claudeMemory\tests\generic-brush-v0\legacy.blend"
+00:06.000  asset.index      | ERROR Index not created: couldn't create folder "C:\Users\joeed\AppData\Local\Blender Foundation\Blender\Cache\asset-library-indices\9af0276b866d12e0\c5c30f0102691742_NativeCurveActiveOwnerV1.asset.blend.index.json".
+00:06.016  asset.index      | ERROR Index not created: couldn't create folder "C:\Users\joeed\AppData\Local\Blender Foundation\Blender\Cache\asset-library-indices\9af0276b866d12e0\3b2efa53a6c96bd5_NativeCurveEditedOwnerV1.asset.blend.index.json".
+00:06.329  asset.index      | ERROR Index not created: couldn't create folder "C:\Users\joeed\AppData\Local\Blender Foundation\Blender\Cache\asset-library-indices\9af0276b866d12e0\c5c30f0102691742_NativeCurveActiveOwnerV1.asset.blend.index.json".
+00:06.329  asset.index      | ERROR Index not created: couldn't create folder "C:\Users\joeed\AppData\Local\Blender Foundation\Blender\Cache\asset-library-indices\9af0276b866d12e0\3b2efa53a6c96bd5_NativeCurveEditedOwnerV1.asset.blend.index.json".
+00:06.704  asset.index      | ERROR Index not created: couldn't create folder "C:\Users\joeed\AppData\Local\Blender Foundation\Blender\Cache\asset-library-indices\9af0276b866d12e0\c5c30f0102691742_NativeCurveActiveOwnerV1.asset.blend.index.json".
+00:06.704  asset.index      | ERROR Index not created: couldn't create folder "C:\Users\joeed\AppData\Local\Blender Foundation\Blender\Cache\asset-library-indices\9af0276b866d12e0\3b2efa53a6c96bd5_NativeCurveEditedOwnerV1.asset.blend.index.json".
+NATIVE_CURVE_NOTIFICATIONS_PASS 16
+
+Blender quit

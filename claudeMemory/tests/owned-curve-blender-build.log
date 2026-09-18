@@ -1,0 +1,59 @@
+[1/55] Linking CXX executable bin\msgfmt.exe
+[2/55] Generating ab.mo
+[3/55] Generating bg.mo
+[4/55] Generating ar.mo
+[5/55] Generating be.mo
+[6/55] Generating da.mo
+[7/55] Generating el.mo
+[8/55] Generating cs.mo
+[9/55] Generating eo.mo
+[10/55] Generating eu.mo
+[11/55] Generating de.mo
+[12/55] Generating fa.mo
+[13/55] Generating fi.mo
+[14/55] Generating he.mo
+[15/55] Generating ca.mo
+[16/55] Generating hi.mo
+[17/55] Generating hr.mo
+[18/55] Generating hu.mo
+[19/55] Generating es.mo
+[20/55] Generating en_GB.mo
+[21/55] Generating id.mo
+[22/55] Generating ky.mo
+[23/55] Generating lt.mo
+[24/55] Generating it.mo
+[25/55] Generating nb.mo
+[26/55] Generating nl.mo
+[27/55] Generating ml.mo
+[28/55] Generating fr.mo
+[29/55] Generating ja.mo
+[30/55] Generating ro.mo
+[31/55] Generating ko.mo
+[32/55] Generating pt_BR.mo
+[33/55] Generating ka.mo
+[34/55] Generating pt.mo
+[35/55] Generating sr.mo
+[36/55] Generating pl.mo
+[37/55] Generating sl.mo
+[38/55] Generating sr@latin.mo
+[39/55] Generating ru.mo
+[40/55] Generating th.mo
+[41/55] Generating sk.mo
+[42/55] Generating sw.mo
+[43/55] Generating sv.mo
+[44/55] Generating tr.mo
+[45/55] Generating uk.mo
+[46/55] Generating zh_HANT.mo
+[47/55] Generating ta.mo
+[48/55] Generating ur.mo
+[49/55] Generating vi.mo
+[50/55] Generating zh_HANS.mo
+[51/55] Linking CXX static library lib\bf_blenkernel.lib
+[52/55] Building CXX object source\creator\CMakeFiles\blender.dir\creator_signals.cc.obj
+creator_signals.cc
+[53/55] Building CXX object source\creator\CMakeFiles\blender.dir\creator_args.cc.obj
+creator_args.cc
+[54/55] Building CXX object source\creator\CMakeFiles\blender.dir\creator.cc.obj
+creator.cc
+[55/55] Linking CXX executable bin\blender.exe; Stripping PDB file...
+Run: "ninja install" to copy runtime files and scripts to: C:/dev/blender/build_windows_x64_clang_RelWithDebInfo/bin/5.3

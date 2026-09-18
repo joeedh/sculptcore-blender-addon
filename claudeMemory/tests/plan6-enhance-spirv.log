@@ -1,0 +1,11 @@
+-- sculptcore: sccache compiler launcher enabled (C:/dev/sccache/target/release/sccache.exe)
+-- sbrush: tint = C:/dev/tint/tint.exe
+-- sbrush: SPIR-V validator = C:/VulkanSDK/1.4.350.0/Bin/spirv-val.exe
+-- Using Win32 for window creation
+-- vulkan: glslc = C:/VulkanSDK/1.4.350.0/Bin/glslc.exe
+-- Configuring done (4.5s)
+-- Generating done (3.5s)
+-- Build files have been written to: C:/dev/blender/sculptcore-blender-addon/engine/build/native
+[33m[0/2] Re-checking globbed directories...[39m
+ninja: no work to do.
+

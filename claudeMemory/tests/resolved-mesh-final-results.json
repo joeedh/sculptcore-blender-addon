@@ -1,0 +1,257 @@
+[
+  {
+    "suite": "test_props_declarations",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_props_declarations"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_props_declarations.cc_out.exe",
+    "returncode": 0,
+    "passed": true,
+    "binary_sha256": "7f7d0ddc15d669a565cfe1bfb4591a004bd5ca09df08902b9580909d5a3b3d59",
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "suite": "test_props_checked_access",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_props_checked_access"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_props_checked_access.cc_out.exe",
+    "returncode": 0,
+    "passed": true,
+    "binary_sha256": "f98059e5f8a517631df73811c9d3aaa198d8ada842456b193215cfc1e94afb81",
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "suite": "test_props_typed_dynamics",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_props_typed_dynamics"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_props_typed_dynamics.cc_out.exe",
+    "returncode": 0,
+    "passed": true,
+    "binary_sha256": "3da6e628ca1656390553f83dc3e6b932d04f97b0d5e1707a728e251fa2f50ef6",
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "suite": "test_props",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_props"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_props.cc_out.exe",
+    "returncode": 0,
+    "passed": true,
+    "binary_sha256": "e9fc144f6ba4678a7ab1965a56ae067072bd912359ac388623ecc369cf7c3974",
+    "stdout": "f value: 3.000000\r\n",
+    "stderr": ""
+  },
+  {
+    "suite": "test_sbrush_member_types",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_sbrush_member_types"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_sbrush_member_types.cc_out.exe",
+    "returncode": 0,
+    "passed": true,
+    "binary_sha256": "8f9bb453947fc26f2c2f541d5d41f7ab3641a0bbbdcb395101222589c34264ba",
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "suite": "test_brush_dynamics",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_brush_dynamics"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_brush_dynamics.cc_out.exe",
+    "returncode": 0,
+    "passed": true,
+    "binary_sha256": "491e16e4dd34cfcc9a8c3dcb60e77d896131cd8d65be694ae5ac5421f18c9927",
+    "stdout": "",
+    "stderr": "dab 0: pressure=0 mu=0.2 expected=0.2\r\ndab 1: pressure=0.25 mu=0.6 expected=0.6\r\ndab 2: pressure=0.5 mu=0.9 expected=0.9\r\ndab 3: pressure=0.75 mu=1.6 expected=1.6\r\ndab 4: pressure=1 mu=2 expected=2\r\nno-device: dynamic_path=2 static_path=2\r\n"
+  },
+  {
+    "suite": "test_brush_uniform_validate",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_brush_uniform_validate"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_brush_uniform_validate.cc_out.exe",
+    "returncode": 0,
+    "passed": true,
+    "binary_sha256": "e1a151ffb2f29eea8523320e5bfad0485bcd476eef5ecfc177372e44466144bb",
+    "stdout": "",
+    "stderr": "manifest tool=13 retargetable=1\r\nmanifest tool=18 retargetable=1\r\nmanifest tool=20 retargetable=1\r\nmanifest tool=14 retargetable=1\r\nbsmooth vclass entry=1\r\nhappy: ok=1 msgs=0\r\nstray: ok=0 contains=1\r\nbrush property 'wingAngle': configuration error 16\r\nstatic: ok=0 contains=1\r\nbrush property 'mu': configuration error 16\r\nunbaked: ok=0 contains=1\r\noorange: ok=0 contains=1\r\ninverted: ok=0 contains=1\r\nwave5: count=3 (expect 3)\r\nwave5: configured ok=1\r\nwave5: cleared devices=0 (expect 0)\r\nbrush uniform validation: stray dynamic on 'mu': not a uniform of the active brush\r\nintegration-skip: changed=0 (expect 0)\r\nintegration-mutate: changed=88 (expect >0)\r\n"
+  },
+  {
+    "suite": "test_sbrush_attr_writes",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_sbrush_attr_writes"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_sbrush_attr_writes.cc_out.exe",
+    "returncode": 0,
+    "passed": true,
+    "binary_sha256": "e5453b2009bec0b820510b46b000a0271692a8c3f52a65568e99322f5dd5e53a",
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "suite": "test_gpu_uniform_pack",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_gpu_uniform_pack"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_gpu_uniform_pack.cc_out.exe",
+    "returncode": 0,
+    "passed": true,
+    "binary_sha256": "dffdd23600369006e992a7cf7c4c4038a8de7befe23e11505782d6ae80626c65",
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "suite": "test_brush_declarations",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_brush_declarations"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_brush_declarations.cc_out.exe",
+    "returncode": 0,
+    "passed": true,
+    "binary_sha256": "b75ee863900dbd504f5b7a73375c30b3886ba07d587ebce34df7fa60cdfc8cc3",
+    "stdout": "",
+    "stderr": "uniform declaration 'nu': registration error 64\r\nuniform declaration 'projection': registration error 64\r\nextra-kernel failed registration preserves working slots\r\nuniform declaration 'projection': registration error 64\r\nuniform declaration 'projection': registration error 64\r\nuniform declaration 'projection': registration error 64\r\nuniform declaration 'projection': registration error 64\r\nuniform declaration 'projection': registration error 64\r\nuniform declaration 'projection': registration error 64\r\nuniform declaration 'projection': registration error 64\r\nuniform declaration 'projection': registration error 64\r\n"
+  },
+  {
+    "suite": "test_brush_props",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_brush_props"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_brush_props.cc_out.exe",
+    "returncode": 0,
+    "passed": true,
+    "binary_sha256": "8d9dd0ddafc2871d9c4661c909dbc2ed4a89c04df81abc014b640d849a63991a",
+    "stdout": "",
+    "stderr": "kelvinlet: mu=1 nu=0.4\r\nplane: planeSide=7 (untouched), planeoff registered\r\n"
+  },
+  {
+    "suite": "test_brush_registry",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_brush_registry"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_brush_registry.cc_out.exe",
+    "returncode": 0,
+    "passed": true,
+    "binary_sha256": "67d1cb986d52c86c0f18fae2450d0bdff949939403b5afeb187c85be34ff6d9c",
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "suite": "test_grid_stroke",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_grid_stroke"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_grid_stroke.cc_out.exe",
+    "returncode": 0,
+    "passed": true,
+    "binary_sha256": "ed99007c918a16140b816ead6ca3b57a1e1a95745f380aad84aca906635a6f35",
+    "stdout": "0.77k triangles\r\n",
+    "stderr": "A/B draw: max pos diff 0.00000000 (eps 0.00000100)\r\nA/B draw store: max disp diff 0.00000000\r\nA/B clay: max pos diff 0.00000000 (eps 0.00000100)\r\nA/B pinch: max pos diff 0.00000000 (eps 0.00000100)\r\nA/B sharp: max pos diff 0.00000000 (eps 0.00200000)\r\nA/B inflate: max pos diff 0.03649945 (eps 0.05000000)\r\nA/B smooth: max pos diff 0.00000003 (eps 0.00200000)\r\nA/B snakehook: max pos diff 0.00000000 (eps 0.00000100)\r\nA/B wingscrape: max pos diff 0.00000000 (eps 0.00000100)\r\nE3 mirror-stamp smooth: max pos diff 0.00000003\r\nE1 bsmooth A/B: tangent 0.00000001 normal 0.00000003\r\nE2 program A/B: tangent 0.00000003 normal 0.00000002\r\nE2 pressure A/B: tangent 0.00000001 normal 0.00000001\r\nE2 program undo: 7632 bytes (single-stage ref 7632)\r\nundo log: 2 steps, 13464 bytes\r\nmask stroke: max mask 0.7985\r\nlayer stroke: channel 1 max |d| 0.061894, ch0 same 1\r\nlayerdraw stroke: channel 1 max |d| 0.124030, ch0 same 1\r\nlayerdraw recomposite: off 0.00e+00 on 5.96e-08\r\nA/B layerdraw: max pos diff 0.00000003\r\nA/B layerdraw store: max disp diff 0.00000002\r\ngrab stroke: 40 verts touched\r\ndraw source: 1 nodes, 1 dirty after dab\r\ndraw source small-target: 12 nodes, 2 dirty\r\nS4 batch-program: moved 367 (loop 367)\r\nS5 mesh batch-program: nodes 40 (loop 40)\r\nzero-disp round trip: max diff 0.00000003\r\nseed vs materialize path: top max diff 0.00000003\r\nseed vs materialize path: settled L-1 max diff 0.00000000\r\nnormal topology arrays parity: tris=768 same=1\r\nundo blocks survived removeChannel\r\nattr debt round-tripped through undo/redo\r\ngrid attr colour: 34 painted samples, max r 0.4987\r\ngrid attr colour undo bit-exact\r\ngrid attr colour: 34 of 600 samples published per dab\r\ngrid attr colour draw samples seeded + bit-exact through undo\r\ngrid attr polygroup: 55 of 600 samples differ per dab\r\ngrid attr polygroup: 27 cells set to the active group\r\ngrid attr polygroup undo bit-exact\r\ngrid attr polygroup: 1 cage faces adopted the group\r\ngrid stroke gates passed\r\n"
+  },
+  {
+    "suite": "test_brush_named_storage",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_brush_named_storage"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_brush_named_storage.cc_out.exe",
+    "returncode": 0,
+    "passed": true,
+    "binary_sha256": "69f0971028a9412179d82582b6627a80244a0bb96c91dc2f9b4f080c1783009b",
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "suite": "test_brush_typed_extras",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_brush_typed_extras"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_brush_typed_extras.cc_out.exe",
+    "returncode": 0,
+    "passed": true,
+    "binary_sha256": "f0e72865fcf0fc9caa04a5a5f39e1a9922e1d9c01c30fe277f297c9509df72df",
+    "stdout": "",
+    "stderr": "prepared scalar compiler capability guards passed\r\ntyped extra candidate defaults and readonly evaluation passed\r\ntyped extra registry, authored/cache writes and packed bytes passed\r\ntyped extra mesh program geometry passed\r\ntyped extra grid program geometry passed\r\ntyped extra resolved mesh geometry and atomic publication passed\r\n"
+  },
+  {
+    "suite": "test_brush_configuration",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_brush_configuration"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_brush_configuration.cc_out.exe",
+    "returncode": 0,
+    "passed": true,
+    "binary_sha256": "24242ce3da06fd6575449336234297654ec749953d61442d37e48226b5928e2c",
+    "stdout": "",
+    "stderr": "brush property 'legacy': configuration error 1\r\n"
+  },
+  {
+    "suite": "test_brush_prepared_execution",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_brush_prepared_execution"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_brush_prepared_execution.cc_out.exe",
+    "returncode": 0,
+    "passed": true,
+    "binary_sha256": "e8cf0ea7b030e8238da7516ed2573d7ff27aa239997e9900ff82d6b8966f4417",
+    "stdout": "Info: attribute .face.normal changed index in mesh\r\nInfo: attribute normals changed index in mesh\r\nInfo: attribute normals changed index in mesh\r\nInfo: attribute .face.normal changed index in mesh\r\n",
+    "stderr": "resolved DRAW expanded region, rejection and undo passed (337 outside raw leaves)\r\nresolved mesh capability and neighbor dispatch passed\r\n"
+  }
+]

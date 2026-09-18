@@ -1,0 +1,37 @@
+{
+  "passed": true,
+  "cases": [
+    {
+      "bits": 2097153,
+      "input_radius": 2.938737278354183e-39,
+      "stored_radius": 0.0,
+      "status": 0,
+      "origin_z": 0.0,
+      "checked_rejection": true
+    },
+    {
+      "bits": 4194304,
+      "input_radius": 5.877471754111438e-39,
+      "stored_radius": 0.0,
+      "status": 0,
+      "origin_z": 0.0,
+      "checked_rejection": true
+    },
+    {
+      "bits": 8388608,
+      "input_radius": 1.1754943508222875e-38,
+      "stored_radius": 1.1754943508222875e-38,
+      "status": 1,
+      "origin_z": 0.25
+    },
+    {
+      "bits": 1065353216,
+      "input_radius": 1.0,
+      "stored_radius": 1.0,
+      "status": 1,
+      "origin_z": 0.25
+    }
+  ],
+  "dll": "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\5.3\\scripts\\addons_core\\sculptcore_addon\\lib\\sculptcore\\sculptcore_capi.dll",
+  "sha256": "76c0b7a363691b73fbf2ab58a363cfe4bbf7500dc184f3d3d5589cfd065a8acb"
+}

@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "checks": [
+    "untouched reset keeps asset data and both owners clean",
+    "explicit empty dirties only inactive owner",
+    "repeated empty is clean",
+    "reset of empty dirties actual owner",
+    "repeated reset is clean",
+    "Revert restores saved plural placements",
+    "Revert retires placement store",
+    "Scene placement leaves both assets clean",
+    "late rollback preserves entire root and clean assets"
+  ]
+}

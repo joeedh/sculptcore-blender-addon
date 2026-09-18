@@ -1,0 +1,620 @@
+build: build/native extra kernel dirs "C:/dev/blender/sculptcore-blender-addon/brushes" -> "C:/dev/blender/sculptcore-blender-addon/brushes;C:/dev/blender/sculptcore-blender-addon/engine/tests/assets/typed_extras" — reconfiguring
+deps: cache hit windows/clang-22-x64/relwithdebinfo (OpenBLAS v0.3.33, SuiteSparse v7.12.2)
+-- sculptcore: sccache compiler launcher enabled (C:/dev/sccache/target/release/sccache.exe)
+-- sbrush: tint = C:/dev/tint/tint.exe
+-- sbrush: SPIR-V validator = C:/VulkanSDK/1.4.350.0/Bin/spirv-val.exe
+-- Using Win32 for window creation
+-- vulkan: glslc = C:/VulkanSDK/1.4.350.0/Bin/glslc.exe
+-- Configuring done (5.3s)
+-- Generating done (2.9s)
+-- Build files have been written to: C:/dev/blender/sculptcore-blender-addon/engine/build/native
+Building...
+[0/2] Re-checking globbed directories...
+[1/11] Building CXX object source/props/CMakeFiles/props.dir/prop_inherit.cc.obj
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_inherit.cc:1:9: warning: #pragma once in main file [-Wpragma-once-outside-header]
+    1 | #pragma once
+      |         ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_inherit.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:28:11: warning: 19 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   28 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:83:3: note: in instantiation of function template specialization 'sculptcore::props::numtype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\..\props\prop_coerce.h:83:32)>' requested here
+   83 |   numtype_dispatch(prop->type, [prop, &retval]<typename T>() {
+      |   ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:94:3: note: in instantiation of function template specialization 'sculptcore::props::numtype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\..\props\prop_coerce.h:94:32)>' requested here
+   94 |   numtype_dispatch(prop->type, [&]<typename PropType>() {
+      |   ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:28:11: warning: 19 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   28 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_inherit.cc:13:3: note: in instantiation of function template specialization 'sculptcore::props::proptype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\prop_inherit.cc:13:33)>' requested here
+   13 |   proptype_dispatch(prop->type, [&]<typename PropType>() {
+      |   ^
+6 warnings generated.
+[2/11] Building CXX object source/props/CMakeFiles/props.dir/prop_struct.cc.obj
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:28:11: warning: 19 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   28 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:83:3: note: in instantiation of function template specialization 'sculptcore::props::numtype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\..\props\prop_coerce.h:83:32)>' requested here
+   83 |   numtype_dispatch(prop->type, [prop, &retval]<typename T>() {
+      |   ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:94:3: note: in instantiation of function template specialization 'sculptcore::props::numtype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\..\props\prop_coerce.h:94:32)>' requested here
+   94 |   numtype_dispatch(prop->type, [&]<typename PropType>() {
+      |   ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:35:3: note: in instantiation of function template specialization 'sculptcore::props::numtype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\prop_struct.cc:35:26)>' requested here
+   35 |   numtype_dispatch(type, [&]<typename P>() {
+      |   ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:79:3: note: in instantiation of function template specialization 'sculptcore::props::numtype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\prop_struct.cc:79:26)>' requested here
+   79 |   numtype_dispatch(type, [&]<typename P>() {
+      |   ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:131:5: note: in instantiation of function template specialization 'sculptcore::props::numtype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\prop_struct.cc:131:34)>' requested here
+  131 |     numtype_dispatch(prop->type, [&]<typename P>() {
+      |     ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:28:11: warning: 19 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   28 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:111:3: note: in instantiation of function template specialization 'sculptcore::props::proptype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\..\props\prop_coerce.h:111:33)>' requested here
+  111 |   proptype_dispatch(prop->type, [prop, &result]<typename PropType>() {
+      |   ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:129:18: note: in instantiation of function template specialization 'sculptcore::props::prop_value_get<float>' requested here
+  129 |     *value_out = prop_value_get<Type>(prop);
+      |                  ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:152:21: note: in instantiation of function template specialization 'sculptcore::props::prop_coerce<float>' requested here
+  152 |   PropError error = prop_coerce<T>(prop, &value);
+      |                     ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:28:11: warning: 19 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   28 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:144:5: note: in instantiation of function template specialization 'sculptcore::props::proptype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\..\props\prop_coerce.h:144:35)>' requested here
+  144 |     proptype_dispatch(prop->type, [&]<typename PropType>() {
+      |     ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:152:21: note: in instantiation of function template specialization 'sculptcore::props::prop_coerce<float>' requested here
+  152 |   PropError error = prop_coerce<T>(prop, &value);
+      |                     ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:131:5: note: in instantiation of function template specialization 'sculptcore::props::numtype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\prop_struct.cc:131:34)>' requested here
+  131 |     numtype_dispatch(prop->type, [&]<typename P>() {
+      |     ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:28:11: warning: 19 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   28 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:111:3: note: in instantiation of function template specialization 'sculptcore::props::proptype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\..\props\prop_coerce.h:111:33)>' requested here
+  111 |   proptype_dispatch(prop->type, [prop, &result]<typename PropType>() {
+      |   ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:129:18: note: in instantiation of function template specialization 'sculptcore::props::prop_value_get<double>' requested here
+  129 |     *value_out = prop_value_get<Type>(prop);
+      |                  ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:152:21: note: in instantiation of function template specialization 'sculptcore::props::prop_coerce<double>' requested here
+  152 |   PropError error = prop_coerce<T>(prop, &value);
+      |                     ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:28:11: warning: 19 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   28 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:144:5: note: in instantiation of function template specialization 'sculptcore::props::proptype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\..\props\prop_coerce.h:144:35)>' requested here
+  144 |     proptype_dispatch(prop->type, [&]<typename PropType>() {
+      |     ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:152:21: note: in instantiation of function template specialization 'sculptcore::props::prop_coerce<double>' requested here
+  152 |   PropError error = prop_coerce<T>(prop, &value);
+      |                     ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:131:5: note: in instantiation of function template specialization 'sculptcore::props::numtype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\prop_struct.cc:131:34)>' requested here
+  131 |     numtype_dispatch(prop->type, [&]<typename P>() {
+      |     ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:28:11: warning: 19 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   28 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:111:3: note: in instantiation of function template specialization 'sculptcore::props::proptype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\..\props\prop_coerce.h:111:33)>' requested here
+  111 |   proptype_dispatch(prop->type, [prop, &result]<typename PropType>() {
+      |   ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:129:18: note: in instantiation of function template specialization 'sculptcore::props::prop_value_get<int>' requested here
+  129 |     *value_out = prop_value_get<Type>(prop);
+      |                  ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:152:21: note: in instantiation of function template specialization 'sculptcore::props::prop_coerce<int>' requested here
+  152 |   PropError error = prop_coerce<T>(prop, &value);
+      |                     ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:28:11: warning: 19 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   28 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:144:5: note: in instantiation of function template specialization 'sculptcore::props::proptype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\..\props\prop_coerce.h:144:35)>' requested here
+  144 |     proptype_dispatch(prop->type, [&]<typename PropType>() {
+      |     ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:152:21: note: in instantiation of function template specialization 'sculptcore::props::prop_coerce<int>' requested here
+  152 |   PropError error = prop_coerce<T>(prop, &value);
+      |                     ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:131:5: note: in instantiation of function template specialization 'sculptcore::props::numtype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\prop_struct.cc:131:34)>' requested here
+  131 |     numtype_dispatch(prop->type, [&]<typename P>() {
+      |     ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:28:11: warning: 19 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   28 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:111:3: note: in instantiation of function template specialization 'sculptcore::props::proptype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\..\props\prop_coerce.h:111:33)>' requested here
+  111 |   proptype_dispatch(prop->type, [prop, &result]<typename PropType>() {
+      |   ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:129:18: note: in instantiation of function template specialization 'sculptcore::props::prop_value_get<bool>' requested here
+  129 |     *value_out = prop_value_get<Type>(prop);
+      |                  ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:152:21: note: in instantiation of function template specialization 'sculptcore::props::prop_coerce<bool>' requested here
+  152 |   PropError error = prop_coerce<T>(prop, &value);
+      |                     ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:28:11: warning: 19 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   28 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:144:5: note: in instantiation of function template specialization 'sculptcore::props::proptype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\..\props\prop_coerce.h:144:35)>' requested here
+  144 |     proptype_dispatch(prop->type, [&]<typename PropType>() {
+      |     ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:152:21: note: in instantiation of function template specialization 'sculptcore::props::prop_coerce<bool>' requested here
+  152 |   PropError error = prop_coerce<T>(prop, &value);
+      |                     ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:131:5: note: in instantiation of function template specialization 'sculptcore::props::numtype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\prop_struct.cc:131:34)>' requested here
+  131 |     numtype_dispatch(prop->type, [&]<typename P>() {
+      |     ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:28:11: warning: 19 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   28 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:111:3: note: in instantiation of function template specialization 'sculptcore::props::proptype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\..\props\prop_coerce.h:111:33)>' requested here
+  111 |   proptype_dispatch(prop->type, [prop, &result]<typename PropType>() {
+      |   ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:129:18: note: in instantiation of function template specialization 'sculptcore::props::prop_value_get<short>' requested here
+  129 |     *value_out = prop_value_get<Type>(prop);
+      |                  ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:152:21: note: in instantiation of function template specialization 'sculptcore::props::prop_coerce<short>' requested here
+  152 |   PropError error = prop_coerce<T>(prop, &value);
+      |                     ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:28:11: warning: 19 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   28 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:144:5: note: in instantiation of function template specialization 'sculptcore::props::proptype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\..\props\prop_coerce.h:144:35)>' requested here
+  144 |     proptype_dispatch(prop->type, [&]<typename PropType>() {
+      |     ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:152:21: note: in instantiation of function template specialization 'sculptcore::props::prop_coerce<short>' requested here
+  152 |   PropError error = prop_coerce<T>(prop, &value);
+      |                     ^
+21 warnings generated.
+[3/11] Building CXX object source/props/CMakeFiles/props.dir/prop_declarations.cc.obj
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_declarations.cc:5:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props\prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props\prop_coerce.h:28:11: warning: 19 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   28 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props\prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props\prop_coerce.h:83:3: note: in instantiation of function template specialization 'sculptcore::props::numtype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\prop_coerce.h:83:32)>' requested here
+   83 |   numtype_dispatch(prop->type, [prop, &retval]<typename T>() {
+      |   ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props\prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props\prop_coerce.h:94:3: note: in instantiation of function template specialization 'sculptcore::props::numtype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\prop_coerce.h:94:32)>' requested here
+   94 |   numtype_dispatch(prop->type, [&]<typename PropType>() {
+      |   ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props\prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_declarations.cc:47:3: note: in instantiation of function template specialization 'sculptcore::props::numtype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\prop_declarations.cc:47:38)>' requested here
+   47 |   numtype_dispatch(declaration.type, [&]<typename P>() {
+      |   ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_declarations.cc:5:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props\prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_declarations.cc:105:3: note: in instantiation of function template specialization 'sculptcore::props::numtype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\prop_declarations.cc:105:36)>' requested here
+  105 |   numtype_dispatch(property->type, [&]<typename P>() {
+      |   ^
+6 warnings generated.
+[4/11] Building CXX object source/brush/compiler/CMakeFiles/sbrushc_core.dir/emit_registry.cc.obj
+[5/11] Building CXX object source/brush/compiler/CMakeFiles/sbrushc.dir/sbrushc_main.cc.obj
+[6/11] Building CXX object source/brush/compiler/CMakeFiles/sbrushc_core.dir/emit_cpp.cc.obj
+[7/11] Building CXX object source/props/CMakeFiles/props.dir/bindings.cc.obj
+[8/11] Linking CXX static library source\props\props.lib
+[9/11] Linking CXX static library source\brush\compiler\sbrushc_core.lib
+[10/11] Linking CXX executable source\brush\compiler\sbrushc.exe
+codegen: typescript/sculptcore/brush/brushWgsl.ts up to date
+[33m[0/2] Re-checking globbed directories...
+[39m
+[33m[1/217] sbrush extra: nudge.brush.gen.h
+[39m
+[33m[2/217] sbrush extra: typed_probe.brush.gen.h
+[39m
+[33m[3/217] sbrush extra registry
+[39m
+sbrushc: C:/dev/blender/sculptcore-blender-addon/engine/build/native/sbrush_extra/gen/sculptcore_extra_brushes_enum.inc
+sbrushc: C:/dev/blender/sculptcore-blender-addon/engine/build/native/sbrush_extra/gen/sculptcore_extra_brushes.gen.h
+[33m[4/217] sbrush wgsl: bsmooth.wgsl
+[39m
+[33m[5/217] Building CXX object tests/CMakeFiles/test_props.cc_out.dir/test_props.cc.obj
+[39m
+[33m[6/217] Building CXX object tests/CMakeFiles/test_sbrush_member_types.cc_out.dir/test_sbrush_member_types.cc.obj
+[39m
+[33m[7/217] Building CXX object tests/CMakeFiles/test_props_checked_access.cc_out.dir/test_props_checked_access.cc.obj
+[39m
+[33m[8/217] Building CXX object tests/CMakeFiles/test_props_typed_dynamics.cc_out.dir/test_props_typed_dynamics.cc.obj
+[39m
+[33m[9/217] Building CXX object tests/CMakeFiles/test_props_declarations.cc_out.dir/test_props_declarations.cc.obj
+[39m
+[33m[10/217] Building CXX object tests/CMakeFiles/test_automask_cavity.cc_out.dir/test_automask_cavity.cc.obj
+[39m
+[33m[11/217] Building CXX object source/brush/CMakeFiles/brush.dir/c-api/gpu_brush_c_api.cc.obj
+[39m
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/c-api/gpu_brush_c_api.cc:6:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\meshlog/meshlog.h:3:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\meshlog\meshlog_base.h:77:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\spatial/node.h:3:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\gpu/command.h:8:
+[36msource\gpu\vbo.h:144:13: [39m[33mwarning[39m:[33m enumeration values 'TYPE_INVALID', 'FLOAT16', and 'FLOAT64' not handled in switch [-Wswitch][39m
+[34m  144 [39m|     [34mswitch[39m [33m([39mtype[33m)[39m [33m{[39m
+      |             [33m^[39m[31m~[39m[31m~[39m[31m~[39m
+1 warning generated.
+[33m[12/217] Building CXX object source/brush/CMakeFiles/brush.dir/brush_configuration.cc.obj
+[39m
+FAILED: [code=1] source/brush/CMakeFiles/brush.dir/brush_configuration.cc.obj 
+C:\dev\sccache\target\release\sccache.exe C:\PROGRA[31m~[39m1\MICROS[31m~[39m3\18\COMMUN[31m~[39m1\VC\Tools\Llvm\x64\bin\CLANG_[31m~[39m1.EXE -DSBRUSH_BACKEND_SPIRV=1 -DSBRUSH_BACKEND_WGSL=1 -DSCULPTCORE_EXTRA_BRUSHES=1 -DSCULPTCORE_HAVE_TCC=1 -DSCULPTCORE_HAVE_TEXTURE_COMPILER=1 -IC:/dev/blender/sculptcore-blender-addon/engine/build/native/sbrush_extra/gen -IC:/dev/blender/sculptcore-blender-addon/engine/source/brush/eigen -IC:/dev/blender/sculptcore-blender-addon/engine/source/brush/util -IC:/dev/blender/sculptcore-blender-addon/engine/source/brush/math -IC:/dev/blender/sculptcore-blender-addon/engine/source/brush/props -IC:/dev/blender/sculptcore-blender-addon/engine/source/brush/displace -IC:/dev/blender/sculptcore-blender-addon/engine/source/brush/spatial -IC:/dev/blender/sculptcore-blender-addon/engine/source/brush/meshlog -IC:/dev/blender/sculptcore-blender-addon/engine/source/brush/platform -IC:/dev/blender/sculptcore-blender-addon/engine/source/brush/subdiv -IC:/dev/blender/sculptcore-blender-addon/engine/source/brush/.. -IC:/dev/blender/sculptcore-blender-addon/engine/source/brush/kernels/generated -IC:/dev/blender/sculptcore-blender-addon/engine/source/litestl/extern/eigen/.. -IC:/dev/blender/sculptcore-blender-addon/engine/source/litestl/extern/eigen/../.. -IC:/dev/blender/sculptcore-blender-addon/engine/source/litestl/util/eigen -IC:/dev/blender/sculptcore-blender-addon/engine/source/litestl/util/.. -IC:/dev/blender/sculptcore-blender-addon/engine/source/litestl/util/../.. -IC:/dev/blender/sculptcore-blender-addon/engine/source/litestl/math/eigen -IC:/dev/blender/sculptcore-blender-addon/engine/source/litestl/math/util -IC:/dev/blender/sculptcore-blender-addon/engine/source/litestl/math/.. -IC:/dev/blender/sculptcore-blender-addon/engine/source/litestl/math/../.. -IC:/dev/blender/sculptcore-blender-addon/engine/source/props/eigen -IC:/dev/blender/sculptcore-blender-addon/engine/source/props/util -IC:/dev/blender/sculptcore-blender-addon/engine/source/props/math -IC:/dev/blender/sculptcore-blender-addon/engine/source/props/.. -IC:/dev/blender/sculptcore-blender-addon/engine/source/displace/util -IC:/dev/blender/sculptcore-blender-addon/engine/source/displace/math -IC:/dev/blender/sculptcore-blender-addon/engine/source/displace/binding -IC:/dev/blender/sculptcore-blender-addon/engine/source/displace/mesh -IC:/dev/blender/sculptcore-blender-addon/engine/source/displace/.. -IC:/dev/blender/sculptcore-blender-addon/engine/source/litestl/binding/eigen -IC:/dev/blender/sculptcore-blender-addon/engine/source/litestl/binding/util -IC:/dev/blender/sculptcore-blender-addon/engine/source/litestl/binding/.. -IC:/dev/blender/sculptcore-blender-addon/engine/source/litestl/binding/../.. -IC:/dev/blender/sculptcore-blender-addon/engine/source/mesh/math -IC:/dev/blender/sculptcore-blender-addon/engine/source/mesh/util -IC:/dev/blender/sculptcore-blender-addon/engine/source/mesh/binding -IC:/dev/blender/sculptcore-blender-addon/engine/source/mesh/gpu -IC:/dev/blender/sculptcore-blender-addon/engine/source/mesh/io -IC:/dev/blender/sculptcore-blender-addon/engine/source/mesh/.. -IC:/dev/blender/sculptcore-blender-addon/engine/source/gpu/eigen -IC:/dev/blender/sculptcore-blender-addon/engine/source/gpu/util -IC:/dev/blender/sculptcore-blender-addon/engine/source/gpu/math -IC:/dev/blender/sculptcore-blender-addon/engine/source/gpu/binding -IC:/dev/blender/sculptcore-blender-addon/engine/source/gpu/.. -IC:/dev/blender/sculptcore-blender-addon/engine/source/litestl/io/util -IC:/dev/blender/sculptcore-blender-addon/engine/source/litestl/io/math -IC:/dev/blender/sculptcore-blender-addon/engine/source/litestl/io/binding -IC:/dev/blender/sculptcore-blender-addon/engine/source/litestl/io/lz4 -IC:/dev/blender/sculptcore-blender-addon/engine/source/litestl/io/.. -IC:/dev/blender/sculptcore-blender-addon/engine/source/litestl/io/../.. -IC:/dev/blender/sculptcore-blender-addon/engine/source/litestl/extern/lz4 -IC:/dev/blender/sculptcore-blender-addon/engine/source/spatial/mesh -IC:/dev/blender/sculptcore-blender-addon/engine/source/spatial/util -IC:/dev/blender/sculptcore-blender-addon/engine/source/spatial/math -IC:/dev/blender/sculptcore-blender-addon/engine/source/spatial/gpu -IC:/dev/blender/sculptcore-blender-addon/engine/source/spatial/binding -IC:/dev/blender/sculptcore-blender-addon/engine/source/spatial/.. -IC:/dev/blender/sculptcore-blender-addon/engine/source/meshlog/eigen -IC:/dev/blender/sculptcore-blender-addon/engine/source/meshlog/util -IC:/dev/blender/sculptcore-blender-addon/engine/source/meshlog/math -IC:/dev/blender/sculptcore-blender-addon/engine/source/meshlog/props -IC:/dev/blender/sculptcore-blender-addon/engine/source/meshlog/spatial -IC:/dev/blender/sculptcore-blender-addon/engine/source/meshlog/mesh -IC:/dev/blender/sculptcore-blender-addon/engine/source/meshlog/.. -IC:/dev/blender/sculptcore-blender-addon/engine/source/litestl/platform/.. -IC:/dev/blender/sculptcore-blender-addon/engine/source/litestl/platform/../.. -IC:/dev/blender/sculptcore-blender-addon/engine/source/subdiv/util -IC:/dev/blender/sculptcore-blender-addon/engine/source/subdiv/math -IC:/dev/blender/sculptcore-blender-addon/engine/source/subdiv/binding -IC:/dev/blender/sculptcore-blender-addon/engine/source/subdiv/io -IC:/dev/blender/sculptcore-blender-addon/engine/source/subdiv/mesh -IC:/dev/blender/sculptcore-blender-addon/engine/source/subdiv/displace -IC:/dev/blender/sculptcore-blender-addon/engine/source/subdiv/spatial -IC:/dev/blender/sculptcore-blender-addon/engine/source/subdiv/vdm -IC:/dev/blender/sculptcore-blender-addon/engine/source/subdiv/.. -IC:/dev/blender/sculptcore-blender-addon/engine/source/vdm/util -IC:/dev/blender/sculptcore-blender-addon/engine/source/vdm/math -IC:/dev/blender/sculptcore-blender-addon/engine/source/vdm/binding -IC:/dev/blender/sculptcore-blender-addon/engine/source/vdm/io -IC:/dev/blender/sculptcore-blender-addon/engine/source/vdm/mesh -IC:/dev/blender/sculptcore-blender-addon/engine/source/vdm/displace -IC:/dev/blender/sculptcore-blender-addon/engine/source/vdm/spatial -IC:/dev/blender/sculptcore-blender-addon/engine/source/vdm/meshlog -IC:/dev/blender/sculptcore-blender-addon/engine/source/vdm/.. -IC:/dev/blender/sculptcore-blender-addon/engine/extern -IC:/dev/blender/sculptcore-blender-addon/engine/source -ffp-contract=off -ffp-contract=off -O2 -DNDEBUG -g -Xclang -gcodeview -std=gnu++20 -D_DLL -D_MT -Xclang --dependent-lib=msvcrt -D_CRT_SECURE_NO_DEPRECATE -D_CRT_SECURE_NO_WARNINGS -Wno-invalid-offsetof -DWIN32 -Wno-parentheses-equality -MD -MT source/brush/CMakeFiles/brush.dir/brush_configuration.cc.obj -MF source\brush\CMakeFiles\brush.dir\brush_configuration.cc.obj.d -o source/brush/CMakeFiles/brush.dir/brush_configuration.cc.obj -c C:/dev/blender/sculptcore-blender-addon/engine/source/brush/brush_configuration.cc
+[36msource\brush\brush_configuration.cc:75:3: [39m[31merror[39m:[33m no member named 'numtype_dispatch' in namespace 'sculptcore::props'; did you mean 'props::detail::curve::type_dispatch'?[39m
+[34m   75 [39m|   props[2m:[39m[2m:[39mnumtype_dispatch[33m([39mproperty[2m-[39m[34m>[39mtype[2m,[39m [33m[[39m[2m&[39m[33m][39m[34m<[39m[34mtypename[39m P[34m>[39m[33m([39m[33m)[39m [33m{[39m
+      |   [33m^[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m
+      |   props::detail::curve::type_dispatch
+[36msource\props\prop_curve.h:325:31: [39m[32mnote[39m: [32m'props::detail::curve::type_dispatch'[39m declared here
+[34m  325 [39m| [34mtemplate[39m [34m<[39m[34mtypename[39m Func[34m>[39m [36mvoid[39m type_dispatch[33m([39mFunc func[2m,[39m PropCurves type[33m)[39m
+      |                               [33m^[39m
+[36msource\brush\brush_configuration.cc:75:10: [39m[31merror[39m:[33m no matching function for call to 'type_dispatch'[39m
+[34m   75 [39m|   props[2m:[39m[2m:[39mnumtype_dispatch[33m([39mproperty[2m-[39m[34m>[39mtype[2m,[39m [33m[[39m[2m&[39m[33m][39m[34m<[39m[34mtypename[39m P[34m>[39m[33m([39m[33m)[39m [33m{[39m
+      |          [33m^[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m
+[36msource\props\prop_curve.h:325:31: [39m[32mnote[39m: candidate function [34mtemplate[39m [34mnot[39m viable[2m:[39m no known conversion from [32m'(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\brush\brush_configuration.cc:75:43)'[39m to [32m'PropCurves'[39m [34mfor[39m [38;5;202m2[39mnd argument
+[34m  325 [39m| [34mtemplate[39m [34m<[39m[34mtypename[39m Func[34m>[39m [36mvoid[39m type_dispatch[33m([39mFunc func[2m,[39m PropCurves type[33m)[39m
+      |                               [33m^[39m                        [31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m[31m~[39m
+2 errors generated.
+[33m[13/217] Building CXX object source/brush/CMakeFiles/brush.dir/brush.cc.obj
+[39m
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/brush.cc:6:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\brush/brushes/extra.h:11:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/build/native/sbrush_extra/gen\sculptcore_extra_brushes.gen.h:6:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\brush/brush_command.h:6:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\brush\brush_concepts.h:5:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\spatial/node.h:3:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\gpu/command.h:8:
+[36msource\gpu\vbo.h:144:13: [39m[33mwarning[39m:[33m enumeration values 'TYPE_INVALID', 'FLOAT16', and 'FLOAT64' not handled in switch [-Wswitch][39m
+[34m  144 [39m|     [34mswitch[39m [33m([39mtype[33m)[39m [33m{[39m
+      |             [33m^[39m[31m~[39m[31m~[39m[31m~[39m
+1 warning generated.
+[33m[14/217] Building CXX object source/brush/CMakeFiles/brush.dir/brush_command.cc.obj
+[39m
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/brush_command.cc:1:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush\brush_command.h:6:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush\brush_concepts.h:5:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\spatial/node.h:3:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\gpu/command.h:8:
+[36msource\gpu\vbo.h:144:13: [39m[33mwarning[39m:[33m enumeration values 'TYPE_INVALID', 'FLOAT16', and 'FLOAT64' not handled in switch [-Wswitch][39m
+[34m  144 [39m|     [34mswitch[39m [33m([39mtype[33m)[39m [33m{[39m
+      |             [33m^[39m[31m~[39m[31m~[39m[31m~[39m
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/brush_command.cc:2:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush\brush_executor.h:12:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\dyntopo/dyntopo.h:32:
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[33mwarning[39m:[33m first argument in call to 'memcpy' is a pointer to non-trivially copyable type 'litestl::math::Vec<float, 2>' [-Wnontrivial-memcall][39m
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+[36msource\mesh\attribute.h:419:23: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::collapseEdge(Mesh &, int, std::optional<litestl::math::float3>, float, EdgeCollapseResult *, MeshCallbacks *, bool)::(lambda)::operator()<litestl::math::Vec<float, 2>>'[39m requested here
+[34m  419 [39m|     callback.[34mtemplate[39m [34moperator[39m[33m([39m[33m)[39m[34m<[39mmath[2m:[39m[2m:[39mfloat2[34m>[39m[33m([39m[33m)[39m[2m;[39m
+      |                       [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:582:15: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::detail::type_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\brush\..\mesh\utils\edge_collapse.h:582:41)>'[39m requested here
+[34m  582 [39m|       detail[2m:[39m[2m:[39mtype_dispatch[33m([39mcattr.type[2m,[39m [33m[[39m[2m&[39m[33m][39m[34m<[39m[34mtypename[39m T[34m>[39m[33m([39m[33m)[39m [33m{[39m
+      |               [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[32mnote[39m: explicitly cast the pointer to silence [34mthis[39m warning
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+      |                           (void*)
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[33mwarning[39m:[33m first argument in call to 'memcpy' is a pointer to non-trivially copyable type 'litestl::math::Vec<float, 3>' [-Wnontrivial-memcall][39m
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+[36msource\mesh\attribute.h:422:23: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::collapseEdge(Mesh &, int, std::optional<litestl::math::float3>, float, EdgeCollapseResult *, MeshCallbacks *, bool)::(lambda)::operator()<litestl::math::Vec<float, 3>>'[39m requested here
+[34m  422 [39m|     callback.[34mtemplate[39m [34moperator[39m[33m([39m[33m)[39m[34m<[39mmath[2m:[39m[2m:[39mfloat3[34m>[39m[33m([39m[33m)[39m[2m;[39m
+      |                       [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:582:15: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::detail::type_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\brush\..\mesh\utils\edge_collapse.h:582:41)>'[39m requested here
+[34m  582 [39m|       detail[2m:[39m[2m:[39mtype_dispatch[33m([39mcattr.type[2m,[39m [33m[[39m[2m&[39m[33m][39m[34m<[39m[34mtypename[39m T[34m>[39m[33m([39m[33m)[39m [33m{[39m
+      |               [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[32mnote[39m: explicitly cast the pointer to silence [34mthis[39m warning
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+      |                           (void*)
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[33mwarning[39m:[33m first argument in call to 'memcpy' is a pointer to non-trivially copyable type 'litestl::math::Vec<float, 4>' [-Wnontrivial-memcall][39m
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+[36msource\mesh\attribute.h:425:23: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::collapseEdge(Mesh &, int, std::optional<litestl::math::float3>, float, EdgeCollapseResult *, MeshCallbacks *, bool)::(lambda)::operator()<litestl::math::Vec<float, 4>>'[39m requested here
+[34m  425 [39m|     callback.[34mtemplate[39m [34moperator[39m[33m([39m[33m)[39m[34m<[39mmath[2m:[39m[2m:[39mfloat4[34m>[39m[33m([39m[33m)[39m[2m;[39m
+      |                       [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:582:15: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::detail::type_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\brush\..\mesh\utils\edge_collapse.h:582:41)>'[39m requested here
+[34m  582 [39m|       detail[2m:[39m[2m:[39mtype_dispatch[33m([39mcattr.type[2m,[39m [33m[[39m[2m&[39m[33m][39m[34m<[39m[34mtypename[39m T[34m>[39m[33m([39m[33m)[39m [33m{[39m
+      |               [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[32mnote[39m: explicitly cast the pointer to silence [34mthis[39m warning
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+      |                           (void*)
+4 warnings generated.
+[33m[15/217] Building CXX object source/brush/CMakeFiles/brush.dir/brush_hooks.cc.obj
+[39m
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/brush_hooks.cc:8:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\brush/brush_executor.h:5:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\brush\brush_command.h:6:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\brush\brush_concepts.h:5:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\spatial/node.h:3:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\gpu/command.h:8:
+[36msource\gpu\vbo.h:144:13: [39m[33mwarning[39m:[33m enumeration values 'TYPE_INVALID', 'FLOAT16', and 'FLOAT64' not handled in switch [-Wswitch][39m
+[34m  144 [39m|     [34mswitch[39m [33m([39mtype[33m)[39m [33m{[39m
+      |             [33m^[39m[31m~[39m[31m~[39m[31m~[39m
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/brush_hooks.cc:8:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\brush/brush_executor.h:12:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\dyntopo/dyntopo.h:32:
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[33mwarning[39m:[33m first argument in call to 'memcpy' is a pointer to non-trivially copyable type 'litestl::math::Vec<float, 2>' [-Wnontrivial-memcall][39m
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+[36msource\mesh\attribute.h:419:23: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::collapseEdge(Mesh &, int, std::optional<litestl::math::float3>, float, EdgeCollapseResult *, MeshCallbacks *, bool)::(lambda)::operator()<litestl::math::Vec<float, 2>>'[39m requested here
+[34m  419 [39m|     callback.[34mtemplate[39m [34moperator[39m[33m([39m[33m)[39m[34m<[39mmath[2m:[39m[2m:[39mfloat2[34m>[39m[33m([39m[33m)[39m[2m;[39m
+      |                       [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:582:15: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::detail::type_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\brush\..\mesh\utils\edge_collapse.h:582:41)>'[39m requested here
+[34m  582 [39m|       detail[2m:[39m[2m:[39mtype_dispatch[33m([39mcattr.type[2m,[39m [33m[[39m[2m&[39m[33m][39m[34m<[39m[34mtypename[39m T[34m>[39m[33m([39m[33m)[39m [33m{[39m
+      |               [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[32mnote[39m: explicitly cast the pointer to silence [34mthis[39m warning
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+      |                           (void*)
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[33mwarning[39m:[33m first argument in call to 'memcpy' is a pointer to non-trivially copyable type 'litestl::math::Vec<float, 3>' [-Wnontrivial-memcall][39m
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+[36msource\mesh\attribute.h:422:23: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::collapseEdge(Mesh &, int, std::optional<litestl::math::float3>, float, EdgeCollapseResult *, MeshCallbacks *, bool)::(lambda)::operator()<litestl::math::Vec<float, 3>>'[39m requested here
+[34m  422 [39m|     callback.[34mtemplate[39m [34moperator[39m[33m([39m[33m)[39m[34m<[39mmath[2m:[39m[2m:[39mfloat3[34m>[39m[33m([39m[33m)[39m[2m;[39m
+      |                       [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:582:15: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::detail::type_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\brush\..\mesh\utils\edge_collapse.h:582:41)>'[39m requested here
+[34m  582 [39m|       detail[2m:[39m[2m:[39mtype_dispatch[33m([39mcattr.type[2m,[39m [33m[[39m[2m&[39m[33m][39m[34m<[39m[34mtypename[39m T[34m>[39m[33m([39m[33m)[39m [33m{[39m
+      |               [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[32mnote[39m: explicitly cast the pointer to silence [34mthis[39m warning
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+      |                           (void*)
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[33mwarning[39m:[33m first argument in call to 'memcpy' is a pointer to non-trivially copyable type 'litestl::math::Vec<float, 4>' [-Wnontrivial-memcall][39m
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+[36msource\mesh\attribute.h:425:23: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::collapseEdge(Mesh &, int, std::optional<litestl::math::float3>, float, EdgeCollapseResult *, MeshCallbacks *, bool)::(lambda)::operator()<litestl::math::Vec<float, 4>>'[39m requested here
+[34m  425 [39m|     callback.[34mtemplate[39m [34moperator[39m[33m([39m[33m)[39m[34m<[39mmath[2m:[39m[2m:[39mfloat4[34m>[39m[33m([39m[33m)[39m[2m;[39m
+      |                       [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:582:15: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::detail::type_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\brush\..\mesh\utils\edge_collapse.h:582:41)>'[39m requested here
+[34m  582 [39m|       detail[2m:[39m[2m:[39mtype_dispatch[33m([39mcattr.type[2m,[39m [33m[[39m[2m&[39m[33m][39m[34m<[39m[34mtypename[39m T[34m>[39m[33m([39m[33m)[39m [33m{[39m
+      |               [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[32mnote[39m: explicitly cast the pointer to silence [34mthis[39m warning
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+      |                           (void*)
+4 warnings generated.
+[33m[16/217] Building CXX object source/brush/CMakeFiles/brush.dir/gpu_marshal.cc.obj
+[39m
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/gpu_marshal.cc:5:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\brush/brush_executor.h:5:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\brush\brush_command.h:6:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\brush\brush_concepts.h:5:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\spatial/node.h:3:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\gpu/command.h:8:
+[36msource\gpu\vbo.h:144:13: [39m[33mwarning[39m:[33m enumeration values 'TYPE_INVALID', 'FLOAT16', and 'FLOAT64' not handled in switch [-Wswitch][39m
+[34m  144 [39m|     [34mswitch[39m [33m([39mtype[33m)[39m [33m{[39m
+      |             [33m^[39m[31m~[39m[31m~[39m[31m~[39m
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/gpu_marshal.cc:5:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\brush/brush_executor.h:12:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\dyntopo/dyntopo.h:32:
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[33mwarning[39m:[33m first argument in call to 'memcpy' is a pointer to non-trivially copyable type 'litestl::math::Vec<float, 2>' [-Wnontrivial-memcall][39m
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+[36msource\mesh\attribute.h:419:23: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::collapseEdge(Mesh &, int, std::optional<litestl::math::float3>, float, EdgeCollapseResult *, MeshCallbacks *, bool)::(lambda)::operator()<litestl::math::Vec<float, 2>>'[39m requested here
+[34m  419 [39m|     callback.[34mtemplate[39m [34moperator[39m[33m([39m[33m)[39m[34m<[39mmath[2m:[39m[2m:[39mfloat2[34m>[39m[33m([39m[33m)[39m[2m;[39m
+      |                       [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:582:15: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::detail::type_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\brush\..\mesh\utils\edge_collapse.h:582:41)>'[39m requested here
+[34m  582 [39m|       detail[2m:[39m[2m:[39mtype_dispatch[33m([39mcattr.type[2m,[39m [33m[[39m[2m&[39m[33m][39m[34m<[39m[34mtypename[39m T[34m>[39m[33m([39m[33m)[39m [33m{[39m
+      |               [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[32mnote[39m: explicitly cast the pointer to silence [34mthis[39m warning
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+      |                           (void*)
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[33mwarning[39m:[33m first argument in call to 'memcpy' is a pointer to non-trivially copyable type 'litestl::math::Vec<float, 3>' [-Wnontrivial-memcall][39m
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+[36msource\mesh\attribute.h:422:23: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::collapseEdge(Mesh &, int, std::optional<litestl::math::float3>, float, EdgeCollapseResult *, MeshCallbacks *, bool)::(lambda)::operator()<litestl::math::Vec<float, 3>>'[39m requested here
+[34m  422 [39m|     callback.[34mtemplate[39m [34moperator[39m[33m([39m[33m)[39m[34m<[39mmath[2m:[39m[2m:[39mfloat3[34m>[39m[33m([39m[33m)[39m[2m;[39m
+      |                       [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:582:15: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::detail::type_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\brush\..\mesh\utils\edge_collapse.h:582:41)>'[39m requested here
+[34m  582 [39m|       detail[2m:[39m[2m:[39mtype_dispatch[33m([39mcattr.type[2m,[39m [33m[[39m[2m&[39m[33m][39m[34m<[39m[34mtypename[39m T[34m>[39m[33m([39m[33m)[39m [33m{[39m
+      |               [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[32mnote[39m: explicitly cast the pointer to silence [34mthis[39m warning
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+      |                           (void*)
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[33mwarning[39m:[33m first argument in call to 'memcpy' is a pointer to non-trivially copyable type 'litestl::math::Vec<float, 4>' [-Wnontrivial-memcall][39m
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+[36msource\mesh\attribute.h:425:23: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::collapseEdge(Mesh &, int, std::optional<litestl::math::float3>, float, EdgeCollapseResult *, MeshCallbacks *, bool)::(lambda)::operator()<litestl::math::Vec<float, 4>>'[39m requested here
+[34m  425 [39m|     callback.[34mtemplate[39m [34moperator[39m[33m([39m[33m)[39m[34m<[39mmath[2m:[39m[2m:[39mfloat4[34m>[39m[33m([39m[33m)[39m[2m;[39m
+      |                       [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:582:15: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::detail::type_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\brush\..\mesh\utils\edge_collapse.h:582:41)>'[39m requested here
+[34m  582 [39m|       detail[2m:[39m[2m:[39mtype_dispatch[33m([39mcattr.type[2m,[39m [33m[[39m[2m&[39m[33m][39m[34m<[39m[34mtypename[39m T[34m>[39m[33m([39m[33m)[39m [33m{[39m
+      |               [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[32mnote[39m: explicitly cast the pointer to silence [34mthis[39m warning
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+      |                           (void*)
+4 warnings generated.
+[33m[17/217] Building CXX object source/brush/CMakeFiles/brush.dir/c-api/grid_stroke_c_api.cc.obj
+[39m
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/c-api/grid_stroke_c_api.cc:9:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\brush/grid_executor.h:26:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\brush\brush_command.h:6:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\brush\brush_concepts.h:5:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\spatial/node.h:3:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\gpu/command.h:8:
+[36msource\gpu\vbo.h:144:13: [39m[33mwarning[39m:[33m enumeration values 'TYPE_INVALID', 'FLOAT16', and 'FLOAT64' not handled in switch [-Wswitch][39m
+[34m  144 [39m|     [34mswitch[39m [33m([39mtype[33m)[39m [33m{[39m
+      |             [33m^[39m[31m~[39m[31m~[39m[31m~[39m
+1 warning generated.
+[33m[18/217] Building CXX object source/brush/CMakeFiles/brush.dir/c-api/mesh_stroke_batch_c_api.cc.obj
+[39m
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/c-api/mesh_stroke_batch_c_api.cc:9:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\brush/brush_executor.h:5:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\brush\brush_command.h:6:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\brush\brush_concepts.h:5:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\spatial/node.h:3:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\gpu/command.h:8:
+[36msource\gpu\vbo.h:144:13: [39m[33mwarning[39m:[33m enumeration values 'TYPE_INVALID', 'FLOAT16', and 'FLOAT64' not handled in switch [-Wswitch][39m
+[34m  144 [39m|     [34mswitch[39m [33m([39mtype[33m)[39m [33m{[39m
+      |             [33m^[39m[31m~[39m[31m~[39m[31m~[39m
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/c-api/mesh_stroke_batch_c_api.cc:9:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\brush/brush_executor.h:12:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\dyntopo/dyntopo.h:32:
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[33mwarning[39m:[33m first argument in call to 'memcpy' is a pointer to non-trivially copyable type 'litestl::math::Vec<float, 2>' [-Wnontrivial-memcall][39m
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+[36msource\mesh\attribute.h:419:23: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::collapseEdge(Mesh &, int, std::optional<litestl::math::float3>, float, EdgeCollapseResult *, MeshCallbacks *, bool)::(lambda)::operator()<litestl::math::Vec<float, 2>>'[39m requested here
+[34m  419 [39m|     callback.[34mtemplate[39m [34moperator[39m[33m([39m[33m)[39m[34m<[39mmath[2m:[39m[2m:[39mfloat2[34m>[39m[33m([39m[33m)[39m[2m;[39m
+      |                       [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:582:15: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::detail::type_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\brush\..\mesh\utils\edge_collapse.h:582:41)>'[39m requested here
+[34m  582 [39m|       detail[2m:[39m[2m:[39mtype_dispatch[33m([39mcattr.type[2m,[39m [33m[[39m[2m&[39m[33m][39m[34m<[39m[34mtypename[39m T[34m>[39m[33m([39m[33m)[39m [33m{[39m
+      |               [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[32mnote[39m: explicitly cast the pointer to silence [34mthis[39m warning
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+      |                           (void*)
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[33mwarning[39m:[33m first argument in call to 'memcpy' is a pointer to non-trivially copyable type 'litestl::math::Vec<float, 3>' [-Wnontrivial-memcall][39m
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+[36msource\mesh\attribute.h:422:23: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::collapseEdge(Mesh &, int, std::optional<litestl::math::float3>, float, EdgeCollapseResult *, MeshCallbacks *, bool)::(lambda)::operator()<litestl::math::Vec<float, 3>>'[39m requested here
+[34m  422 [39m|     callback.[34mtemplate[39m [34moperator[39m[33m([39m[33m)[39m[34m<[39mmath[2m:[39m[2m:[39mfloat3[34m>[39m[33m([39m[33m)[39m[2m;[39m
+      |                       [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:582:15: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::detail::type_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\brush\..\mesh\utils\edge_collapse.h:582:41)>'[39m requested here
+[34m  582 [39m|       detail[2m:[39m[2m:[39mtype_dispatch[33m([39mcattr.type[2m,[39m [33m[[39m[2m&[39m[33m][39m[34m<[39m[34mtypename[39m T[34m>[39m[33m([39m[33m)[39m [33m{[39m
+      |               [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[32mnote[39m: explicitly cast the pointer to silence [34mthis[39m warning
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+      |                           (void*)
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[33mwarning[39m:[33m first argument in call to 'memcpy' is a pointer to non-trivially copyable type 'litestl::math::Vec<float, 4>' [-Wnontrivial-memcall][39m
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+[36msource\mesh\attribute.h:425:23: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::collapseEdge(Mesh &, int, std::optional<litestl::math::float3>, float, EdgeCollapseResult *, MeshCallbacks *, bool)::(lambda)::operator()<litestl::math::Vec<float, 4>>'[39m requested here
+[34m  425 [39m|     callback.[34mtemplate[39m [34moperator[39m[33m([39m[33m)[39m[34m<[39mmath[2m:[39m[2m:[39mfloat4[34m>[39m[33m([39m[33m)[39m[2m;[39m
+      |                       [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:582:15: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::detail::type_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\brush\..\mesh\utils\edge_collapse.h:582:41)>'[39m requested here
+[34m  582 [39m|       detail[2m:[39m[2m:[39mtype_dispatch[33m([39mcattr.type[2m,[39m [33m[[39m[2m&[39m[33m][39m[34m<[39m[34mtypename[39m T[34m>[39m[33m([39m[33m)[39m [33m{[39m
+      |               [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[32mnote[39m: explicitly cast the pointer to silence [34mthis[39m warning
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+      |                           (void*)
+4 warnings generated.
+[33m[19/217] Building CXX object source/brush/CMakeFiles/brush.dir/c-api/cage_smooth_c_api.cc.obj
+[39m
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/c-api/cage_smooth_c_api.cc:6:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\brush/cage_smooth.h:34:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\brush/brush_executor.h:5:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\brush\brush_command.h:6:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\brush\brush_concepts.h:5:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\spatial/node.h:3:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\gpu/command.h:8:
+[36msource\gpu\vbo.h:144:13: [39m[33mwarning[39m:[33m enumeration values 'TYPE_INVALID', 'FLOAT16', and 'FLOAT64' not handled in switch [-Wswitch][39m
+[34m  144 [39m|     [34mswitch[39m [33m([39mtype[33m)[39m [33m{[39m
+      |             [33m^[39m[31m~[39m[31m~[39m[31m~[39m
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/c-api/cage_smooth_c_api.cc:6:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\brush/cage_smooth.h:34:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\brush/brush_executor.h:12:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/..\dyntopo/dyntopo.h:32:
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[33mwarning[39m:[33m first argument in call to 'memcpy' is a pointer to non-trivially copyable type 'litestl::math::Vec<float, 2>' [-Wnontrivial-memcall][39m
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+[36msource\mesh\attribute.h:419:23: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::collapseEdge(Mesh &, int, std::optional<litestl::math::float3>, float, EdgeCollapseResult *, MeshCallbacks *, bool)::(lambda)::operator()<litestl::math::Vec<float, 2>>'[39m requested here
+[34m  419 [39m|     callback.[34mtemplate[39m [34moperator[39m[33m([39m[33m)[39m[34m<[39mmath[2m:[39m[2m:[39mfloat2[34m>[39m[33m([39m[33m)[39m[2m;[39m
+      |                       [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:582:15: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::detail::type_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\brush\..\mesh\utils\edge_collapse.h:582:41)>'[39m requested here
+[34m  582 [39m|       detail[2m:[39m[2m:[39mtype_dispatch[33m([39mcattr.type[2m,[39m [33m[[39m[2m&[39m[33m][39m[34m<[39m[34mtypename[39m T[34m>[39m[33m([39m[33m)[39m [33m{[39m
+      |               [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[32mnote[39m: explicitly cast the pointer to silence [34mthis[39m warning
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+      |                           (void*)
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[33mwarning[39m:[33m first argument in call to 'memcpy' is a pointer to non-trivially copyable type 'litestl::math::Vec<float, 3>' [-Wnontrivial-memcall][39m
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+[36msource\mesh\attribute.h:422:23: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::collapseEdge(Mesh &, int, std::optional<litestl::math::float3>, float, EdgeCollapseResult *, MeshCallbacks *, bool)::(lambda)::operator()<litestl::math::Vec<float, 3>>'[39m requested here
+[34m  422 [39m|     callback.[34mtemplate[39m [34moperator[39m[33m([39m[33m)[39m[34m<[39mmath[2m:[39m[2m:[39mfloat3[34m>[39m[33m([39m[33m)[39m[2m;[39m
+      |                       [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:582:15: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::detail::type_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\brush\..\mesh\utils\edge_collapse.h:582:41)>'[39m requested here
+[34m  582 [39m|       detail[2m:[39m[2m:[39mtype_dispatch[33m([39mcattr.type[2m,[39m [33m[[39m[2m&[39m[33m][39m[34m<[39m[34mtypename[39m T[34m>[39m[33m([39m[33m)[39m [33m{[39m
+      |               [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[32mnote[39m: explicitly cast the pointer to silence [34mthis[39m warning
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+      |                           (void*)
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[33mwarning[39m:[33m first argument in call to 'memcpy' is a pointer to non-trivially copyable type 'litestl::math::Vec<float, 4>' [-Wnontrivial-memcall][39m
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+[36msource\mesh\attribute.h:425:23: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::collapseEdge(Mesh &, int, std::optional<litestl::math::float3>, float, EdgeCollapseResult *, MeshCallbacks *, bool)::(lambda)::operator()<litestl::math::Vec<float, 4>>'[39m requested here
+[34m  425 [39m|     callback.[34mtemplate[39m [34moperator[39m[33m([39m[33m)[39m[34m<[39mmath[2m:[39m[2m:[39mfloat4[34m>[39m[33m([39m[33m)[39m[2m;[39m
+      |                       [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:582:15: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::detail::type_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\brush\..\mesh\utils\edge_collapse.h:582:41)>'[39m requested here
+[34m  582 [39m|       detail[2m:[39m[2m:[39mtype_dispatch[33m([39mcattr.type[2m,[39m [33m[[39m[2m&[39m[33m][39m[34m<[39m[34mtypename[39m T[34m>[39m[33m([39m[33m)[39m [33m{[39m
+      |               [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[32mnote[39m: explicitly cast the pointer to silence [34mthis[39m warning
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+      |                           (void*)
+4 warnings generated.
+ninja: build stopped: subcommand failed.
+cmd "cd build/native && node ../../configureEnv.mjs cmake --build . --parallel 8 " exited with code 1
+

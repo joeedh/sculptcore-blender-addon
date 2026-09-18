@@ -1,0 +1,3565 @@
+Reading additional input from stdin...
+OpenAI Codex v0.154.0-alpha.6.2
+--------
+workdir: C:\dev\blender\sculptcore-blender-addon
+model: gpt-6-astra
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 01a0b4bd-eae5-71d3-9623-82daeb4bb5fc
+--------
+user
+Fresh adversarial review of the command automasking implementation plan. Lens:
+preparation. Preparation covers authoritative native settings, static scalar catalogue,
+command/LUT overrides, publication atomicity, restoration, raw fallback and bindings.
+Cache covers configuration identity, first-contact geometry, topology preparation,
+stale lifetime, independent command effects, cost and acceptance oracles.
+Kill the plan against actual supplied source. Report concrete blockers and minimal
+corrections with citations, separating acceptance refinements. This is pre-implementation.
+Use only the source packet. No tools, commands, edits, builds or delegation.
+Another fresh reviewer handles the other lens. This is an authorized read-only review.
+This packet now includes the implementation. Review actual correctness and acceptance gaps; do not treat implemented seams as merely proposed.
+
+<stdin>
+SOURCE FILE: claudeMemory/plans/generic-brush-command-automasking.md
+1: # Plan 6: command-owned automasking preparation and cavity caches
+2: 
+3: Reviewed by fresh preparation/transaction and cache/geometry CLI reviewers;
+4: findings and dispositions below are incorporated before implementation.
+5: The prepared MASK gate is complete; this closes the next native
+6: capability dependency before generic host adoption.
+7: 
+8: ## Current seams
+9: 
+10: - PreparedBrushScalars includes common properties and kernel uniforms only.
+11:   Executor-owned cavity/view-normal settings are absent from both that set and
+12:   Brush::builtinPropDescriptorSpan, although they are reflected native members.
+13: - Mesh/grid prepared admission rejects brush.automask_cavity wholesale. Removing
+14:   the guard alone would miss later-command enable, topology preparation and cache
+15:   separation. Both raw executors cache one remapped factor per vertex/stroke.
+16: - Mesh cavity needs ring1 ensured before freezing. Command overrides must be
+17:   validated before any cache, attribute, topology, store or undo mutation.
+18: - The frozen contract requires command-independent stroke-static cavity and
+19:   reflected geometric viewDir on the future generic symmetry path. Existing raw
+20:   view-normal policy pins a camera ray; retain it for legacy execution. This slice
+21:   prepares the static settings; generic per-image viewDir adoption remains in the
+22:   host consumer task and must use the frozen contract's independent expectations.
+23: 
+24: ## Implementation
+25: 
+26: 1. Add an explicit executor-owned static scalar catalogue for automask_cavity,
+27:    cavity_factor, cavity_blur_steps, cavity_inverted, cavity_use_curve,
+28:    automask_view_normal, cull_backfaces, view_normal_limit, view_normal_falloff.
+29:    Add these authoritative native members to builtin descriptors with dynamics
+30:    disabled. The catalogue is engine-owned, separate from DSL kernel manifests.
+31:    Prepare this fixed set for every prepared command, using native member values
+32:    unless the command supplies an exact typed override. Include matching values
+33:    in scoped restoration, without publishing persistent property declarations or
+34:    default slots merely for these executor settings. Reject device stacks on this
+35:    static set, unknown IDs, type mismatch and nonfinite float values. Retain full
+36:    finite FLOAT32 domains and signed INT32 transport; blur must be nonnegative and
+37:    less than INT32_MAX to make the BFS depth increment defined. Validate before
+38:    mutation, including a disabled cavity configuration with malformed parameters.
+39: 2. Add optional command-owned cavity LUT payload with exact 256 finite FLOAT32
+40:    samples. Omitted payload inherits the Brush LUT; explicit identity LUT replaces
+41:    it. Copy into the prepared command candidate, never retain caller pointers.
+42:    Add checked public replacement/removal transport and generated bindings using
+43:    established Vector<float> transport. A failed upload preserves the previous
+44:    command. Include the LUT in working-state restoration on every exit. Raw paths
+45:    explicitly reject command LUT overrides, including zero-dab automatic fallback.
+46: 3. Candidate preparation resolves each command's full cavity configuration before
+47:    spatial selection. Union the requirement for enabled positive-radius commands.
+48:    After complete preflight and a nonempty region, ensure mesh ring1 before freeze
+49:    even when only a later command enables cavity. Do not change unrelated prepared
+50:    guards (dyntopo, anchored/unbounded, general attributes, host stages, previews).
+51: 4. Prepared execution gets executor-owned transient cavity cache entries keyed by
+52:    exact full configuration (blur, factor, inversion, use-curve and complete LUT),
+53:    current mesh/domain identity, stroke transaction and topology generation.
+54:    Hashes may accelerate lookup but cannot replace equality checks. Cache sparse
+55:    per-vertex factors per entry, frozen at that configuration's first contact.
+56:    BeginStep/attach/rebuild retires entries; mesh topology changes retire stale
+57:    entries. Ordinary coordinate deformation does not invalidate first-contact
+58:    values within a stroke: that preserves the existing cavity contract. Filling
+59:    occurs serially before parallel kernels; references remain stable during the
+60:    kernel. Identical configurations share work, different configurations never
+61:    share a remapped factor. Cache no-op/miss/rejected commands cannot publish data.
+62: 5. Preserve legacy raw cavity execution and cache policy when the generic/prepared
+63:    path is not used. Introduce a scoped prepared execution context to select the
+64:    new cache inside shared exec/execStage without leaking into subsequent raw dabs.
+65:    Keep live view-normal evaluation and camera data outside cavity cache identity.
+66:    Cache growth is bounded by distinct static configurations in the stroke; tests
+67:    cover reuse, reset and changed configurations. No persistent cache serialization.
+68: 
+69: ## Acceptance
+70: 
+71: - Read-only candidate tests for authoritative static bool/int/float sources,
+72:   independent command overrides, absent properties, invalid/stale inputs, static
+73:   dynamics rejection and exact working/LUT restoration. Keep failed late commands
+74:   atomic before ring1 preparation, allocation, undo capture and counters.
+75: - Independent cavity oracle using cavityRawT/cavityRemap on the configuration's
+76:   first-contact geometry; test different blur/factor/inversion/LUT, later-command
+77:   enable, larger secondary radius, newly reached vertices, same-config reuse,
+78:   changed stroke/topology/domain identity, and no accidental per-dab recomputation.
+79: - Actual mesh live/CSR and grid immediate/deferred execution; standalone/program,
+80:   Python transport, input batches, mask+draw+smooth, exact undo/cancel and subsequent
+81:   raw/prepared strokes. Default-off cavity remains identical to prior gate outputs.
+82: - Snapshot cache payload/evaluation counts in tests to prove configuration
+83:   separation and warm reuse. Test failed LUT replacement/removal, caller mutation,
+84:   inherited vs explicit identity, cold upload and required prepared policy.
+85: - Extend the safe headed harness with actual cavity settings and demonstrate a
+86:   measurable difference from cavity off. Native/Python builds, generated bindings,
+87:   applicable regression matrix, installed package and provenance smoke.
+88: 
+89: This gate does not claim generic UI, owner resolution in the modal operator,
+90: viewDir symmetry adoption or Plan 6 completion. Those remain explicit next tasks.
+91: 
+92: ## Review corrections and decisions — 2026-09-18
+93: 
+94: - Dedicated catalogue pass: supply explicit temporary ScalarDeclaration domains
+95:   to prepareValue, with dynamic=false, authoritative native addressing and no
+96:   insertion into declarations_. Validate existing property identity/type/schema/
+97:   stacks but ignore property value/getter/range for the static native value.
+98:   Catalogue entries named by DSL manifests must exactly match type/static/range
+99:   policy; reject conflicts and prepare the target once. Normal kernel processing
+100:   must not republish a catalogue declaration.
+101: - Typed command transport already exists outside the first review packet:
+102:   BrushProgram_setScalarChecked in mesh_stroke_batch_c_api.cc and Python
+103:   set_command_scalar in brush_properties.py. Retain/test that checked float64
+104:   transport for BOOL, signed INT32 and FLOAT32; do not add a competing scalar API.
+105:   Add bound LUT methods with an explicit native C seam if reflection proves unable
+106:   to call them, as required by the prior command-stack transport experience.
+107: - Resolve/copy all 256 LUT entries for every stage before execution, including
+108:   inheritance and disabled configurations. Validate public raw mutations again
+109:   at preparation. Apply each stage's complete LUT, even when it inherited, so a
+110:   preceding override cannot leak. Removal resumes inheritance on next preparation.
+111: - Standalone retains its existing common-scalar publication behavior (accepted
+112:   misses/zero calls included). Protect only the new executor-owned settings/LUT
+113:   with a dedicated scope before first working write; program scope additionally
+114:   restores all prepared working values as before. Rejected candidates publish no
+115:   declarations or persistent/executor/mesh allocation; scratch allocation is allowed.
+116: - First contact means a vertex inside the executing command's spherical radius
+117:   (strict normalized distance <1) immediately before that command's kernel. The
+118:   larger shared program leaf union does not establish contact for a smaller
+119:   command. BFS may read neighbors outside the support without caching them.
+120:   Accepted positive-radius zero-strength/texture/mask-effect stages may cache
+121:   those in-support vertices; there is no general promise to detect every no-op.
+122:   Zero radius, no in-support vertices and rejected preflight cannot fill entries.
+123: - For stale ring1 on an already frozen mesh, thaw after complete validation and
+124:   nonempty selection, ensure ring1, then apply the program's freeze/live policy.
+125:   A prepared cavity stage requires valid ring1 and never silently bypasses cavity.
+126: - Reuse one executor-owned CavityScratch across entries. Warm hits do no BFS and
+127:   no capacity-sized scratch initialization. Measure configuration-vertex payload
+128:   and evaluation counts. No eviction/recomputation from changed geometry is allowed
+129:   within a transaction. beginStep retires cache even if mesh strokeGen repeats.
+130: - Oracle geometry is captured immediately before the cache fill: current co/no
+131:   as supplied by the chosen immediate/deferred normal policy. Test A -> deform
+132:   -> B -> A, newly entered support, each key field and in-place LUT mutation.
+133:   Compare each policy against its own independent oracle, not assumed parity
+134:   between policies with different normal refresh cadence.
+135: 
+136: Implementation seam checks: non-accumulating contact uses the same derived base
+137: coordinate as its AccumOrig vertex iterator (cavity's BFS still samples live
+138: geometry). Kernels evaluate automasks even when strength() returns zero, so every
+139: visited vertex needs a valid factor address. Keep a reusable active factor column
+140: for the current stage, set outside-support visited vertices to identity, and copy
+141: cached in-support factors into it. Cache entries store only contacted vertex/value
+142: pairs; the stage column's materialized pages are separate reusable scratch.
+SOURCE FILE: engine/source/brush/brush.h
+310:   // executor reprojects each moved vertex's UVs on its pre-move 1-ring so
+311:   // textures don't swim under smooth-family strokes. Host-set; not a uniform.
+312:   bool reproject_uvs = false;
+313: 
+314:   // Cavity automasking (documentation/plans/2026-07-14-2007-cavity-automasking.md):
+315:   // a per-vertex, per-stroke local-convexity factor multiplied into the effective
+316:   // strength â€” distinct from the painted `mask`. Computed host-side (see
+317:   // automask.h); `cavity_factor` scales it, `cavity_blur_steps` sets the BFS blur
+318:   // radius, `cavity_inverted` masks concavities instead of convexities.
+319:   bool automask_cavity = false;
+320:   float cavity_factor = 1.0f;
+321:   int cavity_blur_steps = 2;
+322:   bool cavity_inverted = false;
+323: 
+324:   // View-normal automasking (documentation/plans/2026-07-25-1138-view-normal-
+325:   // automasking.md): fade verts whose normal turns edge-on to the camera, where
+326:   // a dab otherwise tears the silhouette. `view_normal_limit` / `_falloff` are
+327:   // radians (see automask.h ViewNormalParams); `cull_backfaces` also zeroes
+328:   // away-facing geometry. Defaults off in the engine so existing headless
+329:   // scenes â€” which never set `viewDir` â€” are unchanged; the app turns it on.
+330:   bool automask_view_normal = false;
+331:   bool cull_backfaces = false;
+332:   float view_normal_limit = kViewNormalLimitDefault;
+333:   float view_normal_falloff = kViewNormalFalloffDefault;
+334: 
+335:   // Unit eye->surface ray in object space, host-set per dab (mirrored under
+336:   // symmetry). Only read by the view-normal automask.
+337:   float3 viewDir{0, 0, -1};
+338: 
+339:   // Enhance-details brush (source/brush/enhance.h): `enhance_rings` is the outer
+340:   // smoothing depth (low-pass cutoff / feature scale); `enhance_inner` is the
+341:   // inner depth â€” 0 = classic unsharp (high-pass), >=1 = difference-of-smooths
+342:   // band-pass (default, rejects mesh noise).
+343:   int enhance_rings = 4;
+344:   int enhance_inner = 1;
+345: 
+346:   // Grab-style ctx state (kelvinlet, future pose). `grabFrom` is the stroke
+347:   // origin captured at the start of the dab; `grabTo` is the current cursor.
+348:   float3 grabFrom{0, 0, 0};
+349:   float3 grabTo{0, 0, 0};
+350: 
+351:   // Pose-brush cage. `poseCageRest` is sampled when the dab starts; the DSL
+352:   // displaces each vertex by a weighted sum of `poseCageNow[i] - poseCageRest[i]`
+353:   // with weights = 1 / (1 + |v.co - poseCageRest[i]|Â²). Four anchors is the
+354:   // tightest fit that still gives a smooth pose without needing a loop in
+355:   // the DSL (Wave 4b has no `for`).
+356:   float3 poseCageRest[4] = {};
+357:   float3 poseCageNow[4] = {};
+358: 
+359:   // Authoring source of truth for the `Curve` falloff. Defaults to a
+360:   // smoothstep so a brush switched to `Curve` without ever calling
+361:   // `setFalloffCurvePreset` still produces the historical falloff shape.
+362:   props::detail::curve::CurveGen falloffCurve{props::PropCurves::SMOOTHSTEP};
+363: 
+364:   // Baked output of `falloffCurve`, consulted when
+365:   // `falloff_kind == FalloffKind::Curve`. Regenerated by `rebakeFalloff()`.
+366:   std::array<float, kFalloffCurveSize> falloff_curve = [] {
+367:     props::detail::curve::CurveGenSimple<props::PropCurves::SMOOTHSTEP> ss;
+368:     return props::detail::curve::bake_curve_lut<kFalloffCurveSize>(ss);
+369:   }();
+370: 
+371:   // expose falloffCurveSize to TS bridge
+372:   float falloffCurveSize = kFalloffCurveSize;
+373:   void setFalloffCurveEntry(int i, float f)
+374:   {
+375:     falloff_curve[i] = f;
+376:   }
+377: 
+378:   bool replaceFalloffCurveChecked(util::Vector<float> &samples);
+379:   bool replaceCavityCurveChecked(util::Vector<float> &samples);
+380: 
+381:   // Cavity-automask curve LUT (size must equal automask.h kCavityCurveSize = 256;
+382:   // a static_assert in the executor pins the two together). Reshapes the linear
+383:   // cavity factor when `cavity_use_curve` is set; the TS bridge bakes it entry by
+384:   // entry via setCavityCurveEntry, exactly like the falloff curve. Defaults to a
+385:   // straight ramp (identity), so enabling the curve without authoring one is a
+386:   // no-op. Only consulted when cavity_use_curve is set, so the array default is
+387:   // fine for the common (curve-off) case.
+388:   static constexpr int kCavityCurveLutSize = 256;
+389:   bool cavity_use_curve = false;
+390:   std::array<float, kCavityCurveLutSize> cavity_curve = [] {
+391:     std::array<float, kCavityCurveLutSize> a{};
+392:     for (int i = 0; i < kCavityCurveLutSize; i++) {
+393:       a[i] = float(i) / float(kCavityCurveLutSize - 1);
+394:     }
+395:     return a;
+396:   }();
+397:   float cavityCurveSize = kCavityCurveLutSize;
+398:   void setCavityCurveEntry(int i, float f)
+399:   {
+400:     if (i >= 0 && i < kCavityCurveLutSize) {
+401:       cavity_curve[i] = f;
+402:     }
+403:   }
+404: 
+405:   NamedUniformStore<float> namedFloats;
+406:   NamedUniformStore<int32_t> namedInts;
+407:   NamedUniformStore<bool> namedBools;
+408: 
+409:   props::PropError setNamedScalar(props::Prop type, int slot, double value);
+410:   void setNamedFloat(int slot, float value);
+411:   void setNamedInt(int slot, int32_t value);
+412:   void setNamedBool(int slot, bool value);
+413:   float getNamedFloat(int slot)
+414:   {
+415:     return namedFloats.get(slot);
+416:   }
+417:   int32_t getNamedInt(int slot)
+418:   {
+419:     return namedInts.get(slot);
+420:   }
+421:   bool getNamedBool(int slot)
+422:   {
+423:     return namedBools.get(slot);
+424:   }
+425: 
+426:   /** Generated defaults and evaluated writes never change authored properties. */
+427:   void ensureNamedFloatDefault(int slot, float value)
+428:   {
+429:     if (slot >= 0 && slot < kNamedUniformSlotLimit) {
+430:       namedFloats.ensure(slot, value);
+431:     }
+432:   }
+433:   void ensureNamedIntDefault(int slot, int32_t value)
+434:   {
+435:     if (slot >= 0 && slot < kNamedUniformSlotLimit) {
+436:       namedInts.ensure(slot, value);
+437:     }
+438:   }
+439:   void ensureNamedBoolDefault(int slot, bool value)
+440:   {
+441:     if (slot >= 0 && slot < kNamedUniformSlotLimit) {
+442:       namedBools.ensure(slot, value);
+443:     }
+444:   }
+445:   void setEvaluatedNamedFloat(int slot, float value)
+446:   {
+447:     if (slot >= 0 && slot < kNamedUniformSlotLimit) {
+448:       namedFloats.set(slot, value);
+449:     }
+450:   }
+451:   void setEvaluatedNamedInt(int slot, int32_t value)
+452:   {
+453:     if (slot >= 0 && slot < kNamedUniformSlotLimit) {
+454:       namedInts.set(slot, value);
+455:     }
+456:   }
+457:   void setEvaluatedNamedBool(int slot, bool value)
+458:   {
+459:     if (slot >= 0 && slot < kNamedUniformSlotLimit) {
+460:       namedBools.set(slot, value);
+461:     }
+462:   }
+463: 
+464:   /** Describe native member storage and semantic dynamics eligibility. */
+465:   static std::span<const BrushMemberDescriptor> builtinPropDescriptorSpan()
+466:   {
+467: #define BRUSH_MEMBER(member, eligible)                                                   \
+468:   [] {                                                                                   \
+469:     static_assert(brushMemberType<decltype(member)>() != props::Prop::INVALID_TYPE);     \
+470:     return BrushMemberDescriptor{                                                        \
+471:         #member,                                                                         \
+472:         brushMemberType<decltype(member)>(),                                             \
+473:         eligible,                                                                        \
+474:         std::is_array_v<decltype(member)>                                                \
+475:             ? brushMemberType<std::remove_extent_t<decltype(member)>>()                  \
+476:             : props::Prop::INVALID_TYPE,                                                 \
+477:         int(std::extent_v<decltype(member)>),                                            \
+478:         [](Brush &brush) -> void * { return &brush.member; }};                           \
+479:   }()
+480:     static const BrushMemberDescriptor members[] = {
+481:         BRUSH_MEMBER(strength, true),
+482:         BRUSH_MEMBER(radius, true),
+483:         BRUSH_MEMBER(spacing, true),
+484:         BRUSH_MEMBER(planeoff, true),
+485:         BRUSH_MEMBER(planeSide, false),
+486:         BRUSH_MEMBER(autosmooth, true),
+487:         BRUSH_MEMBER(invert, true),
+488:         BRUSH_MEMBER(strokeDir, false),
+489:         BRUSH_MEMBER(wingAngle, true),
+490:         BRUSH_MEMBER(wingNormalA, false),
+491:         BRUSH_MEMBER(wingNormalB, false),
+492:         BRUSH_MEMBER(activeGroup, false),
+493:         BRUSH_MEMBER(brushColor, false),
+494:         BRUSH_MEMBER(mixMode, false),
+495:         BRUSH_MEMBER(mu, true),
+496:         BRUSH_MEMBER(nu, true),
+497:         BRUSH_MEMBER(unboundedExtent, true),
+498:         BRUSH_MEMBER(pinch, true),
+499:         BRUSH_MEMBER(projection, true),
+500:         BRUSH_MEMBER(rake, true),
+501:         BRUSH_MEMBER(grabFrom, false),
+502:         BRUSH_MEMBER(grabTo, false),
+503:         BRUSH_MEMBER(poseCageRest, false),
+504:         BRUSH_MEMBER(poseCageNow, false),
+505:         BRUSH_MEMBER(automask_cavity, false),
+506:         BRUSH_MEMBER(cavity_factor, false),
+507:         BRUSH_MEMBER(cavity_blur_steps, false),
+508:         BRUSH_MEMBER(cavity_inverted, false),
+509:         BRUSH_MEMBER(cavity_use_curve, false),
+510:         BRUSH_MEMBER(automask_view_normal, false),
+511:         BRUSH_MEMBER(cull_backfaces, false),
+512:         BRUSH_MEMBER(view_normal_limit, false),
+513:         BRUSH_MEMBER(view_normal_falloff, false),
+514:     };
+515: #undef BRUSH_MEMBER
+516:     return {members, sizeof(members) / sizeof(members[0])};
+517:   }
+518: 
+519:   static void builtinPropDescriptors(litestl::util::Vector<BrushMemberDescriptor> &out)
+520:   {
+521:     for (const auto &member : builtinPropDescriptorSpan()) {
+SOURCE FILE: engine/source/brush/brush_preparation.h
+1: /* SPDX-FileCopyrightText: 2026 Blender Authors
+2:  *
+3:  * SPDX-License-Identifier: GPL-2.0-or-later */
+4: 
+5: #pragma once
+6: 
+7: #include "props/prop_struct.h"
+8: #include <array>
+9: 
+10: namespace sculptcore::brush {
+11: struct Brush;
+12: struct BrushUniformManifestEntry;
+13: struct BrushAttrManifestEntry;
+14: struct BrushScalarOverride;
+15: struct BrushDynamicsOverride;
+16: enum class ScalarSource { Authored, RawStandalone };
+17: 
+18: /** Bounded resolved execution requires zero influence outside the query sphere. */
+19: bool resolvedFalloffSupported(const Brush &brush);
+20: 
+21: /** Only fixed read-only boundary classes have a prepared binding policy. */
+22: bool resolvedAttributesSupported(std::span<const BrushAttrManifestEntry> attributes);
+23: 
+24: /** Static executor settings are native-backed and never published as DSL properties. */
+25: std::span<const props::ScalarDeclaration> executorSettingDeclarations();
+26: bool executorSetting(const util::string &name);
+27: 
+28: struct PreparedBrushScalar {
+29:   util::string name;
+30:   props::Prop type = props::Prop::INVALID_TYPE;
+31:   double value = 0;
+32:   bool dynamic = false;
+33:   int nativeMember = -1;
+34:   int storeSlot = -1;
+35: };
+36: 
+37: /** Read-only candidate snapshot, not an execution or publication token. */
+38: class PreparedBrushScalars {
+39: public:
+40:   std::span<const PreparedBrushScalar> values() const
+41:   {
+42:     return {values_.size() ? &values_[0] : nullptr, values_.size()};
+43:   }
+44:   std::span<const props::ScalarDeclaration> declarations() const
+45:   {
+46:     return {declarations_.size() ? &declarations_[0] : nullptr, declarations_.size()};
+47:   }
+48:   const Brush *sourceBrush() const
+49:   {
+50:     return brush_;
+51:   }
+52:   const props::StructDef *sourceDefinition() const
+53:   {
+54:     return definition_;
+55:   }
+56:   const std::array<float, 256> &cavityCurve() const
+57:   {
+58:     return cavityCurve_;
+59:   }
+60: 
+61: private:
+62:   friend struct CommandExecutor;
+63:   friend struct GridBrushExecutor;
+64:   /** Only for synchronous prepare/check/publish in the executor. No raw edits,
+65:    * callbacks or yield points may intervene; this is not a reusable token. */
+66:   props::ScalarRegistrationResult publish(Brush &brush) const;
+67:   void applyWorking(Brush &brush) const;
+68:   friend props::ScalarRegistrationResult
+69:   prepareBrushScalars(Brush &,
+70:                       std::span<const BrushUniformManifestEntry>,
+71:                       const props::DeviceInputCtx &,
+72:                       PreparedBrushScalars &,
+73:                       std::span<const BrushScalarOverride>,
+74:                       std::span<const BrushUniformManifestEntry>,
+75:                       ScalarSource,
+76:                       std::span<const BrushDynamicsOverride>,
+77:                       std::span<const float>);
+78:   const Brush *brush_ = nullptr;
+79:   const props::StructDef *definition_ = nullptr;
+80:   util::Vector<PreparedBrushScalar> values_;
+81:   util::Vector<props::ScalarDeclaration> declarations_;
+82:   std::array<float, 256> cavityCurve_{};
+83: };
+84: 
+85: /** Use fresh scratch-factory manifests, never caller-writable query snapshots.
+86:  * Does not publish declarations, initialize slots, invoke getters or change owners.
+87:  * Preserves output on failure. Raw edits after preparation invalidate the snapshot. */
+88: props::ScalarRegistrationResult
+89: prepareBrushScalars(Brush &brush,
+90:                     std::span<const BrushUniformManifestEntry> uniforms,
+91:                     const props::DeviceInputCtx &inputs,
+92:                     PreparedBrushScalars &output,
+93:                     std::span<const BrushScalarOverride> overrides = {},
+94:                     std::span<const BrushUniformManifestEntry> programUniforms = {},
+95:                     ScalarSource source = ScalarSource::Authored,
+96:                     std::span<const BrushDynamicsOverride> dynamicsOverrides = {},
+97:                     std::span<const float> cavityCurveOverride = {});
+98: 
+99: } // namespace sculptcore::brush
+SOURCE FILE: engine/source/brush/brush_preparation.cc
+1: /* SPDX-FileCopyrightText: 2026 Blender Authors
+2:  *
+3:  * SPDX-License-Identifier: GPL-2.0-or-later */
+4: 
+5: #include "brush_preparation.h"
+6: #include "brush_command.h"
+7: #include "brush_program.h"
+8: #include "brushes/extra.h"
+9: #include "props/prop_coerce.h"
+10: 
+11: #include <cstring>
+12: #include <limits>
+13: 
+14: namespace sculptcore::brush {
+15: bool resolvedAttributesSupported(std::span<const BrushAttrManifestEntry> attributes)
+16: {
+17:   for (const auto &entry : attributes) {
+18:     if (entry.boundName != util::string(".boundary.vert.class") ||
+19:         entry.type != mesh::AttrType::INT || entry.domain != AttrElemDomain::Vertex ||
+20:         entry.kernelWrites || entry.use != 0)
+21:       return false;
+22:   }
+23:   return true;
+24: }
+25: 
+26: std::span<const props::ScalarDeclaration> executorSettingDeclarations()
+27: {
+28:   using props::Prop;
+29:   constexpr double maxFloat = std::numeric_limits<float>::max();
+30:   static const props::ScalarDeclaration settings[] = {
+31:       {"automask_cavity", Prop::BOOL, false, 0, true, 0, 1, false},
+32:       {"cavity_factor", Prop::FLOAT32, false, 0, true, -maxFloat, maxFloat, false},
+33:       {"cavity_blur_steps", Prop::INT32, false, 0, true, 0, INT32_MAX - 1, false},
+34:       {"cavity_inverted", Prop::BOOL, false, 0, true, 0, 1, false},
+35:       {"cavity_use_curve", Prop::BOOL, false, 0, true, 0, 1, false},
+36:       {"automask_view_normal", Prop::BOOL, false, 0, true, 0, 1, false},
+37:       {"cull_backfaces", Prop::BOOL, false, 0, true, 0, 1, false},
+38:       {"view_normal_limit", Prop::FLOAT32, false, 0, true, -maxFloat, maxFloat, false},
+39:       {"view_normal_falloff", Prop::FLOAT32, false, 0, true, -maxFloat, maxFloat, false},
+40:   };
+41:   return settings;
+42: }
+43: 
+44: bool executorSetting(const util::string &name)
+45: {
+46:   for (const auto &setting : executorSettingDeclarations()) {
+47:     if (setting.name == name)
+48:       return true;
+49:   }
+50:   return false;
+51: }
+52: 
+53: namespace {
+54: using props::Prop;
+55: using props::PropError;
+56: using props::ScalarDeclaration;
+57: 
+58: bool scalar(Prop type)
+59: {
+60:   return type == Prop::FLOAT32 || type == Prop::INT32 || type == Prop::BOOL;
+61: }
+62: 
+63: int nativeMember(const util::string &name)
+64: {
+65:   auto members = Brush::builtinPropDescriptorSpan();
+66:   for (size_t i = 0; i < members.size(); i++) {
+67:     if (std::strcmp(name.c_str(), members[i].name) == 0) {
+68:       return int(i);
+69:     }
+70:   }
+71:   return -1;
+72: }
+73: 
+74: int commonMember(const util::string &name)
+75: {
+76:   for (int id = 0; id <= int(BrushProp::Invert); id++) {
+77:     if (std::strcmp(name.c_str(), brushPropName(id)) == 0) {
+78:       return id;
+79:     }
+80:   }
+81:   return -1;
+82: }
+83: 
+84: const BrushUniformManifestEntry *
+85: findUniform(std::span<const BrushUniformManifestEntry> uniforms, const util::string &name)
+86: {
+87:   for (const auto &entry : uniforms) {
+88:     if (entry.name == name) {
+89:       return &entry;
+90:     }
+91:   }
+92:   return nullptr;
+93: }
+94: 
+95: ScalarDeclaration declarationOf(const BrushUniformManifestEntry &entry)
+96: {
+97:   return {entry.name,
+98:           entry.scalarType,
+99:           entry.hasDefault,
+100:           entry.def,
+101:           entry.hasRange,
+102:           entry.rangeMin,
+103:           entry.rangeMax,
+104:           entry.dynamic};
+105: }
+106: 
+107: // Every NumBase has a device stack, including types unsupported by execution.
+108: const props::Dynamics *dynamicsOf(props::Property *property)
+109: {
+110:   auto *base = static_cast<props::detail::PropBaseType *>(property);
+111: #define DYNAMICS_CASE(type, cls)                                                         \
+112:   case Prop::type:                                                                       \
+113:     return &static_cast<props::cls *>(base)->dynamics
+114:   switch (property->type) {
+115:     DYNAMICS_CASE(FLOAT32, Float32Prop);
+116:     DYNAMICS_CASE(FLOAT64, Float64Prop);
+117:     DYNAMICS_CASE(INT32, Int32Prop);
+118:     DYNAMICS_CASE(INT64, Int64Prop);
+119:     DYNAMICS_CASE(UINT32, Uint32Prop);
+120:     DYNAMICS_CASE(UINT64, Uint64Prop);
+121:     DYNAMICS_CASE(INT16, Int16Prop);
+122:     DYNAMICS_CASE(UINT16, Uint16Prop);
+123:     DYNAMICS_CASE(INT8, Int8Prop);
+124:     DYNAMICS_CASE(UINT8, Uint8Prop);
+125:     DYNAMICS_CASE(BOOL, BoolProp);
+126:     DYNAMICS_CASE(VEC2F, Vec2Prop);
+127:     DYNAMICS_CASE(VEC3F, Vec3Prop);
+128:     DYNAMICS_CASE(VEC4F, Vec4Prop);
+129:   default:
+130:     return nullptr;
+131:   }
+132: #undef DYNAMICS_CASE
+133: }
+134: 
+135: PropError validateTarget(const BrushUniformManifestEntry &entry)
+136: {
+137:   if (entry.status || entry.isFloat != (entry.scalarType == Prop::FLOAT32)) {
+138:     return PropError::ERROR_SCHEMA_CONFLICT;
+139:   }
+140:   int member = nativeMember(entry.name);
+141:   if (member >= 0) {
+142:     const auto &native = Brush::builtinPropDescriptorSpan()[member];
+143:     if (entry.storeSlot != -1 || (entry.dynamic && !native.dynamic)) {
+144:       return PropError::ERROR_SCHEMA_CONFLICT;
+145:     }
+146:     if (!scalar(entry.scalarType)) {
+147:       // Nonscalar native uniforms stay raw; this helper prepares scalar values only.
+148:       return entry.scalarType == Prop::INVALID_TYPE && !scalar(native.type) &&
+149:                      !entry.dynamic && !entry.hasDefault && !entry.hasRange
+150:                  ? PropError::ERROR_NONE
+151:                  : PropError::ERROR_INVALID_TYPE;
+152:     }
+153:     return native.type == entry.scalarType ? PropError::ERROR_NONE
+154:                                            : PropError::ERROR_INVALID_TYPE;
+155:   }
+156:   auto *extra = extraNamedUniformDescriptor(entry.scalarType, entry.storeSlot);
+157:   return scalar(entry.scalarType) && extra &&
+158:                  std::strcmp(entry.name.c_str(), extra->name) == 0 &&
+159:                  entry.scalarType == extra->type && entry.dynamic == extra->dynamic
+160:              ? PropError::ERROR_NONE
+161:              : PropError::ERROR_SCHEMA_CONFLICT;
+162: }
+163: 
+164: PropError prepareValue(Brush &brush,
+165:                        PreparedBrushScalar &result,
+166:                        const ScalarDeclaration *declaration,
+167:                        bool common,
+168:                        const props::DeviceInputCtx &inputs,
+169:                        const BrushScalarOverride *override,
+170:                        ScalarSource source,
+171:                        const BrushDynamicsOverride *stackOverride)
+172: {
+173:   auto &definition = *brush.props.struct_def;
+174:   auto *property = definition.lookup(result.name);
+175:   if (property && definition.lookupLocal(result.name) != property) {
+176:     return PropError::ERROR_INVALID_OWNER;
+177:   }
+178:   if (common && !property) {
+179:     return PropError::ERROR_NOT_EXISTS;
+180:   }
+181:   if (property && property->type != result.type) {
+182:     return PropError::ERROR_INVALID_TYPE;
+183:   }
+184:   if (property && property->name != result.name) {
+185:     return PropError::ERROR_SCHEMA_CONFLICT;
+186:   }
+187:   if (definition.validateScalarSchema(result.name) != PropError::ERROR_NONE) {
+188:     return PropError::ERROR_SCHEMA_CONFLICT;
+189:   }
+190:   props::ScalarDomain domain;
+191:   if (declaration) {
+192:     auto error = props::normalizeScalarDeclaration(*declaration, domain);
+193:     if (error != PropError::ERROR_NONE) {
+194:       return error;
+195:     }
+196:   }
+197:   PropError error = PropError::ERROR_INVALID_VALUE;
+198:   props::numtype_dispatch(result.type, [&]<typename P>() {
+199:     using T = typename P::value_type;
+200:     auto *typed =
+201:         property ? static_cast<P *>(static_cast<props::detail::PropBaseType *>(property))
+202:                  : nullptr;
+203:     if (!declaration) {
+204:       if (!typed) {
+205:         error = PropError::ERROR_NOT_EXISTS;
+206:         return;
+207:       }
+208:       domain = {double(typed->min), double(typed->max), 0};
+209:     }
+210:     if (typed && !result.dynamic && typed->dynamics.devices.size() != 0) {
+211:       error = PropError::ERROR_INVALID_DYNAMICS;
+212:       return;
+213:     }
+214:     T base{};
+215:     if (!common && source == ScalarSource::RawStandalone && typed &&
+216:         typed->dynamics.devices.size())
+217:     {
+218:       error = PropError::ERROR_INVALID_DYNAMICS;
+219:       return;
+220:     }
+221:     if (override && (override->type != result.type ||
+222:                      !named_uniform_detail::convert(override->value, base)))
+223:     {
+224:       error = override->type != result.type ? PropError::ERROR_INVALID_TYPE
+225:                                             : PropError::ERROR_INVALID_VALUE;
+226:       return;
+227:     }
+228:     if (common || (result.dynamic && source == ScalarSource::Authored)) {
+229:       if (typed) {
+230:         if (typed->getter || (typed->binding_offset != -1 && brush.props.owner)) {
+231:           error = PropError::ERROR_INVALID_OWNER;
+232:           return;
+233:         }
+234:         if (!override)
+235:           base = *typed->internal_value();
+236:       } else if (!override) {
+237:         base = T(domain.initial);
+238:       }
+239:     } else if (!override && result.nativeMember >= 0) {
+240:       base = *static_cast<T *>(
+241:           Brush::builtinPropDescriptorSpan()[result.nativeMember].address(brush));
+242:     } else if (!override) {
+243:       const auto &store = [&]() -> const NamedUniformStore<T> & {
+244:         if constexpr (std::is_same_v<T, float>)
+245:           return brush.namedFloats;
+246:         else if constexpr (std::is_same_v<T, int32_t>)
+247:           return brush.namedInts;
+248:         else
+249:           return brush.namedBools;
+250:       }();
+251:       base = store.initialized(result.storeSlot) ? store.get(result.storeSlot)
+252:                                                  : T(domain.initial);
+253:     }
+254:     if (!std::isfinite(double(base)) || !std::isfinite(domain.min) ||
+255:         !std::isfinite(domain.max) || domain.min > domain.max ||
+256:         double(base) < domain.min || double(base) > domain.max)
+257:     {
+258:       return;
+259:     }
+260:     T evaluated = base;
+261:     const props::Dynamics *dynamics = stackOverride ? &stackOverride->dynamics
+262:                                       : typed       ? &typed->dynamics
+263:                                                     : nullptr;
+264:     if (dynamics && result.dynamic &&
+265:         !dynamics->evaluateChecked(base, T(domain.min), T(domain.max), inputs, evaluated))
+266:     {
+267:       error = PropError::ERROR_INVALID_DYNAMICS;
+268:       return;
+269:     }
+270:     result.value = double(evaluated);
+271:     error = PropError::ERROR_NONE;
+272:   });
+273:   return error;
+274: }
+275: } // namespace
+276: 
+277: bool resolvedFalloffSupported(const Brush &brush)
+278: {
+279:   if (brush.falloff_shape != FalloffShape::Spherical)
+280:     return false;
+281:   if (brush.falloff_kind == FalloffKind::Smoothstep ||
+282:       brush.falloff_kind == FalloffKind::Linear)
+283:     return true;
+284:   if (brush.falloff_kind != FalloffKind::Curve || brush.falloff_curve[0] != 0.0f)
+285:     return false;
+286:   for (float value : brush.falloff_curve)
+287:     if (!std::isfinite(value) || value < 0.0f || value > 1.0f)
+288:       return false;
+289:   return true;
+290: }
+291: 
+292: props::ScalarRegistrationResult PreparedBrushScalars::publish(Brush &brush) const
+293: {
+294:   if (brush_ != &brush || definition_ != brush.props.struct_def || !definition_) {
+295:     return {PropError::ERROR_INVALID_OWNER, "brush"};
+296:   }
+297:   auto result = brush.props.struct_def->registerScalars(declarations());
+298:   if (result.error != PropError::ERROR_NONE) {
+299:     return result;
+300:   }
+301:   // All recoverable checks precede this barrier. These setters only write
+302:   // working caches, including readonly authored sources, never their values.
+303:   ensureExtraUniformDefaults(brush);
+304:   applyWorking(brush);
+305:   return {};
+306: }
+307: 
+308: void PreparedBrushScalars::applyWorking(Brush &brush) const
+309: {
+310:   brush.cavity_curve = cavityCurve_;
+311:   for (const auto &value : values_) {
+312:     props::numtype_dispatch(value.type, [&]<typename P>() {
+313:       using T = typename P::value_type;
+314:       if (value.nativeMember >= 0) {
+315:         *static_cast<T *>(Brush::builtinPropDescriptorSpan()[value.nativeMember].address(
+316:             brush)) = T(value.value);
+317:       } else if constexpr (std::is_same_v<T, float>) {
+318:         brush.setEvaluatedNamedFloat(value.storeSlot, T(value.value));
+319:       } else if constexpr (std::is_same_v<T, int32_t>) {
+320:         brush.setEvaluatedNamedInt(value.storeSlot, T(value.value));
+321:       } else if constexpr (std::is_same_v<T, bool>) {
+322:         brush.setEvaluatedNamedBool(value.storeSlot, T(value.value));
+323:       }
+324:     });
+325:   }
+326: }
+327: 
+328: props::ScalarRegistrationResult
+329: prepareBrushScalars(Brush &brush,
+330:                     std::span<const BrushUniformManifestEntry> uniforms,
+331:                     const props::DeviceInputCtx &inputs,
+332:                     PreparedBrushScalars &output,
+333:                     std::span<const BrushScalarOverride> overrides,
+334:                     std::span<const BrushUniformManifestEntry> programUniforms,
+335:                     ScalarSource source,
+336:                     std::span<const BrushDynamicsOverride> dynamicsOverrides,
+337:                     std::span<const float> cavityCurveOverride)
+338: {
+339:   if (!brush.props.struct_def)
+340:     return {PropError::ERROR_INVALID_OWNER, "brush"};
+341:   PreparedBrushScalars candidate;
+342:   candidate.brush_ = &brush;
+343:   candidate.definition_ = brush.props.struct_def;
+344:   static_assert(Brush::kCavityCurveLutSize == 256);
+345:   if (!cavityCurveOverride.empty() && cavityCurveOverride.size() != 256)
+346:     return {PropError::ERROR_INVALID_VALUE, "cavity curve"};
+347:   for (size_t i = 0; i < 256; i++) {
+348:     const float value =
+349:         cavityCurveOverride.empty() ? brush.cavity_curve[i] : cavityCurveOverride[i];
+350:     if (!std::isfinite(value))
+351:       return {PropError::ERROR_INVALID_VALUE, "cavity curve"};
+352:     candidate.cavityCurve_[i] = value;
+353:   }
+354:   for (size_t index = 0; index < uniforms.size(); index++) {
+355:     const auto &entry = uniforms[index];
+356:     for (size_t prior = 0; prior < index; prior++) {
+357:       if (entry.name == uniforms[prior].name)
+358:         return {PropError::ERROR_SCHEMA_CONFLICT, entry.name};
+359:     }
+360:     auto error = validateTarget(entry);
+361:     if (error != PropError::ERROR_NONE)
+362:       return {error, entry.name};
+363:     if (executorSetting(entry.name)) {
+364:       for (const auto &setting : executorSettingDeclarations()) {
+365:         if (setting.name != entry.name)
+366:           continue;
+367:         if (entry.scalarType != setting.type || entry.dynamic || entry.hasDefault ||
+368:             (entry.hasRange &&
+369:              (entry.rangeMin != setting.rangeMin || entry.rangeMax != setting.rangeMax)))
+370:           return {PropError::ERROR_SCHEMA_CONFLICT, entry.name};
+371:       }
+372:     } else if (scalar(entry.scalarType)) {
+373:       candidate.declarations_.append(declarationOf(entry));
+374:     }
+375:   }
+376:   auto validation =
+377:       brush.props.struct_def->validateScalarDeclarations(candidate.declarations());
+378:   if (validation.error != PropError::ERROR_NONE)
+379:     return validation;
+380: 
+381:   auto append =
+382:       [&](PreparedBrushScalar value, const ScalarDeclaration *declaration, bool common) {
+383:         const BrushScalarOverride *override = nullptr;
+384:         for (const auto &item : overrides) {
+385:           if (item.name == value.name) {
+386:             if (override)
+387:               return PropError::ERROR_SCHEMA_CONFLICT;
+388:             override = &item;
+389:           }
+390:         }
+391:         const BrushDynamicsOverride *stackOverride = nullptr;
+392:         for (const auto &item : dynamicsOverrides) {
+393:           if (item.name == value.name) {
+394:             if (stackOverride)
+395:               return PropError::ERROR_SCHEMA_CONFLICT;
+396:             if (item.type != value.type)
+397:               return PropError::ERROR_INVALID_TYPE;
+398:             if (!value.dynamic || source != ScalarSource::Authored ||
+399:                 !props::Dynamics::validStack(item.dynamics.devices))
+400:               return PropError::ERROR_INVALID_DYNAMICS;
+401:             stackOverride = &item;
+402:           }
+403:         }
+404:         auto error = prepareValue(
+405:             brush, value, declaration, common, inputs, override, source, stackOverride);
+406:         if (error == PropError::ERROR_NONE)
+407:           candidate.values_.append(std::move(value));
+408:         return error;
+409:       };
+410:   for (int id = 0; id <= int(BrushProp::Invert); id++) {
+411:     util::string name(brushPropName(id));
+412:     ScalarDeclaration declaration;
+413:     bool declared = false;
+414:     if (auto *entry = findUniform(uniforms, name)) {
+415:       declaration = declarationOf(*entry);
+416:       declared = true;
+417:     } else if (auto *entry = findUniform(programUniforms, name)) {
+418:       declaration = declarationOf(*entry);
+419:       declared = true;
+420:     } else {
+421:       declared = brush.props.struct_def->scalarDeclaration(name, declaration);
+422:     }
+423:     const Prop type = id == int(BrushProp::Invert) ? Prop::BOOL : Prop::FLOAT32;
+424:     if (declared && declaration.type != type)
+425:       return {PropError::ERROR_INVALID_TYPE, name};
+426:     auto error =
+427:         append({name, type, 0, !declared || declaration.dynamic, nativeMember(name), -1},
+428:                declared ? &declaration : nullptr,
+429:                true);
+430:     if (error != PropError::ERROR_NONE)
+431:       return {error, name};
+432:   }
+433:   for (const auto &setting : executorSettingDeclarations()) {
+434:     auto error =
+435:         append({setting.name, setting.type, 0, false, nativeMember(setting.name), -1},
+436:                &setting,
+437:                false);
+438:     if (error != PropError::ERROR_NONE)
+439:       return {error, setting.name};
+440:   }
+441:   for (const auto &entry : uniforms) {
+442:     if (!scalar(entry.scalarType) || commonMember(entry.name) >= 0 ||
+443:         executorSetting(entry.name))
+444:       continue;
+445:     auto declaration = declarationOf(entry);
+446:     auto error = append({entry.name,
+447:                          entry.scalarType,
+448:                          0,
+449:                          entry.dynamic,
+450:                          nativeMember(entry.name),
+451:                          entry.storeSlot},
+452:                         &declaration,
+453:                         false);
+454:     if (error != PropError::ERROR_NONE)
+455:       return {error, entry.name};
+456:   }
+457:   for (const auto &override : overrides) {
+458:     bool found = false;
+459:     for (const auto &value : candidate.values_) {
+460:       found |= value.name == override.name;
+461:     }
+462:     if (!found)
+463:       return {PropError::ERROR_NOT_EXISTS, override.name};
+464:   }
+465:   for (const auto &item : dynamicsOverrides) {
+466:     bool found = false;
+467:     for (const auto &value : candidate.values_)
+468:       found |= value.name == item.name;
+469:     if (!found)
+470:       return {PropError::ERROR_NOT_EXISTS, item.name};
+471:   }
+472:   for (auto *property : brush.props.struct_def->properties()) {
+473:     auto *dynamics = dynamicsOf(property);
+474:     if (!dynamics || dynamics->devices.size() == 0)
+475:       continue;
+476:     bool eligible = false;
+477:     bool active = false;
+478:     for (const auto &value : candidate.values_) {
+479:       if (value.name == property->name && value.type == property->type &&
+480:           brush.props.struct_def->lookupLocal(value.name) == property)
+481:       {
+482:         eligible = value.dynamic;
+483:         active = true;
+484:         break;
+485:       }
+486:     }
+487:     if (!active) {
+488:       bool belongsToProgram = false;
+489:       for (const auto &entry : programUniforms) {
+490:         if (entry.name == property->name && entry.scalarType == property->type &&
+491:             brush.props.struct_def->lookupLocal(entry.name) == property)
+492:         {
+493:           belongsToProgram = true;
+494:           break;
+495:         }
+496:       }
+497:       // Every owning stage is prepared before execution; report its own errors there.
+498:       if (belongsToProgram)
+499:         continue;
+500:     }
+501:     if (!eligible || !props::Dynamics::validStack(dynamics->devices)) {
+502:       return {PropError::ERROR_INVALID_DYNAMICS, property->name};
+503:     }
+504:   }
+505:   output = std::move(candidate);
+506:   return {};
+507: }
+508: } // namespace sculptcore::brush
+SOURCE FILE: engine/source/brush/brush_program.h
+1: #pragma once
+2: 
+3: #include "binding/binding_constructor_builder.h"
+4: #include "brushes/types.h"
+5: #include "litestl/binding/binding.h"
+6: #include "litestl/util/string.h"
+7: #include "litestl/util/vector.h"
+8: #include "props/prop_dynamics.h"
+9: #include "props/prop_enums.h"
+10: 
+11: namespace sculptcore::brush {
+12: 
+13: using namespace litestl::util;
+14: namespace util = litestl::util;
+15: 
+16: /** One sparse float override applied on top of a brush's authored props for the
+17:  * duration of a single sub-command. Resolved by `name` when set (the generated
+18:  * per-kernel uniforms — `mu`, `planeoff`, ...), else by `BrushProp` id for the
+19:  * common props (the TS binding runtime can't marshal a JS string into a
+20:  * `util::string` arg, so the int path stays for that bridge surface). */
+21: struct BrushFloatOverride {
+22:   int propId = 0;
+23:   float value = 0.0f;
+24:   util::string name;
+25: };
+26: 
+27: /** Typed base-value override for checked program execution. */
+28: struct BrushScalarOverride {
+29:   util::string name;
+30:   props::Prop type = props::Prop::INVALID_TYPE;
+31:   double value = 0;
+32: };
+33: 
+34: /** Present empty dynamics explicitly disable the inherited brush stack. */
+35: struct BrushDynamicsOverride {
+36:   util::string name;
+37:   props::Prop type = props::Prop::INVALID_TYPE;
+38:   props::Dynamics dynamics;
+39: };
+40: 
+41: /** Redirects one of a kernel's declared attribute handles (by its 0-based index
+42:  * in the kernel's attr manifest) to a specific existing mesh layer (by its
+43:  * index in that domain's AttrGroup), instead of the codegen default of
+44:  * ensure-by-handle-name. This is how the TS attribute manager points the
+45:  * color/poly-group/UV brushes at the user-selected "active" layer per category
+46:  * — all ints, since the TS binding runtime can't marshal a JS string into a
+47:  * `util::string` method arg (same reason BrushFloatOverride is propId-keyed). */
+48: struct BrushAttrLayerOverride {
+49:   int attrIdx = 0;    // index into BrushCommandDef::attrs (the manifest)
+50:   int layerIndex = 0; // index into the domain's AttrGroup::attrs
+51: };
+52: 
+53: /** A single sub-command in a composite brush program: a brush type plus a set of
+54:  * sparse property overrides. Overrides are pushed onto the brush's authored
+55:  * props before the command runs and rolled back after, so the brush's base
+56:  * props survive the dab unmodified. */
+57: struct BrushCommandEntry {
+58:   SculptBrushes type = SculptBrushes::DRAW;
+59:   Vector<BrushFloatOverride> floatOverrides;
+60:   Vector<BrushScalarOverride> scalarOverrides;
+61:   Vector<BrushDynamicsOverride> dynamicsOverrides;
+62:   Vector<BrushAttrLayerOverride> attrLayerOverrides;
+63:   // Empty inherits the brush table; replacement requires exactly 256 samples.
+64:   Vector<float> cavityCurveOverride;
+65:   bool overrideInvert = false;
+66:   bool invertValue = false;
+67: };
+68: 
+69: /** An ordered list of brush sub-commands run over the *same* node set per dab —
+70:  * the composite-brush ("command list") abstraction the brush executor doc
+71:  * describes. Autosmooth is a `[main, SMOOTH]` program; a future dyntopo pass is
+72:  * just an entry prepended to `commands` with no API change. Built from TS via
+73:  * the bound methods below and handed to `CommandExecutor::execProgram` (or the
+74:  * grid executor's `applyProgram`). */
+75: struct BrushProgram {
+76:   Vector<BrushCommandEntry> commands;
+77: 
+78:   void clear()
+79:   {
+80:     commands.clear();
+81:   }
+82: 
+83:   /** Append a command for the given SculptBrushes value (passed as int so the
+84:    * binding stays a plain scalar method); returns its index. */
+85:   int addCommand(int type)
+86:   {
+87:     BrushCommandEntry entry;
+88:     entry.type = static_cast<SculptBrushes>(type);
+89:     commands.append(std::move(entry));
+90:     return int(commands.size()) - 1;
+91:   }
+92: 
+93:   void setCommandFloat(int idx, int propId, float v)
+94:   {
+95:     if (idx < 0 || idx >= int(commands.size())) {
+96:       return;
+97:     }
+98:     commands[idx].floatOverrides.append(BrushFloatOverride{propId, v});
+99:   }
+100: 
+101:   /** Override a kernel uniform by its declared name (the generated per-kernel
+102:    * props: `mu`, `nu`, `planeoff`, ...). Distinct from setCommandFloat, which
+103:    * keys the common props by int id. */
+104:   void setCommandFloatByName(int idx, util::string name, float v)
+105:   {
+106:     if (idx < 0 || idx >= int(commands.size())) {
+107:       return;
+108:     }
+109:     BrushFloatOverride ov;
+110:     ov.value = v;
+111:     ov.name = name;
+112:     commands[idx].floatOverrides.append(std::move(ov));
+113:   }
+114: 
+115:   /** Checks scalar transport; the resolved executor validates manifest membership. */
+116:   props::PropError
+117:   setCommandScalarChecked(int idx, util::string name, props::Prop type, double value);
+118: 
+119:   /** Candidate replacement; kernel membership is validated before execution. */
+120:   int replaceCommandResponseDynamicsChecked(int idx,
+121:                                             util::string name,
+122:                                             int scalarType,
+123:                                             util::Vector<int> &devices,
+124:                                             util::Vector<int> &modes,
+125:                                             util::Vector<float> &factors,
+126:                                             util::Vector<int> &enabled,
+127:                                             util::Vector<int> &offsets,
+128:                                             util::Vector<float> &samples,
+129:                                             util::Vector<int> &kinds,
+130:                                             util::Vector<double> &parameters);
+131:   /** Remove the local stack so this command inherits the brush again. */
+132:   int removeCommandDynamicsChecked(int idx, util::string name, int scalarType);
+133:   int replaceCommandCavityCurveChecked(int idx, Vector<float> &samples);
+134:   int removeCommandCavityCurveChecked(int idx);
+135: 
+136:   void setCommandInvert(int idx, bool inv)
+137:   {
+138:     if (idx < 0 || idx >= int(commands.size())) {
+139:       return;
+140:     }
+141:     commands[idx].overrideInvert = true;
+142:     commands[idx].invertValue = inv;
+143:   }
+144: 
+145:   /** Redirect declared attr handle `attrIdx` of command `idx` to the mesh layer
+146:    * at `layerIndex` in that attr's domain group (see BrushAttrLayerOverride). */
+147:   void setCommandAttrLayer(int idx, int attrIdx, int layerIndex)
+148:   {
+149:     if (idx < 0 || idx >= int(commands.size())) {
+150:       return;
+151:     }
+152:     commands[idx].attrLayerOverrides.append(BrushAttrLayerOverride{attrIdx, layerIndex});
+153:   }
+154: 
+155:   static litestl::binding::types::Struct<BrushProgram> *defineBindings()
+156:   {
+157:     using namespace litestl::binding;
+158:     types::Struct<BrushProgram> *st = new types::Struct<BrushProgram>(
+159:         "sculptcore::brush::BrushProgram", sizeof(BrushProgram));
+160: 
+161:     BIND_STRUCT_DEFAULT_CONSTRUCTOR(st);
+162:     BIND_STRUCT_METHOD(st, clear, MARGS());
+163:     BIND_STRUCT_METHOD(st, addCommand, MARGS("type"));
+164:     BIND_STRUCT_METHOD(st, setCommandFloat, MARGS("idx", "propId", "v"));
+165:     BIND_STRUCT_METHOD(st, setCommandFloatByName, MARGS("idx", "name", "v"));
+166:     BIND_STRUCT_METHOD(st,
+167:                        replaceCommandResponseDynamicsChecked,
+168:                        MARGS("idx",
+169:                              "name",
+170:                              "scalarType",
+171:                              "devices",
+172:                              "modes",
+173:                              "factors",
+174:                              "enabled",
+175:                              "offsets",
+176:                              "samples",
+177:                              "kinds",
+178:                              "parameters"));
+179:     BIND_STRUCT_METHOD(
+180:         st, removeCommandDynamicsChecked, MARGS("idx", "name", "scalarType"));
+181:     BIND_STRUCT_METHOD(st, replaceCommandCavityCurveChecked, MARGS("idx", "samples"));
+182:     BIND_STRUCT_METHOD(st, removeCommandCavityCurveChecked, MARGS("idx"));
+183:     BIND_STRUCT_METHOD(st, setCommandInvert, MARGS("idx", "inv"));
+184:     BIND_STRUCT_METHOD(st, setCommandAttrLayer, MARGS("idx", "attrIdx", "layerIndex"));
+185: 
+186:     return st;
+187:   }
+188: };
+189: 
+190: } // namespace sculptcore::brush
+SOURCE FILE: engine/source/brush/brush_program_preparation.h
+1: /* SPDX-FileCopyrightText: 2026 Blender Authors
+2:  *
+3:  * SPDX-License-Identifier: GPL-2.0-or-later */
+4: 
+5: #pragma once
+6: 
+7: #include "brush_preparation.h"
+8: #include "brush_program.h"
+9: #include <array>
+10: 
+11: namespace sculptcore::brush {
+12: 
+13: struct PreparedProgramScalars {
+14:   util::Vector<PreparedBrushScalars> stages;
+15:   util::Vector<float> radii;
+16:   float radius = 0;
+17: };
+18: 
+19: props::ScalarRegistrationResult programError(size_t index,
+20:                                              props::ScalarRegistrationResult error);
+21: 
+22: /** Prepares every scratch-factory manifest without changing the brush or output on
+23:  * failure. */
+24: props::ScalarRegistrationResult prepareProgramScalars(
+25:     Brush &brush,
+26:     const BrushProgram &program,
+27:     std::span<const std::span<const BrushUniformManifestEntry>> manifests,
+28:     const props::DeviceInputCtx &inputs,
+29:     PreparedProgramScalars &output);
+30: 
+31: /** Restores sparse working values and slot presence; authored properties never change. */
+32: class ScopedBrushWorkingValues {
+33: public:
+34:   ~ScopedBrushWorkingValues();
+35:   ScopedBrushWorkingValues(const ScopedBrushWorkingValues &) = delete;
+36:   ScopedBrushWorkingValues &operator=(const ScopedBrushWorkingValues &) = delete;
+37: 
+38: private:
+39:   friend struct CommandExecutor;
+40:   friend struct GridBrushExecutor;
+41:   ScopedBrushWorkingValues(Brush &brush,
+42:                            std::span<const PreparedBrushScalars> stages,
+43:                            bool executorOnly = false);
+44:   struct Saved {
+45:     props::Prop type;
+46:     int member, slot;
+47:     std::array<unsigned char, 4> bytes{};
+48:     bool initialized = false;
+49:   };
+50:   Brush &brush_;
+51:   bool executorOnly_;
+52:   util::Vector<Saved> saved_;
+53:   size_t floatSize_, intSize_, boolSize_;
+54:   std::array<float, 256> cavityCurve_;
+55: };
+56: 
+57: } // namespace sculptcore::brush
+SOURCE FILE: engine/source/brush/brush_program_preparation.cc
+1: /* SPDX-FileCopyrightText: 2026 Blender Authors
+2:  *
+3:  * SPDX-License-Identifier: GPL-2.0-or-later */
+4: 
+5: #include "brush_program_preparation.h"
+6: #include "brush_command.h"
+7: #include "brush_configuration.h"
+8: #include "props/prop_coerce.h"
+9: 
+10: #include <algorithm>
+11: #include <cstdio>
+12: #include <cstring>
+13: 
+14: namespace sculptcore::brush {
+15: using props::Prop;
+16: using props::PropError;
+17: 
+18: props::PropError BrushProgram::setCommandScalarChecked(int idx,
+19:                                                        util::string name,
+20:                                                        props::Prop type,
+21:                                                        double value)
+22: {
+23:   if (idx < 0 || size_t(idx) >= commands.size() || !name.size() ||
+24:       std::strlen(name.c_str()) != name.size())
+25:     return PropError::ERROR_NOT_EXISTS;
+26:   if (type != Prop::FLOAT32 && type != Prop::INT32 && type != Prop::BOOL)
+27:     return PropError::ERROR_INVALID_TYPE;
+28:   bool valid = false;
+29:   props::numtype_dispatch(type, [&]<typename P>() {
+30:     typename P::value_type typed;
+31:     valid = named_uniform_detail::convert(value, typed);
+32:   });
+33:   if (!valid)
+34:     return PropError::ERROR_INVALID_VALUE;
+35:   for (auto &item : commands[idx].scalarOverrides) {
+36:     if (item.name == name) {
+37:       item = {name, type, value};
+38:       return PropError::ERROR_NONE;
+39:     }
+40:   }
+41:   commands[idx].scalarOverrides.append({name, type, value});
+42:   return PropError::ERROR_NONE;
+43: }
+44: 
+45: static PropError commandStackTarget(const BrushProgram &program,
+46:                                     int idx,
+47:                                     const util::string &name,
+48:                                     int scalarType)
+49: {
+50:   if (idx < 0 || size_t(idx) >= program.commands.size() || !name.size() ||
+51:       std::strlen(name.c_str()) != name.size())
+52:     return PropError::ERROR_NOT_EXISTS;
+53:   if (scalarType != int(Prop::FLOAT32) && scalarType != int(Prop::INT32) &&
+54:       scalarType != int(Prop::BOOL))
+55:     return PropError::ERROR_INVALID_TYPE;
+56:   return PropError::ERROR_NONE;
+57: }
+58: 
+59: int BrushProgram::replaceCommandResponseDynamicsChecked(int idx,
+60:                                                         util::string name,
+61:                                                         int scalarType,
+62:                                                         util::Vector<int> &devices,
+63:                                                         util::Vector<int> &modes,
+64:                                                         util::Vector<float> &factors,
+65:                                                         util::Vector<int> &enabled,
+66:                                                         util::Vector<int> &offsets,
+67:                                                         util::Vector<float> &samples,
+68:                                                         util::Vector<int> &kinds,
+69:                                                         util::Vector<double> &parameters)
+70: {
+71:   auto error = commandStackTarget(*this, idx, name, scalarType);
+72:   if (error != PropError::ERROR_NONE)
+73:     return int(error);
+74:   BrushDynamicsOverride candidate{name, Prop(scalarType), {}};
+75:   int status = decodeResponseDynamics(devices,
+76:                                       modes,
+77:                                       factors,
+78:                                       enabled,
+79:                                       offsets,
+80:                                       samples,
+81:                                       kinds,
+82:                                       parameters,
+83:                                       candidate.dynamics);
+84:   if (status)
+85:     return status;
+86:   for (auto &item : commands[idx].dynamicsOverrides) {
+87:     if (item.name == name) {
+88:       item = std::move(candidate);
+89:       return 0;
+90:     }
+91:   }
+92:   commands[idx].dynamicsOverrides.append(std::move(candidate));
+93:   return 0;
+94: }
+95: 
+96: int BrushProgram::removeCommandDynamicsChecked(int idx, util::string name, int scalarType)
+97: {
+98:   auto error = commandStackTarget(*this, idx, name, scalarType);
+99:   if (error != PropError::ERROR_NONE)
+100:     return int(error);
+101:   Vector<BrushDynamicsOverride> candidate;
+102:   for (const auto &item : commands[idx].dynamicsOverrides) {
+103:     if (item.name == name) {
+104:       if (item.type != Prop(scalarType))
+105:         return int(PropError::ERROR_INVALID_TYPE);
+106:     } else {
+107:       candidate.append(item);
+108:     }
+109:   }
+110:   commands[idx].dynamicsOverrides = std::move(candidate);
+111:   return 0;
+112: }
+113: 
+114: int BrushProgram::replaceCommandCavityCurveChecked(int idx, Vector<float> &samples)
+115: {
+116:   if (idx < 0 || size_t(idx) >= commands.size())
+117:     return int(PropError::ERROR_NOT_EXISTS);
+118:   if (samples.size() != Brush::kCavityCurveLutSize)
+119:     return int(PropError::ERROR_INVALID_VALUE);
+120:   for (float sample : samples) {
+121:     if (!std::isfinite(sample))
+122:       return int(PropError::ERROR_INVALID_VALUE);
+123:   }
+124:   Vector<float> candidate(samples);
+125:   commands[idx].cavityCurveOverride = std::move(candidate);
+126:   return 0;
+127: }
+128: 
+129: int BrushProgram::removeCommandCavityCurveChecked(int idx)
+130: {
+131:   if (idx < 0 || size_t(idx) >= commands.size())
+132:     return int(PropError::ERROR_NOT_EXISTS);
+133:   commands[idx].cavityCurveOverride.clear();
+134:   return 0;
+135: }
+136: 
+137: props::ScalarRegistrationResult programError(size_t index,
+138:                                              props::ScalarRegistrationResult error)
+139: {
+140:   char prefix[64];
+141:   std::snprintf(prefix, sizeof(prefix), "command[%zu].", index);
+142:   error.name = util::string(prefix) + error.name;
+143:   return error;
+144: }
+145: 
+146: props::ScalarRegistrationResult prepareProgramScalars(
+147:     Brush &brush,
+148:     const BrushProgram &program,
+149:     std::span<const std::span<const BrushUniformManifestEntry>> manifests,
+150:     const props::DeviceInputCtx &inputs,
+151:     PreparedProgramScalars &output)
+152: {
+153:   if (!brush.props.struct_def || manifests.size() != program.commands.size())
+154:     return {PropError::ERROR_INVALID_OWNER, "program"};
+155:   util::Vector<props::ScalarDeclaration> declarations;
+156:   util::Vector<BrushUniformManifestEntry> scope;
+157:   for (size_t i = 0; i < manifests.size(); i++) {
+158:     for (const auto &entry : manifests[i]) {
+159:       if (!executorSetting(entry.name) &&
+160:           (entry.scalarType == Prop::FLOAT32 || entry.scalarType == Prop::INT32 ||
+161:            entry.scalarType == Prop::BOOL))
+162:       {
+163:         declarations.append({entry.name,
+164:                              entry.scalarType,
+165:                              entry.hasDefault,
+166:                              entry.def,
+167:                              entry.hasRange,
+168:                              entry.rangeMin,
+169:                              entry.rangeMax,
+170:                              entry.dynamic});
+171:       }
+172:       bool found = false;
+173:       for (const auto &known : scope)
+174:         found |= known.name == entry.name;
+175:       if (!found)
+176:         scope.append(entry);
+177:     }
+178:     auto result = brush.props.struct_def->validateScalarDeclarations(
+179:         {declarations.data(), declarations.size()});
+180:     if (result.error != PropError::ERROR_NONE)
+181:       return programError(i, result);
+182:   }
+183:   PreparedProgramScalars candidate;
+184:   for (size_t i = 0; i < manifests.size(); i++) {
+185:     const auto &command = program.commands[i];
+186:     util::Vector<BrushScalarOverride> overrides;
+187:     for (const auto &item : command.floatOverrides) {
+188:       if (!item.name.size() && (item.propId < 0 || item.propId > int(BrushProp::Invert)))
+189:         return programError(i, {PropError::ERROR_NOT_EXISTS, "common property ID"});
+190:       overrides.append(
+191:           {item.name.size() ? item.name : util::string(brushPropName(item.propId)),
+192:            Prop::FLOAT32,
+193:            double(item.value)});
+194:     }
+195:     for (const auto &item : command.scalarOverrides)
+196:       overrides.append(item);
+197:     if (command.overrideInvert)
+198:       overrides.append({"invert", Prop::BOOL, command.invertValue ? 1.0 : 0.0});
+199:     for (const auto &item : overrides) {
+200:       if (!item.name.size() || std::strlen(item.name.c_str()) != item.name.size())
+201:         return programError(i, {PropError::ERROR_NOT_EXISTS, "property name"});
+202:     }
+203:     PreparedBrushScalars stage;
+204:     auto result = prepareBrushScalars(
+205:         brush,
+206:         manifests[i],
+207:         inputs,
+208:         stage,
+209:         {overrides.data(), overrides.size()},
+210:         {scope.data(), scope.size()},
+211:         ScalarSource::Authored,
+212:         {command.dynamicsOverrides.size() ? &command.dynamicsOverrides[0] : nullptr,
+213:          command.dynamicsOverrides.size()},
+214:         {command.cavityCurveOverride.size() ? &command.cavityCurveOverride[0] : nullptr,
+215:          command.cavityCurveOverride.size()});
+216:     if (result.error != PropError::ERROR_NONE)
+217:       return programError(i, result);
+218:     float radius = -1;
+219:     for (const auto &value : stage.values())
+220:       if (value.name == util::string("radius"))
+221:         radius = float(value.value);
+222:     if (!std::isfinite(radius) || radius < 0 ||
+223:         (radius > 0 && !std::isfinite(1.0f / radius)))
+224:       return programError(i, {PropError::ERROR_INVALID_VALUE, "radius"});
+225:     candidate.radius = std::max(candidate.radius, radius);
+226:     candidate.radii.append(radius);
+227:     candidate.stages.append(std::move(stage));
+228:   }
+229:   output = std::move(candidate);
+230:   return {};
+231: }
+232: 
+233: ScopedBrushWorkingValues::ScopedBrushWorkingValues(
+234:     Brush &brush, std::span<const PreparedBrushScalars> stages, bool executorOnly)
+235:     : brush_(brush), executorOnly_(executorOnly), floatSize_(brush.namedFloats.size()),
+236:       intSize_(brush.namedInts.size()), boolSize_(brush.namedBools.size()),
+237:       cavityCurve_(brush.cavity_curve)
+238: {
+239:   for (const auto &stage : stages) {
+240:     for (const auto &value : stage.values()) {
+241:       if (executorOnly && !executorSetting(value.name))
+242:         continue;
+243:       bool found = false;
+244:       for (const auto &known : saved_)
+245:         found |= known.type == value.type && known.member == value.nativeMember &&
+246:                  known.slot == value.storeSlot;
+247:       if (found)
+248:         continue;
+249:       Saved saved{value.type, value.nativeMember, value.storeSlot};
+250:       props::numtype_dispatch(value.type, [&]<typename P>() {
+251:         using T = typename P::value_type;
+252:         static_assert(sizeof(T) <= 4);
+253:         if (value.nativeMember >= 0) {
+254:           std::memcpy(
+255:               saved.bytes.data(),
+256:               Brush::builtinPropDescriptorSpan()[value.nativeMember].address(brush),
+257:               sizeof(T));
+258:         } else {
+259:           const auto &store = [&]() -> const NamedUniformStore<T> & {
+260:             if constexpr (std::is_same_v<T, float>)
+261:               return brush.namedFloats;
+262:             else if constexpr (std::is_same_v<T, int32_t>)
+263:               return brush.namedInts;
+264:             else
+265:               return brush.namedBools;
+266:           }();
+267:           if (size_t(value.storeSlot) < store.size())
+268:             std::memcpy(saved.bytes.data(), &store.values_[value.storeSlot], sizeof(T));
+269:           saved.initialized = store.initialized(value.storeSlot);
+270:         }
+271:       });
+272:       saved_.append(saved);
+273:     }
+274:   }
+275: }
+276: 
+277: ScopedBrushWorkingValues::~ScopedBrushWorkingValues()
+278: {
+279:   brush_.cavity_curve = cavityCurve_;
+280:   for (const auto &saved : saved_) {
+281:     props::numtype_dispatch(saved.type, [&]<typename P>() {
+282:       using T = typename P::value_type;
+283:       if (saved.member >= 0) {
+284:         std::memcpy(Brush::builtinPropDescriptorSpan()[saved.member].address(brush_),
+285:                     saved.bytes.data(),
+286:                     sizeof(T));
+287:       } else {
+288:         auto &store = [&]() -> NamedUniformStore<T> & {
+289:           if constexpr (std::is_same_v<T, float>)
+290:             return brush_.namedFloats;
+291:           else if constexpr (std::is_same_v<T, int32_t>)
+292:             return brush_.namedInts;
+293:           else
+294:             return brush_.namedBools;
+295:         }();
+296:         if (size_t(saved.slot) < store.size()) {
+297:           std::memcpy(&store.values_[saved.slot], saved.bytes.data(), sizeof(T));
+298:           store.initialized_[saved.slot] = saved.initialized;
+299:         }
+300:       }
+301:     });
+302:   }
+303:   if (executorOnly_)
+304:     return;
+305:   brush_.namedFloats.values_.resize(floatSize_);
+306:   brush_.namedFloats.initialized_.resize(floatSize_);
+307:   brush_.namedInts.values_.resize(intSize_);
+308:   brush_.namedInts.initialized_.resize(intSize_);
+309:   brush_.namedBools.values_.resize(boolSize_);
+310:   brush_.namedBools.initialized_.resize(boolSize_);
+311: }
+312: 
+313: } // namespace sculptcore::brush
+SOURCE FILE: engine/source/brush/prepared_cavity.h
+1: /* SPDX-FileCopyrightText: 2026 Blender Authors
+2:  * SPDX-License-Identifier: GPL-2.0-or-later */
+3: #pragma once
+4: 
+5: #include "automask.h"
+6: #include "litestl/util/map.h"
+7: 
+8: #include <array>
+9: #include <memory>
+10: 
+11: namespace sculptcore::brush {
+12: 
+13: /** First-contact cavity factors owned by one prepared stroke transaction. */
+14: class PreparedCavityCache {
+15: public:
+16:   struct Key {
+17:     int blur;
+18:     float factor;
+19:     bool inverted, useCurve;
+20:     std::array<float, Brush::kCavityCurveLutSize> curve;
+21: 
+22:     bool operator==(const Key &b) const
+23:     {
+24:       return blur == b.blur && factor == b.factor && inverted == b.inverted &&
+25:              useCurve == b.useCurve && curve == b.curve;
+26:     }
+27:   };
+28:   struct Entry {
+29:     Key key;
+30:     litestl::util::Map<int, float> factors;
+31:   };
+32: 
+33:   void reset()
+34:   {
+35:     entries_.clear();
+36:     active_.resize(0, false);
+37:     scratch_ = CavityScratch();
+38:     geometry_ = nullptr;
+39:     topology_ = 0;
+40:     evaluations_ = 0;
+41:   }
+42: 
+43:   void beginGeometry(const void *geometry, uint64_t topology, int capacity)
+44:   {
+45:     if (geometry_ != geometry || topology_ != topology) {
+46:       reset();
+47:       geometry_ = geometry;
+48:       topology_ = topology;
+49:     }
+50:     active_.resize(capacity, false);
+51:   }
+52: 
+53:   Entry &entry(const Brush &brush)
+54:   {
+55:     const Key key{brush.cavity_blur_steps,
+56:                   brush.cavity_factor,
+57:                   brush.cavity_inverted,
+58:                   brush.cavity_use_curve,
+59:                   brush.cavity_curve};
+60:     for (auto &item : entries_) {
+61:       if (item->key == key)
+62:         return *item;
+63:     }
+64:     auto created = std::make_unique<Entry>();
+65:     created->key = key;
+66:     entries_.append(std::move(created));
+67:     return *entries_.last();
+68:   }
+69: 
+70:   template <class Source> void fill(Entry &entry, const Source &source, int vertex)
+71:   {
+72:     float *cached = entry.factors.lookup_ptr(vertex);
+73:     if (!cached) {
+74:       CavityParams params;
+75:       params.enabled = true;
+76:       params.blur_steps = entry.key.blur;
+77:       params.factor = entry.key.factor;
+78:       params.inverted = entry.key.inverted;
+79:       params.use_curve = entry.key.useCurve;
+80:       params.curve_lut = entry.key.curve.data();
+81:       const float value =
+82:           cavityRemap(params, cavityRawT(source, vertex, params.blur_steps, scratch_));
+83:       entry.factors.add(vertex, value);
+84:       evaluations_++;
+85:       write(vertex, value);
+86:     } else {
+87:       write(vertex, *cached);
+88:     }
+89:   }
+90: 
+91:   void write(int vertex, float value)
+92:   {
+93:     active_.materialize(vertex);
+94:     active_[vertex] = value;
+95:   }
+96: 
+97:   mesh::AttrData<float> *active()
+98:   {
+99:     return &active_;
+100:   }
+101:   size_t evaluations() const
+102:   {
+103:     return evaluations_;
+104:   }
+105:   size_t configurations() const
+106:   {
+107:     return entries_.size();
+108:   }
+109:   size_t storedFactors() const
+110:   {
+111:     size_t count = 0;
+112:     for (const auto &item : entries_)
+113:       count += item->factors.size();
+114:     return count;
+115:   }
+116: 
+117: private:
+118:   litestl::util::Vector<std::unique_ptr<Entry>> entries_;
+119:   mesh::AttrData<float> active_{util::string(".prepared.cavity"), 0};
+120:   CavityScratch scratch_;
+121:   const void *geometry_ = nullptr;
+122:   uint64_t topology_ = 0;
+123:   size_t evaluations_ = 0;
+124: };
+125: 
+126: /** Select prepared cache behavior only while an accepted prepared stage executes. */
+127: struct ScopedPreparedCavity {
+128:   bool &flag;
+129:   bool previous;
+130:   explicit ScopedPreparedCavity(bool &flag) : flag(flag), previous(flag)
+131:   {
+132:     flag = true;
+133:   }
+134:   ~ScopedPreparedCavity()
+135:   {
+136:     flag = previous;
+137:   }
+138: };
+139: 
+140: } // namespace sculptcore::brush
+SOURCE FILE: engine/tests/prepared_cavity_cases.h
+1: /* SPDX-FileCopyrightText: 2026 Blender Authors
+2:  * SPDX-License-Identifier: GPL-2.0-or-later */
+3: #pragma once
+4: 
+5: #include "brush/brush_program_preparation.h"
+6: 
+7: static void cavityPreparation()
+8: {
+9:   Brush brush;
+10:   brush.cavity_factor = 1.25f;
+11:   brush.cavity_blur_steps = 3;
+12:   brush.cavity_inverted = true;
+13:   auto &property = brush.props.struct_def->Float32("cavity_factor", "Cavity", -1);
+14:   property.min = 10;
+15:   property.max = 11;
+16:   *property.internal_value() = 10.5f;
+17:   PreparedBrushScalars prepared;
+18:   auto prepare = [&]() {
+19:     return prepareBrushScalars(brush, {}, brush.deviceInputCtx, prepared).error;
+20:   };
+21:   test_assert(prepare() == PropError::ERROR_NONE);
+22:   auto value = [&](const char *name) {
+23:     for (const auto &item : prepared.values())
+24:       if (item.name == string(name))
+25:         return item.value;
+26:     return -999.0;
+27:   };
+28:   test_assert(value("cavity_factor") == 1.25 && value("cavity_blur_steps") == 3 &&
+29:               value("cavity_inverted") == 1);
+30:   test_assert(prepared.declarations().empty());
+31:   props::ScalarDeclaration declaration;
+32:   test_assert(!brush.props.struct_def->scalarDeclaration("automask_cavity", declaration));
+33:   property.dynamics.configure(props::DeviceType::PRESSURE, math::BasicMix::MULTIPLY, 1);
+34:   test_assert(prepare() == PropError::ERROR_INVALID_DYNAMICS);
+35:   property.dynamics.devices.clear();
+36:   brush.cavity_blur_steps = -1;
+37:   test_assert(prepare() == PropError::ERROR_INVALID_VALUE);
+38:   brush.cavity_blur_steps = INT32_MAX;
+39:   test_assert(prepare() == PropError::ERROR_INVALID_VALUE);
+40:   brush.cavity_blur_steps = 3;
+41:   brush.cavity_curve[7] = std::numeric_limits<float>::quiet_NaN();
+42:   test_assert(!brush.automask_cavity && prepare() == PropError::ERROR_INVALID_VALUE);
+43:   brush.cavity_curve[7] = .125f;
+44: 
+45:   BrushProgram program;
+46:   program.addCommand(int(SculptBrushes::DRAW));
+47:   program.addCommand(int(SculptBrushes::DRAW));
+48:   test_assert(program.setCommandScalarChecked(0, "automask_cavity", props::Prop::BOOL, 1) ==
+49:               PropError::ERROR_NONE);
+50:   test_assert(program.setCommandScalarChecked(0, "cavity_factor", props::Prop::FLOAT32, 2.5) ==
+51:               PropError::ERROR_NONE);
+52:   test_assert(program.setCommandScalarChecked(0, "cavity_blur_steps", props::Prop::INT32, 2) ==
+53:               PropError::ERROR_NONE);
+54:   Vector<float> lut;
+55:   lut.resize(256);
+56:   for (int i = 0; i < 256; i++)
+57:     lut[i] = float(i) / 255;
+58:   test_assert(program.replaceCommandCavityCurveChecked(0, lut) == int(PropError::ERROR_NONE));
+59:   lut[7] = .99f;
+60:   test_assert(program.commands[0].cavityCurveOverride[7] == 7.0f / 255);
+61:   lut[8] = std::numeric_limits<float>::infinity();
+62:   test_assert(program.replaceCommandCavityCurveChecked(0, lut) != int(PropError::ERROR_NONE));
+63:   test_assert(program.commands[0].cavityCurveOverride[7] == 7.0f / 255);
+64:   test_assert(program.removeCommandCavityCurveChecked(-1) != int(PropError::ERROR_NONE));
+65:   std::span<const BrushUniformManifestEntry> manifests[2] = {};
+66:   PreparedProgramScalars stages;
+67:   test_assert(prepareProgramScalars(brush, program, manifests, brush.deviceInputCtx, stages).error ==
+68:               PropError::ERROR_NONE);
+69:   test_assert(stages.stages[0].cavityCurve()[7] == 7.0f / 255 &&
+70:               stages.stages[1].cavityCurve()[7] == .125f);
+71:   test_assert(program.removeCommandCavityCurveChecked(0) == int(PropError::ERROR_NONE));
+72:   test_assert(prepareProgramScalars(brush, program, manifests, brush.deviceInputCtx, stages).error ==
+73:               PropError::ERROR_NONE);
+74:   test_assert(stages.stages[0].cavityCurve()[7] == .125f);
+75:   program.commands[1].cavityCurveOverride.append(1);
+76:   test_assert(prepareProgramScalars(brush, program, manifests, brush.deviceInputCtx, stages).error ==
+77:               PropError::ERROR_INVALID_VALUE);
+78:   test_assert(stages.stages[0].cavityCurve()[7] == .125f);
+79:   fprintf(stderr, "prepared cavity authoritative settings and LUT candidates passed\n");
+80: }
+81: 
+82: template<class Executor, class Source, class Co>
+83: static void cavityExecutionCases(Executor &ex, Brush &brush, Source source, Co co, int count)
+84: {
+85:   const float3 center(0, 0, 1), normal(0, 0, 1);
+86:   BrushProgram program;
+87:   program.addCommand(int(SculptBrushes::DRAW));
+88:   program.addCommand(int(SculptBrushes::DRAW));
+89:   // A disabled large first command must not claim first contact for the small cavity command.
+90:   program.setCommandFloat(0, int(BrushProp::Radius), 3);
+91:   program.setCommandFloat(0, int(BrushProp::Strength), 0);
+92:   program.setCommandFloat(1, int(BrushProp::Radius), .9f);
+93:   program.setCommandFloat(1, int(BrushProp::Strength), 0);
+94:   program.setCommandScalarChecked(1, "automask_cavity", props::Prop::BOOL, 1);
+95:   program.setCommandScalarChecked(1, "cavity_factor", props::Prop::FLOAT32, .7);
+96:   auto run = [&](float3 position = float3(0, 0, 1)) {
+97:     test_assert(ex.applyResolvedProgram(&program, position, normal).error == PropError::ERROR_NONE);
+98:     test_assert(!brush.automask_cavity && brush.cavity_factor == 1.0f &&
+99:                 !ex.preparedCavityActive);
+100:   };
+101:   run(float3(100));
+102:   test_assert(ex.preparedCavity.configurations() == 0);
+103:   run();
+104:   test_assert(ex.preparedCavity.configurations() == 1);
+105:   size_t contacts = 0;
+106:   CavityParams params;
+107:   params.enabled = true;
+108:   params.factor = .7f;
+109:   params.blur_steps = brush.cavity_blur_steps;
+110:   params.inverted = brush.cavity_inverted;
+111:   params.use_curve = brush.cavity_use_curve;
+112:   params.curve_lut = brush.cavity_curve.data();
+113:   CavityScratch scratch;
+114:   std::vector<float> first(count, -1);
+115:   for (int v = 0; v < count; v++) {
+116:     if ((co(v) - center).length() / .9f < 1) {
+117:       contacts++;
+118:       first[v] = cavityRemap(params, cavityRawT(source, v, params.blur_steps, scratch));
+119:       test_assert((*ex.preparedCavity.active())[v] == first[v]);
+120:     }
+121:   }
+122:   test_assert(contacts > 0 && ex.preparedCavity.evaluations() == contacts &&
+123:               ex.preparedCavity.storedFactors() == contacts);
+124:   run();
+125:   test_assert(ex.preparedCavity.evaluations() == contacts);
+126:   // Alter only neighboring geometry, then revisit A through B: A remains first-contact frozen.
+127:   for (int v = 0; v < count; v++)
+128:     co(v)[2] += .015f * float((v % 5) - 2);
+129:   program.setCommandScalarChecked(1, "cavity_factor", props::Prop::FLOAT32, .8);
+130:   run();
+131:   test_assert(ex.preparedCavity.configurations() == 2);
+132:   const auto afterB = ex.preparedCavity.evaluations();
+133:   program.setCommandScalarChecked(1, "cavity_factor", props::Prop::FLOAT32, .7);
+134:   run();
+135:   for (int v = 0; v < count; v++)
+136:     if (first[v] >= 0 && (co(v) - center).length() / .9f < 1)
+137:       test_assert((*ex.preparedCavity.active())[v] == first[v]);
+138:   const auto afterA = ex.preparedCavity.evaluations();
+139:   test_assert(afterA >= afterB);
+140:   run();
+141:   test_assert(ex.preparedCavity.evaluations() == afterA);
+142:   // Every configuration field participates in identity, including a disabled curve's samples.
+143:   for (const auto &override : std::initializer_list<BrushScalarOverride>{
+144:            {"cavity_blur_steps", props::Prop::INT32, 2},
+145:            {"cavity_inverted", props::Prop::BOOL, 1},
+146:            {"cavity_use_curve", props::Prop::BOOL, 1}}) {
+147:     const auto configs = ex.preparedCavity.configurations();
+148:     program.setCommandScalarChecked(1, override.name, override.type, override.value);
+149:     run();
+150:     test_assert(ex.preparedCavity.configurations() == configs + 1);
+151:   }
+152:   const auto oldCurve = brush.cavity_curve;
+153:   brush.cavity_curve[4] += .01f;
+154:   const auto configs = ex.preparedCavity.configurations();
+155:   run();
+156:   test_assert(ex.preparedCavity.configurations() == configs + 1 &&
+157:               brush.cavity_curve[4] == oldCurve[4] + .01f);
+158:   // A malformed later command fails before any cache or topology work.
+159:   const auto evaluations = ex.preparedCavity.evaluations();
+160:   program.commands[1].cavityCurveOverride.append(0);
+161:   test_assert(ex.applyResolvedProgram(&program, center, normal).error == PropError::ERROR_INVALID_VALUE);
+162:   test_assert(ex.preparedCavity.evaluations() == evaluations && !ex.preparedCavityActive);
+163: }
+164: 
+165: static void cavityExecutors()
+166: {
+167:   for (auto mode : {CommandExecutor::NeighborMode::LiveDisk, CommandExecutor::NeighborMode::Csr}) {
+168:     auto *mesh = mesh::createCube(12, 2.0f);
+169:     {
+170:       spatial::SpatialTree tree(mesh);
+171:       tree.leaf_limit = 32;
+172:       tree.buildAll();
+173:       Brush brush;
+174:       brush.cavity_factor = 1;
+175:       CommandExecutor ex(&tree, &brush);
+176:       ex.neighborMode = mode;
+177:       ex.beginStep(false);
+178:       cavityExecutionCases(ex, brush, MeshCavitySrc{mesh},
+179:                            [&](int v) -> float3 & { return mesh->v.co[v]; }, mesh->v.count);
+180:       test_assert(mesh->topo_cache.valid(*mesh));
+181:       ex.endStep();
+182:       ex.beginStep(false);
+183:       test_assert(ex.preparedCavity.evaluations() == 0);
+184:       brush.automask_cavity = true;
+185:       test_assert(ex.applyResolvedDab(SculptBrushes::DRAW, float3(0, 0, 1), float3(0, 0, 1)).error ==
+186:                   PropError::ERROR_NONE);
+187:       test_assert(brush.automask_cavity && ex.preparedCavity.evaluations() > 0);
+188:       ex.endStep();
+189:     }
+190:     alloc::Delete(mesh);
+191:   }
+192:   for (bool deferred : {false, true}) {
+193:     auto *cage = mesh::createCube(4, 2.0f);
+194:     {
+195:       subdiv::Multires mr;
+196:       mr.init(*cage, 2);
+197:       auto *domain = mr.gridDomain(2);
+198:       domain->ensureTree(50);
+199:       Brush brush;
+200:       brush.cavity_factor = 1;
+201:       GridBrushExecutor ex(domain, &brush);
+202:       ex.deferNormals = deferred;
+203:       ex.beginStep();
+204:       cavityExecutionCases(ex, brush, GridBrushExecutor::GridCavitySrc{domain},
+205:                            [&](int v) -> float3 & { return domain->pos()[v]; }, domain->vertCount());
+206:       ex.endStep();
+207:       ex.beginStep();
+208:       test_assert(ex.preparedCavity.evaluations() == 0);
+209:       ex.endStep();
+210:       ex.attach(domain);
+211:       test_assert(ex.preparedCavity.configurations() == 0);
+212:     }
+213:     alloc::Delete(cage);
+214:   }
+215:   fprintf(stderr, "prepared cavity mesh/grid first-contact cache and lifecycle passed\n");
+216: }
+SOURCE FILE: engine/python/sculptcore/brush_properties.py
+1: # SPDX-FileCopyrightText: 2026 Blender Authors
+2: # SPDX-License-Identifier: GPL-2.0-or-later
+3: """Validated Python access to checked native brush properties and device stacks."""
+4: 
+5: from contextlib import ExitStack
+6: from dataclasses import dataclass
+7: import math
+8: import ctypes
+9: 
+10: from ._bulk import construct_from_items
+11: from ._descriptors import read_litestl_string
+12: 
+13: FLOAT32 = 0
+14: INT32 = 4
+15: BOOL = 10
+16: MAX_SAMPLES = 65536
+17: 
+18: 
+19: def set_command_scalar(manager, program, command, name, scalar_type, value):
+20:     """Set an exact typed command override; execution checks its manifest membership."""
+21:     command = _integer(command)
+22:     if not isinstance(name, str) or not name or '\x00' in name:
+23:         raise ValueError("Expected a nonempty property name without NUL")
+24:     value = _scalar(scalar_type, value)
+25:     function = manager.capi.lib.BrushProgram_setScalarChecked
+26:     function.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_double]
+27:     function.restype = ctypes.c_int
+28:     _check(function(program.ptr, command, name.encode('utf-8'), scalar_type, value))
+29: 
+30: 
+31: def replace_command_cavity_curve(manager, program, command, samples):
+32:     """Replace the command's owned table atomically; exactly 256 finite float32 samples."""
+33:     command = _integer(command)
+34:     samples = tuple(_scalar(FLOAT32, value) for value in samples)
+35:     if len(samples) != 256:
+36:         raise ValueError("Cavity curve requires exactly 256 samples")
+37:     function = manager.capi.lib.BrushProgram_replaceCavityCurveChecked
+38:     function.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p]
+39:     function.restype = ctypes.c_int
+40:     with _primitive_vector(manager, 'float', samples) as values:
+41:         _check(function(program.ptr, command, values.ptr))
+42: 
+43: 
+44: def inherit_command_cavity_curve(manager, program, command):
+45:     """Resume inheritance of the authoritative Brush table on the next preparation."""
+46:     function = manager.capi.lib.BrushProgram_removeCavityCurveChecked
+47:     function.argtypes = [ctypes.c_void_p, ctypes.c_int]
+48:     function.restype = ctypes.c_int
+49:     _check(function(program.ptr, _integer(command)))
+50: 
+51: 
+52: class BrushPropertyError(RuntimeError):
+53:     def __init__(self, status):
+54:         self.status = int(status)
+55:         super().__init__("Brush property operation failed (status {})".format(status))
+56: 
+57: 
+58: def _check(status):
+59:     if status:
+60:         raise BrushPropertyError(status)
+61: 
+62: 
+63: def _integer(value):
+64:     if isinstance(value, bool) or not isinstance(value, int) or not -(2 ** 31) <= value < 2 ** 31:
+65:         raise ValueError("Expected a signed 32-bit integer")
+66:     return int(value)
+67: 
+68: 
+69: def _float(value):
+70:     if isinstance(value, bool) or not isinstance(value, (int, float)):
+71:         raise TypeError("Expected a numeric value")
+72:     value = float(value)
+73:     if not math.isfinite(value) or abs(value) > 3.4028234663852886e38:
+74:         raise ValueError("Expected a finite float32 value")
+75:     return value
+76: 
+77: 
+78: def _scalar(scalar_type, value):
+79:     if scalar_type == BOOL:
+80:         if not isinstance(value, bool):
+81:             raise TypeError("Expected a boolean property value")
+82:         return float(value)
+83:     if scalar_type == INT32:
+84:         return float(_integer(value))
+85:     if scalar_type == FLOAT32:
+86:         return _float(value)
+87:     raise ValueError("Unsupported scalar type")
+88: 
+89: 
+90: def _samples(samples):
+91:     count = len(samples)
+92:     if count == 1 or count > MAX_SAMPLES:
+93:         raise ValueError("A response table needs zero or 2..65536 samples")
+94:     return [_float(value) for value in samples]
+95: 
+96: 
+97: def _double(value):
+98:     if isinstance(value, bool) or not isinstance(value, (int, float)):
+99:         raise TypeError("Expected a numeric response parameter")
+100:     value = float(value)
+SOURCE FILE: engine/source/brush/brush_executor.cc
+1: /* SPDX-FileCopyrightText: 2026 Blender Authors
+2:  *
+3:  * SPDX-License-Identifier: GPL-2.0-or-later */
+4: #include "brush/brush_executor.h"
+5: #include "brush/brush_preparation.h"
+6: #include "brush/brush_program_preparation.h"
+7: #include <atomic>
+8: #include <limits>
+9: 
+10: namespace sculptcore::brush {
+11: namespace {
+12: bool resolvedCapability(CommandExecutor &executor,
+13:                         const CommandExecutor::brush_command &command,
+14:                         SculptBrushes type)
+15: {
+16:   const auto &brush = *executor.brush;
+17:   return !(
+18:       executor.stepHasDyntopo || (executor.anchoredGrab && command.grabModeCapable) ||
+19:       command.unbounded ||
+20:       !resolvedAttributesSupported(
+21:           {command.attrs.size() ? &command.attrs[0] : nullptr, command.attrs.size()}) ||
+22:       (command.attrs.size() && !brushHooksFor(type)) ||
+23:       executor.defaultAttrOverrides.size() || command.execHost ||
+24:       !command.preparedScalarSafe || !preparedHooksSupported(type, false) ||
+25:       executor.previewActive() || !resolvedFalloffSupported(brush));
+26: }
+27: } // namespace
+28: 
+29: bool CommandExecutor::preflightRaw(SculptBrushes type)
+30: {
+31:   Brush scratch;
+32:   brush_command command;
+33:   if (!brush ||
+34:       !createCommandSwitch<AccumLive>(
+35:           type, effectiveNeighborMode() == NeighborMode::Csr, &scratch, command))
+36:   {
+37:     lastRegistration = {props::PropError::ERROR_NOT_EXISTS, "kernel or brush"};
+38:   } else {
+39:     PreparedBrushScalars prepared;
+40:     lastRegistration =
+41:         prepareBrushScalars(*brush,
+42:                             {command.uniforms.data(), command.uniforms.size()},
+43:                             brush->deviceInputCtx,
+44:                             prepared,
+45:                             {},
+46:                             {},
+47:                             ScalarSource::RawStandalone);
+48:   }
+49:   lastValidation = {};
+50:   lastValidation.ok = lastRegistration.error == props::PropError::ERROR_NONE;
+51:   strokeValidationFailed = !lastValidation.ok;
+52:   if (!lastValidation.ok)
+53:     fprintf(stderr,
+54:             "SculptCore: rejected %s (property status %d)\n",
+55:             lastRegistration.name.c_str(),
+56:             int(lastRegistration.error));
+57:   return lastValidation.ok;
+58: }
+59: 
+60: bool CommandExecutor::preflightRawProgram(BrushProgram *program)
+61: {
+62:   lastValidation = {};
+63:   lastRegistration = {};
+64:   auto validate = [&]() -> props::ScalarRegistrationResult {
+65:     if (!brush || !program)
+66:       return {props::PropError::ERROR_INVALID_OWNER, "program or brush"};
+67:     Vector<brush_command> commands;
+68:     commands.resize(program->commands.size());
+69:     Vector<std::span<const BrushUniformManifestEntry>> manifests;
+70:     ScopedPreparedCavity cavityScope(preparedCavityActive);
+71:     for (size_t i = 0; i < commands.size(); i++) {
+72:       Brush scratch;
+73:       const auto &entry = program->commands[i];
+74:       if (entry.dynamicsOverrides.size() || entry.scalarOverrides.size() ||
+75:           entry.cavityCurveOverride.size())
+76:         return programError(i,
+77:                             {props::PropError::ERROR_INVALID_VALUE,
+78:                              "typed overrides require resolved execution"});
+79:       if (!createCommandSwitch<AccumLive>(entry.type,
+80:                                           effectiveNeighborMode() == NeighborMode::Csr,
+81:                                           &scratch,
+82:                                           commands[i]))
+83:         return programError(i, {props::PropError::ERROR_NOT_EXISTS, "kernel"});
+84:       manifests.append({commands[i].uniforms.data(), commands[i].uniforms.size()});
+85:     }
+86:     if (!commands.size()) {
+87:       PreparedBrushScalars prepared;
+88:       return prepareBrushScalars(*brush, {}, brush->deviceInputCtx, prepared);
+89:     }
+90:     PreparedProgramScalars prepared;
+91:     return prepareProgramScalars(*brush,
+92:                                  *program,
+93:                                  {manifests.data(), manifests.size()},
+94:                                  brush->deviceInputCtx,
+95:                                  prepared);
+96:   };
+97:   lastRegistration = validate();
+98:   lastValidation.ok = lastRegistration.error == props::PropError::ERROR_NONE;
+99:   strokeValidationFailed = !lastValidation.ok;
+100:   if (!lastValidation.ok)
+101:     fprintf(stderr,
+102:             "SculptCore: rejected %s (property status %d)\n",
+103:             lastRegistration.name.c_str(),
+104:             int(lastRegistration.error));
+105:   return lastValidation.ok;
+106: }
+107: 
+108: bool CommandExecutor::createPreparedCommand(SculptBrushes type, brush_command &command)
+109: {
+110:   Brush scratch;
+111:   const bool csr = effectiveNeighborMode() == NeighborMode::Csr;
+112:   brush_command candidate;
+113:   if (!createCommandSwitch<AccumLive>(type, csr, &scratch, candidate))
+114:     return false;
+115:   if (nonAccum && candidate.accumulable && !candidate.relaxesBase) {
+116:     brush_command original;
+117:     if (!createCommandSwitch<AccumOrig>(type, csr, &scratch, original))
+118:       return false;
+119:     candidate = std::move(original);
+120:   }
+121:   command = std::move(candidate);
+122:   return true;
+123: }
+124: 
+125: bool CommandExecutor::supportsResolved(SculptBrushes type)
+126: {
+127:   if (!brush)
+128:     return false;
+129:   brush_command command;
+130:   return createPreparedCommand(type, command) && resolvedCapability(*this, command, type);
+131: }
+132: 
+133: bool CommandExecutor::supportsResolvedProgram(BrushProgram *program)
+134: {
+135:   if (!program || !brush)
+136:     return false;
+137:   for (const auto &entry : program->commands)
+138:     if (entry.attrLayerOverrides.size() || !supportsResolved(entry.type))
+139:       return false;
+140:   return true;
+141: }
+142: 
+143: props::ScalarRegistrationResult CommandExecutor::applyResolvedDab(SculptBrushes brushType,
+144:                                                                   float3 center,
+145:                                                                   float3 normal,
+146:                                                                   bool validateOnly)
+147: {
+148:   using props::PropError;
+149:   auto fail = [&](PropError error, const char *name) {
+150:     lastRegistration = {error, name};
+151:     return lastRegistration;
+152:   };
+153:   if (!brush || !tree || !tree->m || !tree->getRoot()) {
+154:     return fail(PropError::ERROR_INVALID_OWNER, "mesh");
+155:   }
+156:   for (int axis = 0; axis < 3; axis++) {
+157:     if (!std::isfinite(center[axis]) || !std::isfinite(normal[axis])) {
+158:       return fail(PropError::ERROR_INVALID_VALUE, "dab frame");
+159:     }
+160:   }
+161:   brush_command command;
+162:   if (!createPreparedCommand(brushType, command)) {
+163:     return fail(PropError::ERROR_NOT_EXISTS, "kernel");
+164:   }
+165:   // These modes need additional region, host-state or attribute preflight.
+166:   // Generated host stages may themselves change radius/center after selection.
+167:   if (!resolvedCapability(*this, command, brushType)) {
+168:     return fail(PropError::ERROR_INVALID_VALUE, "unsupported resolved capability");
+169:   }
+170:   PreparedBrushScalars prepared;
+171:   lastRegistration =
+172:       prepareBrushScalars(*brush,
+173:                           {command.uniforms.data(), command.uniforms.size()},
+174:                           brush->deviceInputCtx,
+175:                           prepared);
+176:   if (lastRegistration.error != PropError::ERROR_NONE) {
+177:     return lastRegistration;
+178:   }
+179:   float radius = -1;
+180:   for (const auto &value : prepared.values()) {
+181:     if (value.name == string("radius")) {
+182:       radius = float(value.value);
+183:     }
+184:   }
+185:   if (!std::isfinite(radius) || radius < 0 ||
+186:       (radius > 0 && !std::isfinite(1.0f / radius)))
+187:   {
+188:     return fail(PropError::ERROR_INVALID_VALUE, "radius");
+189:   }
+190:   // No callbacks or yields between preparation and publication. The exact
+191:   // scratch command above executes below; no live factory or legacy loader.
+192:   if (validateOnly)
+193:     return {};
+194:   ScopedBrushWorkingValues executorSettings(*brush, {&prepared, 1}, true);
+195:   lastRegistration = prepared.publish(*brush);
+196:   if (lastRegistration.error != PropError::ERROR_NONE) {
+197:     return lastRegistration;
+198:   }
+199:   dabNodes_.clear();
+200:   if (radius > 0) {
+201:     tree->filterNodes(center, radius, dabNodes_);
+202:   }
+203:   lastDabNodeCount = int(dabNodes_.size());
+204:   if (dabNodes_.size()) {
+205:     auto *mesh = tree->m;
+206:     if (const auto *hooks = brushHooksFor(brushType); hooks && hooks->stepPreFreeze) {
+207:       BrushHookCtx hc{*this, mesh, &dabNodes_, brush, isFirstOfStep};
+208:       hooks->stepPreFreeze(hc);
+209:     }
+210:     if (brush->automask_cavity) {
+211:       if (mesh->topo_frozen && !mesh->topo_cache.valid(*mesh))
+212:         mesh->thawTopo();
+213:       mesh->topo_cache.ensureRing1(*mesh);
+214:     }
+215:     if (brushNeedsLiveLinks(brushType) || keepTopoThawed) {
+216:       if (mesh->topo_frozen)
+217:         mesh->thawTopo();
+218:     } else if (!mesh->topo_frozen) {
+219:       mesh->freezeTopo();
+220:     }
+221:     ctx.m = mesh;
+222:     ctx.surfaceNo = normal;
+223:     ctx.surfacePos = center;
+224:     ctx.meshLog = meshLog;
+225:     ctx.isFirstOfStep = isFirstOfStep;
+226:     updateStrokeFrame(center);
+227:     brush->pushStrokeSample(center, normal);
+228:     curCaptureSlot = 0;
+229:     curCaptureTool = int(brushType);
+230:     ScopedPreparedCavity cavityScope(preparedCavityActive);
+231:     exec(command, {dabNodes_.data(), dabNodes_.size()});
+232:     curCaptureSlot = -1;
+233:     tree->updateQueries();
+234:   }
+235:   clearIsFirstOfStep();
+236:   return {};
+237: }
+238: 
+239: props::ScalarRegistrationResult CommandExecutor::applyResolvedProgram(
+240:     BrushProgram *program, float3 center, float3 normal, bool validateOnly)
+241: {
+242:   using props::PropError;
+243:   auto fail = [&](PropError error, const char *name) {
+244:     lastRegistration = {error, name};
+245:     return lastRegistration;
+246:   };
+247:   if (!program || !brush || !tree || !tree->m || !tree->getRoot())
+248:     return fail(PropError::ERROR_INVALID_OWNER, "program or mesh");
+249:   for (int axis = 0; axis < 3; axis++)
+250:     if (!std::isfinite(center[axis]) || !std::isfinite(normal[axis]))
+251:       return fail(PropError::ERROR_INVALID_VALUE, "dab frame");
+252:   if (!program->commands.size()) {
+253:     PreparedBrushScalars empty;
+254:     lastRegistration = prepareBrushScalars(*brush, {}, brush->deviceInputCtx, empty);
+255:     if (lastRegistration.error != PropError::ERROR_NONE || validateOnly)
+256:       return lastRegistration;
+257:     lastRegistration = {};
+258:     dabNodes_.clear();
+259:     lastDabNodeCount = 0;
+260:     clearIsFirstOfStep();
+261:     return {};
+262:   }
+263:   Vector<brush_command> commands;
+264:   commands.resize(program->commands.size());
+265:   Vector<std::span<const BrushUniformManifestEntry>> manifests;
+266:   bool needsLive = keepTopoThawed;
+267:   for (size_t i = 0; i < program->commands.size(); i++) {
+268:     const auto &entry = program->commands[i];
+269:     auto &command = commands[i];
+270:     if (!createPreparedCommand(entry.type, command)) {
+271:       lastRegistration = programError(i, {PropError::ERROR_NOT_EXISTS, "kernel"});
+272:       return lastRegistration;
+273:     }
+274:     if (entry.attrLayerOverrides.size() ||
+275:         !resolvedCapability(*this, command, entry.type))
+276:     {
+277:       lastRegistration = programError(
+278:           i, {PropError::ERROR_INVALID_VALUE, "unsupported resolved capability"});
+279:       return lastRegistration;
+280:     }
+281:     needsLive |= brushNeedsLiveLinks(entry.type);
+282:     manifests.append({command.uniforms.data(), command.uniforms.size()});
+283:   }
+284:   PreparedProgramScalars prepared;
+285:   lastRegistration = prepareProgramScalars(*brush,
+286:                                            *program,
+287:                                            {manifests.data(), manifests.size()},
+288:                                            brush->deviceInputCtx,
+289:                                            prepared);
+290:   if (lastRegistration.error != PropError::ERROR_NONE || validateOnly)
+291:     return lastRegistration;
+292:   dabNodes_.clear();
+293:   if (prepared.radius > 0)
+294:     tree->filterNodes(center, prepared.radius, dabNodes_);
+295:   lastDabNodeCount = int(dabNodes_.size());
+296:   if (dabNodes_.size()) {
+297:     ScopedBrushWorkingValues working(*brush,
+298:                                      {prepared.stages.data(), prepared.stages.size()});
+299:     auto *mesh = tree->m;
+300:     Vector<BrushHookFn> completed;
+301:     BrushHookCtx hc{*this, mesh, &dabNodes_, brush, isFirstOfStep};
+302:     for (size_t i = 0; i < program->commands.size(); i++) {
+303:       const auto *hooks = brushHooksFor(program->commands[i].type);
+304:       if (!prepared.radii[i] || !hooks || !hooks->stepPreFreeze)
+305:         continue;
+306:       bool seen = false;
+307:       for (auto fn : completed)
+308:         seen |= fn == hooks->stepPreFreeze;
+309:       if (!seen) {
+310:         hooks->stepPreFreeze(hc);
+311:         completed.append(hooks->stepPreFreeze);
+312:       }
+313:     }
+314:     bool needsCavity = false;
+315:     for (size_t i = 0; i < prepared.stages.size(); i++) {
+316:       if (prepared.radii[i] > 0)
+317:         for (const auto &value : prepared.stages[i].values())
+318:           needsCavity |= value.name == string("automask_cavity") && value.value != 0;
+319:     }
+320:     if (needsCavity) {
+321:       if (mesh->topo_frozen && !mesh->topo_cache.valid(*mesh))
+322:         mesh->thawTopo();
+323:       mesh->topo_cache.ensureRing1(*mesh);
+324:     }
+325:     if (needsLive) {
+326:       if (mesh->topo_frozen)
+327:         mesh->thawTopo();
+328:     } else if (!mesh->topo_frozen) {
+329:       mesh->freezeTopo();
+330:     }
+331:     ctx.m = mesh;
+332:     ctx.surfaceNo = normal;
+333:     ctx.surfacePos = center;
+334:     ctx.meshLog = meshLog;
+335:     ctx.isFirstOfStep = isFirstOfStep;
+336:     updateStrokeFrame(center);
+337:     brush->pushStrokeSample(center, normal);
+338:     ScopedPreparedCavity cavityScope(preparedCavityActive);
+339:     for (size_t i = 0; i < commands.size(); i++) {
+340:       if (prepared.radii[i] == 0)
+341:         continue;
+342:       prepared.stages[i].applyWorking(*brush);
+343:       curCaptureSlot = int(i);
+344:       curCaptureTool = int(program->commands[i].type);
+345:       exec(commands[i], {dabNodes_.data(), dabNodes_.size()});
+346:     }
+347:     curCaptureSlot = -1;
+348:     tree->updateQueries();
+349:   }
+350:   clearIsFirstOfStep();
+351:   return {};
+352: }
+353: 
+354: int CommandExecutor::allocateUniformQueryToken()
+355: {
+356:   static std::atomic<int> next{0};
+357:   int current = next.load(std::memory_order_relaxed);
+358:   while (current < std::numeric_limits<int>::max()) {
+359:     if (next.compare_exchange_weak(current, current + 1, std::memory_order_relaxed)) {
+360:       return current + 1;
+361:     }
+362:   }
+363:   return 0;
+364: }
+365: } // namespace sculptcore::brush
+SOURCE FILE: engine/source/brush/grid_executor.cc
+1: /* SPDX-FileCopyrightText: 2026 Blender Authors
+2:  *
+3:  * SPDX-License-Identifier: GPL-2.0-or-later */
+4: 
+5: #include "brush/grid_executor.h"
+6: #include "brush/brush_hooks.h"
+7: #include "brush/brush_preparation.h"
+8: #include "brush/brush_program_preparation.h"
+9: 
+10: #include <cmath>
+11: 
+12: namespace sculptcore::brush {
+13: namespace {
+14: bool maskStorageSupported(const GridBrushExecutor &executor, bool writesMask)
+15: {
+16:   if (!writesMask)
+17:     return true;
+18:   const auto &store = executor.domain->multires()->store;
+19:   const int channel =
+20:       store.findChannel(util::string(subdiv::GridLevelDomain::kMaskChannelName));
+21:   return channel < 0 || (store.channelElemSize(channel) == 1 &&
+22:                          store.channelType(channel) == mesh::AttrType::FLOAT &&
+23:                          store.channelDomain(channel) == subdiv::GridElemDomain::Vertex);
+24: }
+25: } // namespace
+26: 
+27: props::ScalarRegistrationResult GridBrushExecutor::resolvedState(float3 origin,
+28:                                                                  float3 normal) const
+29: {
+30:   using props::PropError;
+31:   // Check the live owner before dereferencing a possibly freed domain or tree.
+32:   if (!attachedMultires_ ||
+33:       attachedMultires_->domainGeneration() != attachedGeneration_ || !domain ||
+34:       domain != attachedDomain_ || !tree || tree != attachedTree_ || !brush)
+35:   {
+36:     return {PropError::ERROR_INVALID_OWNER, "grid attachment"};
+37:   }
+38:   if (!stepOpen_ || log != stepLog_ ||
+39:       (log && (log->domain() != domain || !stepLogSerial_ ||
+40:                log->openStepSerial() != stepLogSerial_)))
+41:   {
+42:     return {PropError::ERROR_INVALID_OWNER, "grid step"};
+43:   }
+44:   for (int axis = 0; axis < 3; axis++) {
+45:     if (!std::isfinite(origin[axis]) || !std::isfinite(normal[axis])) {
+46:       return {PropError::ERROR_INVALID_VALUE, "dab frame"};
+47:     }
+48:   }
+49:   return {};
+50: }
+51: 
+52: bool GridBrushExecutor::resolvedCapability(const brush_command &command,
+53:                                            SculptBrushes type) const
+54: {
+55:   return !(
+56:       (anchoredGrab && command.grabModeCapable) || command.unbounded ||
+57:       !resolvedAttributesSupported(
+58:           {command.attrs.size() ? &command.attrs[0] : nullptr, command.attrs.size()}) ||
+59:       command.faceMode || !maskStorageSupported(*this, command.writesMask) ||
+60:       command.needsOrigNormals || command.execHost || !command.preparedScalarSafe ||
+61:       !preparedHooksSupported(type, true) || attrMirrors_.items.size() ||
+62:       attachedMultires_->editTarget() != -1 ||
+63:       attachedMultires_->writebackChannel() != 0 || !resolvedFalloffSupported(*brush));
+64: }
+65: 
+66: bool GridBrushExecutor::preflightRaw(SculptBrushes type, float3 origin, float3 normal)
+67: {
+68:   lastRegistration = resolvedState(origin, normal);
+69:   if (lastRegistration.error != props::PropError::ERROR_NONE)
+70:     return false;
+71:   Brush scratch;
+72:   brush_command command;
+73:   if (!createCommandSwitch<AccumLive>(type, &scratch, command)) {
+74:     lastRegistration = {props::PropError::ERROR_NOT_EXISTS, "kernel"};
+75:     return false;
+76:   }
+77:   if (!maskStorageSupported(*this, command.writesMask)) {
+78:     lastRegistration = {props::PropError::ERROR_SCHEMA_CONFLICT, "mask channel"};
+79:     return false;
+80:   }
+81:   PreparedBrushScalars prepared;
+82:   lastRegistration =
+83:       prepareBrushScalars(*brush,
+84:                           {command.uniforms.data(), command.uniforms.size()},
+85:                           brush->deviceInputCtx,
+86:                           prepared,
+87:                           {},
+88:                           {},
+89:                           ScalarSource::RawStandalone);
+90:   if (lastRegistration.error != props::PropError::ERROR_NONE)
+91:     fprintf(stderr,
+92:             "SculptCore: rejected %s (property status %d)\n",
+93:             lastRegistration.name.c_str(),
+94:             int(lastRegistration.error));
+95:   return lastRegistration.error == props::PropError::ERROR_NONE;
+96: }
+97: 
+98: bool GridBrushExecutor::preflightRawProgram(BrushProgram *program,
+99:                                             float3 origin,
+100:                                             float3 normal)
+101: {
+102:   lastRegistration = resolvedState(origin, normal);
+103:   if (lastRegistration.error != props::PropError::ERROR_NONE)
+104:     return false;
+105:   auto validate = [&]() -> props::ScalarRegistrationResult {
+106:     if (!program)
+107:       return {props::PropError::ERROR_INVALID_OWNER, "program"};
+108:     Vector<brush_command> commands;
+109:     commands.resize(program->commands.size());
+110:     Vector<std::span<const BrushUniformManifestEntry>> manifests;
+111:     ScopedPreparedCavity cavityScope(preparedCavityActive);
+112:     for (size_t i = 0; i < commands.size(); i++) {
+113:       Brush scratch;
+114:       const auto &entry = program->commands[i];
+115:       if (entry.dynamicsOverrides.size() || entry.scalarOverrides.size() ||
+116:           entry.cavityCurveOverride.size() || entry.attrLayerOverrides.size())
+117:         return programError(
+118:             i, {props::PropError::ERROR_INVALID_VALUE, "unsupported raw grid override"});
+119:       if (!createCommandSwitch<AccumLive>(entry.type, &scratch, commands[i]))
+120:         return programError(i, {props::PropError::ERROR_NOT_EXISTS, "kernel"});
+121:       if (!maskStorageSupported(*this, commands[i].writesMask))
+122:         return programError(i, {props::PropError::ERROR_SCHEMA_CONFLICT, "mask channel"});
+123:       if (commands[i].grabModeCapable && anchoredGrab)
+124:         return programError(
+125:             i, {props::PropError::ERROR_INVALID_VALUE, "anchored grid program"});
+126:       manifests.append({commands[i].uniforms.data(), commands[i].uniforms.size()});
+127:     }
+128:     if (!commands.size()) {
+129:       PreparedBrushScalars prepared;
+130:       return prepareBrushScalars(*brush, {}, brush->deviceInputCtx, prepared);
+131:     }
+132:     PreparedProgramScalars prepared;
+133:     return prepareProgramScalars(*brush,
+134:                                  *program,
+135:                                  {manifests.data(), manifests.size()},
+136:                                  brush->deviceInputCtx,
+137:                                  prepared);
+138:   };
+139:   lastRegistration = validate();
+140:   if (lastRegistration.error != props::PropError::ERROR_NONE)
+141:     fprintf(stderr,
+142:             "SculptCore: rejected %s (property status %d)\n",
+143:             lastRegistration.name.c_str(),
+144:             int(lastRegistration.error));
+145:   return lastRegistration.error == props::PropError::ERROR_NONE;
+146: }
+147: 
+148: bool GridBrushExecutor::createPreparedCommand(SculptBrushes type, brush_command &command)
+149: {
+150:   Brush scratch;
+151:   brush_command candidate;
+152:   if (!createCommandSwitch<AccumLive>(type, &scratch, candidate))
+153:     return false;
+154:   if (nonAccum && candidate.accumulable && !candidate.relaxesBase) {
+155:     brush_command original;
+156:     if (!createCommandSwitch<AccumOrig>(type, &scratch, original))
+157:       return false;
+158:     candidate = std::move(original);
+159:   }
+160:   command = std::move(candidate);
+161:   return true;
+162: }
+163: 
+164: bool GridBrushExecutor::supportsResolved(SculptBrushes type)
+165: {
+166:   if (resolvedState(float3(0.0f), float3(0.0f)).error != props::PropError::ERROR_NONE)
+167:     return false;
+168:   brush_command command;
+169:   return createPreparedCommand(type, command) && resolvedCapability(command, type);
+170: }
+171: 
+172: bool GridBrushExecutor::supportsResolvedProgram(BrushProgram *program)
+173: {
+174:   if (!program)
+175:     return false;
+176:   for (const auto &entry : program->commands)
+177:     if (entry.attrLayerOverrides.size() || !supportsResolved(entry.type))
+178:       return false;
+179:   return true;
+180: }
+181: 
+182: props::ScalarRegistrationResult GridBrushExecutor::applyResolvedDab(
+183:     SculptBrushes brushType, float3 origin, float3 normal, bool validateOnly)
+184: {
+185:   using props::PropError;
+186:   auto fail = [&](PropError error, const char *name) {
+187:     lastRegistration = {error, name};
+188:     return lastRegistration;
+189:   };
+190:   lastRegistration = resolvedState(origin, normal);
+191:   if (lastRegistration.error != PropError::ERROR_NONE)
+192:     return lastRegistration;
+193:   brush_command command;
+194:   if (!createPreparedCommand(brushType, command)) {
+195:     return fail(PropError::ERROR_NOT_EXISTS, "kernel");
+196:   }
+197:   if (!resolvedCapability(command, brushType)) {
+198:     return fail(PropError::ERROR_INVALID_VALUE, "unsupported resolved capability");
+199:   }
+200:   PreparedBrushScalars prepared;
+201:   lastRegistration =
+202:       prepareBrushScalars(*brush,
+203:                           {command.uniforms.data(), command.uniforms.size()},
+204:                           brush->deviceInputCtx,
+205:                           prepared);
+206:   if (lastRegistration.error != PropError::ERROR_NONE) {
+207:     return lastRegistration;
+208:   }
+209:   float radius = -1;
+210:   for (const auto &value : prepared.values()) {
+211:     if (value.name == string("radius")) {
+212:       radius = float(value.value);
+213:     }
+214:   }
+215:   if (!std::isfinite(radius) || radius < 0 ||
+216:       (radius > 0 && !std::isfinite(1.0f / radius)))
+217:   {
+218:     return fail(PropError::ERROR_INVALID_VALUE, "radius");
+219:   }
+220:   if (validateOnly)
+221:     return {};
+222:   ScopedBrushWorkingValues executorSettings(*brush, {&prepared, 1}, true);
+223:   lastRegistration = prepared.publish(*brush);
+224:   if (lastRegistration.error != PropError::ERROR_NONE) {
+225:     return lastRegistration;
+226:   }
+227:   stats.dabs++;
+228:   dabMoved_.clear();
+229:   dabGrids_.clear();
+230:   dabLeaves_.clear();
+231:   nodePtrs_.clear();
+232:   if (radius > 0 && queryDabLeaves(false, radius, origin)) {
+233:     updateStrokeFrame(origin);
+234:     brush->pushStrokeSample(origin, normal);
+235:     dabSeq_++;
+236:     ScopedPreparedCavity cavityScope(preparedCavityActive);
+237:     execStage(command, origin, normal);
+238:     finishDab();
+239:   }
+240:   isFirstOfStep = false;
+241:   return {};
+242: }
+243: 
+244: props::ScalarRegistrationResult GridBrushExecutor::applyResolvedProgram(
+245:     BrushProgram *program, float3 origin, float3 normal, bool validateOnly)
+246: {
+247:   using props::PropError;
+248:   lastRegistration = resolvedState(origin, normal);
+249:   if (lastRegistration.error != PropError::ERROR_NONE)
+250:     return lastRegistration;
+251:   if (!program) {
+252:     lastRegistration = {PropError::ERROR_INVALID_OWNER, "program"};
+253:     return lastRegistration;
+254:   }
+255:   if (!program->commands.size()) {
+256:     PreparedBrushScalars empty;
+257:     lastRegistration = prepareBrushScalars(*brush, {}, brush->deviceInputCtx, empty);
+258:     if (lastRegistration.error != PropError::ERROR_NONE || validateOnly)
+259:       return lastRegistration;
+260:     stats.dabs++;
+261:     dabMoved_.clear();
+262:     dabGrids_.clear();
+263:     dabLeaves_.clear();
+264:     nodePtrs_.clear();
+265:     isFirstOfStep = false;
+266:     return {};
+267:   }
+268:   Vector<brush_command> commands;
+269:   commands.resize(program->commands.size());
+270:   Vector<std::span<const BrushUniformManifestEntry>> manifests;
+271:   for (size_t i = 0; i < program->commands.size(); i++) {
+272:     const auto &entry = program->commands[i];
+273:     auto &command = commands[i];
+274:     if (!createPreparedCommand(entry.type, command)) {
+275:       lastRegistration = programError(i, {PropError::ERROR_NOT_EXISTS, "kernel"});
+276:       return lastRegistration;
+277:     }
+278:     if (entry.attrLayerOverrides.size() || !resolvedCapability(command, entry.type)) {
+279:       lastRegistration = programError(
+280:           i, {PropError::ERROR_INVALID_VALUE, "unsupported resolved capability"});
+281:       return lastRegistration;
+282:     }
+283:     manifests.append({command.uniforms.data(), command.uniforms.size()});
+284:   }
+285:   PreparedProgramScalars prepared;
+286:   lastRegistration = prepareProgramScalars(*brush,
+287:                                            *program,
+288:                                            {manifests.data(), manifests.size()},
+289:                                            brush->deviceInputCtx,
+290:                                            prepared);
+291:   if (lastRegistration.error != PropError::ERROR_NONE || validateOnly)
+292:     return lastRegistration;
+293:   stats.dabs++;
+294:   dabMoved_.clear();
+295:   dabGrids_.clear();
+296:   dabLeaves_.clear();
+297:   nodePtrs_.clear();
+298:   if (prepared.radius > 0 && queryDabLeaves(false, prepared.radius, origin)) {
+299:     ScopedBrushWorkingValues working(*brush,
+300:                                      {prepared.stages.data(), prepared.stages.size()});
+301:     updateStrokeFrame(origin);
+302:     brush->pushStrokeSample(origin, normal);
+303:     dabSeq_++;
+304:     ScopedPreparedCavity cavityScope(preparedCavityActive);
+305:     for (size_t i = 0; i < commands.size(); i++) {
+306:       if (prepared.radii[i] == 0)
+307:         continue;
+308:       prepared.stages[i].applyWorking(*brush);
+309:       execStage(commands[i], origin, normal);
+310:     }
+311:     finishDab();
+312:   }
+313:   isFirstOfStep = false;
+314:   return {};
+315: }
+316: 
+317: } // namespace sculptcore::brush
+SOURCE FILE: engine/source/brush/brush_executor.h
+1010:               stampBase(m->c.v[tri.c[k]]);
+1011:             }
+1012:           }
+1013:         }
+1014:         node->baseStampGen = elideStamp ? strokeGen : 0;
+1015:         node->baseStampOpts = elideStamp ? stampOpts : -1;
+1016:       }
+1017:     }
+1018: 
+1019:     // View-normal automasking is DYNAMIC: resolve the stroke's params (shared
+1020:     // camera ray, limit, falloff) onto the ctx; strength() evaluates the factor
+1021:     // against each vertex's live normal on every call. No cache, no stamp
+1022:     // ordering, no per-vertex ray history.
+1023:     ctx.viewNormal = viewNormalParamsFor(*brush);
+1024: 
+1025:     // Cavity automask pre-fill (see automask.h for the caching contract): the
+1026:     // BFS ring-blur is too expensive per dab, so each in-region vert's 0..1
+1027:     // cavity factor is stamped once per stroke into `.brush.automask.cavity`,
+1028:     // single-threaded, before the parallel kernel loop reads it via strength().
+1029:     ctx.automaskFactor = nullptr;
+1030:     ctx.automaskEnabled = false;
+1031:     if (preparedCavityActive && brush->automask_cavity && nodes.size()) {
+1032:       auto *m = nodes[0]->data->m;
+1033:       preparedCavity.beginGeometry(nodes[0]->data->m, m->topo_stamp, m->v.count);
+1034:       PreparedCavityCache::Entry *entry = nullptr;
+1035:       for (auto *node : nodes) {
+1036:         for (int v : node->data->unique_verts) {
+1037:           float3 contact = m->v.co[v];
+1038:           if (nonAccum && cmd.accumulable && !cmd.relaxesBase && ctx.dispVec &&
+1039:               ctx.dispGen && ctx.dispGen->safe_get(v) == int(ctx.strokeGen))
+1040:             contact -= ctx.dispVec->safe_get(v);
+1041:           if (brush->falloffDist(contact - ctx.surfacePos, ctx.surfaceNo) < 1.0f) {
+1042:             if (!entry)
+1043:               entry = &preparedCavity.entry(*brush);
+1044:             preparedCavity.fill(*entry, MeshCavitySrc{m}, v);
+1045:           } else {
+1046:             preparedCavity.write(v, 1.0f);
+1047:           }
+1048:         }
+1049:       }
+1050:       ctx.automaskFactor = preparedCavity.active();
+1051:       ctx.automaskEnabled = entry != nullptr;
+1052:     } else if (brush->automask_cavity && nodes.size() > 0) {
+1053:       mesh::Mesh *m = nodes[0]->data->m;
+1054:       if (!m->topo_frozen || m->topo_cache.valid(*m)) {
+1055:         m->topo_cache.ensureRing1(*m);
+1056:       }
+1057:       if (m->topo_cache.valid(*m)) {
+1058:         mesh::AttrRef &facRef =
+1059:             m->v.attrs.ensure(mesh::AttrType::FLOAT, ".brush.automask.cavity", false);
+1060:         facRef.flag |= mesh::AttrFlag::TEMP | mesh::AttrFlag::NOCOPY;
+1061:         mesh::AttrRef &genRef =
+1062:             m->v.attrs.ensure(mesh::AttrType::INT, ".brush.automask.gen", false);
+1063:         genRef.flag |= mesh::AttrFlag::TEMP | mesh::AttrFlag::NOCOPY;
+1064:         auto *fac = static_cast<mesh::AttrData<float> *>(facRef.data);
+1065:         auto *gen = static_cast<mesh::AttrData<int> *>(genRef.data);
+1066: 
+1067:         static_assert(int(Brush::kCavityCurveLutSize) == kCavityCurveSize,
+1068:                       "brush cavity_curve LUT size must match automask kCavityCurveSize");
+1069:         CavityParams cp;
+1070:         cp.enabled = true;
+1071:         cp.blur_steps = brush->cavity_blur_steps;
+1072:         cp.factor = brush->cavity_factor;
+1073:         cp.inverted = brush->cavity_inverted;
+1074:         cp.use_curve = brush->cavity_use_curve;
+1075:         cp.curve_lut = brush->cavity_curve.data();
+1076: 
+1077:         CavityScratch scr;
+1078:         for (auto *node : nodes) {
+1079:           for (int v : node->data->unique_verts) {
+1080:             gen->materialize(v);
+1081:             fac->materialize(v);
+1082:             if (strokeGen == 0 || (*gen)[v] != int(strokeGen)) {
+1083:               (*fac)[v] = cavityFactor(m, v, cp, scr);
+1084:               (*gen)[v] = int(strokeGen);
+1085:             }
+1086:           }
+1087:         }
+1088:         ctx.automaskFactor = fac;
+1089:         ctx.automaskEnabled = true;
+1090:       }
+1091:     }
+1092: 
+1093:     // Skip leaves emptied of verts: heavy in-stroke collapse can leave a zero-vert
+1094:     // leaf whose loose AABB still overlaps the brush sphere, so a vertex iterator on
+1095:     // it wild-reads unique_verts.begin() (brush_iterators.h: "never on empty node").
+1096:     // affected_verts is a sticky hint list: nothing clears it until the normals
+1097:     // pass consumes it, so by late stroke it holds every vert of every prior
+1098:     // dab. Remember where each node's list ends, so border propagation walks
+1099:     // only what this dab adds.
+1100:     affectedBase_.resize(nodes.size());
+1101:     for (int i : IndexRange(nodes.size())) {
+1102:       affectedBase_[i] = int(nodes[i]->affected_verts.size());
+1103:     }
+1104: 
+1105: #ifdef NO_PARALLEL_FOR
+1106:     for (auto *node : nodes) {
+1107:       if (node->data->unique_verts.size() == 0) {
+1108:         continue;
+1109:       }
+1110:       CommandCtx<CommandExecutor> finalCtx(ctx, *node, *this, *brush);
+1111:       cmd.exec(finalCtx);
+1112:     }
+1113: #else
+1114:     litestl::task::parallel_for(
+1115:         util::IndexRange(nodes.size()),
+1116:         [&](IndexRange range) {
+1117:           for (int i : range) {
+1118:             SpatialNode *node = nodes[i];
+1119:             if (node->data->unique_verts.size() == 0) {
+1120:               continue;
+SOURCE FILE: engine/source/brush/brush_executor.h
+2330:    * the next stroke's step. See MeshLog::commitPreviewDab. */
+2331:   void commitPreviewDab()
+2332:   {
+2333:     if (!meshLog) {
+2334:       return;
+2335:     }
+2336:     meshLog->commitPreviewDab();
+2337:   }
+2338: 
+2339:   void beginStep(bool hasDyntopo)
+2340:   {
+2341:     preparedCavity.reset();
+2342:     isFirstOfStep = true;
+2343:     strokeValidationFailed = false;
+2344:     stepHasDyntopo = hasDyntopo;
+2345:     /* Positions may have changed since the last stroke (undo, ops, other
+2346:      * tools) â€” force the stroke's first needsCoPrev exec to take a full
+2347:      * snapshot. The gen bump keeps stale node stamps from suppressing
+2348:      * dirty-list appends. */
+2349:     coPrevFull_ = false;
+2350:     coPrevDirty_.clear();
+2351:     coPrevGen_++;
+2352:     uvReprojPending_.clear();
+2353:     grabRegions_.clear();
+2354:     grabWidenRadius_ = 0.0f;
+2355:     if (brush) {
+2356:       brush->resetStrokePath();
+2357:     }
+2358:     if (meshLog) {
+2359:       meshLog->beginStep(hasDyntopo);
+2360:     }
+2361:   }
+2362: 
+2363:   void endStep()
+2364:   {
+2365:     isFirstOfStep = false;
+2366:     /* Flush the stroke's deferred UV reprojection while the step is still
+2367:      * open, so the corner captures land inside it. */
+2368:     if (uvReprojPending_.size() > 0 && tree && tree->m) {
+2369:       Vector<int> rverts;
+2370:       Vector<float3> rold;
+2371:       for (const auto &pair : uvReprojPending_) {
+2372:         rverts.append(pair.key);
+2373:         rold.append(pair.value);
+2374:       }
+2375:       reprojectUvsWithCapture(tree->m,
+2376:                               std::span<const int>(rverts.data(), rverts.size()),
+2377:                               std::span<const float3>(rold.data(), rold.size()));
+2378:     }
+2379:     uvReprojPending_.clear();
+2380:     if (meshLog) {
+2381:       meshLog->endStep();
+2382:     }
+2383:   }
+2384: };
+2385: 
+2386: /** Declared in accum_mode.h; AccumKind::Grab write-back uses it. First image to
+2387:  * write vert `v` this dab â†’ stamp curDabGen and return true (re-base from orig);
+2388:  * an already-stamped vert returns false (later image adds). The page was
+2389:  * pre-materialized in exec(), so this only reads/writes an existing slot. With no
+2390:  * stamp attr (single-image stroke, dab counter idle) every write re-bases. */
+2391: inline bool grabClaimFirstTouch(const CommandExecutor &exec, int v)
+2392: {
+2393:   mesh::AttrData<int> *dabGen = exec.ctx.dabGen;
+2394:   if (!dabGen) {
+2395:     return true;
+SOURCE FILE: engine/source/brush/grid_executor.h
+540:       return;
+541:     }
+542:     float *dst = &ctx.renderMatrix[0][0];
+543:     for (int i = 0; i < 16; i++) {
+544:       dst[i] = m16[i];
+545:     }
+546:   }
+547: 
+548:   /** (Re)bind to a domain — required after any Multires fold point drops it.
+549:    * Rebuilds the leaf-node array and the domain-sized stroke sidecars. */
+550:   void attach(subdiv::GridLevelDomain *d)
+551:   {
+552:     preparedCavity.reset();
+553:     stepOpen_ = false;
+554:     domain = d;
+555:     tree = d->ensureTree();
+556:     attachedDomain_ = d;
+557:     attachedTree_ = tree;
+558:     attachedMultires_ = d->multires();
+559:     attachedGeneration_ = attachedMultires_->domainGeneration();
+560:     int vc = d->vertCount();
+561:     nodes_.clear();
+562:     nodes_.resize(tree->leaves.size());
+563:     for (int i = 0; i < int(nodes_.size()); i++) {
+564:       nodes_[i].exec = this;
+565:       nodes_[i].leaf = i;
+566:     }
+567:     dispVec_ = mesh::AttrData<float3>(string(".grid.disp.vec"), vc);
+568:     dispGen_ = mesh::AttrData<int>(string(".grid.disp.gen"), vc);
+569:     dabGen_ = mesh::AttrData<int>(string(".grid.dab.gen"), vc);
+570:     cavity_ = mesh::AttrData<float>(string(".grid.automask.cavity"), vc);
+571:     cavityGen_ = mesh::AttrData<int>(string(".grid.automask.gen"), vc);
+572:     touchedStamp_.resize(vc);
+573:     dabStamp_.resize(vc);
+574:     pendingNormalStamp_.resize(vc);
+575:     for (int i = 0; i < vc; i++) {
+576:       touchedStamp_[i] = 0;
+577:       dabStamp_[i] = 0;
+578:       pendingNormalStamp_[i] = 0;
+579:     }
+580:     pendingNormals_.clear();
+581:     flushedNormals_.clear();
+582:     // Drop the co_prev snapshot + stamps: a rebuild remaps dense ids, and the
+583:     // lazy re-allocation in refreshCoPrevRegion re-zeros the stamps.
+584:     coPrevStorage_.clear();
+585:     coPrevStrokeGen_.clear();
+586:     coPrevCopyEpoch_.clear();
+587:     coPrevPosEpoch_.clear();
+588:     // Dense ids remap on a rebuild, so every attr column is stale: the zero
+589:     // column only needs resizing (ensureAttrBindings does it), the mirrors
+590:     // must be dropped and re-gathered from the store.
+591:     zeroColumn_.resize(0);
+592:     attrMirrors_.clear();
+593:     attrBindings_.items.clear();
+594:     leafTouched_.resize(nodes_.size());
+595:     for (int i = 0; i < int(leafTouched_.size()); i++) {
+596:       leafTouched_[i] = 0;
+597:     }
+598:     dabGrids_.clear();
+599:     strokeTouchedGrids_.clear();
+600:     dabGridStamp_.resize(d->gridCount());
+SOURCE FILE: engine/source/brush/grid_executor.h
+715:       def.uniforms = decltype(def.uniforms)();
+716:       def.attrs = decltype(def.attrs)();
+717:       createCommandSwitch<AccumOrig>(brushType, brush, def);
+718:     }
+719:     return def;
+720:   }
+721: 
+722:   // === stroke lifecycle ===
+723: 
+724:   void beginStep()
+725:   {
+726:     preparedCavity.reset();
+727:     stepOpen_ = true;
+728:     isFirstOfStep = true;
+729:     strokeSeq_++;
+730:     strokeGen = strokeSeq_;
+731:     strokeTouchedVerts_.clear();
+732:     strokeTouchedLeaves_.clear();
+733:     strokeTouchedGrids_.clear();
+734:     for (int i = 0; i < int(leafTouched_.size()); i++) {
+735:       leafTouched_[i] = 0;
+736:     }
+737:     strokeWroteCo_ = false;
+738:     strokeWroteMask_ = false;
+739:     for (GridAttrMirror *m : attrMirrors_.items) {
+740:       m->dirty = false;
+741:     }
+742:     grabPinned_ = false;
+743:     grabLeaves_.clear();
+744:     if (brush) {
+745:       brush->resetStrokePath();
+746:     }
+747:     if (log) {
+748:       log->beginStep();
+749:     }
+750:     stepLog_ = log;
+751:     stepLogSerial_ = log ? log->openStepSerial() : 0;
+752:   }
+753: 
+754:   /** Mark the upcoming grab-class dab/image: false = primary (bumps the
+755:    * per-dab first-touch generation), true = mirror image of the same dab. */
+756:   void setGrabAccumAdd(bool add)
+757:   {
+758:     if (!add) {
+759:       dabGen++;
+760:     }
+SOURCE FILE: engine/source/brush/grid_executor.h
+1173:             dispVec_[v] = float3(0.0f, 0.0f, 0.0f);
+1174:             dispGen_[v] = int(strokeGen);
+1175:           }
+1176:         }
+1177:         node->baseStampGen = strokeGen;
+1178:         node->baseStampOpts = stampOpts;
+1179:       }
+1180:     }
+1181: 
+1182:     stats.stampMs += msSince(t0);
+1183:     t0 = clock::now();
+1184: 
+1185:     // Automasking: view-normal params are dynamic; cavity is cached per vert
+1186:     // per stroke over the domain CSR (the mesh path's contract).
+1187:     ctx.viewNormal = viewNormalParamsFor(*brush);
+1188:     ctx.automaskFactor = nullptr;
+1189:     ctx.automaskEnabled = false;
+1190:     if (preparedCavityActive && brush->automask_cavity && nodeSpan.size()) {
+1191:       preparedCavity.beginGeometry(domain, attachedGeneration_, domain->vertCount());
+1192:       PreparedCavityCache::Entry *entry = nullptr;
+1193:       for (auto *node : nodeSpan) {
+1194:         for (int v : tree->leaves[node->leaf].ownedVerts) {
+1195:           float3 contact = domain->pos()[v];
+1196:           if (nonAccum && cmd.accumulable && !cmd.relaxesBase && ctx.dispVec &&
+1197:               ctx.dispGen && ctx.dispGen->safe_get(v) == int(ctx.strokeGen))
+1198:             contact -= ctx.dispVec->safe_get(v);
+1199:           if (brush->falloffDist(contact - ctx.surfacePos, ctx.surfaceNo) < 1.0f) {
+1200:             if (!entry)
+1201:               entry = &preparedCavity.entry(*brush);
+1202:             preparedCavity.fill(*entry, GridCavitySrc{domain}, v);
+1203:           } else {
+1204:             preparedCavity.write(v, 1.0f);
+1205:           }
+1206:         }
+1207:       }
+1208:       ctx.automaskFactor = preparedCavity.active();
+1209:       ctx.automaskEnabled = entry != nullptr;
+1210:     } else if (brush->automask_cavity) {
+1211:       static_assert(int(Brush::kCavityCurveLutSize) == kCavityCurveSize,
+1212:                     "brush cavity_curve LUT size must match automask kCavityCurveSize");
+1213:       CavityParams cp;
+1214:       cp.enabled = true;
+1215:       cp.blur_steps = brush->cavity_blur_steps;
+1216:       cp.factor = brush->cavity_factor;
+1217:       cp.inverted = brush->cavity_inverted;
+1218:       cp.use_curve = brush->cavity_use_curve;
+1219:       cp.curve_lut = brush->cavity_curve.data();
+1220:       GridCavitySrc src{domain};
+1221:       CavityScratch scr;
+1222:       for (GridExecNode *node : nodeSpan) {
+1223:         for (int v : tree->leaves[node->leaf].ownedVerts) {
+1224:           cavityGen_.materialize(v);
+1225:           cavity_.materialize(v);
+1226:           if (cavityGen_[v] != int(strokeGen)) {
+1227:             cavity_[v] = cavityRemap(cp, cavityRawT(src, v, cp.blur_steps, scr));
+1228:             cavityGen_[v] = int(strokeGen);
+1229:           }
+1230:         }
+1231:       }
+1232:       ctx.automaskFactor = &cavity_;
+1233:       ctx.automaskEnabled = true;
+1234:     }
+1235: 
+1236:     stats.automaskMs += msSince(t0);
+1237:     t0 = clock::now();
+1238: 
+1239:     // The parallel kernel loop — leaves own disjoint vert sets, and
+1240:     // for_neighbor reads the Jacobi snapshot, so node order is free.
+1241:     const bool faceStage = cmd.faceMode;
+1242:     task::parallel_for(util::IndexRange(nodePtrs_.size()), [&](util::IndexRange range) {
+1243:       for (int i : range) {
+1244:         GridExecNode *node = nodePtrs_[i];
+1245:         const subdiv::GridTree::Leaf &leaf = tree->leaves[node->leaf];
+1246:         if ((faceStage ? leaf.grids.size() : leaf.ownedVerts.size()) == 0) {
+1247:           continue;
+1248:         }
+1249:         CommandCtx<GridBrushExecutor> finalCtx(ctx, *node, *this, *brush);
+1250:         cmd.exec(finalCtx);
+1251:       }
+1252:     });
+1253: 
+1254:     cmd.execPost(ctx, nodeSpan);
+1255:     stats.kernelMs += msSince(t0);
+1256: 
+1257:     // Sculpt-layer fold (the mesh path's LayerEditScope, per stage): the
+1258:     // scratch holds this stage's delta, so co += w * delta over the written
+1259:     // verts, then re-zero for the next stage or mirror image.
+1260:     if (layerScratchActive_) {
+SOURCE FILE: engine/source/brush/automask.h
+1: #pragma once
+2: 
+3: #include "brush.h"
+4: #include "mesh/mesh.h"
+5: #include "mesh/mesh_topo_cache.h"
+6: 
+7: #include "litestl/math/vector.h"
+8: #include "litestl/util/vector.h"
+9: 
+10: #include <cmath>
+11: #include <cstdint>
+12: #include <utility>
+13: 
+14: /**
+15:  * Automasking: per-vertex 0..1 scalars that scale the *effective brush
+16:  * strength* — Blender's `factor_get()` idea, distinct from the painted `mask`
+17:  * attribute layer. Two contributors with deliberately different evaluation
+18:  * models:
+19:  *
+20:  *  - Cavity (documentation/plans/2026-07-14-2007-cavity-automasking.md) is
+21:  *    CACHED per vertex per stroke in `.brush.automask.cavity` (keyed by
+22:  *    `strokeGen` via `.brush.automask.gen`, first dab to reach a vertex wins;
+23:  *    freshly split dyntopo verts miss the stamp and fill on first touch). The
+24:  *    BFS ring-blur is too expensive per dab, and freezing the estimate at
+25:  *    first contact keeps the mask from chasing the surface it is deforming.
+26:  *    The BFS needs the ring1 CSR, ensured live before the per-dab topology
+27:  *    freeze; a frozen-topo dab that cannot get one simply sits cavity out.
+28:  *  - View normal (documentation/plans/2026-07-25-1138-view-normal-automasking.md)
+29:  *    is DYNAMIC: fade geometry whose normal turns edge-on to the camera
+30:  *    (optionally culling back faces). viewNormalFactor is a few flops, so
+31:  *    CommandCtx::strength evaluates it fresh against each vertex's LIVE normal
+32:  *    on every call, from ViewNormalParams resolved once per dab — no cache, no
+33:  *    stamp ordering, no per-vertex ray history to go stale. Every symmetry
+34:  *    image shares the SAME stroke-pinned camera ray: the mask is
+35:  *    camera-relative and the camera doesn't mirror. (The original design
+36:  *    cached a per-stroke product with per-image reflected rays; first-image-
+37:  *    wins stamping then mixed opposed rays in leaf-sized blocks — the
+38:  *    node-boundary tearing.)
+39:  *
+40:  * GPU strokes read one packed per-vertex buffer (binding 24) holding
+41:  * cavity x viewNormal, built by packAutomask at beginStroke. That static pack
+42:  * matches the CPU's dynamic evaluation because a GPU stroke's normal buffer is
+43:  * itself stroke-static (the CPU mesh syncs at stroke end).
+44:  */
+45: namespace sculptcore::brush {
+46: using litestl::math::float3;
+47: 
+48: /** Cavity settings resolved from the brush once per stroke. */
+49: inline constexpr int kCavityCurveSize = 256;
+50: 
+51: struct CavityParams {
+52:   bool enabled = false;
+53:   // Number of BFS blur rings; the walk reaches `blur_steps + 1` rings so the
+54:   // wide average includes one ring beyond the inner subset.
+55:   int blur_steps = 2;
+56:   // User strength; scaled by an arbitrary 50x in the remap (Blender parity).
+57:   float factor = 1.0f;
+58:   // Flip the mask (mask concavities instead of convexities).
+59:   bool inverted = false;
+60:   // Optional curve remap: when `use_curve`, the linear 0..1 factor is reshaped
+61:   // through `curve_lut` (a `kCavityCurveSize`-entry LUT, e.g. Brush::cavity_curve),
+62:   // applied before the inversion. Null LUT disables it. Because the GPU path packs
+63:   // the same cavityFactor host-side, the curve applies identically on both
+64:   // backends and parity holds.
+65:   bool use_curve = false;
+66:   const float *curve_lut = nullptr;
+67: };
+68: 
+69: /** Clamped linear-interpolated sample of a `kCavityCurveSize` LUT at t in 0..1.
+70:  * Mirrors Brush::falloffEval's Curve branch. */
+71: inline float sampleCavityCurve(const float *lut, float t)
+72: {
+73:   float clamped = t < 0.0f ? 0.0f : (t > 1.0f ? 1.0f : t);
+74:   float scaled = clamped * float(kCavityCurveSize - 1);
+75:   int i0 = int(scaled);
+76:   if (i0 >= kCavityCurveSize - 1) {
+77:     return lut[kCavityCurveSize - 1];
+78:   }
+79:   float frac = scaled - float(i0);
+80:   return lut[i0] * (1.0f - frac) + lut[i0 + 1] * frac;
+81: }
+82: 
+83: /** Reusable BFS scratch so the per-vertex fill allocates once per stroke, not
+84:  * once per vertex. `visitStamp` is a monotonic-token visited set sized to the
+85:  * vertex capacity; bumping `token` logically clears it in O(1). */
+86: struct CavityScratch {
+87:   litestl::util::Vector<uint32_t> visitStamp;
+88:   uint32_t token = 0;
+89:   litestl::util::Vector<int> frontier;
+90:   litestl::util::Vector<int> nextFrontier;
+91: 
+92:   void ensure(int vertCap)
+93:   {
+94:     if (int(visitStamp.size()) < vertCap) {
+95:       visitStamp.resize(vertCap);
+96:       for (int i = 0; i < vertCap; i++) {
+97:         visitStamp[i] = 0;
+98:       }
+99:     }
+100:   }
+101: };
+102: 
+103: /**
+104:  * Raw signed local-convexity estimate at vertex `v`, generic over the geometry
+105:  * source (grids-native brush path): `src` supplies `co(v)` / `no(v)` reads, a
+106:  * `neighbors(v)` 1-ring span, and `vertCap()`. BFS-walks the ring out to
+107:  * `blur_steps + 1` rings, accumulating a wide average (all visited) and an
+108:  * inner average (depth <= blur_steps) of position and normal; returns
+109:  * `dot(wideCo - innerCo, normalize(innerNo)) / meanRadius`. Sign encodes
+110:  * convex/concave. Returns 0 (flat/neutral) for degenerate neighborhoods.
+111:  */
+112: template <class Src>
+113: inline float cavityRawT(const Src &src, int v, int blur_steps, CavityScratch &scr)
+114: {
+115:   scr.ensure(src.vertCap());
+116:   scr.token++;
+117:   const uint32_t tok = scr.token;
+118: 
+119:   const float3 originCo = src.co(v);
+120: 
+121:   float3 wideCo{0, 0, 0}, wideNo{0, 0, 0};
+122:   float3 innerCo{0, 0, 0}, innerNo{0, 0, 0};
+123:   int nWide = 0, nInner = 0;
+124:   float lenSum = 0.0f;
+125: 
+126:   auto visit = [&](int idx, int depth) {
+127:     const float3 co = src.co(idx);
+128:     wideCo += co;
+129:     wideNo += src.no(idx);
+130:     nWide++;
+131:     lenSum += (co - originCo).length();
+132:     if (depth <= blur_steps) {
+133:       innerCo += co;
+134:       innerNo += src.no(idx);
+135:       nInner++;
+136:     }
+137:   };
+138: 
+139:   scr.frontier.clear();
+140:   scr.visitStamp[v] = tok;
+141:   scr.frontier.append(v);
+142:   visit(v, 0);
+143: 
+144:   const int maxDepth = blur_steps + 1;
+145:   for (int depth = 1; depth <= maxDepth; depth++) {
+146:     scr.nextFrontier.clear();
+147:     for (int u : scr.frontier) {
+148:       for (int nb : src.neighbors(u)) {
+149:         if (scr.visitStamp[nb] == tok) {
+150:           continue;
+151:         }
+152:         scr.visitStamp[nb] = tok;
+153:         scr.nextFrontier.append(nb);
+154:         visit(nb, depth);
+155:       }
+156:     }
+157:     std::swap(scr.frontier, scr.nextFrontier);
+158:     if (scr.frontier.size() == 0) {
+159:       break;
+160:     }
+161:   }
+162: 
+163:   if (nWide == 0 || nInner == 0) {
+164:     return 0.0f;
+165:   }
+166:   const float meanLen = lenSum / float(nWide);
+167:   if (meanLen <= 1e-9f) {
+168:     return 0.0f;
+169:   }
+170: 
+171:   wideCo /= float(nWide);
+172:   innerCo /= float(nInner);
+173:   innerNo /= float(nInner);
+174: 
+175:   float3 nrm = innerNo;
+176:   const float nlen = nrm.length();
+177:   // Opposing normals can average to ~0; fall back to the vertex normal so the
+178:   // projection stays well-defined.
+179:   nrm = nlen > 1e-6f ? nrm / nlen : src.no(v);
+180: 
+181:   return (wideCo - innerCo).dot(nrm) / meanLen;
+182: }
+183: 
+184: /** cavityRawT source over a mesh's topo-cache ring1 + live co/no. */
+185: struct MeshCavitySrc {
+186:   mesh::Mesh *m;
+187:   int vertCap() const
+188:   {
+189:     return m->v.count;
+190:   }
+191:   float3 co(int v) const
+192:   {
+193:     return m->v.co[v];
+194:   }
+195:   float3 no(int v) const
+196:   {
+197:     return m->v.no[v];
+198:   }
+199:   std::span<const int> neighbors(int v) const
+200:   {
+201:     // Non-const data(): litestl Vector has no const accessor; read-only here.
+202:     mesh::VertNbrCSR &csr = m->topo_cache.ring1;
+203:     uint32_t off = csr.offsets[v];
+204:     return std::span<const int>(csr.nbr_verts.data() + off, csr.offsets[v + 1] - off);
+205:   }
+206: };
+207: 
+208: /** The historical mesh entry: cavityRawT over the topo-cache ring1. Requires
+209:  * `m->topo_cache.ring1` current (caller ensures it) and live `v.co` / `v.no`. */
+210: inline float cavityRaw(mesh::Mesh *m, int v, int blur_steps, CavityScratch &scr)
+211: {
+212:   if (int(m->topo_cache.ring1.offsets.size()) <= v + 1) {
+213:     return 0.0f;
+214:   }
+215:   return cavityRawT(MeshCavitySrc{m}, v, blur_steps, scr);
+216: }
+217: 
+218: /**
+219:  * Remap a raw signed cavity estimate to a 0..1 mask factor. Ported from Blender's
+220:  * `calc_cavity_factor`: concave pushes toward 1 and convex toward 0, so the brush
+221:  * effect stays in cavities (flipped when inverted). Flat surfaces read exactly the
+222:  * 0.5 center. The 50x is Blender's arbitrary strength scale.
+223:  */
+224: inline float cavityRemap(const CavityParams &p, float raw)
+225: {
+226:   float sign = raw < 0.0f ? -1.0f : 1.0f;
+227:   float factor = std::fabs(raw) * p.factor * 50.0f;
+228:   factor = factor * sign * 0.5f + 0.5f;
+229:   factor = factor < 0.0f ? 0.0f : (factor > 1.0f ? 1.0f : factor);
+230:   // Optional user curve reshapes the linear factor before the inversion, so the
+231:   // curve is authored in un-inverted space (matches Blender's CAVITY_USE_CURVE).
+232:   if (p.use_curve && p.curve_lut) {
+233:     factor = sampleCavityCurve(p.curve_lut, factor);
+234:   }
+235:   return p.inverted ? 1.0f - factor : factor;
+SOURCE FILE: engine/source/brush/c-api/dab_inputs.h
+1: /* SPDX-FileCopyrightText: 2026 Blender Authors
+2:  * SPDX-License-Identifier: GPL-2.0-or-later */
+3: #pragma once
+4: 
+5: #include "brush/brush.h"
+6: #include <climits>
+7: #include <cmath>
+8: 
+9: namespace sculptcore::brush {
+10: 
+11: inline int reportStrokeInputFailure(const props::ScalarRegistrationResult &result)
+12: {
+13:   fprintf(stderr,
+14:           "SculptCore: rejected %s (property status %d)\n",
+15:           result.name.c_str(),
+16:           int(result.error));
+17:   return -1;
+18: }
+19: 
+20: /** Restore the failing dab's temporary inputs; earlier accepted dabs stay committed. */
+21: class DabInputOverlay {
+22:   Brush &brush_;
+23:   float radius_, strength_, authoredRadius_ = 0, authoredStrength_ = 0;
+24:   bool invert_, authoredInvert_ = false, committed_ = false;
+25:   props::Float32Prop *radiusProp_ = nullptr, *strengthProp_ = nullptr;
+26:   props::BoolProp *invertProp_ = nullptr;
+27:   props::DeviceInputCtx inputs_;
+28: 
+29:   template <typename P> P *property(const char *name, props::Prop type)
+30:   {
+31:     if (!brush_.props.struct_def)
+32:       return nullptr;
+33:     auto *p = brush_.props.struct_def->lookupLocal(name);
+34:     if (!p || p->name != util::string(name) || p->type != type)
+35:       return nullptr;
+36:     auto *typed = static_cast<P *>(static_cast<props::detail::PropBaseType *>(p));
+37:     if (typed->getter || typed->setter ||
+38:         (typed->binding_offset != -1 && (typed->owner || brush_.props.owner)) ||
+39:         (typed->flag & props::PropFlag::READ_ONLY) != props::PropFlag::NONE)
+40:       return nullptr;
+41:     return typed;
+42:   }
+43: 
+44: public:
+45:   explicit DabInputOverlay(Brush &brush)
+46:       : brush_(brush), radius_(brush.radius), strength_(brush.strength),
+47:         invert_(brush.invert), inputs_(brush.deviceInputCtx)
+48:   {
+49:     radiusProp_ = property<props::Float32Prop>("radius", props::Prop::FLOAT32);
+50:     strengthProp_ = property<props::Float32Prop>("strength", props::Prop::FLOAT32);
+51:     invertProp_ = property<props::BoolProp>("invert", props::Prop::BOOL);
+52:     if (valid()) {
+53:       authoredRadius_ = *radiusProp_->internal_value();
+54:       authoredStrength_ = *strengthProp_->internal_value();
+55:       authoredInvert_ = *invertProp_->internal_value();
+56:     }
+57:   }
+58:   bool valid() const
+59:   {
+60:     return radiusProp_ && strengthProp_ && invertProp_;
+61:   }
+62:   void commit()
+63:   {
+64:     committed_ = true;
+65:   }
+66:   ~DabInputOverlay()
+67:   {
+68:     if (!valid() || committed_)
+69:       return;
+70:     brush_.radius = radius_;
+71:     brush_.strength = strength_;
+72:     brush_.invert = invert_;
+73:     *radiusProp_->internal_value() = authoredRadius_;
+74:     *strengthProp_->internal_value() = authoredStrength_;
+75:     *invertProp_->internal_value() = authoredInvert_;
+76:     brush_.deviceInputCtx = std::move(inputs_);
+77:   }
+78: };
+79: 
+80: /** Inputs rows contain pressure, tilt X/Y, speed, presence mask and invert.
+81:  * All arrays are borrowed for the call. Each count describes complete rows. */
+82: inline bool validDabInputs(int n,
+83:                            const float *dabs,
+84:                            float strength,
+85:                            const float *inputs,
+86:                            const float *signs,
+87:                            int mirrors)
+88: {
+89:   if (n < 0 || n > INT_MAX / 7 || mirrors < 0 || mirrors > INT_MAX / 3 ||
+90:       (n && (!dabs || !inputs)) || (mirrors && !signs) || !std::isfinite(strength))
+91:     return false;
+92:   for (int i = 0; i < n; i++) {
+93:     const float *d = dabs + i * 7, *s = inputs + i * 6;
+94:     for (int j = 0; j < 7; j++)
+95:       if (!std::isfinite(d[j]))
+96:         return false;
+97:     if (d[6] < 0 || (d[6] > 0 && !std::isfinite(1.0f / d[6])))
+98:       return false;
+99:     for (int j = 0; j < 4; j++)
+100:       if (!std::isfinite(s[j]) || s[j] < 0 || s[j] > 1)
+101:         return false;
+102:     if (!std::isfinite(s[4]) || s[4] < 0 || s[4] > 15 || std::floor(s[4]) != s[4] ||
+103:         (s[5] != 0 && s[5] != 1))
+104:       return false;
+105:   }
+106:   for (int i = 0; i < mirrors * 3; i++)
+107:     if (signs[i] != -1 && signs[i] != 1)
+108:       return false;
+109:   return true;
+110: }
+111: 
+112: /** Replace the host-owned dab values without copying evaluated working caches. */
+113: inline void setDabInputs(Brush &brush, float radius, float strength, const float *inputs)
+114: {
+115:   brush.radius = radius;
+116:   brush.strength = strength;
+117:   brush.invert = inputs[5] != 0;
+118:   brush.props.setValue<float>("radius", radius);
+119:   brush.props.setValue<float>("strength", strength);
+120:   brush.props.setValue<bool>("invert", brush.invert);
+121:   brush.clearDeviceInputs();
+122:   for (int i = 0; i < 4; i++)
+123:     if (int(inputs[4]) & (1 << i))
+124:       brush.pushDeviceInput(i, inputs[i]);
+125: }
+126: } // namespace sculptcore::brush
+SOURCE FILE: engine/source/brush/c-api/grid_stroke_c_api.cc
+322:                          brush::BrushProgram *program,
+323:                          int n,
+324:                          const float *dabs,
+325:                          float strength,
+326:                          const float *inputs,
+327:                          const float *signs,
+328:                          int mirrors,
+329:                          int policy)
+330: {
+331:   if (!gridStrokeCurrent(s) || policy < 0 || policy > 2 ||
+332:       !brush::validDabInputs(n, dabs, strength, inputs, signs, mirrors))
+333:     return -1;
+334:   bool resolved =
+335:       policy == 1 || (policy == 2 && GridStroke_supportsResolved(s, tool, program));
+336:   if (n == 0) {
+337:     if (!resolved)
+338:       return (program ? s->exec.preflightRawProgram(program, float3(0.0f), float3(0.0f))
+339:                       : s->exec.preflightRaw(
+340:                             brush::SculptBrushes(tool), float3(0.0f), float3(0.0f)))
+341:                  ? 0
+342:                  : -1;
+343:     auto result =
+344:         program ? s->exec.applyResolvedProgram(program, float3(0.0f), float3(0.0f), true)
+345:                 : s->exec.applyResolvedDab(
+346:                       brush::SculptBrushes(tool), float3(0.0f), float3(0.0f), true);
+347:     return result.error == props::PropError::ERROR_NONE ? 0 : -1;
+348:   }
+349:   auto image = [&](float3 center, float3 normal) {
+350:     if (resolved)
+351:       return gridResolved(s, tool, program, center, normal);
+352:     if (program)
+353:       return GridStroke_dabProgram(
+354:           s, program, center[0], center[1], center[2], normal[0], normal[1], normal[2]);
+355:     return GridStroke_dab(
+356:         s, tool, center[0], center[1], center[2], normal[0], normal[1], normal[2], 0);
+357:   };
+358:   int total = 0;
+359:   for (int i = 0; i < n; i++) {
+360:     const float *d = dabs + i * 7;
+361:     brush::DabInputOverlay overlay(*s->exec.brush);
+362:     if (!overlay.valid())
+363:       return -1;
+364:     brush::setDabInputs(*s->exec.brush, d[6], strength, inputs + i * 6);
+365:     int result = image(float3(d[0], d[1], d[2]), float3(d[3], d[4], d[5]));
+366:     if (result < 0)
+367:       return -1;
+368:     total += result;
+369:     for (int j = 0; j < mirrors; j++) {
+370:       const float *sign = signs + j * 3;
+371:       result = image(float3(d[0] * sign[0], d[1] * sign[1], d[2] * sign[2]),
+372:                      float3(d[3] * sign[0], d[4] * sign[1], d[5] * sign[2]));
+373:       if (result < 0)
+374:         return -1;
+375:       total += result;
+376:     }
+377:     overlay.commit();
+378:   }
+379:   return total;
+380: }
+381: 
+382: int GridStroke_dabBatchInputs(GridStrokeSession *s,
+383:                               int tool,
+384:                               int n,
+385:                               const float *dabs,
+386:                               float strength,
+387:                               const float *inputs,
+388:                               const float *signs,
+389:                               int mirrors,
+390:                               int policy)
+391: {
+392:   return gridDabInputs(
+393:       s, tool, nullptr, n, dabs, strength, inputs, signs, mirrors, policy);
+394: }
+395: 
+</stdin>
+codex
+The supplied implementation closes most preparation seams. I found **one concrete contract mismatch**, but no demonstrated failure of native-value authority, LUT ownership, or scoped restoration. Acceptance evidence is still incomplete; the packet does not establish readiness for sign-off.
+
+**Concrete correction**
+
+1. **Executor-setting manifest validation accepts an omitted range despite requiring an exact catalogue policy.** The catalogue gives every setting a range, including the restricted blur domain. Validation only compares bounds when `entry.hasRange` is true, so a static `INT32 cavity_blur_steps` manifest with no range passes. This contradicts the plan’s exact type/static/range matching requirement. Execution still uses the catalogue domain, so this is a schema-admission defect, not evidence that negative blur reaches execution.  
+   **Minimal correction:** require `entry.hasRange == setting.hasRange`, then compare bounds when present. Alternatively, explicitly amend the contract if omission is intended to mean catalogue inheritance.  
+   Sources: `brush_preparation.cc:30–39, 363–370, 433–437`; plan `94–100`.
+
+**Implemented protections that survive this review**
+
+- Static values come from native members, independently of property values/getters/ranges; existing property identity/type/schema and static dynamics are checked. Overrides remain subject to the catalogue domain. Sources: `brush_preparation.cc:173–212, 221–256, 433–440`.
+- LUT replacement validates before assignment and copies caller storage. Preparation snapshots all 256 samples, including inherited and disabled configurations; each stage reapplies its snapshot. Sources: `brush_program_preparation.cc:114–134`; `brush_preparation.cc:345–352, 308–310`.
+- Both executors finish program preparation before selection/execution mutations. Standalone restoration scopes precede publication, and program scopes precede working writes. The destructor restores the LUT and captured native values. Sources: `brush_executor.cc:194–198, 284–298, 342`; `grid_executor.cc:222–225, 285–308`; `brush_program_preparation.cc:277–310`.
+
+**Acceptance gaps and refinements — separate from demonstrated defects**
+
+- **Bindings remain unverified.** Reflection registrations and Python wrappers exist, but the packet omits definitions/exports of `BrushProgram_replaceCavityCurveChecked` and `BrushProgram_removeCavityCurveChecked`, which those wrappers actually call. Generated bindings and installed-package evidence are also absent. Supply those seams and exercise replacement, failed replacement, and inheritance through Python. This is missing evidence, not proof of missing symbols. Sources: `brush_program.h:181–182`; `brush_properties.py:31–49`; plan `42–44, 85–87`.
+
+- **Raw fallback coverage is partial.** Both raw preflight methods reject command LUT payloads, and the supplied grid zero-dab dispatcher invokes that preflight. The packet does not show mesh batch dispatch or nonzero raw program entry points invoking it. Verify rejection before mutation for explicit raw and automatic fallback, with both zero and nonzero dab counts. Sources: `brush_executor.cc:74–78`; `grid_executor.cc:115–118`; `grid_stroke_c_api.cc:334–356`.
+
+- **Restoration tests need actual override execution.** Candidate tests distinguish inherited and explicit LUTs, but execution tests never run a valid command LUT replacement. They check only two restored settings and the context flag. Execute override → inheritance stages with different LUTs and all nine settings; compare resulting stage behavior and exact post-call brush state. Include accepted misses, zero radius, standalone execution, and subsequent raw execution. Sources: `prepared_cavity_cases.h:45–78, 94–100, 152–162`.
+
+- **Late-rejection atomicity assertions are too narrow.** The malformed-later-command test checks evaluation count and the context flag, despite claiming rejection before topology work. Snapshot declarations, named-store presence, settings/LUT, topology state, attributes, undo state, and relevant counters. Also exercise failure through the batch overlay and verify earlier accepted dabs remain committed. Sources: `prepared_cavity_cases.h:158–162`; `dab_inputs.h:20–77`; `grid_stroke_c_api.cc:359–377`.
+
+Cache identity, geometry, and lifetime are left to the other review lens.
+tokens used
+The supplied implementation closes most preparation seams. I found **one concrete contract mismatch**, but no demonstrated failure of native-value authority, LUT ownership, or scoped restoration. Acceptance evidence is still incomplete; the packet does not establish readiness for sign-off.
+
+42,854
+**Concrete correction**
+
+1. **Executor-setting manifest validation accepts an omitted range despite requiring an exact catalogue policy.** The catalogue gives every setting a range, including the restricted blur domain. Validation only compares bounds when `entry.hasRange` is true, so a static `INT32 cavity_blur_steps` manifest with no range passes. This contradicts the plan’s exact type/static/range matching requirement. Execution still uses the catalogue domain, so this is a schema-admission defect, not evidence that negative blur reaches execution.  
+   **Minimal correction:** require `entry.hasRange == setting.hasRange`, then compare bounds when present. Alternatively, explicitly amend the contract if omission is intended to mean catalogue inheritance.  
+   Sources: `brush_preparation.cc:30–39, 363–370, 433–437`; plan `94–100`.
+
+**Implemented protections that survive this review**
+
+- Static values come from native members, independently of property values/getters/ranges; existing property identity/type/schema and static dynamics are checked. Overrides remain subject to the catalogue domain. Sources: `brush_preparation.cc:173–212, 221–256, 433–440`.
+- LUT replacement validates before assignment and copies caller storage. Preparation snapshots all 256 samples, including inherited and disabled configurations; each stage reapplies its snapshot. Sources: `brush_program_preparation.cc:114–134`; `brush_preparation.cc:345–352, 308–310`.
+- Both executors finish program preparation before selection/execution mutations. Standalone restoration scopes precede publication, and program scopes precede working writes. The destructor restores the LUT and captured native values. Sources: `brush_executor.cc:194–198, 284–298, 342`; `grid_executor.cc:222–225, 285–308`; `brush_program_preparation.cc:277–310`.
+
+**Acceptance gaps and refinements — separate from demonstrated defects**
+
+- **Bindings remain unverified.** Reflection registrations and Python wrappers exist, but the packet omits definitions/exports of `BrushProgram_replaceCavityCurveChecked` and `BrushProgram_removeCavityCurveChecked`, which those wrappers actually call. Generated bindings and installed-package evidence are also absent. Supply those seams and exercise replacement, failed replacement, and inheritance through Python. This is missing evidence, not proof of missing symbols. Sources: `brush_program.h:181–182`; `brush_properties.py:31–49`; plan `42–44, 85–87`.
+
+- **Raw fallback coverage is partial.** Both raw preflight methods reject command LUT payloads, and the supplied grid zero-dab dispatcher invokes that preflight. The packet does not show mesh batch dispatch or nonzero raw program entry points invoking it. Verify rejection before mutation for explicit raw and automatic fallback, with both zero and nonzero dab counts. Sources: `brush_executor.cc:74–78`; `grid_executor.cc:115–118`; `grid_stroke_c_api.cc:334–356`.
+
+- **Restoration tests need actual override execution.** Candidate tests distinguish inherited and explicit LUTs, but execution tests never run a valid command LUT replacement. They check only two restored settings and the context flag. Execute override → inheritance stages with different LUTs and all nine settings; compare resulting stage behavior and exact post-call brush state. Include accepted misses, zero radius, standalone execution, and subsequent raw execution. Sources: `prepared_cavity_cases.h:45–78, 94–100, 152–162`.
+
+- **Late-rejection atomicity assertions are too narrow.** The malformed-later-command test checks evaluation count and the context flag, despite claiming rejection before topology work. Snapshot declarations, named-store presence, settings/LUT, topology state, attributes, undo state, and relevant counters. Also exercise failure through the batch overlay and verify earlier accepted dabs remain committed. Sources: `prepared_cavity_cases.h:158–162`; `dab_inputs.h:20–77`; `grid_stroke_c_api.cc:359–377`.
+
+Cache identity, geometry, and lifetime are left to the other review lens.

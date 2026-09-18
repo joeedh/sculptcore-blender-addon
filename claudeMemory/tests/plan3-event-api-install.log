@@ -1,0 +1,2651 @@
+[1/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_animviz.cc.obj
+rna_animviz.cc
+[2/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_animation.cc.obj
+rna_animation.cc
+[3/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_ID.cc.obj
+rna_ID.cc
+[4/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_annotations.cc.obj
+rna_annotations.cc
+[5/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_action.cc.obj
+rna_action.cc
+[6/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_armature.cc.obj
+rna_armature.cc
+[7/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_attribute.cc.obj
+rna_attribute.cc
+[8/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_define.cc.obj
+rna_define.cc
+[9/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_boid.cc.obj
+rna_boid.cc
+[10/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_camera.cc.obj
+rna_camera.cc
+[11/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_cloth.cc.obj
+rna_cloth.cc
+[12/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_blender_project.cc.obj
+rna_blender_project.cc
+[13/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_collection.cc.obj
+rna_collection.cc
+[14/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_brush.cc.obj
+rna_brush.cc
+[15/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_color.cc.obj
+rna_color.cc
+[16/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_constraint.cc.obj
+rna_constraint.cc
+[17/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_curveprofile.cc.obj
+rna_curveprofile.cc
+[18/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_curve.cc.obj
+rna_curve.cc
+[19/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_curves.cc.obj
+rna_curves.cc
+[20/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_fcurve.cc.obj
+rna_fcurve.cc
+[21/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_dynamicpaint.cc.obj
+rna_dynamicpaint.cc
+[22/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_grease_pencil.cc.obj
+rna_grease_pencil.cc
+[23/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_fluid.cc.obj
+rna_fluid.cc
+[24/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_image.cc.obj
+rna_image.cc
+[25/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_layer.cc.obj
+rna_layer.cc
+[26/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_key.cc.obj
+rna_key.cc
+[27/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_lightprobe.cc.obj
+rna_lightprobe.cc
+[28/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_linestyle.cc.obj
+rna_linestyle.cc
+[29/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_mask.cc.obj
+rna_mask.cc
+[30/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_material.cc.obj
+rna_material.cc
+[31/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_mesh.cc.obj
+rna_mesh.cc
+[32/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_nla.cc.obj
+rna_nla.cc
+[33/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_node_tree_interface.cc.obj
+rna_node_tree_interface.cc
+[34/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_movieclip.cc.obj
+rna_movieclip.cc
+[35/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_node_socket.cc.obj
+rna_node_socket.cc
+[36/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_object.cc.obj
+rna_object.cc
+[37/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_palette.cc.obj
+rna_palette.cc
+[38/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_object_force.cc.obj
+rna_object_force.cc
+[39/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_pose.cc.obj
+rna_pose.cc
+[40/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_nodetree.cc.obj
+rna_nodetree.cc
+[41/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_particle.cc.obj
+rna_particle.cc
+[42/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_render.cc.obj
+rna_render.cc
+[43/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_rigidbody.cc.obj
+rna_rigidbody.cc
+[44/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_modifier.cc.obj
+rna_modifier.cc
+[45/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_shader_fx.cc.obj
+rna_shader_fx.cc
+[46/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_screen.cc.obj
+rna_screen.cc
+[47/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_scene.cc.obj
+rna_scene.cc
+[48/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_sculpt_paint.cc.obj
+rna_sculpt_paint.cc
+[49/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_sequencer.cc.obj
+rna_sequencer.cc
+[50/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_text.cc.obj
+rna_text.cc
+[51/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_texture.cc.obj
+rna_texture.cc
+[52/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_space.cc.obj
+rna_space.cc
+[53/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_timeline.cc.obj
+rna_timeline.cc
+[54/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_vfont.cc.obj
+rna_vfont.cc
+[55/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_tracking.cc.obj
+rna_tracking.cc
+[56/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_ui.cc.obj
+rna_ui.cc
+[57/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_userdef.cc.obj
+rna_userdef.cc
+[58/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_wm_gizmo.cc.obj
+rna_wm_gizmo.cc
+[59/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_wm.cc.obj
+rna_wm.cc
+[60/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_workspace.cc.obj
+rna_workspace.cc
+[61/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_world.cc.obj
+rna_world.cc
+[62/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_usd.cc.obj
+rna_usd.cc
+[63/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_xr.cc.obj
+rna_xr.cc
+[64/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_grease_pencil_api.cc.obj
+rna_grease_pencil_api.cc
+[65/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_ui_api.cc.obj
+rna_ui_api.cc
+[66/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_wm_gizmo_api.cc.obj
+rna_wm_gizmo_api.cc
+[67/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_wm_api.cc.obj
+rna_wm_api.cc
+[68/1362] Linking CXX executable bin\makesrna.exe
+[69/1362] Generating rna_ID_gen.cc, rna_action_gen.cc, rna_animation_gen.cc, rna_animviz_gen.cc, rna_annotations_gen.cc, rna_armature_gen.cc, rna_asset_gen.cc, rna_attribute_gen.cc, rna_blender_project_gen.cc, rna_blendfile_import_gen.cc, rna_boid_gen.cc, rna_brush_gen.cc, rna_cachefile_gen.cc, rna_camera_gen.cc, rna_cloth_gen.cc, rna_collection_gen.cc, rna_color_gen.cc, rna_constraint_gen.cc, rna_context_gen.cc, rna_curve_gen.cc, rna_curveprofile_gen.cc, rna_curves_gen.cc, rna_depsgraph_gen.cc, rna_dynamicpaint_gen.cc, rna_fcurve_gen.cc, rna_fluid_gen.cc, rna_grease_pencil_gen.cc, rna_image_gen.cc, rna_key_gen.cc, rna_lattice_gen.cc, rna_layer_gen.cc, rna_light_gen.cc, rna_lightprobe_gen.cc, rna_linestyle_gen.cc, rna_main_gen.cc, rna_mask_gen.cc, rna_material_gen.cc, rna_mesh_gen.cc, rna_meta_gen.cc, rna_modifier_gen.cc, rna_movieclip_gen.cc, rna_nla_gen.cc, rna_node_socket_gen.cc, rna_node_tree_interface_gen.cc, rna_nodetree_gen.cc, rna_object_gen.cc, rna_object_force_gen.cc, rna_packedfile_gen.cc, rna_object_mode_gen.cc, rna_palette_gen.cc, rna_particle_gen.cc, rna_pointcloud_gen.cc, rna_pose_gen.cc, rna_render_gen.cc, rna_rigidbody_gen.cc, rna_rna_gen.cc, rna_scene_gen.cc, rna_screen_gen.cc, rna_sculpt_paint_gen.cc, rna_sequencer_gen.cc, rna_shader_fx_gen.cc, rna_sound_gen.cc, rna_space_gen.cc, rna_speaker_gen.cc, rna_test_gen.cc, rna_text_gen.cc, rna_texture_gen.cc, rna_timeline_gen.cc, rna_tracking_gen.cc, rna_ui_gen.cc, rna_userdef_gen.cc, rna_vfont_gen.cc, rna_volume_gen.cc, rna_wm_gen.cc, rna_wm_gizmo_gen.cc, rna_wm_undo_gen.cc, rna_workspace_gen.cc, rna_world_gen.cc, rna_xr_gen.cc, rna_usd_gen.cc, rna_prototypes_gen.hh, ../RNA_prototypes.hh
+[70/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_access_compare_override.cc.obj
+rna_access_compare_override.cc
+[71/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_define.cc.obj
+rna_define.cc
+[72/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_path.cc.obj
+rna_path.cc
+[73/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_owned_curve.cc.obj
+rna_owned_curve.cc
+[74/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_animation_gen.cc.obj
+rna_animation_gen.cc
+[75/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_action_gen.cc.obj
+rna_action_gen.cc
+[76/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_animviz_gen.cc.obj
+rna_animviz_gen.cc
+[77/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_access.cc.obj
+rna_access.cc
+[78/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_ID_gen.cc.obj
+rna_ID_gen.cc
+[79/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_annotations_gen.cc.obj
+rna_annotations_gen.cc
+[80/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_asset_gen.cc.obj
+rna_asset_gen.cc
+[81/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_armature_gen.cc.obj
+rna_armature_gen.cc
+[82/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_blender_project_gen.cc.obj
+rna_blender_project_gen.cc
+[83/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_blendfile_import_gen.cc.obj
+rna_blendfile_import_gen.cc
+[84/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_boid_gen.cc.obj
+rna_boid_gen.cc
+[85/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_cachefile_gen.cc.obj
+rna_cachefile_gen.cc
+[86/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_attribute_gen.cc.obj
+rna_attribute_gen.cc
+[87/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_camera_gen.cc.obj
+rna_camera_gen.cc
+[88/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_context_gen.cc.obj
+rna_context_gen.cc
+[89/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_brush_gen.cc.obj
+rna_brush_gen.cc
+[90/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_cloth_gen.cc.obj
+rna_cloth_gen.cc
+[91/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_collection_gen.cc.obj
+rna_collection_gen.cc
+[92/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_color_gen.cc.obj
+rna_color_gen.cc
+[93/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_curveprofile_gen.cc.obj
+rna_curveprofile_gen.cc
+[94/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_curve_gen.cc.obj
+rna_curve_gen.cc
+[95/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_depsgraph_gen.cc.obj
+rna_depsgraph_gen.cc
+[96/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_constraint_gen.cc.obj
+rna_constraint_gen.cc
+[97/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_dynamicpaint_gen.cc.obj
+rna_dynamicpaint_gen.cc
+[98/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_curves_gen.cc.obj
+rna_curves_gen.cc
+[99/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_fcurve_gen.cc.obj
+rna_fcurve_gen.cc
+[100/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_fluid_gen.cc.obj
+rna_fluid_gen.cc
+[101/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_key_gen.cc.obj
+rna_key_gen.cc
+[102/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_image_gen.cc.obj
+rna_image_gen.cc
+[103/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_lightprobe_gen.cc.obj
+rna_lightprobe_gen.cc
+[104/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_lattice_gen.cc.obj
+rna_lattice_gen.cc
+[105/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_light_gen.cc.obj
+rna_light_gen.cc
+[106/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_grease_pencil_gen.cc.obj
+rna_grease_pencil_gen.cc
+[107/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_layer_gen.cc.obj
+rna_layer_gen.cc
+[108/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_mask_gen.cc.obj
+rna_mask_gen.cc
+[109/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_meta_gen.cc.obj
+rna_meta_gen.cc
+[110/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_material_gen.cc.obj
+rna_material_gen.cc
+[111/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_movieclip_gen.cc.obj
+rna_movieclip_gen.cc
+[112/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_linestyle_gen.cc.obj
+rna_linestyle_gen.cc
+[113/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_nla_gen.cc.obj
+rna_nla_gen.cc
+[114/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_mesh_gen.cc.obj
+rna_mesh_gen.cc
+[115/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_node_socket_gen.cc.obj
+rna_node_socket_gen.cc
+[116/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_main_gen.cc.obj
+rna_main_gen.cc
+[117/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_packedfile_gen.cc.obj
+rna_packedfile_gen.cc
+[118/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_object_mode_gen.cc.obj
+rna_object_mode_gen.cc
+[119/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_object_force_gen.cc.obj
+rna_object_force_gen.cc
+[120/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_palette_gen.cc.obj
+rna_palette_gen.cc
+[121/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_pointcloud_gen.cc.obj
+rna_pointcloud_gen.cc
+[122/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_object_gen.cc.obj
+rna_object_gen.cc
+[123/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_node_tree_interface_gen.cc.obj
+rna_node_tree_interface_gen.cc
+[124/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_pose_gen.cc.obj
+rna_pose_gen.cc
+[125/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_render_gen.cc.obj
+rna_render_gen.cc
+[126/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_particle_gen.cc.obj
+rna_particle_gen.cc
+[127/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_rigidbody_gen.cc.obj
+rna_rigidbody_gen.cc
+[128/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_rna_gen.cc.obj
+rna_rna_gen.cc
+[129/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_screen_gen.cc.obj
+rna_screen_gen.cc
+[130/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_modifier_gen.cc.obj
+rna_modifier_gen.cc
+[131/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_shader_fx_gen.cc.obj
+rna_shader_fx_gen.cc
+[132/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_sound_gen.cc.obj
+rna_sound_gen.cc
+[133/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_sculpt_paint_gen.cc.obj
+rna_sculpt_paint_gen.cc
+[134/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_speaker_gen.cc.obj
+rna_speaker_gen.cc
+[135/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_test_gen.cc.obj
+rna_test_gen.cc
+[136/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_text_gen.cc.obj
+rna_text_gen.cc
+[137/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_timeline_gen.cc.obj
+rna_timeline_gen.cc
+[138/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_texture_gen.cc.obj
+rna_texture_gen.cc
+[139/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_sequencer_gen.cc.obj
+rna_sequencer_gen.cc
+[140/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_tracking_gen.cc.obj
+rna_tracking_gen.cc
+[141/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_vfont_gen.cc.obj
+rna_vfont_gen.cc
+[142/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_scene_gen.cc.obj
+rna_scene_gen.cc
+[143/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_volume_gen.cc.obj
+rna_volume_gen.cc
+[144/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_wm_undo_gen.cc.obj
+rna_wm_undo_gen.cc
+[145/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_wm_gizmo_gen.cc.obj
+rna_wm_gizmo_gen.cc
+[146/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_space_gen.cc.obj
+rna_space_gen.cc
+[147/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_workspace_gen.cc.obj
+rna_workspace_gen.cc
+[148/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_world_gen.cc.obj
+rna_world_gen.cc
+[149/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_ui_gen.cc.obj
+rna_ui_gen.cc
+[150/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_usd_gen.cc.obj
+rna_usd_gen.cc
+[151/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_wm_gen.cc.obj
+rna_wm_gen.cc
+[152/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_xr_gen.cc.obj
+rna_xr_gen.cc
+[153/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_userdef_gen.cc.obj
+rna_userdef_gen.cc
+[154/1362] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_nodetree_gen.cc.obj
+rna_nodetree_gen.cc
+[155/1362] Linking CXX static library lib\bf_rna.lib
+[156/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_CallbackEventConsumer.cc.obj
+GHOST_CallbackEventConsumer.cc
+[157/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_Buttons.cc.obj
+GHOST_Buttons.cc
+[158/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_ContextNone.cc.obj
+GHOST_ContextNone.cc
+[159/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_ModifierKeys.cc.obj
+GHOST_ModifierKeys.cc
+[160/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_ISystemPaths.cc.obj
+GHOST_ISystemPaths.cc
+[161/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_Context.cc.obj
+GHOST_Context.cc
+[162/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_EventManager.cc.obj
+GHOST_EventManager.cc
+[163/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_Rect.cc.obj
+GHOST_Rect.cc
+[164/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_PathUtils.cc.obj
+GHOST_PathUtils.cc
+[165/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_ISystem.cc.obj
+GHOST_ISystem.cc
+[166/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_TimerManager.cc.obj
+GHOST_TimerManager.cc
+[167/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_System.cc.obj
+GHOST_System.cc
+[168/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_Window.cc.obj
+GHOST_Window.cc
+[169/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_WindowManager.cc.obj
+GHOST_WindowManager.cc
+[170/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_NDOFManager.cc.obj
+GHOST_NDOFManager.cc
+[171/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_ContextD3D.cc.obj
+GHOST_ContextD3D.cc
+[172/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_DropTargetWin32.cc.obj
+GHOST_DropTargetWin32.cc
+[173/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_Wintab.cc.obj
+GHOST_Wintab.cc
+[174/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_TrackpadWin32.cc.obj
+GHOST_TrackpadWin32.cc
+[175/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_ContextVK.cc.obj
+GHOST_ContextVK.cc
+[176/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_ContextWGL.cc.obj
+GHOST_ContextWGL.cc
+[177/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_WindowWin32.cc.obj
+GHOST_WindowWin32.cc
+[178/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_NDOFManagerWin32.cc.obj
+GHOST_NDOFManagerWin32.cc
+[179/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_SystemWin32.cc.obj
+GHOST_SystemWin32.cc
+[180/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_ImeWin32.cc.obj
+GHOST_ImeWin32.cc
+[181/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_Xr.cc.obj
+GHOST_Xr.cc
+[182/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_SystemPathsWin32.cc.obj
+GHOST_SystemPathsWin32.cc
+[183/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_XrEvent.cc.obj
+GHOST_XrEvent.cc
+[184/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_XrSwapchain.cc.obj
+GHOST_XrSwapchain.cc
+[185/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_XrAction.cc.obj
+GHOST_XrAction.cc
+[186/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_XrContext.cc.obj
+GHOST_XrContext.cc
+[187/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_XrGraphicsBinding.cc.obj
+GHOST_XrGraphicsBinding.cc
+[188/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_XrGraphicsBindingD3D.cc.obj
+GHOST_XrGraphicsBindingD3D.cc
+[189/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_XrGraphicsBindingVulkan.cc.obj
+GHOST_XrGraphicsBindingVulkan.cc
+[190/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_XrSession.cc.obj
+GHOST_XrSession.cc
+[191/1362] Building CXX object intern\cycles\blender\CMakeFiles\bf_intern_cycles.dir\viewport.cpp.obj
+viewport.cpp
+[192/1362] Building CXX object source\blender\editors\animation\CMakeFiles\bf_editor_animation.dir\anim_asset_ops.cc.obj
+anim_asset_ops.cc
+[193/1362] Building CXX object intern\cycles\blender\CMakeFiles\bf_intern_cycles.dir\session.cpp.obj
+session.cpp
+[194/1362] Building CXX object intern\cycles\blender\CMakeFiles\bf_intern_cycles.dir\device.cpp.obj
+device.cpp
+[195/1362] Building CXX object source\blender\editors\animation\CMakeFiles\bf_editor_animation.dir\anim_channels_defines.cc.obj
+anim_channels_defines.cc
+[196/1362] Building CXX object intern\cycles\blender\CMakeFiles\bf_intern_cycles.dir\sync.cpp.obj
+sync.cpp
+[197/1362] Building CXX object intern\cycles\blender\CMakeFiles\bf_intern_cycles.dir\volume.cpp.obj
+volume.cpp
+[198/1362] Building CXX object source\blender\editors\animation\CMakeFiles\bf_editor_animation.dir\anim_ipo_utils.cc.obj
+anim_ipo_utils.cc
+[199/1362] Building CXX object source\blender\editors\animation\CMakeFiles\bf_editor_animation.dir\anim_convert.cc.obj
+anim_convert.cc
+[200/1362] Building CXX object source\blender\editors\animation\CMakeFiles\bf_editor_animation.dir\drivers.cc.obj
+drivers.cc
+[201/1362] Building CXX object source\blender\editors\animation\CMakeFiles\bf_editor_animation.dir\anim_markers.cc.obj
+anim_markers.cc
+[202/1362] Building CXX object source\blender\editors\animation\CMakeFiles\bf_editor_animation.dir\anim_channels_edit.cc.obj
+anim_channels_edit.cc
+[203/1362] Building CXX object source\blender\editors\animation\CMakeFiles\bf_editor_animation.dir\anim_ops.cc.obj
+anim_ops.cc
+[204/1362] Building CXX object source\blender\editors\animation\CMakeFiles\bf_editor_animation.dir\fmodifier_ui.cc.obj
+fmodifier_ui.cc
+[205/1362] Building CXX object source\blender\editors\animation\CMakeFiles\bf_editor_animation.dir\keyingsets.cc.obj
+keyingsets.cc
+[206/1362] Building CXX object source\blender\editors\animation\CMakeFiles\bf_editor_animation.dir\keyframes_draw.cc.obj
+keyframes_draw.cc
+[207/1362] Building CXX object source\blender\editors\animation\CMakeFiles\bf_editor_animation.dir\time_scrub_ui.cc.obj
+time_scrub_ui.cc
+[208/1362] Building CXX object source\blender\editors\animation\CMakeFiles\bf_editor_animation.dir\transformable.cc.obj
+transformable.cc
+[209/1362] Building CXX object source\blender\editors\animation\CMakeFiles\bf_editor_animation.dir\keyframing.cc.obj
+keyframing.cc
+[210/1362] Building CXX object intern\ghost\CMakeFiles\bf_intern_ghost.dir\intern\GHOST_XrControllerModel.cc.obj
+GHOST_XrControllerModel.cc
+[211/1362] Building CXX object source\blender\editors\armature\CMakeFiles\bf_editor_armature.dir\armature_add.cc.obj
+armature_add.cc
+[212/1362] Building CXX object source\blender\editors\armature\CMakeFiles\bf_editor_armature.dir\armature_ops.cc.obj
+armature_ops.cc
+[213/1362] Building CXX object source\blender\editors\armature\CMakeFiles\bf_editor_armature.dir\armature_edit.cc.obj
+armature_edit.cc
+[214/1362] Building CXX object source\blender\editors\armature\CMakeFiles\bf_editor_armature.dir\bone_collections.cc.obj
+bone_collections.cc
+[215/1362] Building CXX object source\blender\editors\armature\CMakeFiles\bf_editor_armature.dir\armature_select.cc.obj
+armature_select.cc
+[216/1362] Building CXX object source\blender\editors\armature\CMakeFiles\bf_editor_armature.dir\armature_naming.cc.obj
+armature_naming.cc
+[217/1362] Building CXX object source\blender\editors\armature\CMakeFiles\bf_editor_armature.dir\armature_relations.cc.obj
+armature_relations.cc
+[218/1362] Building CXX object source\blender\editors\armature\CMakeFiles\bf_editor_armature.dir\editarmature_undo.cc.obj
+editarmature_undo.cc
+[219/1362] Building CXX object source\blender\editors\armature\CMakeFiles\bf_editor_armature.dir\pose_lib_2.cc.obj
+pose_lib_2.cc
+[220/1362] Building CXX object source\blender\editors\armature\CMakeFiles\bf_editor_armature.dir\pose_edit.cc.obj
+pose_edit.cc
+[221/1362] Building CXX object source\blender\editors\asset\CMakeFiles\bf_editor_asset.dir\intern\asset_catalog.cc.obj
+asset_catalog.cc
+[222/1362] Building CXX object source\blender\editors\armature\CMakeFiles\bf_editor_armature.dir\pose_slide.cc.obj
+pose_slide.cc
+[223/1362] Building CXX object source\blender\editors\armature\CMakeFiles\bf_editor_armature.dir\pose_utils.cc.obj
+pose_utils.cc
+[224/1362] Building CXX object source\blender\editors\asset\CMakeFiles\bf_editor_asset.dir\intern\asset_import.cc.obj
+asset_import.cc
+[225/1362] Building CXX object source\blender\editors\armature\CMakeFiles\bf_editor_armature.dir\pose_select.cc.obj
+pose_select.cc
+[226/1362] Building CXX object source\blender\editors\armature\CMakeFiles\bf_editor_armature.dir\pose_transform.cc.obj
+pose_transform.cc
+[227/1362] Building CXX object source\blender\editors\asset\CMakeFiles\bf_editor_asset.dir\intern\asset_library_utils.cc.obj
+asset_library_utils.cc
+[228/1362] Building CXX object source\blender\editors\asset\CMakeFiles\bf_editor_asset.dir\intern\asset_mark_clear.cc.obj
+asset_mark_clear.cc
+[229/1362] Building CXX object source\blender\editors\asset\CMakeFiles\bf_editor_asset.dir\intern\asset_menu_utils.cc.obj
+asset_menu_utils.cc
+[230/1362] Building CXX object source\blender\editors\asset\CMakeFiles\bf_editor_asset.dir\intern\asset_list.cc.obj
+asset_list.cc
+[231/1362] Building CXX object source\blender\editors\asset\CMakeFiles\bf_editor_asset.dir\intern\asset_shelf_catalog_selector.cc.obj
+asset_shelf_catalog_selector.cc
+[232/1362] Building CXX object source\blender\editors\asset\CMakeFiles\bf_editor_asset.dir\intern\asset_ui_utils.cc.obj
+asset_ui_utils.cc
+[233/1362] Building CXX object source\blender\editors\asset\CMakeFiles\bf_editor_asset.dir\intern\asset_shelf.cc.obj
+asset_shelf.cc
+[234/1362] Building CXX object source\blender\editors\asset\CMakeFiles\bf_editor_asset.dir\intern\asset_shelf_asset_view.cc.obj
+asset_shelf_asset_view.cc
+[235/1362] Building CXX object source\blender\editors\asset\CMakeFiles\bf_editor_asset.dir\intern\asset_shelf_popover.cc.obj
+asset_shelf_popover.cc
+[236/1362] Building CXX object source\blender\editors\asset\CMakeFiles\bf_editor_asset.dir\intern\custom_asset_library_list_ui.cc.obj
+custom_asset_library_list_ui.cc
+[237/1362] Building CXX object source\blender\editors\asset\CMakeFiles\bf_editor_asset.dir\intern\asset_ops.cc.obj
+asset_ops.cc
+[238/1362] Building CXX object source\blender\editors\curve\CMakeFiles\bf_editor_curve.dir\curve_ops.cc.obj
+curve_ops.cc
+[239/1362] Building CXX object source\blender\editors\curve\CMakeFiles\bf_editor_curve.dir\editcurve_add.cc.obj
+editcurve_add.cc
+[240/1362] Building CXX object source\blender\editors\curve\CMakeFiles\bf_editor_curve.dir\editcurve_pen.cc.obj
+editcurve_pen.cc
+[241/1362] Building CXX object source\blender\editors\curve\CMakeFiles\bf_editor_curve.dir\editcurve_undo.cc.obj
+editcurve_undo.cc
+[242/1362] Building CXX object source\blender\editors\curve\CMakeFiles\bf_editor_curve.dir\editcurve_paint.cc.obj
+editcurve_paint.cc
+[243/1362] Building CXX object source\blender\editors\curve\CMakeFiles\bf_editor_curve.dir\editfont_undo.cc.obj
+editfont_undo.cc
+[244/1362] Building CXX object source\blender\editors\curve\CMakeFiles\bf_editor_curve.dir\editcurve_select.cc.obj
+editcurve_select.cc
+[245/1362] Building CXX object source\blender\editors\curve\CMakeFiles\bf_editor_curve.dir\editfont.cc.obj
+editfont.cc
+[246/1362] Building CXX object source\blender\editors\curve\CMakeFiles\bf_editor_curve.dir\editcurve.cc.obj
+editcurve.cc
+[247/1362] Building CXX object source\blender\editors\curves\CMakeFiles\bf_editor_curves.dir\intern\curves_extrude.cc.obj
+curves_extrude.cc
+[248/1362] Building CXX object source\blender\editors\curves\CMakeFiles\bf_editor_curves.dir\intern\curves_undo.cc.obj
+curves_undo.cc
+[249/1362] Building CXX object source\blender\editors\curves\CMakeFiles\bf_editor_curves.dir\intern\curves_draw.cc.obj
+curves_draw.cc
+[250/1362] Building CXX object source\blender\editors\curves\CMakeFiles\bf_editor_curves.dir\intern\join.cc.obj
+join.cc
+[251/1362] Building CXX object source\blender\editors\curves\CMakeFiles\bf_editor_curves.dir\intern\curves_pen.cc.obj
+curves_pen.cc
+[252/1362] Building CXX object source\blender\editors\curves\CMakeFiles\bf_editor_curves.dir\intern\select_linked_pick.cc.obj
+select_linked_pick.cc
+[253/1362] Building CXX object source\blender\editors\geometry\CMakeFiles\bf_editor_geometry.dir\geometry_ops.cc.obj
+geometry_ops.cc
+[254/1362] Building CXX object source\blender\editors\curves\CMakeFiles\bf_editor_curves.dir\intern\separate.cc.obj
+separate.cc
+[255/1362] Building CXX object source\blender\editors\geometry\CMakeFiles\bf_editor_geometry.dir\geometry_randomization.cc.obj
+geometry_randomization.cc
+[256/1362] Building CXX object source\blender\editors\curves\CMakeFiles\bf_editor_curves.dir\intern\curves_attribute_set.cc.obj
+curves_attribute_set.cc
+[257/1362] Building CXX object source\blender\editors\curves\CMakeFiles\bf_editor_curves.dir\intern\curves_ops.cc.obj
+curves_ops.cc
+[258/1362] Building CXX object source\blender\editors\geometry\CMakeFiles\bf_editor_geometry.dir\geometry_attributes.cc.obj
+geometry_attributes.cc
+[259/1362] Building CXX object source\blender\editors\gizmo_library\CMakeFiles\bf_editor_gizmo_library.dir\gizmo_library_presets.cc.obj
+gizmo_library_presets.cc
+[260/1362] Building CXX object source\blender\editors\gizmo_library\CMakeFiles\bf_editor_gizmo_library.dir\gizmo_types\blank3d_gizmo.cc.obj
+blank3d_gizmo.cc
+[261/1362] Building CXX object source\blender\editors\gizmo_library\CMakeFiles\bf_editor_gizmo_library.dir\gizmo_library_utils.cc.obj
+gizmo_library_utils.cc
+[262/1362] Building CXX object source\blender\editors\gizmo_library\CMakeFiles\bf_editor_gizmo_library.dir\gizmo_types\button2d_gizmo.cc.obj
+button2d_gizmo.cc
+[263/1362] Building CXX object source\blender\editors\gizmo_library\CMakeFiles\bf_editor_gizmo_library.dir\gizmo_types\arrow3d_gizmo.cc.obj
+arrow3d_gizmo.cc
+[264/1362] Building CXX object source\blender\editors\gizmo_library\CMakeFiles\bf_editor_gizmo_library.dir\gizmo_types\cage2d_gizmo.cc.obj
+cage2d_gizmo.cc
+[265/1362] Building CXX object source\blender\editors\gizmo_library\CMakeFiles\bf_editor_gizmo_library.dir\gizmo_types\cage3d_gizmo.cc.obj
+cage3d_gizmo.cc
+[266/1362] Building CXX object source\blender\editors\gizmo_library\CMakeFiles\bf_editor_gizmo_library.dir\gizmo_types\dial3d_gizmo.cc.obj
+dial3d_gizmo.cc
+[267/1362] Building CXX object source\blender\editors\gizmo_library\CMakeFiles\bf_editor_gizmo_library.dir\gizmo_types\move3d_gizmo.cc.obj
+move3d_gizmo.cc
+[268/1362] Building CXX object source\blender\editors\gizmo_library\CMakeFiles\bf_editor_gizmo_library.dir\gizmo_types\snap3d_gizmo.cc.obj
+snap3d_gizmo.cc
+[269/1362] Building CXX object source\blender\editors\gizmo_library\CMakeFiles\bf_editor_gizmo_library.dir\gizmo_types\primitive3d_gizmo.cc.obj
+primitive3d_gizmo.cc
+[270/1362] Building CXX object source\blender\editors\gpencil_legacy\CMakeFiles\bf_editor_gpencil_legacy.dir\annotate_draw.cc.obj
+annotate_draw.cc
+[271/1362] Building CXX object source\blender\editors\gpencil_legacy\CMakeFiles\bf_editor_gpencil_legacy.dir\editaction_gpencil.cc.obj
+editaction_gpencil.cc
+[272/1362] Building CXX object source\blender\editors\gpencil_legacy\CMakeFiles\bf_editor_gpencil_legacy.dir\annotate_paint.cc.obj
+annotate_paint.cc
+[273/1362] Building CXX object source\blender\editors\gpencil_legacy\CMakeFiles\bf_editor_gpencil_legacy.dir\gpencil_data.cc.obj
+gpencil_data.cc
+[274/1362] Building CXX object source\blender\editors\gpencil_legacy\CMakeFiles\bf_editor_gpencil_legacy.dir\gpencil_ops.cc.obj
+gpencil_ops.cc
+[275/1362] Building CXX object source\blender\editors\gpencil_legacy\CMakeFiles\bf_editor_gpencil_legacy.dir\gpencil_edit.cc.obj
+gpencil_edit.cc
+[276/1362] Building CXX object source\blender\editors\geometry\CMakeFiles\bf_editor_geometry.dir\node_group_operator.cc.obj
+node_group_operator.cc
+[277/1362] Building CXX object source\blender\editors\gpencil_legacy\CMakeFiles\bf_editor_gpencil_legacy.dir\gpencil_utils.cc.obj
+gpencil_utils.cc
+[278/1362] Building CXX object source\blender\editors\grease_pencil\CMakeFiles\bf_editor_grease_pencil.dir\intern\grease_pencil_add.cc.obj
+grease_pencil_add.cc
+[279/1362] Building CXX object source\blender\editors\grease_pencil\CMakeFiles\bf_editor_grease_pencil.dir\intern\grease_pencil_bake_animation.cc.obj
+grease_pencil_bake_animation.cc
+[280/1362] Building CXX object source\blender\editors\grease_pencil\CMakeFiles\bf_editor_grease_pencil.dir\intern\grease_pencil_join_selection.cc.obj
+grease_pencil_join_selection.cc
+[281/1362] Building CXX object source\blender\editors\grease_pencil\CMakeFiles\bf_editor_grease_pencil.dir\intern\grease_pencil_image_render.cc.obj
+grease_pencil_image_render.cc
+[282/1362] Building CXX object source\blender\editors\grease_pencil\CMakeFiles\bf_editor_grease_pencil.dir\intern\grease_pencil_layers.cc.obj
+grease_pencil_layers.cc
+[283/1362] Building CXX object source\blender\editors\grease_pencil\CMakeFiles\bf_editor_grease_pencil.dir\intern\grease_pencil_geom.cc.obj
+grease_pencil_geom.cc
+[284/1362] Building CXX object source\blender\editors\grease_pencil\CMakeFiles\bf_editor_grease_pencil.dir\intern\grease_pencil_frames.cc.obj
+grease_pencil_frames.cc
+[285/1362] Building CXX object source\blender\editors\grease_pencil\CMakeFiles\bf_editor_grease_pencil.dir\intern\grease_pencil_lineart.cc.obj
+grease_pencil_lineart.cc
+[286/1362] Building CXX object source\blender\editors\grease_pencil\CMakeFiles\bf_editor_grease_pencil.dir\intern\grease_pencil_material.cc.obj
+grease_pencil_material.cc
+[287/1362] Building CXX object source\blender\editors\grease_pencil\CMakeFiles\bf_editor_grease_pencil.dir\intern\grease_pencil_modes.cc.obj
+grease_pencil_modes.cc
+[288/1362] Building CXX object source\blender\editors\grease_pencil\CMakeFiles\bf_editor_grease_pencil.dir\intern\grease_pencil_ops.cc.obj
+grease_pencil_ops.cc
+[289/1362] Building CXX object source\blender\editors\grease_pencil\CMakeFiles\bf_editor_grease_pencil.dir\intern\grease_pencil_merge.cc.obj
+grease_pencil_merge.cc
+[290/1362] Building CXX object source\blender\editors\grease_pencil\CMakeFiles\bf_editor_grease_pencil.dir\intern\grease_pencil_randomize.cc.obj
+grease_pencil_randomize.cc
+[291/1362] Building CXX object source\blender\editors\grease_pencil\CMakeFiles\bf_editor_grease_pencil.dir\intern\grease_pencil_pen.cc.obj
+grease_pencil_pen.cc
+[292/1362] Building CXX object source\blender\editors\grease_pencil\CMakeFiles\bf_editor_grease_pencil.dir\intern\grease_pencil_primitive.cc.obj
+grease_pencil_primitive.cc
+[293/1362] Building CXX object source\blender\editors\grease_pencil\CMakeFiles\bf_editor_grease_pencil.dir\intern\grease_pencil_edit.cc.obj
+grease_pencil_edit.cc
+[294/1362] Building CXX object source\blender\editors\grease_pencil\CMakeFiles\bf_editor_grease_pencil.dir\intern\grease_pencil_segments_geom.cc.obj
+grease_pencil_segments_geom.cc
+[295/1362] Building CXX object source\blender\editors\grease_pencil\CMakeFiles\bf_editor_grease_pencil.dir\intern\grease_pencil_undo.cc.obj
+grease_pencil_undo.cc
+[296/1362] Building CXX object source\blender\editors\grease_pencil\CMakeFiles\bf_editor_grease_pencil.dir\intern\grease_pencil_trim.cc.obj
+grease_pencil_trim.cc
+[297/1362] Building CXX object source\blender\editors\id_management\CMakeFiles\bf_editor_id_management.dir\ed_id_management.cc.obj
+ed_id_management.cc
+[298/1362] Building CXX object source\blender\editors\grease_pencil\CMakeFiles\bf_editor_grease_pencil.dir\intern\grease_pencil_vertex_paint.cc.obj
+grease_pencil_vertex_paint.cc
+[299/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\buttons\interface_label.cc.obj
+interface_label.cc
+[300/1362] Building CXX object source\blender\editors\grease_pencil\CMakeFiles\bf_editor_grease_pencil.dir\intern\grease_pencil_select.cc.obj
+grease_pencil_select.cc
+[301/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\eyedroppers\eyedropper_bone.cc.obj
+eyedropper_bone.cc
+[302/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\buttons\interface_textbox.cc.obj
+interface_textbox.cc
+[303/1362] Building CXX object source\blender\editors\grease_pencil\CMakeFiles\bf_editor_grease_pencil.dir\intern\grease_pencil_utils.cc.obj
+grease_pencil_utils.cc
+[304/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\eyedroppers\eyedropper_colorband.cc.obj
+eyedropper_colorband.cc
+[305/1362] Building CXX object source\blender\editors\grease_pencil\CMakeFiles\bf_editor_grease_pencil.dir\intern\grease_pencil_weight_paint.cc.obj
+grease_pencil_weight_paint.cc
+[306/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\eyedroppers\eyedropper_color.cc.obj
+eyedropper_color.cc
+[307/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\eyedroppers\eyedropper_datablock.cc.obj
+eyedropper_datablock.cc
+[308/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\eyedroppers\eyedropper_driver.cc.obj
+eyedropper_driver.cc
+[309/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\eyedroppers\interface_eyedropper.cc.obj
+interface_eyedropper.cc
+[310/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\eyedroppers\eyedropper_grease_pencil_color.cc.obj
+eyedropper_grease_pencil_color.cc
+[311/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\eyedroppers\eyedropper_depth.cc.obj
+eyedropper_depth.cc
+[312/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\interface_anim.cc.obj
+interface_anim.cc
+[313/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\interface_align.cc.obj
+interface_align.cc
+[314/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\interface_button_group.cc.obj
+interface_button_group.cc
+[315/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\interface_context_path.cc.obj
+interface_context_path.cc
+[316/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\interface_button_sections.cc.obj
+interface_button_sections.cc
+[317/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\interface_drag.cc.obj
+interface_drag.cc
+[318/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\interface_drop.cc.obj
+interface_drop.cc
+[319/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\interface.cc.obj
+interface.cc
+[320/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\interface_context_menu.cc.obj
+interface_context_menu.cc
+[321/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\interface_icons_event.cc.obj
+interface_icons_event.cc
+[322/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\interface_draw.cc.obj
+interface_draw.cc
+[323/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\interface_dropboxes.cc.obj
+interface_dropboxes.cc
+[324/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\interface_icons.cc.obj
+interface_icons.cc
+C:\dev\blender\main\source\blender\editors\interface\interface_icons.cc(2160,11): warning: enumeration value 'OB_MODE_CUSTOM' not handled in switch [-Wswitch]
+ 2160 |   switch (eObjectMode(mode)) {
+      |           ^~~~~~~~~~~~~~~~~
+1 warning generated.
+[325/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\interface_ops_color.cc.obj
+interface_ops_color.cc
+[326/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\regions\interface_region_color_picker.cc.obj
+interface_region_color_picker.cc
+[327/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\interface_query.cc.obj
+interface_query.cc
+[328/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\interface_ops.cc.obj
+interface_ops.cc
+[329/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\interface_handlers.cc.obj
+interface_handlers.cc
+[330/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\interface_layout.cc.obj
+interface_layout.cc
+[331/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\interface_panel.cc.obj
+interface_panel.cc
+[332/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\regions\interface_region_hud.cc.obj
+interface_region_hud.cc
+[333/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\regions\interface_region_menu_pie.cc.obj
+interface_region_menu_pie.cc
+[334/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\regions\interface_region_menu_popup.cc.obj
+interface_region_menu_popup.cc
+[335/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\regions\interface_region_popover.cc.obj
+interface_region_popover.cc
+[336/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\regions\interface_region_popup.cc.obj
+interface_region_popup.cc
+[337/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\regions\interface_regions.cc.obj
+interface_regions.cc
+[338/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\regions\interface_region_search.cc.obj
+interface_region_search.cc
+[339/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\interface_style.cc.obj
+interface_style.cc
+[340/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_asset_shelf_popover.cc.obj
+interface_template_asset_shelf_popover.cc
+[341/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\regions\interface_region_tooltip.cc.obj
+interface_region_tooltip.cc
+[342/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_bone_collection_tree.cc.obj
+interface_template_bone_collection_tree.cc
+[343/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_color_management.cc.obj
+interface_template_color_management.cc
+[344/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_color_picker.cc.obj
+interface_template_color_picker.cc
+[345/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_cache_file.cc.obj
+interface_template_cache_file.cc
+[346/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_attribute_search.cc.obj
+interface_template_attribute_search.cc
+[347/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_component_menu.cc.obj
+interface_template_component_menu.cc
+[348/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_color_ramp.cc.obj
+interface_template_color_ramp.cc
+[349/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_event.cc.obj
+interface_template_event.cc
+[350/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_constraint.cc.obj
+interface_template_constraint.cc
+[351/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_curve_profile.cc.obj
+interface_template_curve_profile.cc
+[352/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_icon.cc.obj
+interface_template_icon.cc
+[353/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_curve_mapping.cc.obj
+interface_template_curve_mapping.cc
+[354/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_grease_pencil_layer_search.cc.obj
+interface_template_grease_pencil_layer_search.cc
+[355/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_grease_pencil_layer_tree.cc.obj
+interface_template_grease_pencil_layer_tree.cc
+[356/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_layers.cc.obj
+interface_template_layers.cc
+[357/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_keymap.cc.obj
+interface_template_keymap.cc
+[358/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_id.cc.obj
+interface_template_id.cc
+[359/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_light_linking.cc.obj
+interface_template_light_linking.cc
+[360/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_matrix.cc.obj
+interface_template_matrix.cc
+[361/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_list.cc.obj
+interface_template_list.cc
+[362/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_modifiers.cc.obj
+interface_template_modifiers.cc
+[363/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_node_inputs.cc.obj
+interface_template_node_inputs.cc
+[364/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_operator_property.cc.obj
+interface_template_operator_property.cc
+[365/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_preview.cc.obj
+interface_template_preview.cc
+[366/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_node_tree_interface.cc.obj
+interface_template_node_tree_interface.cc
+[367/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_recent_files.cc.obj
+interface_template_recent_files.cc
+[368/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_scopes.cc.obj
+interface_template_scopes.cc
+[369/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_search.cc.obj
+interface_template_search.cc
+[370/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_running_jobs.cc.obj
+interface_template_running_jobs.cc
+[371/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_search_operator.cc.obj
+interface_template_search_operator.cc
+[372/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_shader_fx.cc.obj
+interface_template_shader_fx.cc
+[373/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_status.cc.obj
+interface_template_status.cc
+[374/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_scene_compositor_effects.cc.obj
+interface_template_scene_compositor_effects.cc
+[375/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\interface_undo.cc.obj
+interface_undo.cc
+[376/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_strip_modifiers.cc.obj
+interface_template_strip_modifiers.cc
+[377/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_templates.cc.obj
+interface_templates.cc
+[378/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_search_menu.cc.obj
+interface_template_search_menu.cc
+[379/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\interface_utils.cc.obj
+interface_utils.cc
+[380/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\resources.cc.obj
+resources.cc
+[381/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\view2d\view2d_edge_pan.cc.obj
+view2d_edge_pan.cc
+[382/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\view2d\view2d_draw.cc.obj
+view2d_draw.cc
+[383/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\view2d\view2d.cc.obj
+view2d.cc
+[384/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\view2d\view2d_gizmo_navigate.cc.obj
+view2d_gizmo_navigate.cc
+[385/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\interface_widgets.cc.obj
+interface_widgets.cc
+[386/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\view2d\view2d_ops.cc.obj
+view2d_ops.cc
+[387/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\views\abstract_view.cc.obj
+abstract_view.cc
+[388/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\views\abstract_view_item.cc.obj
+abstract_view_item.cc
+[389/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\views\grid_view.cc.obj
+grid_view.cc
+[390/1362] Building CXX object source\blender\editors\io\CMakeFiles\bf_editor_io.dir\io_cache.cc.obj
+io_cache.cc
+[391/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\views\interface_view.cc.obj
+interface_view.cc
+[392/1362] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\views\tree_view.cc.obj
+tree_view.cc
+[393/1362] Building CXX object source\blender\editors\io\CMakeFiles\bf_editor_io.dir\io_alembic.cc.obj
+io_alembic.cc
+[394/1362] Building CXX object source\blender\editors\io\CMakeFiles\bf_editor_io.dir\io_drop_import_file.cc.obj
+io_drop_import_file.cc
+[395/1362] Building CXX object source\blender\editors\io\CMakeFiles\bf_editor_io.dir\io_grease_pencil.cc.obj
+io_grease_pencil.cc
+[396/1362] Building CXX object source\blender\editors\io\CMakeFiles\bf_editor_io.dir\io_fbx_ops.cc.obj
+io_fbx_ops.cc
+[397/1362] Building CXX object source\blender\editors\io\CMakeFiles\bf_editor_io.dir\io_ops.cc.obj
+io_ops.cc
+[398/1362] Building CXX object source\blender\editors\io\CMakeFiles\bf_editor_io.dir\io_obj.cc.obj
+io_obj.cc
+[399/1362] Building CXX object source\blender\editors\io\CMakeFiles\bf_editor_io.dir\io_ply_ops.cc.obj
+io_ply_ops.cc
+[400/1362] Building CXX object source\blender\editors\io\CMakeFiles\bf_editor_io.dir\io_stl_ops.cc.obj
+io_stl_ops.cc
+[401/1362] Building CXX object source\blender\editors\io\CMakeFiles\bf_editor_io.dir\io_usd.cc.obj
+io_usd.cc
+[402/1362] Building CXX object source\blender\editors\lattice\CMakeFiles\bf_editor_lattice.dir\editlattice_tools.cc.obj
+editlattice_tools.cc
+[403/1362] Building CXX object source\blender\editors\lattice\CMakeFiles\bf_editor_lattice.dir\editlattice_select.cc.obj
+editlattice_select.cc
+[404/1362] Building CXX object source\blender\editors\io\CMakeFiles\bf_editor_io.dir\io_utils.cc.obj
+io_utils.cc
+[405/1362] Building CXX object source\blender\editors\lattice\CMakeFiles\bf_editor_lattice.dir\editlattice_undo.cc.obj
+editlattice_undo.cc
+[406/1362] Building CXX object source\blender\editors\lattice\CMakeFiles\bf_editor_lattice.dir\lattice_ops.cc.obj
+lattice_ops.cc
+[407/1362] Building CXX object source\blender\editors\mask\CMakeFiles\bf_editor_mask.dir\mask_add.cc.obj
+mask_add.cc
+[408/1362] Building CXX object source\blender\editors\mask\CMakeFiles\bf_editor_mask.dir\mask_edit.cc.obj
+mask_edit.cc
+[409/1362] Building CXX object source\blender\editors\mask\CMakeFiles\bf_editor_mask.dir\mask_shapekey.cc.obj
+mask_shapekey.cc
+[410/1362] Building CXX object source\blender\editors\mask\CMakeFiles\bf_editor_mask.dir\mask_draw.cc.obj
+mask_draw.cc
+[411/1362] Building CXX object source\blender\editors\mask\CMakeFiles\bf_editor_mask.dir\mask_select.cc.obj
+mask_select.cc
+[412/1362] Building CXX object source\blender\editors\mask\CMakeFiles\bf_editor_mask.dir\mask_relationships.cc.obj
+mask_relationships.cc
+[413/1362] Building CXX object source\blender\editors\mask\CMakeFiles\bf_editor_mask.dir\mask_ops.cc.obj
+mask_ops.cc
+[414/1362] Building CXX object source\blender\editors\mesh\CMakeFiles\bf_editor_mesh.dir\editmesh_add.cc.obj
+editmesh_add.cc
+[415/1362] Building CXX object source\blender\editors\mesh\CMakeFiles\bf_editor_mesh.dir\editmesh_add_gizmo.cc.obj
+editmesh_add_gizmo.cc
+[416/1362] Building CXX object source\blender\editors\mesh\CMakeFiles\bf_editor_mesh.dir\editmesh_bisect.cc.obj
+editmesh_bisect.cc
+[417/1362] Building CXX object source\blender\editors\mesh\CMakeFiles\bf_editor_mesh.dir\editface.cc.obj
+editface.cc
+[418/1362] Building CXX object source\blender\editors\mesh\CMakeFiles\bf_editor_mesh.dir\editmesh_attribute.cc.obj
+editmesh_attribute.cc
+[419/1362] Building CXX object source\blender\editors\mesh\CMakeFiles\bf_editor_mesh.dir\editmesh_circularize.cc.obj
+editmesh_circularize.cc
+[420/1362] Building CXX object source\blender\editors\mesh\CMakeFiles\bf_editor_mesh.dir\editmesh_bevel.cc.obj
+editmesh_bevel.cc
+[421/1362] Building CXX object source\blender\editors\mesh\CMakeFiles\bf_editor_mesh.dir\editmesh_extrude.cc.obj
+editmesh_extrude.cc
+[422/1362] Building CXX object source\blender\editors\mesh\CMakeFiles\bf_editor_mesh.dir\editmesh_extrude_spin.cc.obj
+editmesh_extrude_spin.cc
+[423/1362] Building CXX object source\blender\editors\mesh\CMakeFiles\bf_editor_mesh.dir\editmesh_extrude_screw.cc.obj
+editmesh_extrude_screw.cc
+[424/1362] Building CXX object source\blender\editors\mesh\CMakeFiles\bf_editor_mesh.dir\editmesh_flatten.cc.obj
+editmesh_flatten.cc
+[425/1362] Building CXX object source\blender\editors\mesh\CMakeFiles\bf_editor_mesh.dir\editmesh_inset.cc.obj
+editmesh_inset.cc
+[426/1362] Building CXX object source\blender\editors\mesh\CMakeFiles\bf_editor_mesh.dir\editmesh_extrude_spin_gizmo.cc.obj
+editmesh_extrude_spin_gizmo.cc
+[427/1362] Building CXX object source\blender\editors\mesh\CMakeFiles\bf_editor_mesh.dir\editmesh_intersect.cc.obj
+editmesh_intersect.cc
+[428/1362] Building CXX object source\blender\editors\mesh\CMakeFiles\bf_editor_mesh.dir\editmesh_relax_edge_loops.cc.obj
+editmesh_relax_edge_loops.cc
+[429/1362] Building CXX object source\blender\editors\mesh\CMakeFiles\bf_editor_mesh.dir\editmesh_rip_edge.cc.obj
+editmesh_rip_edge.cc
+[430/1362] Building CXX object source\blender\editors\mesh\CMakeFiles\bf_editor_mesh.dir\editmesh_knife_project.cc.obj
+editmesh_knife_project.cc
+[431/1362] Building CXX object source\blender\editors\mesh\CMakeFiles\bf_editor_mesh.dir\editmesh_polybuild.cc.obj
+editmesh_polybuild.cc
+[432/1362] Building CXX object source\blender\editors\mesh\CMakeFiles\bf_editor_mesh.dir\editmesh_rip.cc.obj
+editmesh_rip.cc
+[433/1362] Building CXX object source\blender\editors\mesh\CMakeFiles\bf_editor_mesh.dir\editmesh_loopcut.cc.obj
+editmesh_loopcut.cc
+[434/1362] Building CXX object source\blender\editors\mesh\CMakeFiles\bf_editor_mesh.dir\editmesh_path.cc.obj
+editmesh_path.cc
+[435/1362] Building CXX object source\blender\editors\mesh\CMakeFiles\bf_editor_mesh.dir\editmesh_knife.cc.obj
+editmesh_knife.cc
+[436/1362] Building CXX object source\blender\editors\mesh\CMakeFiles\bf_editor_mesh.dir\editmesh_set_sharpness_by_angle.cc.obj
+editmesh_set_sharpness_by_angle.cc
+[437/1362] Building CXX object source\blender\editors\mesh\CMakeFiles\bf_editor_mesh.dir\editmesh_space_edge_loops_evenly.cc.obj
+editmesh_space_edge_loops_evenly.cc
+[438/1362] Building CXX object source\blender\editors\mesh\CMakeFiles\bf_editor_mesh.dir\editmesh_utils.cc.obj
+editmesh_utils.cc
+[439/1362] Building CXX object source\blender\editors\mesh\CMakeFiles\bf_editor_mesh.dir\editmesh_undo.cc.obj
+editmesh_undo.cc
+[440/1362] Building CXX object source\blender\editors\mesh\CMakeFiles\bf_editor_mesh.dir\editmesh_select_similar.cc.obj
+editmesh_select_similar.cc
+[441/1362] Building CXX object source\blender\editors\mesh\CMakeFiles\bf_editor_mesh.dir\mesh_data.cc.obj
+mesh_data.cc
+[442/1362] Building CXX object source\blender\editors\mesh\CMakeFiles\bf_editor_mesh.dir\editmesh_select.cc.obj
+editmesh_select.cc
+[443/1362] Building CXX object source\blender\editors\mesh\CMakeFiles\bf_editor_mesh.dir\mesh_ops.cc.obj
+mesh_ops.cc
+[444/1362] Building CXX object source\blender\editors\metaball\CMakeFiles\bf_editor_metaball.dir\editmball_undo.cc.obj
+editmball_undo.cc
+[445/1362] Building CXX object source\blender\editors\mesh\CMakeFiles\bf_editor_mesh.dir\editmesh_tools.cc.obj
+editmesh_tools.cc
+[446/1362] Building CXX object source\blender\editors\metaball\CMakeFiles\bf_editor_metaball.dir\mball_ops.cc.obj
+mball_ops.cc
+[447/1362] Building CXX object source\blender\editors\metaball\CMakeFiles\bf_editor_metaball.dir\mball_edit.cc.obj
+mball_edit.cc
+[448/1362] Building CXX object source\blender\editors\mesh\CMakeFiles\bf_editor_mesh.dir\meshtools.cc.obj
+meshtools.cc
+[449/1362] Building CXX object source\blender\editors\object\CMakeFiles\bf_editor_object.dir\interface_template_shape_key_tree.cc.obj
+interface_template_shape_key_tree.cc
+[450/1362] Building CXX object source\blender\editors\object\CMakeFiles\bf_editor_object.dir\add_modifier_assets.cc.obj
+add_modifier_assets.cc
+[451/1362] Building CXX object source\blender\editors\mesh\CMakeFiles\bf_editor_mesh.dir\mesh_join.cc.obj
+mesh_join.cc
+[452/1362] Building CXX object source\blender\editors\object\CMakeFiles\bf_editor_object.dir\object_camera.cc.obj
+object_camera.cc
+[453/1362] Building CXX object source\blender\editors\object\CMakeFiles\bf_editor_object.dir\object_bake.cc.obj
+object_bake.cc
+[454/1362] Building CXX object source\blender\editors\object\CMakeFiles\bf_editor_object.dir\object_collection.cc.obj
+object_collection.cc
+[455/1362] Building CXX object source\blender\editors\object\CMakeFiles\bf_editor_object.dir\object_bake_api.cc.obj
+object_bake_api.cc
+[456/1362] Building CXX object source\blender\editors\object\CMakeFiles\bf_editor_object.dir\object_data_transfer.cc.obj
+object_data_transfer.cc
+[457/1362] Building CXX object source\blender\editors\object\CMakeFiles\bf_editor_object.dir\object_constraint.cc.obj
+object_constraint.cc
+[458/1362] Building CXX object source\blender\editors\object\CMakeFiles\bf_editor_object.dir\object_bake_simulation.cc.obj
+object_bake_simulation.cc
+[459/1362] Building CXX object source\blender\editors\object\CMakeFiles\bf_editor_object.dir\object_hook.cc.obj
+object_hook.cc
+[460/1362] Building CXX object source\blender\editors\object\CMakeFiles\bf_editor_object.dir\object_light_linking_ops.cc.obj
+object_light_linking_ops.cc
+[461/1362] Building CXX object source\blender\editors\object\CMakeFiles\bf_editor_object.dir\object_ops.cc.obj
+object_ops.cc
+[462/1362] Building CXX object source\blender\editors\object\CMakeFiles\bf_editor_object.dir\object_add.cc.obj
+object_add.cc
+[463/1362] Building CXX object source\blender\editors\object\CMakeFiles\bf_editor_object.dir\object_edit.cc.obj
+object_edit.cc
+[464/1362] Building CXX object source\blender\editors\object\CMakeFiles\bf_editor_object.dir\object_modes.cc.obj
+object_modes.cc
+[465/1362] Building CXX object source\blender\editors\object\CMakeFiles\bf_editor_object.dir\object_multires_modifier.cc.obj
+object_multires_modifier.cc
+[466/1362] Building CXX object source\blender\editors\object\CMakeFiles\bf_editor_object.dir\object_random.cc.obj
+object_random.cc
+[467/1362] Building CXX object source\blender\editors\object\CMakeFiles\bf_editor_object.dir\object_modifier.cc.obj
+object_modifier.cc
+[468/1362] Building CXX object source\blender\editors\object\CMakeFiles\bf_editor_object.dir\object_shapekey.cc.obj
+object_shapekey.cc
+[469/1362] Building CXX object source\blender\editors\object\CMakeFiles\bf_editor_object.dir\object_shader_fx.cc.obj
+object_shader_fx.cc
+[470/1362] Building CXX object source\blender\editors\object\CMakeFiles\bf_editor_object.dir\object_select.cc.obj
+object_select.cc
+[471/1362] Building CXX object source\blender\editors\object\CMakeFiles\bf_editor_object.dir\object_remesh.cc.obj
+object_remesh.cc
+[472/1362] Building CXX object source\blender\editors\object\CMakeFiles\bf_editor_object.dir\object_utils.cc.obj
+object_utils.cc
+[473/1362] Building CXX object source\blender\editors\object\CMakeFiles\bf_editor_object.dir\object_transform.cc.obj
+object_transform.cc
+[474/1362] Building CXX object source\blender\editors\object\CMakeFiles\bf_editor_object.dir\object_relations.cc.obj
+object_relations.cc
+[475/1362] Building CXX object source\blender\editors\object\CMakeFiles\bf_editor_object.dir\object_volume.cc.obj
+object_volume.cc
+[476/1362] Building CXX object source\blender\editors\object\CMakeFiles\bf_editor_object.dir\object_warp.cc.obj
+object_warp.cc
+[477/1362] Building CXX object source\blender\editors\physics\CMakeFiles\bf_editor_physics.dir\particle_boids.cc.obj
+particle_boids.cc
+[478/1362] Building CXX object source\blender\editors\object\CMakeFiles\bf_editor_object.dir\object_visual_geometry_to_objects.cc.obj
+object_visual_geometry_to_objects.cc
+[479/1362] Building CXX object source\blender\editors\physics\CMakeFiles\bf_editor_physics.dir\dynamicpaint_ops.cc.obj
+dynamicpaint_ops.cc
+[480/1362] Building CXX object source\blender\editors\object\CMakeFiles\bf_editor_object.dir\object_vgroup.cc.obj
+object_vgroup.cc
+[481/1362] Building CXX object source\blender\editors\physics\CMakeFiles\bf_editor_physics.dir\physics_ops.cc.obj
+physics_ops.cc
+[482/1362] Building CXX object source\blender\editors\physics\CMakeFiles\bf_editor_physics.dir\physics_fluid.cc.obj
+physics_fluid.cc
+[483/1362] Building CXX object source\blender\editors\physics\CMakeFiles\bf_editor_physics.dir\physics_pointcache.cc.obj
+physics_pointcache.cc
+[484/1362] Building CXX object source\blender\editors\physics\CMakeFiles\bf_editor_physics.dir\particle_object.cc.obj
+particle_object.cc
+[485/1362] Building CXX object source\blender\editors\physics\CMakeFiles\bf_editor_physics.dir\rigidbody_constraint.cc.obj
+rigidbody_constraint.cc
+[486/1362] Building CXX object source\blender\editors\physics\CMakeFiles\bf_editor_physics.dir\rigidbody_world.cc.obj
+rigidbody_world.cc
+[487/1362] Building CXX object source\blender\editors\physics\CMakeFiles\bf_editor_physics.dir\rigidbody_object.cc.obj
+rigidbody_object.cc
+[488/1362] Building CXX object source\blender\editors\physics\CMakeFiles\bf_editor_physics.dir\particle_edit.cc.obj
+particle_edit.cc
+[489/1362] Building CXX object source\blender\editors\pointcloud\CMakeFiles\bf_editor_pointcloud.dir\intern\duplicate.cc.obj
+duplicate.cc
+[490/1362] Building CXX object source\blender\editors\pointcloud\CMakeFiles\bf_editor_pointcloud.dir\intern\join.cc.obj
+join.cc
+[491/1362] Building CXX object source\blender\editors\pointcloud\CMakeFiles\bf_editor_pointcloud.dir\intern\separate.cc.obj
+separate.cc
+[492/1362] Building CXX object source\blender\editors\pointcloud\CMakeFiles\bf_editor_pointcloud.dir\intern\operators.cc.obj
+operators.cc
+[493/1362] Building CXX object source\blender\editors\pointcloud\CMakeFiles\bf_editor_pointcloud.dir\intern\undo.cc.obj
+undo.cc
+[494/1362] Building CXX object source\blender\editors\render\CMakeFiles\bf_editor_render.dir\render_ops.cc.obj
+render_ops.cc
+[495/1362] Building CXX object source\blender\editors\render\CMakeFiles\bf_editor_render.dir\render_internal.cc.obj
+render_internal.cc
+[496/1362] Building CXX object source\blender\editors\render\CMakeFiles\bf_editor_render.dir\render_opengl.cc.obj
+render_opengl.cc
+[497/1362] Building CXX object source\blender\editors\pointcloud\CMakeFiles\bf_editor_pointcloud.dir\intern\attribute_set.cc.obj
+attribute_set.cc
+[498/1362] Building CXX object source\blender\editors\render\CMakeFiles\bf_editor_render.dir\render_texture_cache.cc.obj
+render_texture_cache.cc
+[499/1362] Building CXX object source\blender\editors\render\CMakeFiles\bf_editor_render.dir\render_preview.cc.obj
+render_preview.cc
+[500/1362] Building CXX object source\blender\editors\render\CMakeFiles\bf_editor_render.dir\render_update.cc.obj
+render_update.cc
+[501/1362] Building CXX object source\blender\editors\render\CMakeFiles\bf_editor_render.dir\render_view.cc.obj
+render_view.cc
+[502/1362] Building CXX object source\blender\editors\render\CMakeFiles\bf_editor_render.dir\render_shading.cc.obj
+render_shading.cc
+[503/1362] Building CXX object source\blender\editors\scene\CMakeFiles\bf_editor_scene.dir\scene_compositor.cc.obj
+scene_compositor.cc
+[504/1362] Building CXX object source\blender\editors\scene\CMakeFiles\bf_editor_scene.dir\scene_edit.cc.obj
+scene_edit.cc
+[505/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\paint_curve.cc.obj
+paint_curve.cc
+[506/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\paint_curve_undo.cc.obj
+paint_curve_undo.cc
+[507/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\brush_asset_ops.cc.obj
+brush_asset_ops.cc
+[508/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\paint_cursor.cc.obj
+paint_cursor.cc
+[509/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\paint_ops.cc.obj
+paint_ops.cc
+[510/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\paint_stroke.cc.obj
+paint_stroke.cc
+[511/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\paint_utils.cc.obj
+paint_utils.cc
+[512/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\palette.cc.obj
+palette.cc
+[513/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\paint_sample_color.cc.obj
+paint_sample_color.cc
+[514/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\sculpt_uv.cc.obj
+sculpt_uv.cc
+[515/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\curves\sculpt_brush.cc.obj
+sculpt_brush.cc
+[516/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\curves\sculpt_add.cc.obj
+sculpt_add.cc
+[517/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\curves\sculpt_comb.cc.obj
+sculpt_comb.cc
+[518/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\curves\sculpt_cut.cc.obj
+sculpt_cut.cc
+[519/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\curves\sculpt_delete.cc.obj
+sculpt_delete.cc
+[520/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\curves\sculpt_grow_shrink.cc.obj
+sculpt_grow_shrink.cc
+[521/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\curves\sculpt_pinch.cc.obj
+sculpt_pinch.cc
+[522/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\curves\sculpt_ops.cc.obj
+sculpt_ops.cc
+[523/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\curves\sculpt_selection_paint.cc.obj
+sculpt_selection_paint.cc
+[524/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\curves\sculpt_puff.cc.obj
+sculpt_puff.cc
+[525/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\curves\sculpt_density.cc.obj
+sculpt_density.cc
+[526/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\curves\sculpt_smooth.cc.obj
+sculpt_smooth.cc
+[527/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\curves\sculpt_slide.cc.obj
+sculpt_slide.cc
+[528/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\curves\sculpt_snake_hook.cc.obj
+sculpt_snake_hook.cc
+[529/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\grease_pencil\interpolate.cc.obj
+interpolate.cc
+[530/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\grease_pencil\erase.cc.obj
+erase.cc
+[531/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\grease_pencil\paint_cursor.cc.obj
+paint_cursor.cc
+[532/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\grease_pencil\sculpt_clone.cc.obj
+sculpt_clone.cc
+[533/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\grease_pencil\draw_ops.cc.obj
+draw_ops.cc
+[534/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\grease_pencil\paint_common.cc.obj
+paint_common.cc
+[535/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\grease_pencil\paint.cc.obj
+paint.cc
+[536/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\grease_pencil\fill.cc.obj
+fill.cc
+[537/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\grease_pencil\sculpt_pinch.cc.obj
+sculpt_pinch.cc
+[538/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\grease_pencil\sculpt_push.cc.obj
+sculpt_push.cc
+[539/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\grease_pencil\sculpt_grab.cc.obj
+sculpt_grab.cc
+[540/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\grease_pencil\sculpt_strength.cc.obj
+sculpt_strength.cc
+[541/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\grease_pencil\sculpt_randomize.cc.obj
+sculpt_randomize.cc
+[542/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\grease_pencil\sculpt_smooth.cc.obj
+sculpt_smooth.cc
+[543/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\grease_pencil\sculpt_thickness.cc.obj
+sculpt_thickness.cc
+[544/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\grease_pencil\sculpt_twist.cc.obj
+sculpt_twist.cc
+[545/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\grease_pencil\vertex_average.cc.obj
+vertex_average.cc
+[546/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\grease_pencil\tint.cc.obj
+tint.cc
+[547/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\grease_pencil\vertex_blur.cc.obj
+vertex_blur.cc
+[548/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\grease_pencil\trace.cc.obj
+trace.cc
+[549/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\grease_pencil\vertex_replace.cc.obj
+vertex_replace.cc
+[550/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\grease_pencil\vertex_smear.cc.obj
+vertex_smear.cc
+[551/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\grease_pencil\vertex_paint.cc.obj
+vertex_paint.cc
+[552/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\grease_pencil\weight_average.cc.obj
+weight_average.cc
+[553/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\mesh\paint_cursor.cc.obj
+paint_cursor.cc
+[554/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\mesh\paint_image_2d.cc.obj
+paint_image_2d.cc
+[555/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\grease_pencil\weight_draw.cc.obj
+weight_draw.cc
+[556/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\grease_pencil\weight_blur.cc.obj
+weight_blur.cc
+[557/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\grease_pencil\weight_smear.cc.obj
+weight_smear.cc
+[558/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\mesh\paint_image.cc.obj
+paint_image.cc
+[559/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\mesh\paint_image_ops_paint.cc.obj
+paint_image_ops_paint.cc
+[560/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\mesh\paint_hide.cc.obj
+paint_hide.cc
+[561/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\mesh\paint_vertex_weight_utils.cc.obj
+paint_vertex_weight_utils.cc
+[562/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\mesh\paint_vertex_color_ops.cc.obj
+paint_vertex_color_ops.cc
+[563/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\mesh\paint_vertex_weight_ops.cc.obj
+paint_vertex_weight_ops.cc
+[564/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\mesh\paint_mask.cc.obj
+paint_mask.cc
+[565/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\mesh\paint_image_proj.cc.obj
+paint_image_proj.cc
+[566/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\mesh\paint_weight.cc.obj
+paint_weight.cc
+[567/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\mesh\sculpt_detail.cc.obj
+sculpt_detail.cc
+[568/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\mesh\paint_vertex.cc.obj
+paint_vertex.cc
+[569/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\mesh\sculpt_dyntopo.cc.obj
+sculpt_dyntopo.cc
+[570/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\mesh\sculpt_cloth.cc.obj
+sculpt_cloth.cc
+[571/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\mesh\sculpt_gesture.cc.obj
+sculpt_gesture.cc
+[572/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\mesh\sculpt_filter_color.cc.obj
+sculpt_filter_color.cc
+[573/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\mesh\sculpt_expand.cc.obj
+sculpt_expand.cc
+[574/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\mesh\sculpt_face_set.cc.obj
+sculpt_face_set.cc
+[575/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\mesh\sculpt_filter_mask.cc.obj
+sculpt_filter_mask.cc
+[576/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\mesh\sculpt.cc.obj
+sculpt.cc
+[577/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\mesh\sculpt_mask_extract.cc.obj
+sculpt_mask_extract.cc
+[578/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\mesh\sculpt_mask_init.cc.obj
+sculpt_mask_init.cc
+[579/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\mesh\sculpt_project.cc.obj
+sculpt_project.cc
+[580/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\mesh\sculpt_trim.cc.obj
+sculpt_trim.cc
+[581/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\mesh\sculpt_ops.cc.obj
+sculpt_ops.cc
+[582/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\mesh\sculpt_filter_mesh.cc.obj
+sculpt_filter_mesh.cc
+[583/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\mesh\sculpt_transform.cc.obj
+sculpt_transform.cc
+[584/1362] Building CXX object source\blender\editors\sound\CMakeFiles\bf_editor_sound.dir\sound_ops.cc.obj
+sound_ops.cc
+[585/1362] Building CXX object source\blender\editors\space_action\CMakeFiles\bf_editor_space_action.dir\action_data.cc.obj
+action_data.cc
+[586/1362] Building CXX object source\blender\editors\space_action\CMakeFiles\bf_editor_space_action.dir\action_edit.cc.obj
+action_edit.cc
+[587/1362] Building CXX object source\blender\editors\space_action\CMakeFiles\bf_editor_space_action.dir\action_draw.cc.obj
+action_draw.cc
+[588/1362] Building CXX object source\blender\editors\space_action\CMakeFiles\bf_editor_space_action.dir\action_ops.cc.obj
+action_ops.cc
+[589/1362] Building CXX object source\blender\editors\space_action\CMakeFiles\bf_editor_space_action.dir\space_action.cc.obj
+space_action.cc
+[590/1362] Building CXX object source\blender\editors\space_action\CMakeFiles\bf_editor_space_action.dir\action_select.cc.obj
+action_select.cc
+[591/1362] Building CXX object source\blender\editors\sculpt_paint\CMakeFiles\bf_editor_sculpt_paint.dir\mesh\sculpt_undo.cc.obj
+sculpt_undo.cc
+[592/1362] Building CXX object source\blender\editors\space_buttons\CMakeFiles\bf_editor_space_buttons.dir\buttons_ops.cc.obj
+buttons_ops.cc
+[593/1362] Building CXX object source\blender\editors\space_api\CMakeFiles\bf_editor_space_api.dir\spacetypes.cc.obj
+spacetypes.cc
+[594/1362] Building CXX object source\blender\editors\space_buttons\CMakeFiles\bf_editor_space_buttons.dir\buttons_context.cc.obj
+buttons_context.cc
+[595/1362] Building CXX object source\blender\editors\space_buttons\CMakeFiles\bf_editor_space_buttons.dir\space_buttons.cc.obj
+space_buttons.cc
+[596/1362] Building CXX object source\blender\editors\space_buttons\CMakeFiles\bf_editor_space_buttons.dir\buttons_texture.cc.obj
+buttons_texture.cc
+[597/1362] Building CXX object source\blender\editors\space_clip\CMakeFiles\bf_editor_space_clip.dir\clip_buttons.cc.obj
+clip_buttons.cc
+[598/1362] Building CXX object source\blender\editors\space_clip\CMakeFiles\bf_editor_space_clip.dir\clip_dopesheet_ops.cc.obj
+clip_dopesheet_ops.cc
+[599/1362] Building CXX object source\blender\editors\space_clip\CMakeFiles\bf_editor_space_clip.dir\clip_dopesheet_draw.cc.obj
+clip_dopesheet_draw.cc
+[600/1362] Building CXX object source\blender\editors\space_clip\CMakeFiles\bf_editor_space_clip.dir\clip_editor.cc.obj
+clip_editor.cc
+[601/1362] Building CXX object source\blender\editors\space_clip\CMakeFiles\bf_editor_space_clip.dir\clip_draw.cc.obj
+clip_draw.cc
+[602/1362] Building CXX object source\blender\editors\space_clip\CMakeFiles\bf_editor_space_clip.dir\clip_graph_ops.cc.obj
+clip_graph_ops.cc
+[603/1362] Building CXX object source\blender\editors\space_clip\CMakeFiles\bf_editor_space_clip.dir\clip_ops.cc.obj
+clip_ops.cc
+[604/1362] Building CXX object source\blender\editors\space_clip\CMakeFiles\bf_editor_space_clip.dir\clip_utils.cc.obj
+clip_utils.cc
+[605/1362] Building CXX object source\blender\editors\space_clip\CMakeFiles\bf_editor_space_clip.dir\tracking_ops_detect.cc.obj
+tracking_ops_detect.cc
+[606/1362] Building CXX object source\blender\editors\space_clip\CMakeFiles\bf_editor_space_clip.dir\space_clip.cc.obj
+space_clip.cc
+[607/1362] Building CXX object source\blender\editors\space_clip\CMakeFiles\bf_editor_space_clip.dir\tracking_ops.cc.obj
+tracking_ops.cc
+[608/1362] Building CXX object source\blender\editors\space_clip\CMakeFiles\bf_editor_space_clip.dir\tracking_ops_plane.cc.obj
+tracking_ops_plane.cc
+[609/1362] Building CXX object source\blender\editors\space_clip\CMakeFiles\bf_editor_space_clip.dir\tracking_ops_solve.cc.obj
+tracking_ops_solve.cc
+[610/1362] Building CXX object source\blender\editors\space_clip\CMakeFiles\bf_editor_space_clip.dir\tracking_ops_orient.cc.obj
+tracking_ops_orient.cc
+[611/1362] Building CXX object source\blender\editors\space_clip\CMakeFiles\bf_editor_space_clip.dir\tracking_ops_stabilize.cc.obj
+tracking_ops_stabilize.cc
+[612/1362] Building CXX object source\blender\editors\space_clip\CMakeFiles\bf_editor_space_clip.dir\tracking_ops_utils.cc.obj
+tracking_ops_utils.cc
+[613/1362] Building CXX object source\blender\editors\space_clip\CMakeFiles\bf_editor_space_clip.dir\tracking_ops_track.cc.obj
+tracking_ops_track.cc
+[614/1362] Building CXX object source\blender\editors\space_clip\CMakeFiles\bf_editor_space_clip.dir\tracking_select.cc.obj
+tracking_select.cc
+[615/1362] Building CXX object source\blender\editors\space_console\CMakeFiles\bf_editor_space_console.dir\console_ops.cc.obj
+console_ops.cc
+[616/1362] Building CXX object source\blender\editors\space_console\CMakeFiles\bf_editor_space_console.dir\space_console.cc.obj
+space_console.cc
+[617/1362] Building CXX object source\blender\editors\space_file\CMakeFiles\bf_editor_space_file.dir\file_banner_remote_assets.cc.obj
+file_banner_remote_assets.cc
+[618/1362] Building CXX object source\blender\editors\space_file\CMakeFiles\bf_editor_space_file.dir\asset_catalog_tree_view.cc.obj
+asset_catalog_tree_view.cc
+[619/1362] Building CXX object source\blender\editors\space_file\CMakeFiles\bf_editor_space_file.dir\file_context.cc.obj
+file_context.cc
+[620/1362] Building CXX object source\blender\editors\space_file\CMakeFiles\bf_editor_space_file.dir\file_panels.cc.obj
+file_panels.cc
+[621/1362] Building CXX object source\blender\editors\space_file\CMakeFiles\bf_editor_space_file.dir\file_ops.cc.obj
+file_ops.cc
+[622/1362] Building CXX object source\blender\editors\space_file\CMakeFiles\bf_editor_space_file.dir\filelist\filelist_readjob.cc.obj
+filelist_readjob.cc
+[623/1362] Building CXX object source\blender\editors\space_file\CMakeFiles\bf_editor_space_file.dir\filelist\filelist.cc.obj
+filelist.cc
+[624/1362] Building CXX object source\blender\editors\space_file\CMakeFiles\bf_editor_space_file.dir\file_draw.cc.obj
+file_draw.cc
+[625/1362] Building CXX object source\blender\editors\space_file\CMakeFiles\bf_editor_space_file.dir\filesel.cc.obj
+filesel.cc
+[626/1362] Building CXX object source\blender\editors\space_graph\CMakeFiles\bf_editor_space_graph.dir\graph_buttons.cc.obj
+graph_buttons.cc
+[627/1362] Building CXX object source\blender\editors\space_file\CMakeFiles\bf_editor_space_file.dir\space_file.cc.obj
+space_file.cc
+[628/1362] Building CXX object source\blender\editors\space_graph\CMakeFiles\bf_editor_space_graph.dir\graph_draw.cc.obj
+graph_draw.cc
+[629/1362] Building CXX object source\blender\editors\space_graph\CMakeFiles\bf_editor_space_graph.dir\graph_edit.cc.obj
+graph_edit.cc
+[630/1362] Building CXX object source\blender\editors\space_graph\CMakeFiles\bf_editor_space_graph.dir\graph_ops.cc.obj
+graph_ops.cc
+[631/1362] Building CXX object source\blender\editors\space_graph\CMakeFiles\bf_editor_space_graph.dir\graph_utils.cc.obj
+graph_utils.cc
+[632/1362] Building CXX object source\blender\editors\space_graph\CMakeFiles\bf_editor_space_graph.dir\graph_select.cc.obj
+graph_select.cc
+[633/1362] Building CXX object source\blender\editors\space_graph\CMakeFiles\bf_editor_space_graph.dir\graph_slider_ops.cc.obj
+graph_slider_ops.cc
+[634/1362] Building CXX object source\blender\editors\space_graph\CMakeFiles\bf_editor_space_graph.dir\graph_view.cc.obj
+graph_view.cc
+[635/1362] Building CXX object source\blender\editors\space_graph\CMakeFiles\bf_editor_space_graph.dir\space_graph.cc.obj
+space_graph.cc
+[636/1362] Building CXX object source\blender\editors\space_image\CMakeFiles\bf_editor_space_image.dir\image_buttons.cc.obj
+image_buttons.cc
+[637/1362] Building CXX object source\blender\editors\space_image\CMakeFiles\bf_editor_space_image.dir\image_draw.cc.obj
+image_draw.cc
+[638/1362] Building CXX object source\blender\editors\space_info\CMakeFiles\bf_editor_space_info.dir\info_draw.cc.obj
+info_draw.cc
+[639/1362] Building CXX object source\blender\editors\space_image\CMakeFiles\bf_editor_space_image.dir\image_edit.cc.obj
+image_edit.cc
+[640/1362] Building CXX object source\blender\editors\space_image\CMakeFiles\bf_editor_space_image.dir\image_undo.cc.obj
+image_undo.cc
+[641/1362] Building CXX object source\blender\editors\space_image\CMakeFiles\bf_editor_space_image.dir\space_image.cc.obj
+space_image.cc
+[642/1362] Building CXX object source\blender\editors\space_info\CMakeFiles\bf_editor_space_info.dir\info_report.cc.obj
+info_report.cc
+[643/1362] Building CXX object source\blender\editors\space_info\CMakeFiles\bf_editor_space_info.dir\info_ops.cc.obj
+info_ops.cc
+[644/1362] Building CXX object source\blender\editors\space_image\CMakeFiles\bf_editor_space_image.dir\image_ops.cc.obj
+image_ops.cc
+[645/1362] Building CXX object source\blender\editors\space_info\CMakeFiles\bf_editor_space_info.dir\space_info.cc.obj
+space_info.cc
+[646/1362] Building CXX object source\blender\editors\space_info\CMakeFiles\bf_editor_space_info.dir\textview.cc.obj
+textview.cc
+[647/1362] Building CXX object source\blender\editors\space_info\CMakeFiles\bf_editor_space_info.dir\info_stats.cc.obj
+info_stats.cc
+[648/1362] Building CXX object source\blender\editors\space_nla\CMakeFiles\bf_editor_space_nla.dir\nla_buttons.cc.obj
+nla_buttons.cc
+[649/1362] Building CXX object source\blender\editors\space_nla\CMakeFiles\bf_editor_space_nla.dir\nla_ops.cc.obj
+nla_ops.cc
+[650/1362] Building CXX object source\blender\editors\space_nla\CMakeFiles\bf_editor_space_nla.dir\nla_draw.cc.obj
+nla_draw.cc
+[651/1362] Building CXX object source\blender\editors\space_nla\CMakeFiles\bf_editor_space_nla.dir\nla_select.cc.obj
+nla_select.cc
+[652/1362] Building CXX object source\blender\editors\space_nla\CMakeFiles\bf_editor_space_nla.dir\nla_edit.cc.obj
+nla_edit.cc
+[653/1362] Building CXX object source\blender\editors\space_nla\CMakeFiles\bf_editor_space_nla.dir\nla_tracks.cc.obj
+nla_tracks.cc
+[654/1362] Building CXX object source\blender\editors\space_nla\CMakeFiles\bf_editor_space_nla.dir\space_nla.cc.obj
+space_nla.cc
+[655/1362] Building CXX object source\blender\editors\space_node\CMakeFiles\bf_editor_space_node.dir\add_menu_assets.cc.obj
+add_menu_assets.cc
+[656/1362] Building CXX object source\blender\editors\space_node\CMakeFiles\bf_editor_space_node.dir\clipboard.cc.obj
+clipboard.cc
+[657/1362] Building CXX object source\blender\editors\space_node\CMakeFiles\bf_editor_space_node.dir\node_context_path.cc.obj
+node_context_path.cc
+[658/1362] Building CXX object source\blender\editors\space_node\CMakeFiles\bf_editor_space_node.dir\link_drag_search.cc.obj
+link_drag_search.cc
+[659/1362] Building CXX object source\blender\editors\space_node\CMakeFiles\bf_editor_space_node.dir\node_bundle_type_search.cc.obj
+node_bundle_type_search.cc
+[660/1362] Building CXX object source\blender\editors\space_node\CMakeFiles\bf_editor_space_node.dir\node_add.cc.obj
+node_add.cc
+[661/1362] Building CXX object source\blender\editors\space_node\CMakeFiles\bf_editor_space_node.dir\drawnode.cc.obj
+drawnode.cc
+[662/1362] Building CXX object source\blender\editors\space_node\CMakeFiles\bf_editor_space_node.dir\node_compositor_job.cc.obj
+node_compositor_job.cc
+[663/1362] Building CXX object source\blender\editors\space_node\CMakeFiles\bf_editor_space_node.dir\node_geometry_attribute_search.cc.obj
+node_geometry_attribute_search.cc
+[664/1362] Building CXX object source\blender\editors\space_node\CMakeFiles\bf_editor_space_node.dir\node_geometry_layer_search.cc.obj
+node_geometry_layer_search.cc
+[665/1362] Building CXX object source\blender\editors\space_node\CMakeFiles\bf_editor_space_node.dir\node_gizmo.cc.obj
+node_gizmo.cc
+[666/1362] Building CXX object source\blender\editors\space_node\CMakeFiles\bf_editor_space_node.dir\node_edit.cc.obj
+node_edit.cc
+[667/1362] Building CXX object source\blender\editors\space_node\CMakeFiles\bf_editor_space_node.dir\node_copy_util.cc.obj
+node_copy_util.cc
+[668/1362] Building CXX object source\blender\editors\space_node\CMakeFiles\bf_editor_space_node.dir\node_geometry_volume_grid_search.cc.obj
+node_geometry_volume_grid_search.cc
+[669/1362] Building CXX object source\blender\editors\space_node\CMakeFiles\bf_editor_space_node.dir\node_group.cc.obj
+node_group.cc
+[670/1362] Building CXX object source\blender\editors\space_node\CMakeFiles\bf_editor_space_node.dir\node_ops.cc.obj
+node_ops.cc
+[671/1362] Building CXX object source\blender\editors\space_node\CMakeFiles\bf_editor_space_node.dir\node_shader_preview.cc.obj
+node_shader_preview.cc
+[672/1362] Building CXX object source\blender\editors\space_node\CMakeFiles\bf_editor_space_node.dir\node_sync_sockets.cc.obj
+node_sync_sockets.cc
+[673/1362] Building CXX object source\blender\editors\space_node\CMakeFiles\bf_editor_space_node.dir\node_templates.cc.obj
+node_templates.cc
+[674/1362] Building CXX object source\blender\editors\space_node\CMakeFiles\bf_editor_space_node.dir\node_draw.cc.obj
+node_draw.cc
+[675/1362] Building CXX object source\blender\editors\space_node\CMakeFiles\bf_editor_space_node.dir\node_tree_interface_ui.cc.obj
+node_tree_interface_ui.cc
+[676/1362] Building CXX object source\blender\editors\space_node\CMakeFiles\bf_editor_space_node.dir\node_select.cc.obj
+node_select.cc
+[677/1362] Building CXX object source\blender\editors\space_node\CMakeFiles\bf_editor_space_node.dir\node_socket_tooltip.cc.obj
+node_socket_tooltip.cc
+[678/1362] Building CXX object source\blender\editors\space_node\CMakeFiles\bf_editor_space_node.dir\node_relationships.cc.obj
+node_relationships.cc
+[679/1362] Building CXX object source\blender\editors\space_node\CMakeFiles\bf_editor_space_node.dir\node_view.cc.obj
+node_view.cc
+[680/1362] Building CXX object source\blender\editors\space_outliner\CMakeFiles\bf_editor_space_outliner.dir\outliner_collections.cc.obj
+outliner_collections.cc
+[681/1362] Building CXX object source\blender\editors\space_outliner\CMakeFiles\bf_editor_space_outliner.dir\outliner_dragdrop.cc.obj
+outliner_dragdrop.cc
+[682/1362] Building CXX object source\blender\editors\space_outliner\CMakeFiles\bf_editor_space_outliner.dir\outliner_ops.cc.obj
+outliner_ops.cc
+[683/1362] Building CXX object source\blender\editors\space_node\CMakeFiles\bf_editor_space_node.dir\space_node.cc.obj
+space_node.cc
+[684/1362] Building CXX object source\blender\editors\space_outliner\CMakeFiles\bf_editor_space_outliner.dir\outliner_edit.cc.obj
+outliner_edit.cc
+[685/1362] Building CXX object source\blender\editors\space_outliner\CMakeFiles\bf_editor_space_outliner.dir\outliner_sync.cc.obj
+outliner_sync.cc
+[686/1362] Building CXX object source\blender\editors\space_outliner\CMakeFiles\bf_editor_space_outliner.dir\outliner_select.cc.obj
+outliner_select.cc
+[687/1362] Building CXX object source\blender\editors\space_outliner\CMakeFiles\bf_editor_space_outliner.dir\tree\common.cc.obj
+common.cc
+[688/1362] Building CXX object source\blender\editors\space_outliner\CMakeFiles\bf_editor_space_outliner.dir\outliner_draw.cc.obj
+outliner_draw.cc
+[689/1362] Building CXX object source\blender\editors\space_outliner\CMakeFiles\bf_editor_space_outliner.dir\outliner_utils.cc.obj
+outliner_utils.cc
+[690/1362] Building CXX object source\blender\editors\space_outliner\CMakeFiles\bf_editor_space_outliner.dir\outliner_tree.cc.obj
+outliner_tree.cc
+[691/1362] Building CXX object source\blender\editors\space_outliner\CMakeFiles\bf_editor_space_outliner.dir\tree\tree_element_constraint.cc.obj
+tree_element_constraint.cc
+[692/1362] Building CXX object source\blender\editors\space_outliner\CMakeFiles\bf_editor_space_outliner.dir\space_outliner.cc.obj
+space_outliner.cc
+[693/1362] Building CXX object source\blender\editors\space_script\CMakeFiles\bf_editor_space_script.dir\script_ops.cc.obj
+script_ops.cc
+[694/1362] Building CXX object source\blender\editors\space_project\CMakeFiles\bf_editor_space_project.dir\space_project.cc.obj
+space_project.cc
+[695/1362] Building CXX object source\blender\editors\space_outliner\CMakeFiles\bf_editor_space_outliner.dir\outliner_tools.cc.obj
+outliner_tools.cc
+[696/1362] Building CXX object source\blender\editors\space_script\CMakeFiles\bf_editor_space_script.dir\script_edit.cc.obj
+script_edit.cc
+[697/1362] Building CXX object source\blender\editors\space_script\CMakeFiles\bf_editor_space_script.dir\space_script.cc.obj
+space_script.cc
+[698/1362] Building CXX object source\blender\editors\space_project\CMakeFiles\bf_editor_space_project.dir\project_asset_panel.cc.obj
+project_asset_panel.cc
+[699/1362] Building CXX object source\blender\editors\space_sequencer\CMakeFiles\bf_editor_space_sequencer.dir\sequencer_add_menu_scene.cc.obj
+sequencer_add_menu_scene.cc
+[700/1362] Building CXX object source\blender\editors\space_sequencer\CMakeFiles\bf_editor_space_sequencer.dir\sequencer_add.cc.obj
+sequencer_add.cc
+[701/1362] Building CXX object source\blender\editors\space_sequencer\CMakeFiles\bf_editor_space_sequencer.dir\sequencer_buttons.cc.obj
+sequencer_buttons.cc
+[702/1362] Building CXX object source\blender\editors\space_sequencer\CMakeFiles\bf_editor_space_sequencer.dir\sequencer_add_modifier_assets.cc.obj
+sequencer_add_modifier_assets.cc
+[703/1362] Building CXX object source\blender\editors\space_sequencer\CMakeFiles\bf_editor_space_sequencer.dir\sequencer_channels_edit.cc.obj
+sequencer_channels_edit.cc
+[704/1362] Building CXX object source\blender\editors\space_sequencer\CMakeFiles\bf_editor_space_sequencer.dir\sequencer_channels_draw.cc.obj
+sequencer_channels_draw.cc
+[705/1362] Building CXX object source\blender\editors\space_sequencer\CMakeFiles\bf_editor_space_sequencer.dir\sequencer_drag_drop.cc.obj
+sequencer_drag_drop.cc
+[706/1362] Building CXX object source\blender\editors\space_sequencer\CMakeFiles\bf_editor_space_sequencer.dir\sequencer_clipboard.cc.obj
+sequencer_clipboard.cc
+[707/1362] Building CXX object source\blender\editors\space_sequencer\CMakeFiles\bf_editor_space_sequencer.dir\sequencer_modifier.cc.obj
+sequencer_modifier.cc
+[708/1362] Building CXX object source\blender\editors\space_sequencer\CMakeFiles\bf_editor_space_sequencer.dir\sequencer_ops.cc.obj
+sequencer_ops.cc
+[709/1362] Building CXX object source\blender\editors\space_sequencer\CMakeFiles\bf_editor_space_sequencer.dir\sequencer_preview.cc.obj
+sequencer_preview.cc
+[710/1362] Building CXX object source\blender\editors\space_sequencer\CMakeFiles\bf_editor_space_sequencer.dir\sequencer_proxy.cc.obj
+sequencer_proxy.cc
+[711/1362] Building CXX object source\blender\editors\space_sequencer\CMakeFiles\bf_editor_space_sequencer.dir\sequencer_retiming.cc.obj
+sequencer_retiming.cc
+[712/1362] Building CXX object source\blender\editors\space_sequencer\CMakeFiles\bf_editor_space_sequencer.dir\sequencer_retiming_draw.cc.obj
+sequencer_retiming_draw.cc
+[713/1362] Building CXX object source\blender\editors\space_sequencer\CMakeFiles\bf_editor_space_sequencer.dir\sequencer_preview_draw.cc.obj
+sequencer_preview_draw.cc
+[714/1362] Building CXX object source\blender\editors\space_sequencer\CMakeFiles\bf_editor_space_sequencer.dir\sequencer_edit.cc.obj
+sequencer_edit.cc
+[715/1362] Building CXX object source\blender\editors\space_sequencer\CMakeFiles\bf_editor_space_sequencer.dir\sequencer_thumbnails.cc.obj
+sequencer_thumbnails.cc
+[716/1362] Building CXX object source\blender\editors\space_sequencer\CMakeFiles\bf_editor_space_sequencer.dir\sequencer_text_edit.cc.obj
+sequencer_text_edit.cc
+[717/1362] Building CXX object source\blender\editors\space_sequencer\CMakeFiles\bf_editor_space_sequencer.dir\sequencer_select.cc.obj
+sequencer_select.cc
+[718/1362] Building CXX object source\blender\editors\space_sequencer\CMakeFiles\bf_editor_space_sequencer.dir\sequencer_timeline_draw.cc.obj
+sequencer_timeline_draw.cc
+[719/1362] Building CXX object source\blender\editors\space_sequencer\CMakeFiles\bf_editor_space_sequencer.dir\sequencer_view.cc.obj
+sequencer_view.cc
+[720/1362] Building CXX object source\blender\editors\space_sequencer\CMakeFiles\bf_editor_space_sequencer.dir\space_sequencer.cc.obj
+space_sequencer.cc
+[721/1362] Building CXX object source\blender\editors\space_spreadsheet\CMakeFiles\bf_editor_space_spreadsheet.dir\space_spreadsheet.cc.obj
+space_spreadsheet.cc
+[722/1362] Building CXX object source\blender\editors\space_spreadsheet\CMakeFiles\bf_editor_space_spreadsheet.dir\spreadsheet_draw.cc.obj
+spreadsheet_draw.cc
+[723/1362] Building CXX object source\blender\editors\space_spreadsheet\CMakeFiles\bf_editor_space_spreadsheet.dir\spreadsheet_ops.cc.obj
+spreadsheet_ops.cc
+[724/1362] Building CXX object source\blender\editors\space_statusbar\CMakeFiles\bf_editor_space_statusbar.dir\space_statusbar.cc.obj
+space_statusbar.cc
+[725/1362] Building CXX object source\blender\editors\space_spreadsheet\CMakeFiles\bf_editor_space_spreadsheet.dir\spreadsheet_row_filter_ui.cc.obj
+spreadsheet_row_filter_ui.cc
+[726/1362] Building CXX object source\blender\editors\space_text\CMakeFiles\bf_editor_space_text.dir\space_text.cc.obj
+space_text.cc
+[727/1362] Building CXX object source\blender\editors\space_spreadsheet\CMakeFiles\bf_editor_space_spreadsheet.dir\spreadsheet_dataset_draw.cc.obj
+spreadsheet_dataset_draw.cc
+[728/1362] Building CXX object source\blender\editors\space_text\CMakeFiles\bf_editor_space_text.dir\text_autocomplete.cc.obj
+text_autocomplete.cc
+[729/1362] Building CXX object source\blender\editors\space_text\CMakeFiles\bf_editor_space_text.dir\text_header.cc.obj
+text_header.cc
+[730/1362] Building CXX object source\blender\editors\space_text\CMakeFiles\bf_editor_space_text.dir\text_draw.cc.obj
+text_draw.cc
+[731/1362] Building CXX object source\blender\editors\space_text\CMakeFiles\bf_editor_space_text.dir\text_undo.cc.obj
+text_undo.cc
+[732/1362] Building CXX object source\blender\editors\space_topbar\CMakeFiles\bf_editor_space_topbar.dir\space_topbar.cc.obj
+space_topbar.cc
+[733/1362] Building CXX object source\blender\editors\space_userpref\CMakeFiles\bf_editor_space_userpref.dir\userpref_asset_libraries_list.cc.obj
+userpref_asset_libraries_list.cc
+[734/1362] Building CXX object source\blender\editors\space_text\CMakeFiles\bf_editor_space_text.dir\text_ops.cc.obj
+text_ops.cc
+[735/1362] Building CXX object source\blender\editors\space_spreadsheet\CMakeFiles\bf_editor_space_spreadsheet.dir\spreadsheet_layout.cc.obj
+spreadsheet_layout.cc
+[736/1362] Building CXX object source\blender\editors\space_userpref\CMakeFiles\bf_editor_space_userpref.dir\space_userpref.cc.obj
+space_userpref.cc
+[737/1362] Building CXX object source\blender\editors\space_userpref\CMakeFiles\bf_editor_space_userpref.dir\userpref_ops.cc.obj
+userpref_ops.cc
+[738/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\space_view3d.cc.obj
+space_view3d.cc
+[739/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_cursor_snap.cc.obj
+view3d_cursor_snap.cc
+[740/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_gizmo_armature.cc.obj
+view3d_gizmo_armature.cc
+[741/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_dropboxes.cc.obj
+view3d_dropboxes.cc
+[742/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_draw.cc.obj
+view3d_draw.cc
+[743/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_edit.cc.obj
+view3d_edit.cc
+[744/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_gizmo_empty.cc.obj
+view3d_gizmo_empty.cc
+[745/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_gizmo_camera.cc.obj
+view3d_gizmo_camera.cc
+[746/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_gizmo_forcefield.cc.obj
+view3d_gizmo_forcefield.cc
+[747/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_gizmo_light.cc.obj
+view3d_gizmo_light.cc
+[748/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_gizmo_navigate.cc.obj
+view3d_gizmo_navigate.cc
+[749/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_buttons.cc.obj
+view3d_buttons.cc
+[750/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_gizmo_navigate_type.cc.obj
+view3d_gizmo_navigate_type.cc
+[751/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_gizmo_preselect.cc.obj
+view3d_gizmo_preselect.cc
+[752/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_gizmo_preselect_type.cc.obj
+view3d_gizmo_preselect_type.cc
+[753/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_gizmo_ruler.cc.obj
+view3d_gizmo_ruler.cc
+[754/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_gizmo_geometry_nodes.cc.obj
+view3d_gizmo_geometry_nodes.cc
+[755/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_gizmo_tool_generic.cc.obj
+view3d_gizmo_tool_generic.cc
+[756/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_header.cc.obj
+view3d_header.cc
+[757/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_navigate_fly.cc.obj
+view3d_navigate_fly.cc
+[758/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_navigate.cc.obj
+view3d_navigate.cc
+[759/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_navigate_smoothview.cc.obj
+view3d_navigate_smoothview.cc
+[760/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_navigate_view_camera.cc.obj
+view3d_navigate_view_camera.cc
+[761/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_navigate_view_axis.cc.obj
+view3d_navigate_view_axis.cc
+[762/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_navigate_view_center_cursor.cc.obj
+view3d_navigate_view_center_cursor.cc
+[763/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_navigate_view_all.cc.obj
+view3d_navigate_view_all.cc
+[764/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_navigate_view_center_pick.cc.obj
+view3d_navigate_view_center_pick.cc
+[765/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_navigate_view_dolly.cc.obj
+view3d_navigate_view_dolly.cc
+[766/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_navigate_view_move.cc.obj
+view3d_navigate_view_move.cc
+[767/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_navigate_view_ndof.cc.obj
+view3d_navigate_view_ndof.cc
+[768/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_navigate_view_pan.cc.obj
+view3d_navigate_view_pan.cc
+[769/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_navigate_view_orbit.cc.obj
+view3d_navigate_view_orbit.cc
+[770/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_navigate_view_roll.cc.obj
+view3d_navigate_view_roll.cc
+[771/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_navigate_view_rotate.cc.obj
+view3d_navigate_view_rotate.cc
+[772/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_navigate_view_zoom.cc.obj
+view3d_navigate_view_zoom.cc
+[773/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_navigate_zoom_border.cc.obj
+view3d_navigate_zoom_border.cc
+[774/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_navigate_walk.cc.obj
+view3d_navigate_walk.cc
+[775/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_ops.cc.obj
+view3d_ops.cc
+[776/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_placement.cc.obj
+view3d_placement.cc
+[777/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_utils.cc.obj
+view3d_utils.cc
+[778/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_snap.cc.obj
+view3d_snap.cc
+[779/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_vr_location_scouting.cc.obj
+view3d_vr_location_scouting.cc
+[780/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_view.cc.obj
+view3d_view.cc
+[781/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform.cc.obj
+transform.cc
+[782/1362] Building CXX object source\blender\editors\space_view3d\CMakeFiles\bf_editor_space_view3d.dir\view3d_select.cc.obj
+view3d_select.cc
+[783/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_convert.cc.obj
+transform_convert.cc
+[784/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_convert_cursor.cc.obj
+transform_convert_cursor.cc
+[785/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_convert_action.cc.obj
+transform_convert_action.cc
+[786/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_convert_curve.cc.obj
+transform_convert_curve.cc
+[787/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_convert_armature.cc.obj
+transform_convert_armature.cc
+[788/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_convert_graph.cc.obj
+transform_convert_graph.cc
+[789/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_convert_lattice.cc.obj
+transform_convert_lattice.cc
+[790/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_convert_curves.cc.obj
+transform_convert_curves.cc
+[791/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_convert_grease_pencil.cc.obj
+transform_convert_grease_pencil.cc
+[792/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_convert_mask.cc.obj
+transform_convert_mask.cc
+[793/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_convert_mball.cc.obj
+transform_convert_mball.cc
+[794/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_convert_mesh_edge.cc.obj
+transform_convert_mesh_edge.cc
+[795/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_convert_mesh.cc.obj
+transform_convert_mesh.cc
+[796/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_convert_mesh_skin.cc.obj
+transform_convert_mesh_skin.cc
+[797/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_convert_mesh_vert_cdata.cc.obj
+transform_convert_mesh_vert_cdata.cc
+[798/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_convert_nla.cc.obj
+transform_convert_nla.cc
+[799/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_convert_mesh_uv.cc.obj
+transform_convert_mesh_uv.cc
+[800/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_convert_node.cc.obj
+transform_convert_node.cc
+[801/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_convert_object_texspace.cc.obj
+transform_convert_object_texspace.cc
+[802/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_convert_object.cc.obj
+transform_convert_object.cc
+[803/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_convert_paintcurve.cc.obj
+transform_convert_paintcurve.cc
+[804/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_convert_particle.cc.obj
+transform_convert_particle.cc
+[805/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_convert_sculpt.cc.obj
+transform_convert_sculpt.cc
+[806/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_convert_pointcloud.cc.obj
+transform_convert_pointcloud.cc
+[807/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_convert_sequencer_image.cc.obj
+transform_convert_sequencer_image.cc
+[808/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_convert_sequencer.cc.obj
+transform_convert_sequencer.cc
+[809/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_convert_sequencer_retiming.cc.obj
+transform_convert_sequencer_retiming.cc
+[810/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_convert_tracking.cc.obj
+transform_convert_tracking.cc
+[811/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_convert_tracking_curves.cc.obj
+transform_convert_tracking_curves.cc
+[812/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_gizmo_2d.cc.obj
+transform_gizmo_2d.cc
+[813/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_gizmo_3d_cage.cc.obj
+transform_gizmo_3d_cage.cc
+[814/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_gizmo_3d_shear.cc.obj
+transform_gizmo_3d_shear.cc
+[815/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_gizmo_extrude_3d.cc.obj
+transform_gizmo_extrude_3d.cc
+[816/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_input.cc.obj
+transform_input.cc
+[817/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_generics.cc.obj
+transform_generics.cc
+[818/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_gizmo_3d.cc.obj
+transform_gizmo_3d.cc
+[819/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_mode.cc.obj
+transform_mode.cc
+[820/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_mode_align.cc.obj
+transform_mode_align.cc
+[821/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_mode_baketime.cc.obj
+transform_mode_baketime.cc
+[822/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_mode_bbone_resize.cc.obj
+transform_mode_bbone_resize.cc
+[823/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_mode_bend.cc.obj
+transform_mode_bend.cc
+[824/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_mode_boneenvelope.cc.obj
+transform_mode_boneenvelope.cc
+[825/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_mode_boneroll.cc.obj
+transform_mode_boneroll.cc
+[826/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_mode_curveshrinkfatten.cc.obj
+transform_mode_curveshrinkfatten.cc
+[827/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_mode_customdata.cc.obj
+transform_mode_customdata.cc
+[828/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_mode_edge_seq_slide.cc.obj
+transform_mode_edge_seq_slide.cc
+[829/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_mode_edge_rotate_normal.cc.obj
+transform_mode_edge_rotate_normal.cc
+[830/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_mode_gpopacity.cc.obj
+transform_mode_gpopacity.cc
+[831/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_mode_maskshrinkfatten.cc.obj
+transform_mode_maskshrinkfatten.cc
+[832/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_mode_mirror.cc.obj
+transform_mode_mirror.cc
+[833/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_mode_edge_slide.cc.obj
+transform_mode_edge_slide.cc
+[834/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_mode_push_pull.cc.obj
+transform_mode_push_pull.cc
+[835/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_mode_resize.cc.obj
+transform_mode_resize.cc
+[836/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_mode_shear.cc.obj
+transform_mode_shear.cc
+[837/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_mode_rotate.cc.obj
+transform_mode_rotate.cc
+[838/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_mode_shrink_fatten.cc.obj
+transform_mode_shrink_fatten.cc
+[839/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_mode_skin_resize.cc.obj
+transform_mode_skin_resize.cc
+[840/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_mode_snapsource.cc.obj
+transform_mode_snapsource.cc
+[841/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_mode_tilt.cc.obj
+transform_mode_tilt.cc
+[842/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_mode_timescale.cc.obj
+transform_mode_timescale.cc
+[843/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_mode_timeslide.cc.obj
+transform_mode_timeslide.cc
+[844/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_mode_timetranslate.cc.obj
+transform_mode_timetranslate.cc
+[845/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_mode_tosphere.cc.obj
+transform_mode_tosphere.cc
+[846/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_mode_trackball.cc.obj
+transform_mode_trackball.cc
+[847/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_mode_translate.cc.obj
+transform_mode_translate.cc
+[848/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_mode_vert_slide.cc.obj
+transform_mode_vert_slide.cc
+[849/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_ops.cc.obj
+transform_ops.cc
+[850/1362] Building CXX object source\blender\editors\undo\CMakeFiles\bf_editor_undo.dir\custom_mode_undo.cc.obj
+custom_mode_undo.cc
+[851/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_snap.cc.obj
+transform_snap.cc
+[852/1362] Building CXX object source\blender\editors\transform\CMakeFiles\bf_editor_transform.dir\transform_snap_sequencer.cc.obj
+transform_snap_sequencer.cc
+[853/1362] Building CXX object source\blender\editors\undo\CMakeFiles\bf_editor_undo.dir\ed_undo.cc.obj
+ed_undo.cc
+[854/1362] Building CXX object source\blender\editors\undo\CMakeFiles\bf_editor_undo.dir\memfile_undo.cc.obj
+memfile_undo.cc
+[855/1362] Building CXX object source\blender\editors\undo\CMakeFiles\bf_editor_undo.dir\undo_system_types.cc.obj
+undo_system_types.cc
+[856/1362] Building CXX object source\blender\editors\util\CMakeFiles\bf_editor_util.dir\ed_draw.cc.obj
+ed_draw.cc
+[857/1362] Building CXX object source\blender\editors\util\CMakeFiles\bf_editor_util.dir\ed_util.cc.obj
+ed_util.cc
+[858/1362] Building CXX object source\blender\editors\util\CMakeFiles\bf_editor_util.dir\ed_util_imbuf.cc.obj
+ed_util_imbuf.cc
+[859/1362] Building CXX object source\blender\editors\util\CMakeFiles\bf_editor_util.dir\gizmo_utils.cc.obj
+gizmo_utils.cc
+[860/1362] Building CXX object source\blender\editors\util\CMakeFiles\bf_editor_util.dir\ed_util_ops.cc.obj
+ed_util_ops.cc
+[861/1362] Building CXX object source\blender\editors\util\CMakeFiles\bf_editor_util.dir\select_utils.cc.obj
+select_utils.cc
+[862/1362] Building CXX object source\blender\editors\util\CMakeFiles\bf_editor_util.dir\numinput.cc.obj
+numinput.cc
+[863/1362] Building CXX object source\blender\editors\util\CMakeFiles\bf_editor_util.dir\ed_viewer_path.cc.obj
+ed_viewer_path.cc
+[864/1362] Building CXX object source\blender\editors\uvedit\CMakeFiles\bf_editor_uvedit.dir\uvedit_buttons.cc.obj
+uvedit_buttons.cc
+[865/1362] Building CXX object source\blender\editors\uvedit\CMakeFiles\bf_editor_uvedit.dir\uvedit_clipboard.cc.obj
+uvedit_clipboard.cc
+[866/1362] Building CXX object source\blender\editors\uvedit\CMakeFiles\bf_editor_uvedit.dir\uvedit_path.cc.obj
+uvedit_path.cc
+[867/1362] Building CXX object source\blender\editors\uvedit\CMakeFiles\bf_editor_uvedit.dir\uvedit_rip.cc.obj
+uvedit_rip.cc
+[868/1362] Building CXX object source\blender\editors\uvedit\CMakeFiles\bf_editor_uvedit.dir\uvedit_smart_stitch.cc.obj
+uvedit_smart_stitch.cc
+[869/1362] Building CXX object source\blender\editors\uvedit\CMakeFiles\bf_editor_uvedit.dir\uvedit_ops.cc.obj
+uvedit_ops.cc
+[870/1362] Building CXX object source\blender\editors\screen\CMakeFiles\bf_editor_screen.dir\area_query.cc.obj
+area_query.cc
+[871/1362] Building CXX object source\blender\editors\screen\CMakeFiles\bf_editor_screen.dir\area_utils.cc.obj
+area_utils.cc
+[872/1362] Building CXX object source\blender\editors\screen\CMakeFiles\bf_editor_screen.dir\area.cc.obj
+area.cc
+[873/1362] Building CXX object source\blender\editors\uvedit\CMakeFiles\bf_editor_uvedit.dir\uvedit_select.cc.obj
+uvedit_select.cc
+[874/1362] Building CXX object source\blender\editors\uvedit\CMakeFiles\bf_editor_uvedit.dir\uvedit_unwrap_ops.cc.obj
+uvedit_unwrap_ops.cc
+[875/1362] Building CXX object source\blender\editors\screen\CMakeFiles\bf_editor_screen.dir\screen_context.cc.obj
+screen_context.cc
+[876/1362] Building CXX object source\blender\editors\screen\CMakeFiles\bf_editor_screen.dir\screen_draw.cc.obj
+screen_draw.cc
+[877/1362] Building CXX object source\blender\editors\screen\CMakeFiles\bf_editor_screen.dir\screen_geometry.cc.obj
+screen_geometry.cc
+[878/1362] Building CXX object source\blender\editors\screen\CMakeFiles\bf_editor_screen.dir\screen_edit.cc.obj
+screen_edit.cc
+[879/1362] Building CXX object source\blender\editors\screen\CMakeFiles\bf_editor_screen.dir\screen_user_menu.cc.obj
+screen_user_menu.cc
+[880/1362] Building CXX object source\blender\editors\screen\CMakeFiles\bf_editor_screen.dir\screendump.cc.obj
+screendump.cc
+[881/1362] Building CXX object source\blender\editors\screen\CMakeFiles\bf_editor_screen.dir\workspace_layout_edit.cc.obj
+workspace_layout_edit.cc
+[882/1362] Building CXX object source\blender\editors\screen\CMakeFiles\bf_editor_screen.dir\workspace_listen.cc.obj
+workspace_listen.cc
+[883/1362] Building CXX object source\blender\editors\screen\CMakeFiles\bf_editor_screen.dir\workspace_edit.cc.obj
+workspace_edit.cc
+[884/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\intern\wm.cc.obj
+wm.cc
+[885/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\intern\wm_cursors.cc.obj
+wm_cursors.cc
+[886/1362] Building CXX object source\blender\editors\screen\CMakeFiles\bf_editor_screen.dir\screen_ops.cc.obj
+screen_ops.cc
+[887/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\intern\wm_event_query.cc.obj
+wm_event_query.cc
+[888/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\intern\wm_dragdrop.cc.obj
+wm_dragdrop.cc
+[889/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\intern\wm_draw.cc.obj
+wm_draw.cc
+[890/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\intern\wm_files_colorspace.cc.obj
+wm_files_colorspace.cc
+[891/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\intern\wm_gesture.cc.obj
+wm_gesture.cc
+[892/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\intern\wm_files_link.cc.obj
+wm_files_link.cc
+[893/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\intern\wm_gesture_ops.cc.obj
+wm_gesture_ops.cc
+[894/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\intern\wm_jobs.cc.obj
+wm_jobs.cc
+[895/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\intern\wm_event_system.cc.obj
+wm_event_system.cc
+[896/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\intern\wm_files.cc.obj
+wm_files.cc
+[897/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\intern\wm_keymap_utils.cc.obj
+wm_keymap_utils.cc
+C:\dev\blender\main\source\blender\windowmanager\intern\wm_keymap_utils.cc(98,13): warning: enumeration value 'CTX_MODE_CUSTOM' not handled in switch [-Wswitch]
+   98 |     switch (mode) {
+      |             ^~~~
+1 warning generated.
+[898/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\intern\wm_init_exit.cc.obj
+wm_init_exit.cc
+[899/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\intern\wm_keymap.cc.obj
+wm_keymap.cc
+[900/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\intern\wm_menu_type.cc.obj
+wm_menu_type.cc
+[901/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\intern\wm_operator_props.cc.obj
+wm_operator_props.cc
+[902/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\intern\wm_operator_type.cc.obj
+wm_operator_type.cc
+[903/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\intern\wm_platform_support.cc.obj
+wm_platform_support.cc
+[904/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\intern\wm_operator_utils.cc.obj
+wm_operator_utils.cc
+[905/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\intern\wm_panel_type.cc.obj
+wm_panel_type.cc
+[906/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\intern\wm_platform.cc.obj
+wm_platform.cc
+[907/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\intern\wm_splash_screen.cc.obj
+wm_splash_screen.cc
+[908/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\intern\wm_playanim.cc.obj
+wm_playanim.cc
+[909/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\intern\wm_surface.cc.obj
+wm_surface.cc
+[910/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\intern\wm_subwindow.cc.obj
+wm_subwindow.cc
+[911/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\intern\wm_operators.cc.obj
+wm_operators.cc
+[912/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\intern\wm_tooltip.cc.obj
+wm_tooltip.cc
+[913/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\intern\wm_stereo.cc.obj
+wm_stereo.cc
+[914/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\intern\wm_toolsystem.cc.obj
+wm_toolsystem.cc
+[915/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\intern\wm_utils.cc.obj
+wm_utils.cc
+[916/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\intern\wm_uilist_type.cc.obj
+wm_uilist_type.cc
+[917/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\gizmo\intern\wm_gizmo_group_type.cc.obj
+wm_gizmo_group_type.cc
+[918/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\intern\wm_window_ime_draw.cc.obj
+wm_window_ime_draw.cc
+[919/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\gizmo\intern\wm_gizmo.cc.obj
+wm_gizmo.cc
+[920/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\gizmo\intern\wm_gizmo_group.cc.obj
+wm_gizmo_group.cc
+[921/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\gizmo\intern\wm_gizmo_target_props.cc.obj
+wm_gizmo_target_props.cc
+[922/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\gizmo\intern\wm_gizmo_map.cc.obj
+wm_gizmo_map.cc
+[923/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\message_bus\intern\wm_message_bus.cc.obj
+wm_message_bus.cc
+[924/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\intern\wm_window.cc.obj
+wm_window.cc
+[925/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\message_bus\intern\wm_message_bus_remote_io.cc.obj
+wm_message_bus_remote_io.cc
+[926/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\gizmo\intern\wm_gizmo_type.cc.obj
+wm_gizmo_type.cc
+[927/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\message_bus\intern\wm_message_bus_static.cc.obj
+wm_message_bus_static.cc
+[928/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\message_bus\intern\wm_message_bus_rna.cc.obj
+wm_message_bus_rna.cc
+[929/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\xr\intern\wm_xr_action.cc.obj
+wm_xr_action.cc
+[930/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\xr\intern\wm_xr_actionmap.cc.obj
+wm_xr_actionmap.cc
+[931/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\xr\intern\wm_xr.cc.obj
+wm_xr.cc
+[932/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\xr\intern\wm_xr_draw.cc.obj
+wm_xr_draw.cc
+[933/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\xr\intern\wm_xr_location_scouting.cc.obj
+wm_xr_location_scouting.cc
+[934/1362] Building CXX object source\blender\animrig\CMakeFiles\bf_animrig.dir\intern\action_iterators.cc.obj
+action_iterators.cc
+[935/1362] Building CXX object source\blender\animrig\CMakeFiles\bf_animrig.dir\intern\anim_rna.cc.obj
+anim_rna.cc
+[936/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\xr\intern\wm_xr_session.cc.obj
+wm_xr_session.cc
+[937/1362] Building CXX object source\blender\windowmanager\CMakeFiles\bf_windowmanager.dir\xr\intern\wm_xr_operators.cc.obj
+wm_xr_operators.cc
+[938/1362] Building CXX object source\blender\animrig\CMakeFiles\bf_animrig.dir\intern\action.cc.obj
+action.cc
+[939/1362] Building CXX object source\blender\animrig\CMakeFiles\bf_animrig.dir\intern\bone_collections.cc.obj
+bone_collections.cc
+[940/1362] Building CXX object source\blender\animrig\CMakeFiles\bf_animrig.dir\intern\pose.cc.obj
+pose.cc
+[941/1362] Building CXX object source\blender\animrig\CMakeFiles\bf_animrig.dir\intern\visualkey.cc.obj
+visualkey.cc
+[942/1362] Building CXX object source\blender\animrig\CMakeFiles\bf_animrig.dir\intern\keyingsets.cc.obj
+keyingsets.cc
+[943/1362] Building CXX object source\blender\animrig\CMakeFiles\bf_animrig.dir\intern\keyframing.cc.obj
+keyframing.cc
+[944/1362] Building CXX object source\blender\animrig\CMakeFiles\bf_animrig.dir\intern\keyframing_auto.cc.obj
+keyframing_auto.cc
+[945/1362] Building CXX object source\blender\animrig\CMakeFiles\bf_animrig.dir\intern\versioning.cc.obj
+versioning.cc
+[946/1362] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\callbacks.cc.obj
+callbacks.cc
+[947/1362] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\anim_data.cc.obj
+anim_data.cc
+[948/1362] Building CXX object source\blender\asset_system\CMakeFiles\bf_asset_system.dir\intern\library_types\remote_library.cc.obj
+remote_library.cc
+[949/1362] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\appdir.cc.obj
+appdir.cc
+[950/1362] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\armature.cc.obj
+armature.cc
+[951/1362] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\anim_sys.cc.obj
+anim_sys.cc
+[952/1362] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\compositor.cc.obj
+compositor.cc
+[953/1362] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\blendfile_link_append.cc.obj
+blendfile_link_append.cc
+[954/1362] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\fcurve_driver.cc.obj
+fcurve_driver.cc
+[955/1362] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\context.cc.obj
+context.cc
+[956/1362] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\constraint.cc.obj
+constraint.cc
+[957/1362] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\key.cc.obj
+key.cc
+[958/1362] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\main_invariants.cc.obj
+main_invariants.cc
+[959/1362] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\nla.cc.obj
+nla.cc
+[960/1362] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\node_tree_interface.cc.obj
+node_tree_interface.cc
+[961/1362] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\path_templates.cc.obj
+path_templates.cc
+[962/1362] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\lib_override.cc.obj
+lib_override.cc
+[963/1362] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\screen.cc.obj
+screen.cc
+[964/1362] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\grease_pencil.cc.obj
+grease_pencil.cc
+[965/1362] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\tracking_solver.cc.obj
+tracking_solver.cc
+[966/1362] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\wm_runtime.cc.obj
+wm_runtime.cc
+[967/1362] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\object_dupli.cc.obj
+object_dupli.cc
+[968/1362] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\object.cc.obj
+object.cc
+[969/1362] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\tracking_stabilize.cc.obj
+tracking_stabilize.cc
+[970/1362] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\tracking.cc.obj
+tracking.cc
+[971/1362] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\node.cc.obj
+node.cc
+[972/1362] Building CXX object source\blender\draw\CMakeFiles\bf_draw.dir\intern\draw_gpu_context.cc.obj
+draw_gpu_context.cc
+[973/1362] Building CXX object source\blender\draw\CMakeFiles\bf_draw.dir\intern\draw_manager_text.cc.obj
+draw_manager_text.cc
+[974/1362] Building CXX object source\blender\draw\CMakeFiles\bf_draw.dir\intern\draw_view_c.cc.obj
+draw_view_c.cc
+[975/1362] Building CXX object source\blender\draw\CMakeFiles\bf_draw.dir\intern\draw_cache_impl_grease_pencil.cc.obj
+draw_cache_impl_grease_pencil.cc
+[976/1362] Building CXX object source\blender\draw\CMakeFiles\bf_draw.dir\engines\eevee\eevee_instance.cc.obj
+eevee_instance.cc
+[977/1362] Building CXX object source\blender\draw\CMakeFiles\bf_draw.dir\intern\draw_context.cc.obj
+draw_context.cc
+[978/1362] Building CXX object source\blender\draw\CMakeFiles\bf_draw.dir\engines\eevee\eevee_engine.cc.obj
+eevee_engine.cc
+[979/1362] Building CXX object source\blender\draw\CMakeFiles\bf_draw.dir\engines\eevee\eevee_lightcache.cc.obj
+eevee_lightcache.cc
+[980/1362] Building CXX object source\blender\draw\CMakeFiles\bf_draw.dir\engines\external\external_engine.cc.obj
+external_engine.cc
+[981/1362] Building CXX object source\blender\draw\CMakeFiles\bf_draw.dir\engines\gpencil\gpencil_engine_c.cc.obj
+gpencil_engine_c.cc
+[982/1362] Building CXX object source\blender\render\CMakeFiles\bf_render.dir\intern\engine.cc.obj
+engine.cc
+[983/1362] Building CXX object source\blender\render\CMakeFiles\bf_render.dir\intern\render_types.cc.obj
+render_types.cc
+[984/1362] Building CXX object source\blender\render\CMakeFiles\bf_render.dir\intern\compositor.cc.obj
+compositor.cc
+[985/1362] Building CXX object source\blender\render\CMakeFiles\bf_render.dir\intern\pipeline.cc.obj
+pipeline.cc
+[986/1362] Building CXX object source\blender\depsgraph\CMakeFiles\bf_depsgraph.dir\intern\builder\deg_builder.cc.obj
+deg_builder.cc
+[987/1362] Building CXX object source\blender\blenloader\CMakeFiles\bf_blenloader.dir\intern\versioning_300.cc.obj
+versioning_300.cc
+[988/1362] Building CXX object source\blender\blenloader\CMakeFiles\bf_blenloader.dir\intern\versioning_500.cc.obj
+versioning_500.cc
+[989/1362] Building CXX object source\blender\draw\CMakeFiles\bf_draw.dir\engines\select\select_instance.cc.obj
+select_instance.cc
+[990/1362] Building CXX object source\blender\blenloader\CMakeFiles\bf_blenloader.dir\intern\versioning_userdef.cc.obj
+versioning_userdef.cc
+[991/1362] Building CXX object source\blender\depsgraph\CMakeFiles\bf_depsgraph.dir\intern\builder\deg_builder_relations_rig.cc.obj
+deg_builder_relations_rig.cc
+[992/1362] Building CXX object source\blender\draw\CMakeFiles\bf_draw.dir\engines\overlay\overlay_engine.cc.obj
+overlay_engine.cc
+[993/1362] Building CXX object source\blender\depsgraph\CMakeFiles\bf_depsgraph.dir\intern\builder\deg_builder_rna.cc.obj
+deg_builder_rna.cc
+[994/1362] Building CXX object source\blender\draw\CMakeFiles\bf_draw.dir\engines\overlay\overlay_instance.cc.obj
+overlay_instance.cc
+[995/1362] Building CXX object source\blender\depsgraph\CMakeFiles\bf_depsgraph.dir\intern\depsgraph_query.cc.obj
+depsgraph_query.cc
+[996/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_compute.cc.obj
+gpu_compute.cc
+[997/1362] Building CXX object source\blender\depsgraph\CMakeFiles\bf_depsgraph.dir\intern\builder\deg_builder_nodes.cc.obj
+deg_builder_nodes.cc
+[998/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_batch.cc.obj
+gpu_batch.cc
+[999/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_index_buffer.cc.obj
+gpu_index_buffer.cc
+[1000/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_ray_tracing.cc.obj
+gpu_ray_tracing.cc
+[1001/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_select_sample_query.cc.obj
+gpu_select_sample_query.cc
+[1002/1362] Building CXX object source\blender\depsgraph\CMakeFiles\bf_depsgraph.dir\intern\builder\deg_builder_relations.cc.obj
+deg_builder_relations.cc
+[1003/1362] Building CXX object source\blender\render\hydra\CMakeFiles\bf_render_hydra.dir\python.cc.obj
+python.cc
+[1004/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_framebuffer.cc.obj
+gpu_framebuffer.cc
+[1005/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_state.cc.obj
+gpu_state.cc
+[1006/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_storage_buffer.cc.obj
+gpu_storage_buffer.cc
+[1007/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_context.cc.obj
+gpu_context.cc
+[1008/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_texture_pool.cc.obj
+gpu_texture_pool.cc
+[1009/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_vertex_buffer.cc.obj
+gpu_vertex_buffer.cc
+[1010/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_texture.cc.obj
+gpu_texture.cc
+[1011/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_uniform_buffer.cc.obj
+gpu_uniform_buffer.cc
+[1012/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_work_in_flight.cc.obj
+gpu_work_in_flight.cc
+[1013/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_compilation_subprocess.cc.obj
+gl_compilation_subprocess.cc
+[1014/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_shader.cc.obj
+gpu_shader.cc
+[1015/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_framebuffer.cc.obj
+gl_framebuffer.cc
+[1016/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_context.cc.obj
+gl_context.cc
+[1017/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_storage_buffer.cc.obj
+gl_storage_buffer.cc
+[1018/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_backend.cc.obj
+gl_backend.cc
+[1019/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_debug.cc.obj
+gl_debug.cc
+[1020/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_texture.cc.obj
+gl_texture.cc
+[1021/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_texture_pool.cc.obj
+gl_texture_pool.cc
+[1022/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_buffer_pool.cc.obj
+vk_buffer_pool.cc
+[1023/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_buffer.cc.obj
+vk_buffer.cc
+[1024/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_batch.cc.obj
+vk_batch.cc
+[1025/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_common.cc.obj
+vk_common.cc
+[1026/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_context.cc.obj
+vk_context.cc
+[1027/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_backend.cc.obj
+vk_backend.cc
+[1028/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_descriptor_pools.cc.obj
+vk_descriptor_pools.cc
+[1029/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_debug.cc.obj
+vk_debug.cc
+[1030/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_descriptor_set_layouts.cc.obj
+vk_descriptor_set_layouts.cc
+[1031/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_descriptor_set.cc.obj
+vk_descriptor_set.cc
+[1032/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_fence.cc.obj
+vk_fence.cc
+[1033/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_device.cc.obj
+vk_device.cc
+[1034/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_image_view.cc.obj
+vk_image_view.cc
+[1035/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_framebuffer.cc.obj
+vk_framebuffer.cc
+[1036/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_immediate.cc.obj
+vk_immediate.cc
+[1037/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_index_buffer.cc.obj
+vk_index_buffer.cc
+[1038/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_pixel_buffer.cc.obj
+vk_pixel_buffer.cc
+[1039/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_push_constants.cc.obj
+vk_push_constants.cc
+[1040/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_query.cc.obj
+vk_query.cc
+[1041/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_pipeline_pool.cc.obj
+vk_pipeline_pool.cc
+[1042/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\render_graph\vk_command_buffer_wrapper.cc.obj
+vk_command_buffer_wrapper.cc
+[1043/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\render_graph\nodes\vk_pipeline_data.cc.obj
+vk_pipeline_data.cc
+[1044/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_ray_tracing.cc.obj
+vk_ray_tracing.cc
+[1045/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\render_graph\vk_command_builder.cc.obj
+vk_command_builder.cc
+[1046/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\render_graph\vk_render_graph.cc.obj
+vk_render_graph.cc
+[1047/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\render_graph\vk_resource_access_info.cc.obj
+vk_resource_access_info.cc
+[1048/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_sampler.cc.obj
+vk_sampler.cc
+[1049/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_resource_pool.cc.obj
+vk_resource_pool.cc
+[1050/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_shader_compiler.cc.obj
+vk_shader_compiler.cc
+[1051/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_shader_interface.cc.obj
+vk_shader_interface.cc
+[1052/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_staging_buffer.cc.obj
+vk_staging_buffer.cc
+[1053/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_shader_module.cc.obj
+vk_shader_module.cc
+[1054/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_shader.cc.obj
+vk_shader.cc
+[1055/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_state_manager.cc.obj
+vk_state_manager.cc
+[1056/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_streaming_buffer.cc.obj
+vk_streaming_buffer.cc
+[1057/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_storage_buffer.cc.obj
+vk_storage_buffer.cc
+[1058/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_texture.cc.obj
+vk_texture.cc
+[1059/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_uniform_buffer.cc.obj
+vk_uniform_buffer.cc
+[1060/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_vertex_attribute_object_cache.cc.obj
+vk_vertex_attribute_object_cache.cc
+[1061/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_texture_pool.cc.obj
+vk_texture_pool.cc
+[1062/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_vertex_attribute_object.cc.obj
+vk_vertex_attribute_object.cc
+[1063/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_vertex_buffer.cc.obj
+vk_vertex_buffer.cc
+[1064/1362] Building CXX object source\blender\nodes\CMakeFiles\bf_nodes.dir\intern\compositor_gizmos.cc.obj
+compositor_gizmos.cc
+[1065/1362] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_work_in_flight.cc.obj
+vk_work_in_flight.cc
+[1066/1362] Building CXX object source\blender\nodes\CMakeFiles\bf_nodes.dir\intern\compositor_nodes_srna.cc.obj
+compositor_nodes_srna.cc
+[1067/1362] Building CXX object source\blender\nodes\CMakeFiles\bf_nodes.dir\intern\compositor_nodes_caller_ui.cc.obj
+compositor_nodes_caller_ui.cc
+[1068/1362] Building CXX object source\blender\nodes\CMakeFiles\bf_nodes.dir\intern\geometry_nodes_srna.cc.obj
+geometry_nodes_srna.cc
+[1069/1362] Building CXX object source\blender\nodes\CMakeFiles\bf_nodes.dir\intern\node_caller_ui.cc.obj
+node_caller_ui.cc
+[1070/1362] Building CXX object source\blender\nodes\CMakeFiles\bf_nodes.dir\intern\node_rna_define.cc.obj
+node_rna_define.cc
+[1071/1362] Building CXX object source\blender\nodes\CMakeFiles\bf_nodes.dir\intern\node_util.cc.obj
+node_util.cc
+[1072/1362] Building CXX object source\blender\nodes\CMakeFiles\bf_nodes.dir\intern\scene_compositor_effect_inputs_srna.cc.obj
+scene_compositor_effect_inputs_srna.cc
+[1073/1362] Building CXX object source\blender\nodes\CMakeFiles\bf_nodes.dir\intern\geometry_nodes_gizmos.cc.obj
+geometry_nodes_gizmos.cc
+[1074/1362] Building CXX object source\blender\nodes\CMakeFiles\bf_nodes.dir\intern\geometry_nodes_caller_ui.cc.obj
+geometry_nodes_caller_ui.cc
+[1075/1362] Building CXX object source\blender\nodes\CMakeFiles\bf_nodes.dir\intern\socket_search_link.cc.obj
+socket_search_link.cc
+[1076/1362] Building CXX object source\blender\nodes\CMakeFiles\bf_nodes.dir\intern\node_socket.cc.obj
+node_socket.cc
+[1077/1362] Building CXX object source\blender\nodes\CMakeFiles\bf_nodes.dir\intern\node_common.cc.obj
+node_common.cc
+[1078/1362] Building CXX object source\blender\nodes\CMakeFiles\bf_nodes.dir\intern\sync_sockets.cc.obj
+sync_sockets.cc
+[1079/1362] Building CXX object source\blender\nodes\composite\CMakeFiles\bf_nodes_composite.dir\Unity\unity_8_cxx.cxx.obj
+unity_8_cxx.cxx
+[1080/1362] Building CXX object source\blender\nodes\composite\CMakeFiles\bf_nodes_composite.dir\Unity\unity_6_cxx.cxx.obj
+unity_6_cxx.cxx
+[1081/1362] Building CXX object source\blender\nodes\composite\CMakeFiles\bf_nodes_composite.dir\Unity\unity_5_cxx.cxx.obj
+unity_5_cxx.cxx
+[1082/1362] Building CXX object source\blender\nodes\composite\CMakeFiles\bf_nodes_composite.dir\Unity\unity_7_cxx.cxx.obj
+unity_7_cxx.cxx
+[1083/1362] Building CXX object source\blender\nodes\function\CMakeFiles\bf_nodes_function.dir\Unity\unity_5_cxx.cxx.obj
+unity_5_cxx.cxx
+[1084/1362] Building CXX object source\blender\nodes\composite\CMakeFiles\bf_nodes_composite.dir\Unity\unity_2_cxx.cxx.obj
+unity_2_cxx.cxx
+[1085/1362] Building CXX object source\blender\nodes\composite\CMakeFiles\bf_nodes_composite.dir\Unity\unity_3_cxx.cxx.obj
+unity_3_cxx.cxx
+[1086/1362] Building CXX object source\blender\nodes\function\CMakeFiles\bf_nodes_function.dir\Unity\unity_2_cxx.cxx.obj
+unity_2_cxx.cxx
+[1087/1362] Building CXX object source\blender\nodes\function\CMakeFiles\bf_nodes_function.dir\Unity\unity_4_cxx.cxx.obj
+unity_4_cxx.cxx
+[1088/1362] Building CXX object source\blender\nodes\function\CMakeFiles\bf_nodes_function.dir\Unity\unity_3_cxx.cxx.obj
+unity_3_cxx.cxx
+[1089/1362] Building CXX object source\blender\nodes\composite\CMakeFiles\bf_nodes_composite.dir\Unity\unity_1_cxx.cxx.obj
+unity_1_cxx.cxx
+[1090/1362] Building CXX object source\blender\nodes\function\CMakeFiles\bf_nodes_function.dir\Unity\unity_1_cxx.cxx.obj
+unity_1_cxx.cxx
+[1091/1362] Building CXX object source\blender\nodes\geometry\CMakeFiles\bf_nodes_geometry.dir\Unity\unity_24_cxx.cxx.obj
+unity_24_cxx.cxx
+[1092/1362] Building CXX object source\blender\nodes\geometry\CMakeFiles\bf_nodes_geometry.dir\Unity\unity_23_cxx.cxx.obj
+unity_23_cxx.cxx
+[1093/1362] Building CXX object source\blender\nodes\geometry\CMakeFiles\bf_nodes_geometry.dir\Unity\unity_26_cxx.cxx.obj
+unity_26_cxx.cxx
+[1094/1362] Building CXX object source\blender\nodes\geometry\CMakeFiles\bf_nodes_geometry.dir\Unity\unity_25_cxx.cxx.obj
+unity_25_cxx.cxx
+[1095/1362] Building CXX object source\blender\nodes\geometry\CMakeFiles\bf_nodes_geometry.dir\Unity\unity_28_cxx.cxx.obj
+unity_28_cxx.cxx
+[1096/1362] Building CXX object source\blender\nodes\geometry\CMakeFiles\bf_nodes_geometry.dir\Unity\unity_27_cxx.cxx.obj
+unity_27_cxx.cxx
+[1097/1362] Building CXX object source\blender\nodes\function\CMakeFiles\bf_nodes_function.dir\Unity\unity_0_cxx.cxx.obj
+unity_0_cxx.cxx
+[1098/1362] Building CXX object source\blender\nodes\geometry\CMakeFiles\bf_nodes_geometry.dir\Unity\unity_18_cxx.cxx.obj
+unity_18_cxx.cxx
+[1099/1362] Building CXX object source\blender\nodes\geometry\CMakeFiles\bf_nodes_geometry.dir\Unity\unity_19_cxx.cxx.obj
+unity_19_cxx.cxx
+[1100/1362] Building CXX object source\blender\nodes\geometry\CMakeFiles\bf_nodes_geometry.dir\Unity\unity_17_cxx.cxx.obj
+unity_17_cxx.cxx
+[1101/1362] Building CXX object source\blender\nodes\geometry\CMakeFiles\bf_nodes_geometry.dir\Unity\unity_20_cxx.cxx.obj
+unity_20_cxx.cxx
+[1102/1362] Building CXX object source\blender\nodes\geometry\CMakeFiles\bf_nodes_geometry.dir\Unity\unity_16_cxx.cxx.obj
+unity_16_cxx.cxx
+[1103/1362] Building CXX object source\blender\nodes\geometry\CMakeFiles\bf_nodes_geometry.dir\Unity\unity_12_cxx.cxx.obj
+unity_12_cxx.cxx
+[1104/1362] Building CXX object source\blender\nodes\geometry\CMakeFiles\bf_nodes_geometry.dir\Unity\unity_14_cxx.cxx.obj
+unity_14_cxx.cxx
+[1105/1362] Building CXX object source\blender\nodes\geometry\CMakeFiles\bf_nodes_geometry.dir\Unity\unity_15_cxx.cxx.obj
+unity_15_cxx.cxx
+[1106/1362] Building CXX object source\blender\nodes\geometry\CMakeFiles\bf_nodes_geometry.dir\Unity\unity_22_cxx.cxx.obj
+unity_22_cxx.cxx
+[1107/1362] Building CXX object source\blender\nodes\geometry\CMakeFiles\bf_nodes_geometry.dir\Unity\unity_11_cxx.cxx.obj
+unity_11_cxx.cxx
+[1108/1362] Building CXX object source\blender\nodes\geometry\CMakeFiles\bf_nodes_geometry.dir\Unity\unity_21_cxx.cxx.obj
+unity_21_cxx.cxx
+[1109/1362] Building CXX object source\blender\nodes\geometry\CMakeFiles\bf_nodes_geometry.dir\Unity\unity_7_cxx.cxx.obj
+unity_7_cxx.cxx
+[1110/1362] Building CXX object source\blender\nodes\geometry\CMakeFiles\bf_nodes_geometry.dir\Unity\unity_5_cxx.cxx.obj
+unity_5_cxx.cxx
+[1111/1362] Building CXX object source\blender\nodes\geometry\CMakeFiles\bf_nodes_geometry.dir\Unity\unity_3_cxx.cxx.obj
+unity_3_cxx.cxx
+[1112/1362] Building CXX object source\blender\nodes\geometry\CMakeFiles\bf_nodes_geometry.dir\Unity\unity_10_cxx.cxx.obj
+unity_10_cxx.cxx
+[1113/1362] Building CXX object source\blender\nodes\geometry\CMakeFiles\bf_nodes_geometry.dir\Unity\unity_4_cxx.cxx.obj
+unity_4_cxx.cxx
+[1114/1362] Building CXX object source\blender\nodes\shader\CMakeFiles\bf_nodes_shader.dir\Unity\unity_9_cxx.cxx.obj
+unity_9_cxx.cxx
+[1115/1362] Building CXX object source\blender\nodes\shader\CMakeFiles\bf_nodes_shader.dir\Unity\unity_5_cxx.cxx.obj
+unity_5_cxx.cxx
+[1116/1362] Building CXX object source\blender\nodes\geometry\CMakeFiles\bf_nodes_geometry.dir\Unity\unity_2_cxx.cxx.obj
+unity_2_cxx.cxx
+[1117/1362] Building CXX object source\blender\nodes\texture\CMakeFiles\bf_nodes_texture.dir\node_texture_tree.cc.obj
+node_texture_tree.cc
+[1118/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_armature.cc.obj
+MOD_armature.cc
+[1119/1362] Building CXX object source\blender\nodes\geometry\CMakeFiles\bf_nodes_geometry.dir\Unity\unity_6_cxx.cxx.obj
+unity_6_cxx.cxx
+[1120/1362] Building CXX object source\blender\nodes\geometry\CMakeFiles\bf_nodes_geometry.dir\Unity\unity_1_cxx.cxx.obj
+unity_1_cxx.cxx
+[1121/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_bevel.cc.obj
+MOD_bevel.cc
+[1122/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_array.cc.obj
+MOD_array.cc
+[1123/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_boolean.cc.obj
+MOD_boolean.cc
+[1124/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_build.cc.obj
+MOD_build.cc
+[1125/1362] Building CXX object source\blender\nodes\geometry\CMakeFiles\bf_nodes_geometry.dir\Unity\unity_0_cxx.cxx.obj
+unity_0_cxx.cxx
+[1126/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_cast.cc.obj
+MOD_cast.cc
+[1127/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_cloth.cc.obj
+MOD_cloth.cc
+[1128/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_collision.cc.obj
+MOD_collision.cc
+[1129/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_curve.cc.obj
+MOD_curve.cc
+[1130/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_datatransfer.cc.obj
+MOD_datatransfer.cc
+[1131/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_correctivesmooth.cc.obj
+MOD_correctivesmooth.cc
+[1132/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_decimate.cc.obj
+MOD_decimate.cc
+[1133/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_dynamicpaint.cc.obj
+MOD_dynamicpaint.cc
+[1134/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_edgesplit.cc.obj
+MOD_edgesplit.cc
+[1135/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_displace.cc.obj
+MOD_displace.cc
+[1136/1362] Building CXX object source\blender\nodes\shader\CMakeFiles\bf_nodes_shader.dir\Unity\unity_4_cxx.cxx.obj
+unity_4_cxx.cxx
+[1137/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_fluid.cc.obj
+MOD_fluid.cc
+[1138/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_explode.cc.obj
+MOD_explode.cc
+[1139/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_grease_pencil_armature.cc.obj
+MOD_grease_pencil_armature.cc
+[1140/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_grease_pencil_array.cc.obj
+MOD_grease_pencil_array.cc
+[1141/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_grease_pencil_build.cc.obj
+MOD_grease_pencil_build.cc
+[1142/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_grease_pencil_color.cc.obj
+MOD_grease_pencil_color.cc
+[1143/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_grease_pencil_envelope.cc.obj
+MOD_grease_pencil_envelope.cc
+[1144/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_grease_pencil_dash.cc.obj
+MOD_grease_pencil_dash.cc
+[1145/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_grease_pencil_hook.cc.obj
+MOD_grease_pencil_hook.cc
+[1146/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_grease_pencil_lattice.cc.obj
+MOD_grease_pencil_lattice.cc
+[1147/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_grease_pencil_mirror.cc.obj
+MOD_grease_pencil_mirror.cc
+[1148/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_grease_pencil_length.cc.obj
+MOD_grease_pencil_length.cc
+[1149/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_grease_pencil_noise.cc.obj
+MOD_grease_pencil_noise.cc
+[1150/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_grease_pencil_opacity.cc.obj
+MOD_grease_pencil_opacity.cc
+[1151/1362] Building CXX object source\blender\nodes\geometry\CMakeFiles\bf_nodes_geometry.dir\Unity\unity_8_cxx.cxx.obj
+unity_8_cxx.cxx
+[1152/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_grease_pencil_multiply.cc.obj
+MOD_grease_pencil_multiply.cc
+[1153/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_grease_pencil_offset.cc.obj
+MOD_grease_pencil_offset.cc
+[1154/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_grease_pencil_outline.cc.obj
+MOD_grease_pencil_outline.cc
+[1155/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_grease_pencil_shrinkwrap.cc.obj
+MOD_grease_pencil_shrinkwrap.cc
+[1156/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_grease_pencil_subdiv.cc.obj
+MOD_grease_pencil_subdiv.cc
+[1157/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_grease_pencil_smooth.cc.obj
+MOD_grease_pencil_smooth.cc
+[1158/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_grease_pencil_simplify.cc.obj
+MOD_grease_pencil_simplify.cc
+[1159/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_grease_pencil_thickness.cc.obj
+MOD_grease_pencil_thickness.cc
+[1160/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_grease_pencil_texture.cc.obj
+MOD_grease_pencil_texture.cc
+[1161/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_grease_pencil_time.cc.obj
+MOD_grease_pencil_time.cc
+[1162/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_laplaciandeform.cc.obj
+MOD_laplaciandeform.cc
+[1163/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_grease_pencil_weight_angle.cc.obj
+MOD_grease_pencil_weight_angle.cc
+[1164/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_grease_pencil_weight_proximity.cc.obj
+MOD_grease_pencil_weight_proximity.cc
+[1165/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_hook.cc.obj
+MOD_hook.cc
+[1166/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_grease_pencil_tint.cc.obj
+MOD_grease_pencil_tint.cc
+[1167/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_grease_pencil_util.cc.obj
+MOD_grease_pencil_util.cc
+[1168/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_laplaciansmooth.cc.obj
+MOD_laplaciansmooth.cc
+[1169/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_lattice.cc.obj
+MOD_lattice.cc
+[1170/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_meshdeform.cc.obj
+MOD_meshdeform.cc
+[1171/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_mesh_to_volume.cc.obj
+MOD_mesh_to_volume.cc
+[1172/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_mask.cc.obj
+MOD_mask.cc
+[1173/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_meshcache.cc.obj
+MOD_meshcache.cc
+[1174/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_mirror.cc.obj
+MOD_mirror.cc
+[1175/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_lineart.cc.obj
+MOD_lineart.cc
+[1176/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_none.cc.obj
+MOD_none.cc
+[1177/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_meshsequencecache.cc.obj
+MOD_meshsequencecache.cc
+[1178/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_multires.cc.obj
+MOD_multires.cc
+[1179/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_remesh.cc.obj
+MOD_remesh.cc
+[1180/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_normal_edit.cc.obj
+MOD_normal_edit.cc
+[1181/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_particlesystem.cc.obj
+MOD_particlesystem.cc
+[1182/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_particleinstance.cc.obj
+MOD_particleinstance.cc
+[1183/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_ocean.cc.obj
+MOD_ocean.cc
+[1184/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_shapekey.cc.obj
+MOD_shapekey.cc
+[1185/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_simpledeform.cc.obj
+MOD_simpledeform.cc
+[1186/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_shrinkwrap.cc.obj
+MOD_shrinkwrap.cc
+[1187/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_smooth.cc.obj
+MOD_smooth.cc
+[1188/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_screw.cc.obj
+MOD_screw.cc
+[1189/1362] Building CXX object source\blender\nodes\geometry\CMakeFiles\bf_nodes_geometry.dir\Unity\unity_9_cxx.cxx.obj
+unity_9_cxx.cxx
+[1190/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_softbody.cc.obj
+MOD_softbody.cc
+[1191/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_skin.cc.obj
+MOD_skin.cc
+[1192/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_solidify.cc.obj
+MOD_solidify.cc
+[1193/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_surface.cc.obj
+MOD_surface.cc
+[1194/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_triangulate.cc.obj
+MOD_triangulate.cc
+[1195/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_nodes.cc.obj
+MOD_nodes.cc
+[1196/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_surfacedeform.cc.obj
+MOD_surfacedeform.cc
+[1197/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_subsurf.cc.obj
+MOD_subsurf.cc
+[1198/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_ui_common.cc.obj
+MOD_ui_common.cc
+[1199/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_uvproject.cc.obj
+MOD_uvproject.cc
+[1200/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_warp.cc.obj
+MOD_warp.cc
+[1201/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_uvwarp.cc.obj
+MOD_uvwarp.cc
+[1202/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_wave.cc.obj
+MOD_wave.cc
+[1203/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_weightvg_util.cc.obj
+MOD_weightvg_util.cc
+[1204/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_volume_to_mesh.cc.obj
+MOD_volume_to_mesh.cc
+[1205/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_weightvgedit.cc.obj
+MOD_weightvgedit.cc
+[1206/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_weightvgmix.cc.obj
+MOD_weightvgmix.cc
+[1207/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_weighted_normal.cc.obj
+MOD_weighted_normal.cc
+[1208/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_weightvgproximity.cc.obj
+MOD_weightvgproximity.cc
+[1209/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_weld.cc.obj
+MOD_weld.cc
+[1210/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_wireframe.cc.obj
+MOD_wireframe.cc
+[1211/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\lineart\lineart_util.cc.obj
+lineart_util.cc
+[1212/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\lineart\lineart_chain.cc.obj
+lineart_chain.cc
+[1213/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\lineart\lineart_shadow.cc.obj
+lineart_shadow.cc
+[1214/1362] Building CXX object source\blender\sequencer\CMakeFiles\bf_sequencer.dir\intern\cache\thumbnail_cache.cc.obj
+thumbnail_cache.cc
+[1215/1362] Building CXX object source\blender\sequencer\CMakeFiles\bf_sequencer.dir\intern\effects\effect_speed.cc.obj
+effect_speed.cc
+[1216/1362] Building CXX object source\blender\sequencer\CMakeFiles\bf_sequencer.dir\intern\effects\effect_compositor.cc.obj
+effect_compositor.cc
+[1217/1362] Building CXX object source\blender\sequencer\CMakeFiles\bf_sequencer.dir\intern\modifiers\MOD_brightness_contrast.cc.obj
+MOD_brightness_contrast.cc
+[1218/1362] Building CXX object source\blender\sequencer\CMakeFiles\bf_sequencer.dir\intern\effects\effects.cc.obj
+effects.cc
+[1219/1362] Building CXX object source\blender\sequencer\CMakeFiles\bf_sequencer.dir\intern\modifiers\MOD_color_balance.cc.obj
+MOD_color_balance.cc
+[1220/1362] Building CXX object source\blender\sequencer\CMakeFiles\bf_sequencer.dir\intern\modifiers\MOD_curves.cc.obj
+MOD_curves.cc
+[1221/1362] Building CXX object source\blender\sequencer\CMakeFiles\bf_sequencer.dir\intern\modifiers\MOD_hue_correct.cc.obj
+MOD_hue_correct.cc
+[1222/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\lineart\lineart_cpu.cc.obj
+lineart_cpu.cc
+[1223/1362] Building CXX object source\blender\sequencer\CMakeFiles\bf_sequencer.dir\intern\modifiers\MOD_mask.cc.obj
+MOD_mask.cc
+[1224/1362] Building CXX object source\blender\sequencer\CMakeFiles\bf_sequencer.dir\intern\modifiers\MOD_sound_echo.cc.obj
+MOD_sound_echo.cc
+[1225/1362] Building CXX object source\blender\sequencer\CMakeFiles\bf_sequencer.dir\intern\modifiers\MOD_sound_equalizer.cc.obj
+MOD_sound_equalizer.cc
+[1226/1362] Building CXX object source\blender\sequencer\CMakeFiles\bf_sequencer.dir\intern\modifiers\MOD_compositor.cc.obj
+MOD_compositor.cc
+[1227/1362] Building CXX object source\blender\sequencer\CMakeFiles\bf_sequencer.dir\intern\modifiers\MOD_sound_pitch.cc.obj
+MOD_sound_pitch.cc
+[1228/1362] Building CXX object source\blender\sequencer\CMakeFiles\bf_sequencer.dir\intern\modifiers\MOD_white_balance.cc.obj
+MOD_white_balance.cc
+[1229/1362] Building CXX object source\blender\sequencer\CMakeFiles\bf_sequencer.dir\intern\modifiers\MOD_tonemap.cc.obj
+MOD_tonemap.cc
+[1230/1362] Building CXX object source\blender\sequencer\CMakeFiles\bf_sequencer.dir\intern\proxy_job.cc.obj
+proxy_job.cc
+[1231/1362] Building CXX object source\blender\sequencer\CMakeFiles\bf_sequencer.dir\intern\proxy.cc.obj
+proxy.cc
+[1232/1362] Building CXX object source\blender\sequencer\CMakeFiles\bf_sequencer.dir\intern\modifiers\modifier.cc.obj
+modifier.cc
+[1233/1362] Building CXX object source\blender\shader_fx\CMakeFiles\bf_shader_fx.dir\intern\FX_ui_common.cc.obj
+FX_ui_common.cc
+[1234/1362] Building CXX object source\blender\io\ply\CMakeFiles\bf_io_ply.dir\exporter\ply_export.cc.obj
+ply_export.cc
+[1235/1362] Building CXX object source\blender\sequencer\CMakeFiles\bf_sequencer.dir\intern\render.cc.obj
+render.cc
+[1236/1362] Building CXX object source\blender\io\stl\CMakeFiles\bf_io_stl.dir\exporter\stl_export.cc.obj
+stl_export.cc
+[1237/1362] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_asset_utils.cc.obj
+usd_asset_utils.cc
+[1238/1362] Building CXX object source\blender\io\grease_pencil\CMakeFiles\bf_io_grease_pencil.dir\intern\grease_pencil_io_import_svg.cc.obj
+grease_pencil_io_import_svg.cc
+[1239/1362] Building CXX object source\blender\io\grease_pencil\CMakeFiles\bf_io_grease_pencil.dir\intern\grease_pencil_io.cc.obj
+grease_pencil_io.cc
+[1240/1362] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_capi_import.cc.obj
+usd_capi_import.cc
+[1241/1362] Building CXX object source\blender\io\alembic\CMakeFiles\bf_io_alembic.dir\exporter\abc_export_capi.cc.obj
+abc_export_capi.cc
+[1242/1362] Building CXX object source\blender\io\alembic\CMakeFiles\bf_io_alembic.dir\intern\alembic_capi.cc.obj
+alembic_capi.cc
+[1243/1362] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_capi_export.cc.obj
+usd_capi_export.cc
+[1244/1362] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_hierarchy_iterator.cc.obj
+usd_hierarchy_iterator.cc
+[1245/1362] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_prim.cc.obj
+usd_reader_prim.cc
+[1246/1362] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_hook.cc.obj
+usd_hook.cc
+[1247/1362] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_writer_abstract.cc.obj
+usd_writer_abstract.cc
+[1248/1362] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_skel_root_utils.cc.obj
+usd_skel_root_utils.cc
+[1249/1362] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_material.cc.obj
+usd_reader_material.cc
+[1250/1362] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\hydra\usd_scene_index.cc.obj
+usd_scene_index.cc
+[1251/1362] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_writer_material.cc.obj
+usd_writer_material.cc
+[1252/1362] Building CXX object source\blender\python\intern\CMakeFiles\bf_python.dir\bpy.cc.obj
+bpy.cc
+[1253/1362] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_stage.cc.obj
+usd_reader_stage.cc
+[1254/1362] Building CXX object source\blender\python\intern\CMakeFiles\bf_python.dir\bpy_driver.cc.obj
+bpy_driver.cc
+[1255/1362] Building CXX object source\blender\python\intern\CMakeFiles\bf_python.dir\bpy_app.cc.obj
+bpy_app.cc
+[1256/1362] Building CXX object source\blender\compositor\CMakeFiles\bf_compositor.dir\intern\scene_compositor_effects_operation.cc.obj
+scene_compositor_effects_operation.cc
+[1257/1362] Building CXX object source\blender\python\intern\CMakeFiles\bf_python.dir\bpy_msgbus.cc.obj
+bpy_msgbus.cc
+[1258/1362] Building CXX object source\blender\python\intern\CMakeFiles\bf_python.dir\bpy_gizmo_wrap.cc.obj
+bpy_gizmo_wrap.cc
+[1259/1362] Building CXX object source\blender\python\intern\CMakeFiles\bf_python.dir\bpy_geometry_set.cc.obj
+bpy_geometry_set.cc
+[1260/1362] Building CXX object source\blender\python\intern\CMakeFiles\bf_python.dir\bpy_interface_atexit.cc.obj
+bpy_interface_atexit.cc
+[1261/1362] Building CXX object source\blender\python\intern\CMakeFiles\bf_python.dir\bpy_operator.cc.obj
+bpy_operator.cc
+[1262/1362] Building CXX object source\blender\python\intern\CMakeFiles\bf_python.dir\bpy_operator_wrap.cc.obj
+bpy_operator_wrap.cc
+[1263/1362] Building CXX object source\blender\python\intern\CMakeFiles\bf_python.dir\bpy_props.cc.obj
+bpy_props.cc
+[1264/1362] Building CXX object source\blender\python\intern\CMakeFiles\bf_python.dir\bpy_operator_function.cc.obj
+bpy_operator_function.cc
+[1265/1362] Building CXX object source\blender\python\intern\CMakeFiles\bf_python.dir\bpy_rna_anim.cc.obj
+bpy_rna_anim.cc
+[1266/1362] Building CXX object source\blender\python\intern\CMakeFiles\bf_python.dir\bpy_rna_callback.cc.obj
+bpy_rna_callback.cc
+[1267/1362] Building CXX object source\blender\python\intern\CMakeFiles\bf_python.dir\bpy_rna_data.cc.obj
+bpy_rna_data.cc
+[1268/1362] Building CXX object source\blender\python\intern\CMakeFiles\bf_python.dir\bpy_rna_context.cc.obj
+bpy_rna_context.cc
+[1269/1362] Building CXX object source\blender\python\intern\CMakeFiles\bf_python.dir\bpy_rna_gizmo.cc.obj
+bpy_rna_gizmo.cc
+[1270/1362] Building CXX object source\blender\python\intern\CMakeFiles\bf_python.dir\bpy_rna_id_collection.cc.obj
+bpy_rna_id_collection.cc
+[1271/1362] Building CXX object source\blender\python\intern\CMakeFiles\bf_python.dir\bpy_rna_types_capi.cc.obj
+bpy_rna_types_capi.cc
+[1272/1362] Building CXX object source\blender\python\intern\CMakeFiles\bf_python.dir\bpy_rna.cc.obj
+bpy_rna.cc
+[1273/1362] Linking CXX static library lib\bf_intern_cycles.lib
+[1274/1362] Building CXX object source\blender\python\intern\CMakeFiles\bf_python.dir\bpy_rna_text.cc.obj
+bpy_rna_text.cc
+[1275/1362] Linking CXX static library lib\bf_intern_ghost.lib
+[1276/1362] Building CXX object source\blender\python\intern\CMakeFiles\bf_python.dir\bpy_utils_previews.cc.obj
+bpy_utils_previews.cc
+[1277/1362] Linking CXX static library lib\bf_editor_animation.lib
+[1278/1362] Building CXX object source\blender\python\intern\CMakeFiles\bf_python.dir\bpy_rna_wm.cc.obj
+bpy_rna_wm.cc
+[1279/1362] Linking CXX static library lib\bf_editor_armature.lib
+[1280/1362] Building CXX object source\blender\freestyle\CMakeFiles\bf_freestyle.dir\intern\python\BPy_Freestyle.cpp.obj
+BPy_Freestyle.cpp
+[1281/1362] Linking CXX static library lib\bf_editor_asset.lib
+[1282/1362] Building CXX object source\blender\python\gpu\CMakeFiles\bf_python_gpu.dir\gpu_py_api.cc.obj
+gpu_py_api.cc
+[1283/1362] Linking CXX static library lib\bf_editor_curve.lib
+[1284/1362] Linking CXX static library lib\bf_editor_curves.lib
+[1285/1362] Linking CXX static library lib\bf_editor_geometry.lib
+[1286/1362] Linking CXX static library lib\bf_editor_gizmo_library.lib
+[1287/1362] Linking CXX static library lib\bf_editor_gpencil_legacy.lib
+[1288/1362] Linking CXX static library lib\bf_editor_grease_pencil.lib
+[1289/1362] Linking CXX static library lib\bf_editor_id_management.lib
+[1290/1362] Linking CXX static library lib\bf_editor_interface.lib
+[1291/1362] Linking CXX static library lib\bf_editor_io.lib
+[1292/1362] Linking CXX static library lib\bf_editor_lattice.lib
+[1293/1362] Linking CXX static library lib\bf_editor_mask.lib
+[1294/1362] Linking CXX static library lib\bf_editor_mesh.lib
+[1295/1362] Linking CXX static library lib\bf_editor_metaball.lib
+[1296/1362] Linking CXX static library lib\bf_editor_object.lib
+[1297/1362] Linking CXX static library lib\bf_editor_physics.lib
+[1298/1362] Linking CXX static library lib\bf_editor_pointcloud.lib
+[1299/1362] Linking CXX static library lib\bf_editor_render.lib
+[1300/1362] Linking CXX static library lib\bf_editor_scene.lib
+[1301/1362] Building CXX object source\creator\CMakeFiles\blender.dir\creator_args.cc.obj
+creator_args.cc
+[1302/1362] Building CXX object source\blender\freestyle\CMakeFiles\bf_freestyle.dir\intern\blender_interface\BlenderStrokeRenderer.cpp.obj
+BlenderStrokeRenderer.cpp
+[1303/1362] Building CXX object source\creator\CMakeFiles\blender.dir\creator.cc.obj
+creator.cc
+[1304/1362] Linking CXX static library lib\bf_editor_sculpt_paint.lib
+[1305/1362] Linking CXX static library lib\bf_editor_sound.lib
+[1306/1362] Linking CXX static library lib\bf_editor_space_action.lib
+[1307/1362] Linking CXX static library lib\bf_editor_space_api.lib
+[1308/1362] Linking CXX static library lib\bf_editor_space_buttons.lib
+[1309/1362] Linking CXX static library lib\bf_editor_space_clip.lib
+[1310/1362] Linking CXX static library lib\bf_editor_space_console.lib
+[1311/1362] Linking CXX static library lib\bf_editor_space_file.lib
+[1312/1362] Linking CXX static library lib\bf_editor_space_graph.lib
+[1313/1362] Linking CXX static library lib\bf_editor_space_image.lib
+[1314/1362] Linking CXX static library lib\bf_editor_space_info.lib
+[1315/1362] Linking CXX static library lib\bf_editor_space_nla.lib
+[1316/1362] Linking CXX static library lib\bf_editor_space_node.lib
+[1317/1362] Linking CXX static library lib\bf_editor_space_outliner.lib
+[1318/1362] Linking CXX static library lib\bf_editor_space_project.lib
+[1319/1362] Linking CXX static library lib\bf_editor_space_script.lib
+[1320/1362] Linking CXX static library lib\bf_editor_space_sequencer.lib
+[1321/1362] Linking CXX static library lib\bf_editor_space_spreadsheet.lib
+[1322/1362] Linking CXX static library lib\bf_editor_space_statusbar.lib
+[1323/1362] Linking CXX static library lib\bf_editor_space_text.lib
+[1324/1362] Linking CXX static library lib\bf_editor_space_topbar.lib
+[1325/1362] Linking CXX static library lib\bf_editor_space_userpref.lib
+[1326/1362] Linking CXX static library lib\bf_editor_space_view3d.lib
+[1327/1362] Linking CXX static library lib\bf_editor_transform.lib
+[1328/1362] Linking CXX static library lib\bf_editor_undo.lib
+[1329/1362] Linking CXX static library lib\bf_editor_util.lib
+[1330/1362] Linking CXX static library lib\bf_editor_uvedit.lib
+[1331/1362] Linking CXX static library lib\bf_editor_screen.lib
+[1332/1362] Linking CXX static library lib\bf_windowmanager.lib
+[1333/1362] Linking CXX static library lib\bf_animrig.lib
+[1334/1362] Linking CXX static library lib\bf_asset_system.lib
+[1335/1362] Linking CXX static library lib\bf_blenkernel.lib
+[1336/1362] Linking CXX static library lib\bf_draw.lib
+[1337/1362] Linking CXX static library lib\bf_render.lib
+[1338/1362] Linking CXX static library lib\bf_render_hydra.lib
+[1339/1362] Linking CXX static library lib\bf_blenloader.lib
+[1340/1362] Linking CXX static library lib\bf_depsgraph.lib
+[1341/1362] Linking CXX static library lib\bf_gpu.lib
+[1342/1362] Linking CXX static library lib\bf_nodes.lib
+[1343/1362] Linking CXX static library lib\bf_nodes_composite.lib
+[1344/1362] Linking CXX static library lib\bf_nodes_function.lib
+[1345/1362] Linking CXX static library lib\bf_nodes_geometry.lib
+[1346/1362] Linking CXX static library lib\bf_nodes_shader.lib
+[1347/1362] Linking CXX static library lib\bf_nodes_texture.lib
+[1348/1362] Linking CXX static library lib\bf_sequencer.lib
+[1349/1362] Linking CXX static library lib\bf_shader_fx.lib
+[1350/1362] Linking CXX static library lib\bf_io_ply.lib
+[1351/1362] Linking CXX static library lib\bf_io_stl.lib
+[1352/1362] Linking CXX static library lib\bf_io_grease_pencil.lib
+[1353/1362] Linking CXX static library lib\bf_io_alembic.lib
+[1354/1362] Linking CXX static library lib\bf_io_usd.lib
+[1355/1362] Linking CXX static library lib\bf_compositor.lib
+[1356/1362] Linking CXX static library lib\bf_python.lib
+[1357/1362] Linking CXX static library lib\bf_python_gpu.lib
+[1358/1362] Linking CXX static library lib\bf_freestyle.lib
+[1359/1362] Building CXX object source\blender\modifiers\CMakeFiles\bf_modifiers.dir\intern\MOD_volume_displace.cc.obj
+MOD_volume_displace.cc
+[1360/1362] Linking CXX static library lib\bf_modifiers.lib
+[1361/1362] Linking CXX executable bin\blender.exe; Stripping PDB file...
+Run: "ninja install" to copy runtime files and scripts to: C:/dev/blender/build_windows_x64_clang_RelWithDebInfo/bin/5.3
+[1361/1362] Install the project...
+-- Install configuration: "Release"
+-- Installing: C:/dev/blender/build_windows_x64_clang_RelWithDebInfo/bin/./blender.pdb

@@ -1,0 +1,15 @@
+{
+  "suite": "test_brush_declarations",
+  "command": [
+    "C:\\Program Files\\nodejs\\node.EXE",
+    "make.mjs",
+    "test",
+    "test_brush_declarations"
+  ],
+  "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_brush_declarations.cc_out.exe",
+  "returncode": 0,
+  "passed": true,
+  "binary_sha256": "a805f59cc96d48ce3682a42578c183fccdc4abfe9ab491543819c5b3c312d0ad",
+  "stdout": "",
+  "stderr": "uniform declaration 'nu': registration error 64\r\nuniform declaration 'projection': registration error 64\r\nextra-kernel failed registration preserves working slots\r\nuniform declaration 'projection': registration error 64\r\nuniform declaration 'projection': registration error 64\r\nuniform declaration 'projection': registration error 64\r\nuniform declaration 'projection': registration error 64\r\nuniform declaration 'projection': registration error 64\r\nuniform declaration 'projection': registration error 64\r\nuniform declaration 'projection': registration error 64\r\nuniform declaration 'projection': registration error 64\r\n"
+}

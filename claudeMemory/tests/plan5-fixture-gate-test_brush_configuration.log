@@ -1,0 +1,15 @@
+{
+  "suite": "test_brush_configuration",
+  "command": [
+    "C:\\Program Files\\nodejs\\node.EXE",
+    "make.mjs",
+    "test",
+    "test_brush_configuration"
+  ],
+  "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_brush_configuration.cc_out.exe",
+  "returncode": 1,
+  "passed": false,
+  "binary_sha256": "51fd2cec620d41def44071d6ac59e1b2b254aa065a2a54678dad3a1740d04d51",
+  "stdout": "\"CurveGen:16\"  (000002A5EFC70950)\r\n\"make_prop:1720\"  (000002A5EFC86F80)\r\n\"make_prop:1720\"  (000002A5EFC87680)\r\n\"make_prop:1720\"  (000002A5EFC87D80)\r\n\"make_prop:1720\"  (000002A5EFC88480)\r\n\"make_prop:1720\"  (000002A5EFC88B80)\r\n\"make_prop:1712\"  (000002A5EFC89280)\r\n\"Vector data:1544\"  (000002A5EFC89970)\r\n",
+  "stderr": "brush property 'legacy': configuration error 1\r\nCommand failed: build\\native\\tests\\test_brush_configuration.cc_out.exe\n"
+}

@@ -1,0 +1,15 @@
+{
+  "suite": "test_brush_typed_extras",
+  "command": [
+    "C:\\Program Files\\nodejs\\node.EXE",
+    "make.mjs",
+    "test",
+    "test_brush_typed_extras"
+  ],
+  "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_brush_typed_extras.cc_out.exe",
+  "returncode": 0,
+  "passed": true,
+  "binary_sha256": "cffe89f41460563f6b851894aa589e6f0083c040b84de369a9217c8c22558940",
+  "stdout": "",
+  "stderr": "prepared scalar compiler capability guards passed\r\ntyped extra fixture not compiled; compiler boundaries only\r\n"
+}

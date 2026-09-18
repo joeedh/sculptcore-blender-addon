@@ -1,0 +1,236 @@
+{
+  "changed": [
+    {
+      "path": "python/sculptcore/brush_properties.py",
+      "removed_header": "# SPDX-FileCopyrightText: 2026 Blender Authors\n# SPDX-License-Identifier: GPL-2.0-or-later\n",
+      "before_sha256": "dde8d7666ceab57e1d7949bc0c2344d5a3ad48825c16e5a7ef2547eca58939df",
+      "after_sha256": "9219a92d777211b43f7c14a06940359e70121406295984d9fa5e86455ed80ce5"
+    },
+    {
+      "path": "source/brush/brush.cc",
+      "removed_header": "/* SPDX-FileCopyrightText: 2026 Blender Authors\n *\n * SPDX-License-Identifier: GPL-2.0-or-later */\n\n",
+      "before_sha256": "7fffefa04ceec5f20ba2c8e8be1b7baae5742c033beed3148d02a787c45505f3",
+      "after_sha256": "0df5c91acba87a569ac4b8889fe04efd8396cb06d930f9aa3260ae533f7369e8"
+    },
+    {
+      "path": "source/brush/brush_configuration.cc",
+      "removed_header": "/* SPDX-FileCopyrightText: 2026 Blender Authors\n *\n * SPDX-License-Identifier: GPL-2.0-or-later */\n\n",
+      "before_sha256": "3ee99e6226f8d2d08df51e13daecc85b1e0612a1113fc9b831fe6f6975138864",
+      "after_sha256": "9b2ebdabb1445fa648d3ad2cf9bac44126ef473ca9fc5111daedbfeb8e3a7c0d"
+    },
+    {
+      "path": "source/brush/brush_configuration.h",
+      "removed_header": "/* SPDX-FileCopyrightText: 2026 Blender Authors\n *\n * SPDX-License-Identifier: GPL-2.0-or-later */\n",
+      "before_sha256": "273de12fa96e7f23733e964204748977397a5973b5088ae37d85caec7784efb8",
+      "after_sha256": "5c7c187c9ceb25399a0d72108d5daa82ba602d1365072ecdf4a00088194cc580"
+    },
+    {
+      "path": "source/brush/brush_executor.cc",
+      "removed_header": "/* SPDX-FileCopyrightText: 2026 Blender Authors\r\n *\r\n * SPDX-License-Identifier: GPL-2.0-or-later */\r\n",
+      "before_sha256": "b2c474af084ce652f5a858ff1879344a78dd1b2d6a771f8646bb035ace0ab528",
+      "after_sha256": "bad6f8410bc0b3b86c41c7765b6b997e0c166f39d724e34543e1b4843cc3c1ac"
+    },
+    {
+      "path": "source/brush/brush_preparation.cc",
+      "removed_header": "/* SPDX-FileCopyrightText: 2026 Blender Authors\r\n *\r\n * SPDX-License-Identifier: GPL-2.0-or-later */\r\n\r\n",
+      "before_sha256": "051a716ec7365680340bb7a74a25743f50878c85803725e9b24ed7ab7af1acdc",
+      "after_sha256": "1ce9b3102073933a4c4b2c0021ed117e851b266f380cb0c36d377835fd19b2ff"
+    },
+    {
+      "path": "source/brush/brush_preparation.h",
+      "removed_header": "/* SPDX-FileCopyrightText: 2026 Blender Authors\n *\n * SPDX-License-Identifier: GPL-2.0-or-later */\n\n",
+      "before_sha256": "447a35a619fb23ef23cb4d2577d4f450a303dc293080cfcfc77a395539f85f43",
+      "after_sha256": "85a78f1af9426b2ba44dd6c2d55f19fddeddd7752dd3093aa5ccf2dc700a5446"
+    },
+    {
+      "path": "source/brush/brush_program_preparation.cc",
+      "removed_header": "/* SPDX-FileCopyrightText: 2026 Blender Authors\r\n *\r\n * SPDX-License-Identifier: GPL-2.0-or-later */\r\n\r\n",
+      "before_sha256": "669c4f176a01feeb7b596e7a00d83739c16351dcb2f10f15ab5966e68b65df71",
+      "after_sha256": "b745588c27e113d2596c0412df8c29230e733034e88d14a33cb040e26a3c895e"
+    },
+    {
+      "path": "source/brush/brush_program_preparation.h",
+      "removed_header": "/* SPDX-FileCopyrightText: 2026 Blender Authors\n *\n * SPDX-License-Identifier: GPL-2.0-or-later */\n\n",
+      "before_sha256": "e8dad9ef9cf5fbb0c01631dbc11828e4c2e986c7a820a63f76a9aa29cee3025a",
+      "after_sha256": "437644ab3e015f238de62b8f1500120d148384f46221dacf4dfe529a05749838"
+    },
+    {
+      "path": "source/brush/c-api/dab_inputs.h",
+      "removed_header": "/* SPDX-FileCopyrightText: 2026 Blender Authors\r\n * SPDX-License-Identifier: GPL-2.0-or-later */\r\n",
+      "before_sha256": "f5b4437a900ded6deb6f898f1e8939984178118aa0029f2e7b459e7e2271e5eb",
+      "after_sha256": "d9d340e36c48a994f83b07101e52494f87edb4d25f31d5581f144adada5cfed9"
+    },
+    {
+      "path": "source/brush/c-api/stroke_inputs.h",
+      "removed_header": "/* SPDX-FileCopyrightText: 2026 Blender Authors\n * SPDX-License-Identifier: GPL-2.0-or-later */\n",
+      "before_sha256": "d231d3269dce6f1c61f37d010e1f6bb8c85d1458a19f6142030eae5cfe3e2e63",
+      "after_sha256": "183282c6baef3dbb02ae714edeb17cce345c53dd6ca652c124e7152c47b6fb8a"
+    },
+    {
+      "path": "source/brush/compiler/prepared_preludes.h",
+      "removed_header": "/* SPDX-FileCopyrightText: 2026 Blender Authors\n *\n * SPDX-License-Identifier: GPL-2.0-or-later */\n",
+      "before_sha256": "6bc47a11021179ea0276484e066e06722f177533461936804f2d2f869af5193e",
+      "after_sha256": "1c3c44febbca638d7bdfcab27a28000b52e8e87b79b1b58de3061774265026de"
+    },
+    {
+      "path": "source/brush/grid_executor.cc",
+      "removed_header": "/* SPDX-FileCopyrightText: 2026 Blender Authors\r\n *\r\n * SPDX-License-Identifier: GPL-2.0-or-later */\r\n\r\n",
+      "before_sha256": "c534e207aac1c1d6c79a3fc80b8d0e1d6531e827ee66d3e6227434ec8fbd5d28",
+      "after_sha256": "e482521c4db85b5f90853334c26c2d5e757a407680fedc010bc68e05b77cb940"
+    },
+    {
+      "path": "source/brush/named_uniform_store.h",
+      "removed_header": "/* SPDX-FileCopyrightText: 2026 Blender Authors\n *\n * SPDX-License-Identifier: GPL-2.0-or-later */\n\n",
+      "before_sha256": "b8be3ddebcfda65285fa2fa7659f2b59b015f1daf4440bd4e5f461a55920bbcf",
+      "after_sha256": "fbb49a5a0e9cbec83fe0a64600f04522cce3de723573fe648806030fc1be473c"
+    },
+    {
+      "path": "source/brush/prepared_cavity.h",
+      "removed_header": "/* SPDX-FileCopyrightText: 2026 Blender Authors\n * SPDX-License-Identifier: GPL-2.0-or-later */\n",
+      "before_sha256": "60cc3964c162a369239d146f4180f691f083347fcf2812b688bceef0723db51a",
+      "after_sha256": "a7025f9ccee9e12c84dc4fc1b10243716aaa6a08dc93d7b5c7d77b2bbee1b28e"
+    },
+    {
+      "path": "source/brush/prepared_enhance.h",
+      "removed_header": "/* SPDX-FileCopyrightText: 2026 Blender Authors\n * SPDX-License-Identifier: GPL-2.0-or-later */\n",
+      "before_sha256": "35be1a8b80c093ca1ab0207775aa0760837fe1de5ea83c133121931bd3153ed6",
+      "after_sha256": "81a77520bcf8d615f7eab44ddebde40436e02636c56782bd5e64954d8cc32f15"
+    },
+    {
+      "path": "source/props/prop_declarations.cc",
+      "removed_header": "/* SPDX-FileCopyrightText: 2026 Blender Authors\n *\n * SPDX-License-Identifier: GPL-2.0-or-later */\n\n",
+      "before_sha256": "ccbac5ac7d877024208efcd381ab1a5c04fdc3ad109280797f54f69d70b50e6f",
+      "after_sha256": "fac897b873836abdb048df26f771da0950e64f869ecdf64c47dea3130ad9631a"
+    },
+    {
+      "path": "tests/assets/named_storage.sbrush",
+      "removed_header": "// SPDX-FileCopyrightText: 2026 Blender Authors\n// SPDX-License-Identifier: GPL-2.0-or-later\n\n",
+      "before_sha256": "b28c09c887fdc934ab33a57f4e49b00d3970b530d795b4896ef5730357a4a397",
+      "after_sha256": "4281b6618cb596eb8561c7a53b906912f13da34c834194d9d70d9a044af5bde8"
+    },
+    {
+      "path": "tests/assets/prepared_preludes.sbrush",
+      "removed_header": "// SPDX-FileCopyrightText: 2026 Blender Authors\n// SPDX-License-Identifier: GPL-2.0-or-later\n",
+      "before_sha256": "487ad8f8f4b3296d1fedca71cdbf1ab8e29c7d80bd1cc72e047ae5827c7c8163",
+      "after_sha256": "9312632327b8ac08dcf39855d0bbd16618928e82b6962ba2ad4c866b5bca0fc8"
+    },
+    {
+      "path": "tests/assets/typed_extras/extent_stage.sbrush",
+      "removed_header": "// SPDX-FileCopyrightText: 2026 Blender Authors\n// SPDX-License-Identifier: GPL-2.0-or-later\n\n",
+      "before_sha256": "d951639e4e24b1ab1fef83251fd60a2af8d7ec9b379cc19bfaba9a31b5e228e5",
+      "after_sha256": "2e7db2c163a45c56b4adce1c9a1b5841bb651248c40b56fd107ee2e761f180dd"
+    },
+    {
+      "path": "tests/assets/typed_extras/typed_probe.sbrush",
+      "removed_header": "// SPDX-FileCopyrightText: 2026 Blender Authors\n// SPDX-License-Identifier: GPL-2.0-or-later\n\n",
+      "before_sha256": "929f7389463b0215adf159339fa01f5dbf5308e46b807352add1175c5d2ccb02",
+      "after_sha256": "418138b1c606e3fd962fc701ddf32e32955550dfbc4c31dfd02d7eaebced6532"
+    },
+    {
+      "path": "tests/assets/typed_extras/typed_resolved.sbrush",
+      "removed_header": "// SPDX-FileCopyrightText: 2026 Blender Authors\n// SPDX-License-Identifier: GPL-2.0-or-later\n\n",
+      "before_sha256": "529641ed5e43ec1cc36d133d814e23cce106e9ff84ea114ebf8a25652d696897",
+      "after_sha256": "e08ac3ca6d81d138cda5b04b81e36a53137e8bf5e68be9b7ef33052a20d7391e"
+    },
+    {
+      "path": "tests/assets/typed_extras/typed_unsafe.sbrush",
+      "removed_header": "// SPDX-FileCopyrightText: 2026 Blender Authors\n// SPDX-License-Identifier: GPL-2.0-or-later\n\n",
+      "before_sha256": "809a9cb0eba8a872b4fe0627e6ec133902eb494326d607cd442c5f033bab9443",
+      "after_sha256": "ec932e64eef26dfc1227de5c564a5bd680bf8b2d3e63d894555ba5e24151c3ff"
+    },
+    {
+      "path": "tests/assets/typed_extras/z_seam_translate.sbrush",
+      "removed_header": "// SPDX-FileCopyrightText: 2026 Blender Authors\n// SPDX-License-Identifier: GPL-2.0-or-later\n\n",
+      "before_sha256": "c01fd4a7bc1326b3b9b4cbf4d38c9e530169f8dacffa6a00d712f67ec6988414",
+      "after_sha256": "d2258cbcdd0849ec5bb680b73a222df738b8fd9fde5e3e261ba08c002eb2a0db"
+    },
+    {
+      "path": "tests/prepared_cavity_cases.h",
+      "removed_header": "/* SPDX-FileCopyrightText: 2026 Blender Authors\n * SPDX-License-Identifier: GPL-2.0-or-later */\n",
+      "before_sha256": "b08e031e968e27c01186b082a31ab976c1349bac4e014325f3a28e34fa8b7352",
+      "after_sha256": "92189cf476871968107b03a9baab23ad0691c4c0a9c77942e8c1b8cd739baba6"
+    },
+    {
+      "path": "tests/prepared_enhance_cases.h",
+      "removed_header": "/* SPDX-FileCopyrightText: 2026 Blender Authors\n * SPDX-License-Identifier: GPL-2.0-or-later */\n",
+      "before_sha256": "c969f34c2525d9fe9f71a911ad229f0deb3d82dab3541e88c0ab63db623cb256",
+      "after_sha256": "82aa5fa0fb39f6632f567e4f434438ff10324e1b4c353ccf217d66b3ea0b5e87"
+    },
+    {
+      "path": "tests/prepared_extent_fixture.h",
+      "removed_header": "/* SPDX-FileCopyrightText: 2026 Blender Authors\n * SPDX-License-Identifier: GPL-2.0-or-later */\n",
+      "before_sha256": "c3b57b19e655c423e017d5df54e8c8ea08ba48fb5a1b01d4505bdb04905d1f39",
+      "after_sha256": "0655dbeb1469b3541b66e3a27b8300d3146b6fb98face1ce0c0160ec2c30a41b"
+    },
+    {
+      "path": "tests/prepared_unbounded_cases.h",
+      "removed_header": "/* SPDX-FileCopyrightText: 2026 Blender Authors\r\n *\r\n * SPDX-License-Identifier: GPL-2.0-or-later */\r\n",
+      "before_sha256": "57f29d6a5fc3f424812f1b28255491c70f06267be1ff01019e336f74e84754a2",
+      "after_sha256": "3f3a8e0b848d516a7ff2c2531f9ef337b7a2d6349a54bd061b86170c686efdac"
+    },
+    {
+      "path": "tests/test_brush_configuration.cc",
+      "removed_header": "/* SPDX-FileCopyrightText: 2026 Blender Authors\n *\n * SPDX-License-Identifier: GPL-2.0-or-later */\n\n",
+      "before_sha256": "3006032079c8b629047aab3004fee860f8c78ed65c2024bb95998b11429d1cfc",
+      "after_sha256": "d8206c8876c14d18c568c9404466456aa83611b9763d1dd00d428a817b5db7ec"
+    },
+    {
+      "path": "tests/test_brush_declarations.cc",
+      "removed_header": "/* SPDX-FileCopyrightText: 2026 Blender Authors\n *\n * SPDX-License-Identifier: GPL-2.0-or-later */\n\n",
+      "before_sha256": "0e05bf8749df038acdf926dd3bf18655751e833f95f19dd311350ada51c6fde5",
+      "after_sha256": "3eb0e7abbfd4262d7a185899edfffa6b8e497e46bbdd2f68f435e0628798bb69"
+    },
+    {
+      "path": "tests/test_brush_named_storage.cc",
+      "removed_header": "/* SPDX-FileCopyrightText: 2026 Blender Authors\n *\n * SPDX-License-Identifier: GPL-2.0-or-later */\n\n",
+      "before_sha256": "113d42f8f2e171799afd19dde3fb332b544e4f0251e861fc7f4b4fb42c55eae6",
+      "after_sha256": "754ea40631537b7f6617b7b04a44d06529f70bd95d0c871b1db1d43ae595ee44"
+    },
+    {
+      "path": "tests/test_brush_prepared_execution.cc",
+      "removed_header": "/* SPDX-FileCopyrightText: 2026 Blender Authors\n *\n * SPDX-License-Identifier: GPL-2.0-or-later */\n\n",
+      "before_sha256": "5ef886cc82302c3ed6b573d9104d1a7fc388393ede149501220203e1e2f0075b",
+      "after_sha256": "2b8ffccb218bb0dfcef2132bc2e96a3fb0f0796558a46b721fddd4e5b154ba5a"
+    },
+    {
+      "path": "tests/test_brush_typed_extras.cc",
+      "removed_header": "/* SPDX-FileCopyrightText: 2026 Blender Authors\n *\n * SPDX-License-Identifier: GPL-2.0-or-later */\n\n",
+      "before_sha256": "cfd721ed483e33b96caebc11d5c03dac5d26a3892b73b49e25c1a909534cb92b",
+      "after_sha256": "10a099cf6ddcd7056b0593d0ef9aadd3c4d33fdf2b023c1a08250213da53be46"
+    },
+    {
+      "path": "tests/test_props_checked_access.cc",
+      "removed_header": "/* SPDX-FileCopyrightText: 2026 Blender Authors\n *\n * SPDX-License-Identifier: GPL-2.0-or-later */\n\n",
+      "before_sha256": "dce93391a7b7bf9b6cad3fb8d3caa11fd39249686181d430b45a49b31f02db70",
+      "after_sha256": "b25fd849a78f92e0a9029bc6c570c3cb0c16c1e97a98b85fcf50a1325dfc7cc7"
+    },
+    {
+      "path": "tests/test_props_declarations.cc",
+      "removed_header": "/* SPDX-FileCopyrightText: 2026 Blender Authors\n *\n * SPDX-License-Identifier: GPL-2.0-or-later */\n\n",
+      "before_sha256": "23bdd202e4e7c728e2e5faf66e7ec36f61e62a623b84a8b08d023bfa852aae5f",
+      "after_sha256": "e26b489b6d7224690b09a0040f85099e3ad0d90d81dbfd949c116e062bc59417"
+    },
+    {
+      "path": "tests/test_props_typed_dynamics.cc",
+      "removed_header": "/* SPDX-FileCopyrightText: 2026 Blender Authors\n *\n * SPDX-License-Identifier: GPL-2.0-or-later */\n\n",
+      "before_sha256": "557ab2f0ba183d69865f78711afd3a1a56378e6787f0c73d70e479812745005b",
+      "after_sha256": "9c127926b2d0037cfc8d5d59fcc387ffd3482ee8fd9fafdaccb40aaf54b556b7"
+    },
+    {
+      "path": "tests/test_sbrush_member_types.cc",
+      "removed_header": "/* SPDX-FileCopyrightText: 2026 Blender Authors\n *\n * SPDX-License-Identifier: GPL-2.0-or-later */\n\n",
+      "before_sha256": "1a7338fb27bac69434ae709f4a1d3332fc8a2fb5878ffd59cc94959c1a0d4100",
+      "after_sha256": "870a17136358886d13a66d7586ac16346a125b8a2dc3ad609892c8599c444bc4"
+    },
+    {
+      "path": "tests/unbounded_cavity_transition.h",
+      "removed_header": "/* SPDX-FileCopyrightText: 2026 Blender Authors\n * SPDX-License-Identifier: GPL-2.0-or-later */\n",
+      "before_sha256": "1abcaebea5b086dc75d779dc041ce82466e3f769b420b86a2a8be97cbda19c69",
+      "after_sha256": "e2382db1bb30f45cca67a1bb5ec8e7e9b991387eb7988c8f5b05f6f8e7f7a64b"
+    }
+  ],
+  "preexisting_notices_preserved": [
+    "tests/test_multires_attrs.cc"
+  ],
+  "policy": "Engine LICENSE.txt and existing header-free source conventions; addon rule is scoped."
+}

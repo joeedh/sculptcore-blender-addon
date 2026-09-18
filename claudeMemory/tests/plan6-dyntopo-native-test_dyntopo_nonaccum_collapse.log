@@ -1,0 +1,15 @@
+{
+  "suite": "test_dyntopo_nonaccum_collapse",
+  "command": [
+    "C:\\Program Files\\nodejs\\node.EXE",
+    "make.mjs",
+    "test",
+    "test_dyntopo_nonaccum_collapse"
+  ],
+  "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_dyntopo_nonaccum_collapse.cc_out.exe",
+  "returncode": 0,
+  "passed": true,
+  "binary_sha256": "e5493072786a73ce56726834b466b6dc9a5bb38404e3f21e63f5dd10ce7db6ff",
+  "stdout": "",
+  "stderr": "verts=1850 (base 2168) push=0.43570 checked=22 worst|base.z-0.25|=0.000000\r\n"
+}

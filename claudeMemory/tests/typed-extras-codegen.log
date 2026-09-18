@@ -1,0 +1,11 @@
+[0/2] Re-checking globbed directories...
+[1/10] Building CXX object source/brush/compiler/CMakeFiles/sbrushc_core.dir/emit_c.cc.obj
+[2/10] Building CXX object source/brush/compiler/CMakeFiles/sbrushc_core.dir/emit_cuda.cc.obj
+[3/10] Building CXX object source/brush/compiler/CMakeFiles/sbrushc_core.dir/emit_opencl.cc.obj
+[4/10] Building CXX object source/brush/compiler/CMakeFiles/sbrushc_core.dir/emit_wgsl.cc.obj
+[5/10] Building CXX object source/brush/compiler/CMakeFiles/sbrushc.dir/sbrushc_main.cc.obj
+[6/10] Building CXX object source/brush/compiler/CMakeFiles/sbrushc_core.dir/emit_registry.cc.obj
+[7/10] Building CXX object source/brush/compiler/CMakeFiles/sbrushc_core.dir/emit_cpp.cc.obj
+[8/10] Linking CXX static library source\brush\compiler\sbrushc_core.lib
+[9/10] Linking CXX executable source\brush\compiler\sbrushc.exe
+codegen: typescript/sculptcore/brush/brushWgsl.ts up to date

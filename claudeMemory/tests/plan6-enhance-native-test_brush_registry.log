@@ -1,0 +1,15 @@
+{
+  "suite": "test_brush_registry",
+  "command": [
+    "C:\\Program Files\\nodejs\\node.EXE",
+    "make.mjs",
+    "test",
+    "test_brush_registry"
+  ],
+  "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_brush_registry.cc_out.exe",
+  "returncode": 0,
+  "passed": true,
+  "binary_sha256": "f91b2bff855bc2652efbfcefed8b04e37818b5c36ebebc23202054f98a5477a7",
+  "stdout": "",
+  "stderr": ""
+}

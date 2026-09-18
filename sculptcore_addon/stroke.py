@@ -24,7 +24,7 @@ is scriptable end-to-end.
 
 import bpy
 
-from . import (brush_policy, convert, cursor, engine, mapping, stroke_math,
+from . import (brush_policy, convert, cursor, engine, mapping, stroke_math, stroke_input,
                symmetry, texture, undo)
 
 # Frames presented in any 3D viewport, counted by a draw handler that lives
@@ -88,22 +88,29 @@ class StrokeSpacer:
     centripetal tangent needs the next point), so spline dabs lag input by one
     move; the trailing segment is flushed with a right-clamp on release
     (``flush``). A non-positive interval bypasses the spline and emits every
-    input point. Emitted points are ``(x, y)`` tuples."""
+    input point. Supplying samples returns ``(point, sample)`` pairs; otherwise
+    emitted points are ``(x, y)`` tuples."""
 
     def __init__(self):
         self.points = []
+        self.inputs = []
         self.walk_carry = 0.0
+        self._flushed = False
 
-    def add(self, p, spacing):
+    def add(self, p, spacing, sample=None):
         """Dab points for the newly arrived control point ``p`` (an ``(x, y)``
         pair). The first call emits ``p`` itself (raw); later calls emit the
         spaced points of the segment whose right neighbor ``p`` just
         completed."""
         p = (float(p[0]), float(p[1]))
+        if self.inputs and (sample is None) != (self.inputs[0] is None):
+            raise ValueError("A spacer cannot mix sampled and position-only inputs")
         self.points.append(p)
+        self.inputs.append(sample)
+        self._flushed = False
         n = len(self.points)
         if n == 1 or spacing <= 0.0:
-            return [p]
+            return [(p, sample)] if sample is not None else [p]
         if n < 3:
             # The first segment still lacks the right neighbor its tangent needs.
             return []
@@ -115,8 +122,9 @@ class StrokeSpacer:
         on stroke release. No-op for a single-point stroke or non-positive
         spacing."""
         n = len(self.points)
-        if n < 2 or spacing <= 0.0:
+        if self._flushed or n < 2 or spacing <= 0.0:
             return []
+        self._flushed = True
         return self._walk_segment(n - 2, right_clamp=True, spacing=spacing)
 
     def _walk_segment(self, i, right_clamp, spacing):
@@ -127,7 +135,12 @@ class StrokeSpacer:
         p0 = pts[i - 1] if i >= 1 else p1
         p3 = p2 if right_clamp else pts[i + 2]
         bez = stroke_math.cr_to_bezier(p0, p1, p2, p3)
-        emitted, self.walk_carry = stroke_math.arc_length_walk(bez, spacing, self.walk_carry)
+        sampled = self.inputs[i] is not None
+        emitted, self.walk_carry = stroke_math.arc_length_walk(
+            bez, spacing, self.walk_carry, with_fractions=sampled)
+        if sampled:
+            emitted = [(point, stroke_input.InputSample.interpolate(self.inputs[i], self.inputs[i + 1], fraction))
+                       for point, fraction in emitted]
         return emitted
 
 
@@ -284,6 +297,8 @@ def stroke_begin(session, *, has_dyntopo=False, accumulate=True, anchored_grab=T
         if ptr:
             session.cage_smooth_ptr = ptr
             session.last_stroke_cage = True
+    if session.multires_ptr and not session.last_stroke_cage:
+        convert.ensure_multires_slot(session)
     if (session.multires_ptr and session.draw_provider_kind != 'SLOT'
             and not session.last_stroke_cage):
         # Mesh-path stroke on a multires session: its edits land in the slot
@@ -400,24 +415,35 @@ def _refresh_queries(session):
 
 
 def apply_dyntopo_dab(session, program, center, normal, radius, params, seed):
-    """One program dab through ``applyDab``. With ``params`` set it also runs the
-    dyntopo remesh pass; with ``params`` None it is a plain deforming dab (no
-    remesh) — the reference's ``params ?? 0`` path for the off-cadence dabs
-    between remeshes."""
+    """Run a program dab, validating supported prepared commands before remeshing.
+
+    ``params=None`` skips remeshing between the host's scheduled topology passes.
+    Other command capabilities retain the legacy ``applyDab`` route.
+    """
     mgr = engine.manager()
     executor = _ensure_executor(session)
+    if executor.supportsResolvedProgram(program):
+        moved = engine.capi().lib.MeshStroke_dabProgramResolvedDyntopo(
+            executor.ptr, program.ptr, *center, *normal, radius, params.ptr if params is not None else None, seed)
+        if moved >= 0:
+            _refresh_queries(session)
+        return moved
+    if getattr(session, "generic_runtime", None) is not None:
+        return -1
     center_v = _float3(mgr, *center)
     normal_v = _float3(mgr, *normal)
     try:
         executor.setGrabAccumAdd(False)
-        executor.applyDab(program, center_v, normal_v, radius, params, seed)
+        moved = executor.applyDab(program, center_v, normal_v, radius, params, seed)
     finally:
         center_v.dispose()
         normal_v.dispose()
-    _refresh_queries(session)
+    if moved >= 0:
+        _refresh_queries(session)
+    return moved
 
 
-def apply_dab(session, brush_type, center, normal, radius):
+def apply_dab(session, brush_type, center, normal, radius, *, grab_add=False):
     """Run one dab at an object-space center/normal. `center`/`normal` are
     3-tuples; `brush_type` is the SculptBrushes enum value. Returns the
     number of spatial nodes the dab touched (0 = brush missed the surface);
@@ -433,13 +459,22 @@ def apply_dab(session, brush_type, center, normal, radius):
         dab = np.array([center[0], center[1], center[2],
                         normal[0], normal[1], normal[2], radius],
                        dtype=np.float32)
-        return engine.capi().lib.CageSmooth_dabBatch(
-            session.cage_smooth_ptr, int(brush_type), 1, dab,
-            session.brush_obj.strength, 0, 1.0, 0, None, 0)
+        lib = engine.capi().lib
+        if lib.CageSmooth_supportsResolved(session.cage_smooth_ptr, int(brush_type)):
+            return lib.CageSmooth_dabResolved(session.cage_smooth_ptr, int(brush_type), *center, *normal)
+        if session.generic_runtime is not None:
+            return -1
+        return lib.CageSmooth_dabCurrentInputs(
+            session.cage_smooth_ptr, int(brush_type), dab, session.brush_obj.strength)
     if session.last_stroke_grids:
         # Grids-native: the engine queries its own GridTree, mirrors the slot
         # mesh, and refreshes normals/bounds — no filterNodes/_refresh_queries.
-        return engine.capi().lib.GridStroke_dab(
+        lib = engine.capi().lib
+        if lib.GridStroke_supportsResolved(session.grid_ptr, int(brush_type), None):
+            return lib.GridStroke_dabResolved(session.grid_ptr, int(brush_type), *center, *normal)
+        if getattr(session, "generic_runtime", None) is not None:
+            return -1
+        return lib.GridStroke_dab(
             session.grid_ptr, int(brush_type),
             center[0], center[1], center[2],
             normal[0], normal[1], normal[2], 0)
@@ -447,6 +482,14 @@ def apply_dab(session, brush_type, center, normal, radius):
     mgr = engine.manager()
     executor = _ensure_executor(session)
     tree = session.tree()
+
+    if executor.supportsResolved(brush_type):
+        if grab_add:
+            return engine.capi().lib.MeshStroke_dabResolvedImage(
+                executor.ptr, int(brush_type), *center, *normal, 1)
+        return engine.capi().lib.MeshStroke_dabResolved(executor.ptr, int(brush_type), *center, *normal)
+    if getattr(session, "generic_runtime", None) is not None or not executor.preflightRaw(brush_type):
+        return -1
 
     center_v = _float3(mgr, *center)
     normal_v = _float3(mgr, *normal)
@@ -460,6 +503,8 @@ def apply_dab(session, brush_type, center, normal, radius):
         # native harness). No-op for non-grab kernels.
         executor.setGrabAccumAdd(False)
         executor.execBrush(session.mesh(), brush_type, nodes, center_v, normal_v)
+        if not executor.lastUniformValidationOk():
+            return -1
         # applyDab clears this after every dab; these exec paths bypass it, so
         # without the clear the stroke re-runs its once-per-stroke work (uniform
         # validation, the BSMOOTH boundary-class refresh) on every dab.
@@ -489,7 +534,6 @@ def apply_grab_dab(session, brush_type, anchor, cursor, normal, radius, accum_ad
     executor = _ensure_executor(session)
     brush = session.brush_obj
     tree = session.tree()
-
     gf = brush.grabFrom.vec
     gt = brush.grabTo.vec
     drag = 0.0
@@ -503,12 +547,24 @@ def apply_grab_dab(session, brush_type, anchor, cursor, normal, radius, accum_ad
     drag = drag ** 0.5
 
     if session.last_stroke_grids:
+        lib = engine.capi().lib
+        if lib.GridStroke_supportsResolved(session.grid_ptr, int(brush_type), None):
+            return lib.GridStroke_dabResolvedImage(
+                session.grid_ptr, int(brush_type), *anchor, *normal, int(accum_add))
+        if getattr(session, "generic_runtime", None) is not None:
+            return -1
         # Grids-native anchored grab: the engine pins the first dab's leaf
         # region (radius + the @unbounded floor) — no drag widening needed.
         return engine.capi().lib.GridStroke_dab(
             session.grid_ptr, int(brush_type),
             anchor[0], anchor[1], anchor[2],
             normal[0], normal[1], normal[2], 1 if accum_add else 0)
+
+    if executor.supportsResolved(brush_type):
+        return engine.capi().lib.MeshStroke_dabResolvedImage(
+            executor.ptr, int(brush_type), *anchor, *normal, int(accum_add))
+    if getattr(session, "generic_runtime", None) is not None or not executor.preflightRaw(brush_type):
+        return -1
 
     anchor_v = _float3(mgr, *anchor)
     normal_v = _float3(mgr, *normal)
@@ -519,6 +575,8 @@ def apply_grab_dab(session, brush_type, anchor, cursor, normal, radius, accum_ad
             return 0
         executor.setGrabAccumAdd(accum_add)
         executor.execBrush(session.mesh(), brush_type, nodes, anchor_v, normal_v)
+        if not executor.lastUniformValidationOk():
+            return -1
         executor.clearIsFirstOfStep()
         import sculptcore
         count = len(sculptcore.BoundVector(mgr, nodes.ptr, nodes.bind_type))
@@ -563,11 +621,15 @@ def build_program(session, main_kernel, smooth_factor=0.0):
         # BrushProp::Strength == 0. The runtime can't marshal a string arg into
         # a util::string method param, so the smooth strength is overridden by
         # propId, not by name (setCommandFloatByName).
-        prog.setCommandFloat(idx, 0, smooth_factor)
+        if session.generic_runtime is not None:
+            from sculptcore.brush_properties import set_command_scalar
+            set_command_scalar(mgr, prog, idx, 'strength', 0, float(smooth_factor))
+        else:
+            prog.setCommandFloat(idx, 0, smooth_factor)
     return prog
 
 
-def apply_dab_program(session, program, center, normal, radius, kernel=None):
+def apply_dab_program(session, program, center, normal, radius, kernel=None, *, grab_add=False):
     """Run a BrushProgram (e.g. [main, BSMOOTH]) for one dab. ``kernel`` is the
     program's main kernel, used only to size the node filter (the chained
     BSMOOTH is never unbounded)."""
@@ -576,7 +638,12 @@ def apply_dab_program(session, program, center, normal, radius, kernel=None):
     if session.last_stroke_grids:
         # Grids-native program dab: one engine call runs every entry over one
         # shared node query (the engine widens it to the entries' field radii).
-        return engine.capi().lib.GridStroke_dabProgram(
+        lib = engine.capi().lib
+        if lib.GridStroke_supportsResolved(session.grid_ptr, 0, program.ptr):
+            return lib.GridStroke_dabProgramResolved(session.grid_ptr, program.ptr, *center, *normal)
+        if session.generic_runtime is not None:
+            return -1
+        return lib.GridStroke_dabProgram(
             session.grid_ptr, program.ptr,
             center[0], center[1], center[2],
             normal[0], normal[1], normal[2])
@@ -584,6 +651,13 @@ def apply_dab_program(session, program, center, normal, radius, kernel=None):
     mgr = engine.manager()
     executor = _ensure_executor(session)
     tree = session.tree()
+    if executor.supportsResolvedProgram(program):
+        if grab_add:
+            return engine.capi().lib.MeshStroke_dabProgramResolvedImage(
+                executor.ptr, program.ptr, *center, *normal, 1)
+        return engine.capi().lib.MeshStroke_dabProgramResolved(executor.ptr, program.ptr, *center, *normal)
+    if getattr(session, "generic_runtime", None) is not None or not executor.preflightRawProgram(program):
+        return -1
     center_v = _float3(mgr, *center)
     normal_v = _float3(mgr, *normal)
     nodes = mgr.construct("litestl::util::Vector<sculptcore::spatial::SpatialNode*,4>")
@@ -593,6 +667,8 @@ def apply_dab_program(session, program, center, normal, radius, kernel=None):
             return 0
         executor.setGrabAccumAdd(False)
         executor.execProgram(program, nodes, center_v, normal_v)
+        if not executor.lastUniformValidationOk():
+            return -1
         executor.clearIsFirstOfStep()
         count = len(sculptcore.BoundVector(mgr, nodes.ptr, nodes.bind_type))
     finally:
@@ -600,6 +676,27 @@ def apply_dab_program(session, program, center, normal, radius, kernel=None):
             obj.dispose()
     _refresh_queries(session)
     return count
+
+
+def preflight_preview(session, kernel, program, center=None, normal=None):
+    """Validate prepared settings before discarding the previous valid preview."""
+    import math
+    if any(vector is not None and not all(math.isfinite(value) for value in vector)
+           for vector in (center, normal)):
+        return False
+    executor = _ensure_executor(session)
+    supported = executor.supportsResolvedProgram(program) if program is not None else executor.supportsResolved(kernel)
+    if not supported:
+        if getattr(session, "generic_runtime", None) is not None:
+            return False
+        return executor.preflightRawProgram(program) if program is not None else executor.preflightRaw(kernel)
+    import numpy as np
+    lib = engine.capi().lib
+    empty = np.empty(0, dtype=np.float32)
+    function = lib.MeshStroke_dabBatchProgramInputs if program is not None else lib.MeshStroke_dabBatchInputs
+    target = program.ptr if program is not None else int(kernel)
+    return function(executor.ptr, session.tree_ptr, session.mesh_ptr, session.brush_obj.ptr,
+                    target, 0, empty, session.brush_obj.strength, empty, 1, empty, 0, 1) >= 0
 
 
 def stroke_end(session):
@@ -724,6 +821,12 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         convert.resync_if_diverged(ob)
         self.session = engine.sessions[ob.name]
         self.brush = context.tool_settings.sculpt.brush
+        self._generic = None
+        self._generic_smooth_command = None
+        self._family_scale = 1.0
+        if self.session.generic_runtime is not None:
+            self.session.generic_runtime.close()
+            self.session.generic_runtime = None
         mgr = engine.manager()
         if self.mode in {'SMOOTH', 'MASK'}:
             # Shift-stroke smooths (colour blur over a paint brush), Alt-stroke
@@ -737,6 +840,18 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         if self.kernel is None:
             self.report({'WARNING'}, "SculptCore: brush type has no kernel")
             return {'CANCELLED'}
+
+        settings = None
+        if context.scene.sculptcore_generic_properties:
+            from .brush_properties.stroke_settings import capture_stroke
+            from .brush_properties.registry import PropertyError
+            kernel_name = next(name for name, value in mgr.get("sculptcore::brush::SculptBrushes").items.items()
+                               if int(value) == self.kernel)
+            try:
+                settings = capture_stroke(self.brush, context.scene, kernel_name=kernel_name)
+            except PropertyError as error:
+                self.report({'ERROR'}, "SculptCore: " + str(error))
+                return {'CANCELLED'}
 
         self._last_flush = 0.0
         # Gate closed at stroke start: the first refresh waits for the frame
@@ -801,26 +916,39 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         use_size = not self._grab_class and getattr(self.brush, size_prop)
         self._use_pressure = use_strength or use_size
         self._pressure_strength_lut = (
-            mapping.sample_pressure_curve(self.brush.curve_strength) if use_strength else None)
+            mapping.sample_pressure_curve(self.brush, 'curve_strength') if use_strength else None)
         self._pressure_size_lut = (
-            mapping.sample_pressure_curve(self.brush.curve_size) if use_size else None)
+            mapping.sample_pressure_curve(self.brush, 'curve_size') if use_size else None)
         curve_cache = self.session.curve_cache
-        mapping.apply_pressure_dynamics(
-            self.brush, sc_brush, cache=curve_cache,
-            use_strength=use_strength and not self._smooth_stroke,
-            use_size=use_size and not self._smooth_stroke)
-        # Brush texture (Phase 2): bind or clear per stroke; view-pinned
-        # mappings also need the current perspective matrix.
-        texture.apply_texture(self.brush, sc_brush, context, session=self.session)
-        if texture.needs_render_matrix(self.brush):
-            texture.apply_render_matrix(context, _ensure_executor(self.session))
         # Stroke-constant brush settings, including the falloff/cavity curve
-        # bakes (256 engine calls each, skipped when session.curve_cache shows
-        # the engine already holds them). The dab paths write only the
+        # tables (bulk uploads skipped when the session already holds them).
+        # The dab paths write only the
         # radius/invert state on top (mapping.apply_dab_state).
         paint = context.tool_settings.sculpt
         mapping.apply_brush_settings(
             self.brush, paint.unified_paint_settings, sc_brush, paint=paint, cache=curve_cache)
+        from . import engine_props
+        engine_props.sync_authored(self.session, _ensure_executor(self.session), self.kernel)
+        # Record the installed stack generation after all checked scalar writes.
+        mapping.apply_pressure_dynamics(
+            self.brush, sc_brush, cache=curve_cache,
+            use_strength=use_strength and not self._smooth_stroke,
+            use_size=use_size and not self._smooth_stroke)
+        if settings is not None:
+            from .brush_properties.stroke_runtime import StrokeRuntime
+            try:
+                self._generic = StrokeRuntime(settings, self.session, self.kernel)
+            except (PropertyError, ValueError, RuntimeError) as error:
+                _draw_counter_pop()
+                self.report({'ERROR'}, "SculptCore: " + str(error))
+                return {'CANCELLED'}
+            self.session.generic_runtime = self._generic
+            self._pressure_strength_lut = None
+            self._pressure_size_lut = None
+        # Tiled texture scale uses the same captured size owner as the stroke.
+        texture.apply_texture(self.brush, sc_brush, context, session=self.session)
+        if texture.needs_render_matrix(self.brush):
+            texture.apply_render_matrix(context, _ensure_executor(self.session))
         # UV slide-reprojection (scene toggle): the executor re-anchors moved
         # verts' UVs for the smooth-family kernels. Any stroke that may run
         # one (smooth brush, Shift-smooth, autosmooth chain) diverges the
@@ -831,16 +959,21 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         # "Adjust Strength for Spacing": constant for the stroke, folded into
         # every dab's strength write — together with any per-type strength
         # compensation (kernel-scale parity, see mapping.STRENGTH_SCALE).
-        self._overlap = mapping.overlap_attenuation(self.brush)
+        self._overlap = mapping.overlap_attenuation(self.brush, cache=self.session.curve_cache)
         if not kernel_toggle:
             self._overlap *= mapping.STRENGTH_SCALE.get(
                 self.brush.sculpt_brush_type, 1.0)
+        self._family_scale = (mapping.STRENGTH_SCALE.get(self.brush.sculpt_brush_type, 1.0)
+                              if not kernel_toggle else 1.0)
+        if self._generic:
+            self._overlap = self._generic.settings.overlap() * self._family_scale
         self._anchor = None
         self._anchor_normal = None
         self._drag_origin = None
         # Dab spacing along the stroke path (engine StrokeSpacer semantics:
         # interval = world radius x spacing fraction). Grab-class ignores it.
         self._spacer = StrokeSpacer()
+        self._input_sampler = stroke_input.InputSampler(context.scene.sculptcore_speed_reference)
         # Trailing-flush state, refreshed on every move (see _dab_at); defaults
         # cover a commit with no intervening move.
         self._last_invert = False
@@ -902,6 +1035,12 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
                 and self.brush.auto_smooth_factor > 0.0):
             smooth_factor = self.brush.auto_smooth_factor
 
+        if self._generic and not self._grab_class and not kernel_toggle and not self._smooth_stroke:
+            snapshot = self._generic.settings.snapshot('sculptcore.brush.autosmooth')
+            smooth_factor = snapshot.value
+            if any(layer.enabled for layer in snapshot.stack):
+                smooth_factor = max(smooth_factor, 1e-8)
+        self._generic_smooth_command = 1 if smooth_factor > 0 else None
         self._dyntopo = None
         self._program = None
         self._detail_factor = None
@@ -918,7 +1057,7 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
             # stroke; RELATIVE/BRUSH reduce to `factor * world_radius`,
             # re-applied per remesh dab (the radius is depth-dependent).
             sculpt_settings = context.tool_settings.sculpt
-            pixel_radius = mapping.pixel_radius(sculpt_settings, self.brush)
+            pixel_radius = self._pixel_radius(context)
             if sculpt_settings.detail_type_method in {'CONSTANT', 'MANUAL'}:
                 l_max = dyntopo_max_edge(sculpt_settings, ob, 0.0, pixel_radius,
                                          context.preferences.system.pixel_size)
@@ -977,11 +1116,12 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
                 self.report({'WARNING'},
                             "SculptCore: anchored stroke must start on the surface")
                 _draw_counter_pop()
+                self._close_generic()
                 return {'CANCELLED'}
             self._anchor = a_hit[0]
             self._anchor_normal = a_hit[1]
             self._anchor_screen = (event.mouse_region_x, event.mouse_region_y)
-            self._anchor_radius = _world_radius(context, self.brush, a_hit[0])
+            self._anchor_radius = self._base_radius(context, a_hit[0])
             # Anchored pins the dab center, so a snake-hook drag can only come
             # from the cursor: same plane projection the grab path uses, taken
             # at pen-down so the first dab's delta is exactly zero.
@@ -996,7 +1136,8 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         accumulate = (self.mode in {'SMOOTH', 'MASK'}
                       or self._grab_class
                       or not self.brush.sculpt_capabilities.has_accumulate
-                      or self.brush.use_accumulate
+                      or (self._generic.settings.value("sculptcore.brush.accumulate")
+                          if self._generic else self.brush.use_accumulate)
                       or (not kernel_toggle and
                           self.brush.sculpt_brush_type in mapping.FORCE_ACCUMULATE))
         # Grids-native dispatch (multires W1): plain dab/grab strokes of
@@ -1031,11 +1172,11 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
             self._dab_preview(context, event)
         else:
             self._dab_at(context, event)
-            if self._engine_dead:
-                self.report({'WARNING'},
-                            "SculptCore: engine refused the stroke (stale "
-                            "multires domain); stroke cancelled")
-                return self._finish(context, 'CANCELLED')
+        if self._engine_dead:
+            self.report({'WARNING'}, "SculptCore: engine refused the stroke; see the system console")
+            if self._preview_method:
+                return self._finish_preview(context, commit=False)
+            return self._finish(context, 'CANCELLED')
         context.window_manager.modal_handler_add(self)
         return {'RUNNING_MODAL'}
 
@@ -1043,6 +1184,9 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         """Apply the stroke at one pointer sample. `redraw` off skips the
         viewport tail — used for the backlog samples of one event batch, which
         are sculpted but not individually presented (see ``modal``)."""
+        sample = self._read_input(event)
+        if sample is None:
+            return
         paint = context.tool_settings.sculpt
         unified = paint.unified_paint_settings
         # The keymap sets INVERT for Ctrl-LMB; live Ctrl also inverts so the
@@ -1050,6 +1194,7 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         invert = event.ctrl or self.mode == 'INVERT'
 
         if self._grab_class:
+            sample.upload(self.session.brush_obj)
             if self._anchor is None:
                 # Anchor the region at the stroke-start surface point. Only the
                 # anchoring dab needs the surface; misses just retry next move.
@@ -1059,7 +1204,7 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
                 position, normal, _face = hit
                 self._anchor = position
                 self._anchor_normal = normal
-                self._anchor_radius = _world_radius(context, self.brush, position)
+                self._anchor_radius = self._base_radius(context, position)
                 # Drag reference: the mouse ray's plane projection at pen-down,
                 # so both drag endpoints come from the same projection and the
                 # first dab's delta is exactly zero, not merely near it.
@@ -1067,9 +1212,16 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
             # No re-raycast after anchoring: the drag must keep working when
             # the cursor leaves the surface (vanilla grab semantics), and the
             # region/radius stay pinned to the stroke start regardless.
-            mapping.apply_dab_state(self.brush, unified, self.session.brush_obj,
-                                    world_radius=self._anchor_radius, invert=invert,
-                                    strength_scale=self._overlap)
+            if not self._generic:
+                mapping.apply_dab_state(self.brush, unified, self.session.brush_obj,
+                                        world_radius=self._anchor_radius, invert=invert,
+                                        strength_scale=self._overlap)
+            active_radius = self._anchor_radius
+            if self._generic:
+                self._set_generic_view(context, self._anchor)
+                payload = self._prepare_generic(sample, self._anchor_radius)
+                self._publish_generic(payload)
+                active_radius = payload[0][1]
             # Drag target = anchor + mouse motion on the view-facing plane
             # through the anchor (both endpoints are projections of the mouse
             # ray, so the first dab's delta is exactly zero).
@@ -1080,35 +1232,46 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
                 self._anchor_normal, self.session.brush_obj.strength)
             cursor = tuple(self._anchor[i] + drag[i] for i in range(3))
             self._track_pivot(cursor)
-            apply_grab_dab(self.session, self.kernel, self._anchor, cursor,
-                           self._anchor_normal, self._anchor_radius)
+            if apply_grab_dab(self.session, self.kernel, self._anchor, cursor,
+                              self._anchor_normal, active_radius) < 0:
+                self._engine_dead = True
+                return
             # Symmetry: reflect the anchor, cursor and normal directly (no
             # re-raycast for grab — the resolved plane point is used as-is).
             for sign in self._mirror_signs:
-                apply_grab_dab(
+                if self._generic:
+                    self._generic.view_image(sign)
+                moved = apply_grab_dab(
                     self.session, self.kernel,
                     symmetry.reflect(self._anchor, sign),
                     symmetry.reflect(cursor, sign),
                     symmetry.reflect(self._anchor_normal, sign),
-                    self._anchor_radius, accum_add=True)
+                    active_radius, accum_add=True)
+                if moved < 0:
+                    self._engine_dead = True
+                    return
         else:
-            pixel_r = mapping.pixel_radius(context.tool_settings.sculpt, self.brush)
-            # Vanilla spacing is a percentage of the brush *diameter*:
-            # radius * spacing / 50 (#paint_space_stroke_spacing).
-            step = max(self.brush.spacing, 1) / 50.0 * pixel_r
+            if self._generic:
+                hit = _ray_from_event(context, event, self.session)
+                pixel_r = self._pixel_radius(context, hit[0] if hit is not None else (0, 0, 0))
+                spacing = self._generic.settings.value('sculptcore.brush.spacing', sample.channels)
+            else:
+                pixel_r = mapping.pixel_radius(context.tool_settings.sculpt, self.brush)
+                spacing = self.brush.spacing
+            step = max(spacing, 1) / 50.0 * pixel_r
             coord = (event.mouse_region_x, event.mouse_region_y)
             # Remember the last-move state so the trailing spline segment can be
             # flushed on release (the release event carries no spline context).
             self._last_invert = invert
             self._last_pressure = event.pressure
             self._last_spacing = step
-            points = self._spacer.add(coord, step)
+            points = self._spacer.add(coord, step, sample)
             if self._batch:
                 if points and not self._engine_dead:
-                    self._apply_batch(context, points, invert, event.pressure)
+                    self._apply_batch(context, points)
             else:
-                for point in points:
-                    self._apply_spaced_dab(context, point, invert, event.pressure)
+                for point, dab_sample in points:
+                    self._apply_spaced_dab(context, point, dab_sample)
 
         # Face sets and colour are cage attributes a subdivided level only
         # mirrors, so this batch's paint is carried onto the cage and the grids
@@ -1172,12 +1335,16 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         mean = mathutils.Vector(self._pivot_sum) / self._pivot_n
         context.tool_settings.sculpt.stroke_pivot = ob.matrix_world @ mean
 
-    def _apply_one_image(self, position, normal, world_radius, due, snake_delta=None):
+    def _apply_one_image(self, position, normal, world_radius, due, snake_delta=None, view_sign=(1, 1, 1)):
         """Apply one dab image (primary or a symmetry mirror) through the active
         path — plain, autosmooth-program, or dyntopo. Each image gets a unique
         monotonic seed (dyntopo independent-set selection). ``snake_delta`` is
         this image's drag step for the snake-hook kernel (already reflected for
         a mirror image); None for every other brush."""
+        if self._generic:
+            self._generic.view_image(view_sign)
+        if self._engine_dead:
+            return
         self._dab_count += 1
         seed = self._dab_count
         if self.session.multires_ptr and not self.session.last_stroke_cage:
@@ -1192,13 +1359,15 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         if snake_delta is not None:
             set_snake_hook_state(self.session, position, snake_delta)
         if self._dyntopo is not None:
-            apply_dyntopo_dab(self.session, self._program, position, normal,
-                              world_radius, self._dyntopo if due else None, seed)
+            moved = apply_dyntopo_dab(self.session, self._program, position, normal,
+                                     world_radius, self._dyntopo if due else None, seed)
         elif self._program is not None:
-            apply_dab_program(self.session, self._program, position, normal,
-                              world_radius, kernel=self.kernel)
+            moved = apply_dab_program(self.session, self._program, position, normal,
+                                     world_radius, kernel=self.kernel)
         else:
-            apply_dab(self.session, self.kernel, position, normal, world_radius)
+            moved = apply_dab(self.session, self.kernel, position, normal, world_radius)
+        if moved < 0:
+            self._engine_dead = True
 
     def _snake_hook_advance(self, context, point):
         """The snake-hook dab center and drag step for one spacer-emitted point,
@@ -1236,10 +1405,50 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         self._sh_delta = delta
         return center, delta
 
-    def _apply_spaced_dab(self, context, point, invert, pressure):
+    def _close_generic(self):
+        if self._generic is not None:
+            self._generic.close()
+            self.session.generic_runtime = None
+            self._generic = None
+
+    def _base_radius(self, context, position):
+        if self._generic is None:
+            return _world_radius(context, self.brush, position)
+        from .brush_properties.stroke_settings import object_radius
+        return object_radius(context, self._generic.settings.size, position)
+
+    def _pixel_radius(self, context, position=(0, 0, 0)):
+        if self._generic is None:
+            return mapping.pixel_radius(context.tool_settings.sculpt, self.brush)
+        from .brush_properties.stroke_settings import pixel_radius
+        return pixel_radius(context, self._generic.settings.size, position)
+
+    def _set_generic_view(self, context, position):
+        from .brush_properties.stroke_settings import view_direction
+        self._generic.view_direction = view_direction(context, position)
+        self._generic.view_image()
+
+    def _prepare_generic(self, sample, base_radius):
+        row = self._generic.evaluate([sample], [base_radius])[0]
+        payload = self._generic.prepare(row, sample, family_scale=self._family_scale,
+                                         allow_invert=not self._smooth_stroke)
+        if base_radius > 0:
+            self._generic.cursor_scale = payload[0][1] / base_radius
+        return payload
+
+    def _publish_generic(self, payload, strength_override=None):
+        self._generic.publish(payload, program=self._program,
+                              smooth_command=self._generic_smooth_command,
+                              strength_override=strength_override)
+
+    def _apply_spaced_dab(self, context, point, sample):
         """Resolve one spacer-emitted 2D point to a dab center — the surface hit
         under it, or for snake hook the advancing tip center — and apply the
         primary dab plus one reflected dab per symmetry mirror."""
+        if self._engine_dead:
+            return
+        invert, pressure = sample.invert, sample.pressure
+        sample.upload(self.session.brush_obj)
         snake_delta = None
         if self._snake_hook:
             advance = self._snake_hook_advance(context, point)
@@ -1257,7 +1466,12 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
             if hit is None:
                 return
             position, normal, _face = hit
-        world_radius = _world_radius(context, self.brush, position)
+        world_radius = self._base_radius(context, position)
+        generic_payload = None
+        if self._generic:
+            self._set_generic_view(context, position)
+            generic_payload = self._prepare_generic(sample, world_radius)
+            world_radius = generic_payload[0][1]
         self._track_pivot(position)
         unified = context.tool_settings.sculpt.unified_paint_settings
         # Advance the stroke arc length and decide the dyntopo cadence once per
@@ -1281,20 +1495,25 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
             # overlap factor fold into the base Python-side (smooth registers no
             # engine dynamics — see invoke); the pressure factor comes from the
             # baked curve_strength / curve_size response LUTs.
-            strength = self.brush.strength
-            if unified.use_unified_strength:
-                strength = unified.strength
-            if self._pressure_strength_lut is not None:
-                strength *= mapping.eval_pressure_lut(self._pressure_strength_lut, pressure)
-            if self._pressure_size_lut is not None:
-                world_radius *= mapping.eval_pressure_lut(self._pressure_size_lut, pressure)
-            for pass_strength in smooth_iteration_strengths(strength * self._overlap):
+            if generic_payload is not None:
+                strength = generic_payload[0][0]
+            else:
+                strength = unified.strength if unified.use_unified_strength else self.brush.strength
+                if self._pressure_strength_lut is not None and pressure is not None:
+                    strength *= mapping.eval_pressure_lut(self._pressure_strength_lut, pressure)
+                if self._pressure_size_lut is not None and pressure is not None:
+                    world_radius *= mapping.eval_pressure_lut(self._pressure_size_lut, pressure)
+                strength *= self._overlap
+            for pass_strength in smooth_iteration_strengths(strength):
                 # Smoothing has no inverse (see apply_dab_state): ignore Ctrl
                 # and the brush direction for the smooth passes.
-                mapping.apply_dab_state(self.brush, unified, self.session.brush_obj,
-                                        world_radius=world_radius, invert=False,
-                                        strength_override=pass_strength,
-                                        allow_invert=False)
+                if generic_payload is not None:
+                    self._publish_generic(generic_payload, pass_strength)
+                else:
+                    mapping.apply_dab_state(self.brush, unified, self.session.brush_obj,
+                                            world_radius=world_radius, invert=False,
+                                            strength_override=pass_strength,
+                                            allow_invert=False)
                 self._apply_one_image(position, normal, world_radius, due,
                                       snake_delta=snake_delta)
                 for sign in self._mirror_signs:
@@ -1302,18 +1521,15 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
                         symmetry.reflect(position, sign),
                         symmetry.reflect(normal, sign), world_radius, due,
                         snake_delta=(None if snake_delta is None
-                                     else symmetry.reflect(snake_delta, sign)))
+                                     else symmetry.reflect(snake_delta, sign)), view_sign=sign)
                 due = False  # remesh at most once per logical dab
             return
 
-        mapping.apply_dab_state(self.brush, unified, self.session.brush_obj,
-                                world_radius=world_radius, invert=invert, strength_scale=self._overlap)
-        if self._use_pressure:
-            # The executor consumes the device samples in loadProps; refill per
-            # dab (engine bridge convention).
-            sc = self.session.brush_obj
-            sc.clearDeviceInputs()
-            sc.pushDeviceInput(mapping.DEVICE_PRESSURE, pressure)
+        if generic_payload is not None:
+            self._publish_generic(generic_payload)
+        else:
+            mapping.apply_dab_state(self.brush, unified, self.session.brush_obj,
+                                    world_radius=world_radius, invert=invert, strength_scale=self._overlap)
         self._apply_one_image(position, normal, world_radius, due,
                               snake_delta=snake_delta)
         # Symmetry mirror images: reflect the resolved primary center and normal
@@ -1327,9 +1543,47 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
                 symmetry.reflect(position, sign),
                 symmetry.reflect(normal, sign), world_radius, due,
                 snake_delta=(None if snake_delta is None
-                             else symmetry.reflect(snake_delta, sign)))
+                             else symmetry.reflect(snake_delta, sign)), view_sign=sign)
 
-    def _apply_batch(self, context, points, invert, pressure):
+    def _apply_generic_batches(self, dabs, inputs, payloads, grids, directions):
+        """Keep order while batching rows with identical converted command settings."""
+        session, lib = self.session, engine.capi().lib
+        keys = [(payload[0][0], payload[0][2:5], payload[1], payload[2], direction)
+                for payload, direction in zip(payloads, directions)]
+        start = 0
+        while start < len(payloads):
+            end = start + 1
+            while end < len(payloads) and keys[end] == keys[start]:
+                end += 1
+            self._generic.view_direction = directions[start]
+            self._generic.view_image()
+            self._publish_generic(payloads[start])
+            count = end - start
+            batch, channels = dabs[start:end], inputs[start:end]
+            strength = payloads[start][0][0]
+            self._dab_count += count * (1 + len(self._mirror_signs))
+            if grids:
+                if self._program is not None:
+                    moved = lib.GridStroke_dabBatchProgramInputs(
+                        session.grid_ptr, self._program.ptr, count, batch, strength, channels,
+                        self._mirror_flat, len(self._mirror_signs), 1)
+                else:
+                    moved = lib.GridStroke_dabBatchInputs(
+                        session.grid_ptr, int(self.kernel), count, batch, strength, channels,
+                        self._mirror_flat, len(self._mirror_signs), 1)
+            else:
+                function = (lib.MeshStroke_dabBatchProgramInputs if self._program is not None
+                            else lib.MeshStroke_dabBatchInputs)
+                target = self._program.ptr if self._program is not None else int(self.kernel)
+                moved = function(_ensure_executor(session).ptr, session.tree().ptr, session.mesh().ptr,
+                                 _ensure_brush(session).ptr, target, count, batch, strength, channels,
+                                 self._filter_mul, self._mirror_flat, len(self._mirror_signs), 1)
+            if moved < 0:
+                self._engine_dead = True
+                return
+            start = end
+
+    def _apply_batch(self, context, points):
         """The C++ dab loop (``sculptcore_cpp_dab_loop``): resolve and apply
         every spacer-emitted point of one pointer event in two flat engine
         calls — a batch raycast and a dab batch — instead of one Python
@@ -1346,7 +1600,7 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         lib = engine.capi().lib
         n = len(points)
         rays = np.empty((n, 6), dtype=np.float32)
-        for i, point in enumerate(points):
+        for i, (point, sample) in enumerate(points):
             origin, direction = _ray_origin_dir(context, point)
             rays[i, 0:3] = origin
             rays[i, 3:6] = direction
@@ -1368,15 +1622,31 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         # quantity Python still owns — it needs the region/view matrices) and
         # the pivot fold, primaries only, as the per-dab path does.
         dabs = np.empty((hit_count, 7), dtype=np.float32)
+        inputs = np.empty((hit_count, 6), dtype=np.float32)
         row = 0
+        samples = []
         for i in range(n):
             if not hit_mask[i]:
                 continue
             position = (float(hits[i, 0]), float(hits[i, 1]), float(hits[i, 2]))
             self._track_pivot(position)
             dabs[row, 0:6] = hits[i]
-            dabs[row, 6] = _world_radius(context, self.brush, position)
+            dabs[row, 6] = self._base_radius(context, position)
+            sample = points[i][1]
+            samples.append(sample)
+            inputs[row, :5] = sample.batch_row()
+            inputs[row, 5] = sample.invert ^ (self._generic.settings.subtract if self._generic
+                                                  else self.brush.direction == 'SUBTRACT')
             row += 1
+        payloads = None
+        if self._generic:
+            rows = self._generic.evaluate(samples, dabs[:, 6])
+            payloads = [self._generic.prepare(values, sample, family_scale=self._family_scale)
+                        for values, sample in zip(rows, samples)]
+            if dabs[-1, 6] > 0:
+                self._generic.cursor_scale = payloads[-1][0][1] / float(dabs[-1, 6])
+            for index, payload in enumerate(payloads):
+                dabs[index, 6] = payload[0][1]
         if session.multires_ptr:
             # The regions this batch paints, for the per-dab cage collapse (see
             # undo.scatter_cage_columns). The mirror images are applied engine
@@ -1392,35 +1662,39 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         # Strength/invert exactly as mapping.apply_dab_state folds them; both
         # are constant across the event's batch (pressure reaches strength
         # through the engine's device dynamics, not this scalar).
+        if payloads is not None:
+            from .brush_properties.stroke_settings import view_direction
+            directions = [view_direction(context, row[:3]) for row in dabs]
+            self._apply_generic_batches(dabs, inputs, payloads, grids, directions)
+            return
         unified = context.tool_settings.sculpt.unified_paint_settings
         strength = (unified.strength if unified.use_unified_strength
                     else self.brush.strength) * self._overlap
-        sc_invert = bool(invert) ^ bool(self.brush.direction == 'SUBTRACT')
         self._dab_count += hit_count * (1 + len(self._mirror_signs))
         if grids and self._program is not None:
-            moved = lib.GridStroke_dabBatchProgram(
+            moved = lib.GridStroke_dabBatchProgramInputs(
                 session.grid_ptr, self._program.ptr, hit_count, dabs,
-                strength, int(sc_invert), pressure, int(self._use_pressure),
-                self._mirror_flat, len(self._mirror_signs))
+                strength, inputs,
+                self._mirror_flat, len(self._mirror_signs), 2)
         elif grids:
-            moved = lib.GridStroke_dabBatch(
+            moved = lib.GridStroke_dabBatchInputs(
                 session.grid_ptr, int(self.kernel), hit_count, dabs,
-                strength, int(sc_invert), pressure, int(self._use_pressure),
-                self._mirror_flat, len(self._mirror_signs))
+                strength, inputs,
+                self._mirror_flat, len(self._mirror_signs), 2)
         elif self._program is not None:
-            moved = lib.MeshStroke_dabBatchProgram(
+            moved = lib.MeshStroke_dabBatchProgramInputs(
                 _ensure_executor(session).ptr, session.tree().ptr,
                 session.mesh().ptr, _ensure_brush(session).ptr,
                 self._program.ptr, hit_count, dabs,
-                strength, int(sc_invert), pressure, int(self._use_pressure),
-                self._filter_mul, self._mirror_flat, len(self._mirror_signs))
+                strength, inputs,
+                self._filter_mul, self._mirror_flat, len(self._mirror_signs), 2)
         else:
-            moved = lib.MeshStroke_dabBatch(
+            moved = lib.MeshStroke_dabBatchInputs(
                 _ensure_executor(session).ptr, session.tree().ptr,
                 session.mesh().ptr, _ensure_brush(session).ptr,
                 int(self.kernel), hit_count, dabs,
-                strength, int(sc_invert), pressure, int(self._use_pressure),
-                self._filter_mul, self._mirror_flat, len(self._mirror_signs))
+                strength, inputs,
+                self._filter_mul, self._mirror_flat, len(self._mirror_signs), 2)
         if moved < 0:
             self._engine_dead = True
 
@@ -1434,13 +1708,14 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
             points = self._spacer.flush(self._last_spacing)
             if self._batch:
                 if points and not self._engine_dead:
-                    self._apply_batch(context, points, self._last_invert,
-                                      self._last_pressure)
+                    self._apply_batch(context, points)
             else:
-                for point in points:
-                    self._apply_spaced_dab(context, point, self._last_invert,
-                                           self._last_pressure)
+                for point, sample in points:
+                    self._apply_spaced_dab(context, point, sample)
+        if self._engine_dead:
+            status = 'CANCELLED'
         stroke_end(self.session)
+        self._close_generic()
         # Deferred write-back: with the draw provider active the viewport only
         # needs its GPU buffers; the Mesh ID syncs on demand through the
         # mode's flush callback (memfile encode / save / render). This keeps
@@ -1458,11 +1733,15 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         return {status}
 
     def _preview_apply_image(self, center, normal, world_radius, extend,
-                             snake_delta=None):
+                             snake_delta=None, view_sign=(1, 1, 1)):
         """Snapshot one dab image's region into the open preview session
         (``begin`` for the primary, ``extend`` for each mirror), then deform it.
         Snapshotting before the deform lets the whole group roll back together.
         No dyntopo in the preview path (anchored/drag-dot deform only)."""
+        if self._generic:
+            self._generic.view_image(view_sign)
+        if self._engine_dead:
+            return
         if snake_delta is not None:
             set_snake_hook_state(self.session, center, snake_delta)
         mgr = engine.manager()
@@ -1481,16 +1760,22 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         finally:
             center_v.dispose()
         if self._program is not None:
-            apply_dab_program(self.session, self._program, center, normal,
-                              world_radius, kernel=self.kernel)
+            moved = apply_dab_program(self.session, self._program, center, normal,
+                                     world_radius, kernel=self.kernel, grab_add=extend)
         else:
-            apply_dab(self.session, self.kernel, center, normal, world_radius)
+            moved = apply_dab(self.session, self.kernel, center, normal, world_radius, grab_add=extend)
+        if moved < 0:
+            self._engine_dead = True
 
     def _dab_preview(self, context, event):
         """Anchored / Drag-Dot: one live dab (plus mirrors) inside a preview
         bracket so successive inputs never compound. Resolve the new dab first,
         then roll back the previous provisional group and apply the new one."""
-        invert = event.ctrl or self.mode == 'INVERT'
+        sample = self._read_input(event)
+        if sample is None:
+            return
+        sample.upload(self.session.brush_obj)
+        invert = sample.invert
         executor = _ensure_executor(self.session)
         coord = (event.mouse_region_x, event.mouse_region_y)
 
@@ -1513,7 +1798,7 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
                 # Cursor off the surface: keep the previous provisional dab.
                 return
             center, normal, _ = hit
-            world_radius = _world_radius(context, self.brush, center)
+            world_radius = self._base_radius(context, center)
             if self._snake_hook and self._preview_origin is None:
                 self._preview_origin = center
 
@@ -1530,25 +1815,25 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
             else:
                 snake_delta = tuple(center[i] - self._preview_origin[i] for i in range(3))
 
-        # Roll back the previous provisional group only now that a new dab is
-        # resolved (a drag-dot miss above leaves the last dab intact).
-        if executor.previewActive():
-            executor.rollbackPreviewDab()
-            # The rollback moved verts back, so the node bounds are stale in the
-            # other direction now — refresh before this tick's dab filters.
-            _refresh_queries(self.session)
+        generic_payload = None
+        if self._generic:
+            self._set_generic_view(context, center)
+            generic_payload = self._prepare_generic(sample, world_radius)
+            world_radius = generic_payload[0][1]
         unified = context.tool_settings.sculpt.unified_paint_settings
-        if self._smooth_stroke:
+        if generic_payload is not None:
+            self._publish_generic(generic_payload)
+        elif self._smooth_stroke:
             # Smooth registers no engine dynamics (see invoke): fold pressure
             # into strength / radius Python-side through the baked LUTs.
             strength = self.brush.strength
             if unified.use_unified_strength:
                 strength = unified.strength
             strength *= self._overlap
-            if self._pressure_strength_lut is not None:
-                strength *= mapping.eval_pressure_lut(self._pressure_strength_lut, event.pressure)
-            if self._pressure_size_lut is not None:
-                world_radius *= mapping.eval_pressure_lut(self._pressure_size_lut, event.pressure)
+            if self._pressure_strength_lut is not None and sample.pressure is not None:
+                strength *= mapping.eval_pressure_lut(self._pressure_strength_lut, sample.pressure)
+            if self._pressure_size_lut is not None and sample.pressure is not None:
+                world_radius *= mapping.eval_pressure_lut(self._pressure_size_lut, sample.pressure)
             mapping.apply_dab_state(self.brush, unified, self.session.brush_obj,
                                     world_radius=world_radius, invert=invert,
                                     strength_override=strength, allow_invert=False)
@@ -1556,10 +1841,19 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
             mapping.apply_dab_state(self.brush, unified, self.session.brush_obj,
                                     world_radius=world_radius, invert=invert,
                                     strength_scale=self._overlap, allow_invert=True)
-            if self._use_pressure:
-                sc = self.session.brush_obj
-                sc.clearDeviceInputs()
-                sc.pushDeviceInput(mapping.DEVICE_PRESSURE, event.pressure)
+        # Roll back the previous provisional group only now that a new dab is
+        # resolved (a drag-dot miss above leaves the last dab intact).
+        if snake_delta is not None:
+            set_snake_hook_state(self.session, center, snake_delta)
+        valid = preflight_preview(self.session, self.kernel, self._program, center, normal)
+        if not valid:
+            self._engine_dead = True
+            return
+        if executor.previewActive():
+            executor.rollbackPreviewDab()
+            # The rollback moved verts back, so the node bounds are stale in the
+            # other direction now — refresh before this tick's dab filters.
+            _refresh_queries(self.session)
         # Only the last provisional dab survives the preview bracket, so the
         # pivot replaces rather than accumulates (an average over every input
         # would drag it back toward the stroke's first position).
@@ -1573,7 +1867,7 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
             self._preview_apply_image(
                 symmetry.reflect(center, sign), symmetry.reflect(normal, sign),
                 world_radius, extend=True,
-                snake_delta=None if snake_delta is None else symmetry.reflect(snake_delta, sign))
+                snake_delta=None if snake_delta is None else symmetry.reflect(snake_delta, sign), view_sign=sign)
         self._mid_redraw(context)
 
     def _finish_preview(self, context, commit):
@@ -1590,6 +1884,7 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
             else:
                 executor.rollbackPreviewDab()
         stroke_end(self.session)
+        self._close_generic()
         if self.session.draw_key:
             convert.draw_refresh(ob)
         else:
@@ -1607,10 +1902,16 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         """Scale the viewport cursor circle by the current size-pressure factor
         so it tracks the pen like the deformation does (1.0 when size pressure
         is off)."""
+        if self._generic:
+            return
         scale = 1.0
         if self._pressure_size_lut is not None:
             scale = mapping.eval_pressure_lut(self._pressure_size_lut, pressure)
         cursor.set_size_scale(scale)
+
+    def _read_input(self, event):
+        return self._input_sampler.read(
+            event, (event.mouse_region_x, event.mouse_region_y), event.ctrl or self.mode == 'INVERT')
 
     def modal(self, context, event):
         if event.type in _MOVE_EVENT_TYPES:
@@ -1623,12 +1924,6 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
             # stroke went missing. Native sculpt consumes them too, skipping
             # only the paint-cursor update (#paint_stroke_modal).
             live = event.type == 'MOUSEMOVE'
-            # Preview and grab-class strokes re-base from the stroke start on
-            # every input (a rolled-back provisional dab; an anchored absolute
-            # drag), so only the newest sample can survive -- applying the
-            # backlog would be overwritten work, not extra fidelity.
-            if not live and (self._preview_method or self._grab_class):
-                return {'RUNNING_MODAL'}
             if live:
                 self._publish_cursor_pressure(event.pressure)
             if self._preview_method:
@@ -1638,15 +1933,17 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
                 # always ends on a live MOUSEMOVE, which carries the redraw for
                 # the whole batch.
                 self._dab_at(context, event, redraw=live)
-                if self._engine_dead:
-                    self.report({'WARNING'},
-                                "SculptCore: engine refused the stroke (stale "
-                                "multires domain); stroke cancelled")
-                    return self._finish(context, 'CANCELLED')
+            if self._engine_dead:
+                self.report({'WARNING'}, "SculptCore: engine refused the stroke; see the system console")
+                if self._preview_method:
+                    return self._finish_preview(context, commit=False)
+                return self._finish(context, 'CANCELLED')
             return {'RUNNING_MODAL'}
         if event.type == 'LEFTMOUSE' and event.value == 'RELEASE':
             if self._preview_method:
                 return self._finish_preview(context, commit=True)
+            if not self._grab_class:
+                self._dab_at(context, event, redraw=False)
             return self._finish(context, 'FINISHED')
         if event.type in {'RIGHTMOUSE', 'ESC'}:
             if self._preview_method:

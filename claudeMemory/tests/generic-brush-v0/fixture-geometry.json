@@ -1,0 +1,106 @@
+{
+  "fixture_clay_plain": {
+    "cavity": [
+      1.75,
+      3,
+      0.375
+    ],
+    "effective_strength": 0.75,
+    "kernel": "CLAY",
+    "path": "mesh Python apply_dab",
+    "planeSide": 1.0,
+    "pressure": null,
+    "sha256": "e802adb5d54a2096938eb6da43ef7cbd7badebe5a499310b8ff59960952ea875"
+  },
+  "fixture_clay_pressure": {
+    "cavity": [
+      1.75,
+      3,
+      0.375
+    ],
+    "effective_strength": 0.75,
+    "kernel": "CLAY",
+    "path": "mesh Python apply_dab",
+    "planeSide": 1.0,
+    "pressure": 0.5,
+    "sha256": "0ede8c84729a6e7aafa6befb58b691045fdd35da3baabfaee7ebc53e58c9a48e"
+  },
+  "fixture_draw_plain": {
+    "cavity": [
+      1.75,
+      3,
+      0.375
+    ],
+    "effective_strength": 0.75,
+    "kernel": "DRAW",
+    "path": "mesh Python apply_dab",
+    "planeSide": 1.0,
+    "pressure": null,
+    "sha256": "b2fc5f7a2bda6b44f64d33072df9e0ec544deaa0a7479af878d5468b778ffd63"
+  },
+  "fixture_draw_pressure": {
+    "cavity": [
+      1.75,
+      3,
+      0.375
+    ],
+    "effective_strength": 0.75,
+    "kernel": "DRAW",
+    "path": "mesh Python apply_dab",
+    "planeSide": 1.0,
+    "pressure": 0.5,
+    "sha256": "e6e214a78eaf64dd757648ff67cd4573bf026a203c9feaf8d11d3acd6fb9cff0"
+  },
+  "fixture_nudge_plain": {
+    "cavity": [
+      1.75,
+      3,
+      0.375
+    ],
+    "effective_strength": 0.75,
+    "kernel": "NUDGE",
+    "path": "mesh Python apply_dab",
+    "planeSide": 1.0,
+    "pressure": null,
+    "sha256": "b7daf2ed8d52a431149b97fdcd406c86afde67e5ca59ad75cdd6ea1b590db00d"
+  },
+  "fixture_nudge_pressure": {
+    "cavity": [
+      1.75,
+      3,
+      0.375
+    ],
+    "effective_strength": 0.75,
+    "kernel": "NUDGE",
+    "path": "mesh Python apply_dab",
+    "planeSide": 1.0,
+    "pressure": 0.5,
+    "sha256": "3f92829d806ee7fe97748f4b339bd25b9691340b4e91a1fc4df1ace897dd3a13"
+  },
+  "fixture_plane_plain": {
+    "cavity": [
+      1.75,
+      3,
+      0.375
+    ],
+    "effective_strength": 0.75,
+    "kernel": "FILL",
+    "path": "mesh Python apply_dab",
+    "planeSide": 1.0,
+    "pressure": null,
+    "sha256": "e802adb5d54a2096938eb6da43ef7cbd7badebe5a499310b8ff59960952ea875"
+  },
+  "fixture_plane_pressure": {
+    "cavity": [
+      1.75,
+      3,
+      0.375
+    ],
+    "effective_strength": 0.75,
+    "kernel": "FILL",
+    "path": "mesh Python apply_dab",
+    "planeSide": 1.0,
+    "pressure": 0.5,
+    "sha256": "0ede8c84729a6e7aafa6befb58b691045fdd35da3baabfaee7ebc53e58c9a48e"
+  }
+}

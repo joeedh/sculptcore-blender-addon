@@ -1,0 +1,17 @@
+**No substantiated owner/domain blocker in the supplied plan.** Its revised requirements close the concrete hazards visible in this code; I would not invent an implementation defect from details it explicitly leaves for implementation.
+
+- **Independent owners are handled correctly.** The resolver chooses value and stack owners separately (`resolver.py:104–117`), derives the domain from the **value** owner (`131–136`), and `prepare_stack()` samples through the **stack** owner (`commands.py:62–69`). The plan preserves that separation (`generic-brush-plan6-snapshots.md:15–20,36–39`).
+
+- **Native scalar preservation requires the proposed new snapshot type.** `ExecutionValue` validates against `Definition` (`commands.py:78–82`); semantic SIZE has a FLOAT32 definition (`adapters.py:18–21`) even when its resolved native domain is INT32 (`113–128`). Reusing `ExecutionValue` directly would turn pixel size into float. The plan explicitly prohibits that reinterpretation and postpones execution normalization (`plan:23–29,58–64`). This is a concrete implementation trap, already addressed by the plan.
+
+- **Paired SIZE validation is necessary and explicitly required.** `size_block()` merely copies fields; it does not validate either diameter or the mode (`adapters.py:150–154`). Moreover, `ValueDomain.validate()` accepts integral floats for INT32 (`50–57`), so it alone cannot enforce strict pixel primitive types. The plan’s corrections require strict types, both native domains, valid mode, and active-field agreement (`plan:46–50`). Those requirements must be implemented before any coercion.
+
+- **Prepared curves can outlive their owners safely.** Preparation produces immutable response data (`commands.py:24–38,67–69`; `responses.py:55–74`). Sampling validates the store and curve reference before consulting the mapping cache (`sampling.py:112–126`); native references are rechecked against current owner, capability-selected flag path, and mapping key (`adapters.py:206–220`). The supplied custom-curve test demonstrates rejection after an edit and survival of completed tables after cache clearing (`test_plan6_stack_owners.py:49–60`).
+
+I would tighten acceptance criteria with three explicit cases:
+
+1. **Opposite SIZE modes across owners:** unequal Brush/Scene pairs, both inheritance directions, both stack owners; assert exact Python types and the selected owner’s entire pair. Existing SIZE tests primarily exercise local values (`test_native_adapters.py:76–120`).
+2. **Warm-cache stale native curves:** edit the native curve or switch between native/shadow pressure capability after resolution; stale preparation must fail even with cached samples. Existing snapshot testing covers an edited custom curve, not this native path.
+3. **Empty/generated stacks after owner invalidation:** reject capture from stale stores after restoration, deletion, or lifecycle invalidation; completed snapshots must remain usable. Empty preparation performs no per-layer owner validation (`commands.py:67–69`), so capture must obtain fresh resolution rather than treat preparation as a freshness check.
+
+These are acceptance refinements, not demonstrated contradictions in the plan. Custom-bank stale-reference guarantees remain unverified from this packet because `curves.py` is not supplied.

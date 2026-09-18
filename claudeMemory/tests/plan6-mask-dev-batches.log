@@ -1,0 +1,24 @@
+Blender 5.3.0 Alpha
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+PLAN6_MASK_BATCHES_PASS {"passed": true, "dll": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\sculptcore_capi.dll", "sha256": "d084b5ef6e175875ece9c39045d786e67b43b5fd42f09dc45c3f656cd9de718b", "checks": [{"grid": false, "order": ["MASK"], "batch": false, "max_error": 0.0}, {"grid": false, "order": ["MASK"], "batch": true, "max_error": 0.0}, {"grid": false, "order": ["DRAW", "MASK"], "batch": false, "max_error": 0.0}, {"grid": false, "order": ["DRAW", "MASK"], "batch": true, "max_error": 0.0}, {"grid": false, "order": ["MASK", "DRAW"], "batch": false, "max_error": 0.0}, {"grid": false, "order": ["MASK", "DRAW"], "batch": true, "max_error": 0.0}, {"grid": true, "order": ["MASK"], "batch": false, "max_error": 0.0}, {"grid": true, "order": ["MASK"], "batch": true, "max_error": 0.0}, {"grid": true, "order": ["DRAW", "MASK"], "batch": false, "max_error": 0.0}, {"grid": true, "order": ["DRAW", "MASK"], "batch": true, "max_error": 0.0}, {"grid": true, "order": ["MASK", "DRAW"], "batch": false, "max_error": 0.0}, {"grid": true, "order": ["MASK", "DRAW"], "batch": true, "max_error": 0.0}]}
+
+Blender quit
+

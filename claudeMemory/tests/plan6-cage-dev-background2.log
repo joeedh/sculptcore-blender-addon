@@ -1,0 +1,41 @@
+Blender 5.3.0 Alpha
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+  ok   the session is at level 5
+  ok   the L5 paint dab touched 24 nodes
+  ok   the paint left the centre vert far from its cage 1-ring mean (0.769), so the smooth has a target
+  ok   stroke_begin opened the engine cage-smooth session
+  ok   and it is not a grids-native stroke
+  ok   the cage-smooth dab visited 9 cage verts
+  ok   stroke_end freed the cage session
+  ok   the stroke owns a meshlog step of its own, dab-empty as it is
+  ok   the push paired both sides of the cage colour column
+  ok   the dab smoothed exactly the cage vert under its centre (got [4])
+  ok   and moved it toward its cage 1-ring mean (0.769 -> 0.307)
+  ok   the level's samples are a pure function of the smoothed cage — cage-resolution smoothing, still true after the push
+  ok   undo restored the pre-smooth cage column exactly
+  ok   and re-derived the level from it
+
+Blender quit
+
+Traceback (most recent call last):
+  File "C:\dev\blender\sculptcore-blender-addon\claudeMemory\scripts\test_plan6_cage_host.py", line 32, in <module>
+    gate.run_cage_smooth()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\dev\blender\sculptcore-blender-addon\tools\verify_multires_color.py", line 581, in run_cage_smooth
+    undo.decode(bpy.context, ob, key, 1, False)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\dev\blender\build_windows_x64_clang_RelWithDebInfo\bin\5.3\scripts\addons_core\sculptcore_addon\undo.py", line 690, in decode
+    convert.flush(ob)
+    ~~~~~~~~~~~~~^^^^
+  File "C:\dev\blender\build_windows_x64_clang_RelWithDebInfo\bin\5.3\scripts\addons_core\sculptcore_addon\convert.py", line 2218, in flush
+    _flush_multires(ob, session)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\dev\blender\build_windows_x64_clang_RelWithDebInfo\bin\5.3\scripts\addons_core\sculptcore_addon\convert.py", line 2198, in _flush_multires
+    multires.export_mask(ob, depsgraph, session.multires_map, session.multires_ptr)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\dev\blender\build_windows_x64_clang_RelWithDebInfo\bin\5.3\scripts\addons_core\sculptcore_addon\multires.py", line 272, in export_mask
+    top = mapping.level
+          ^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'level'
+
+Error: script failed, file: 'C:\dev\blender\sculptcore-blender-addon\claudeMemory\scripts\test_plan6_cage_host.py', exiting.

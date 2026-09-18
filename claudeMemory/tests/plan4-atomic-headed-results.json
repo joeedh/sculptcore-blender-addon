@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "checks": [
+    "Scene scalar and unified policy undo with stale-store rejection",
+    "Scene undo restores absent root",
+    "Scene redo restores actual persistent generic records",
+    "draw-time native write rejection and generic custom-property UI rendering"
+  ],
+  "draw_rejections": 7
+}

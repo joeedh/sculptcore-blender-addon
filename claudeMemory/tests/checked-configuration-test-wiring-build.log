@@ -1,0 +1,17 @@
+Building...
+[0/2] Re-checking globbed directories...
+[1/2] Re-running CMake...
+-- sculptcore: sccache compiler launcher enabled (C:/dev/sccache/target/release/sccache.exe)
+-- sbrush: tint = C:/dev/tint/tint.exe
+-- sbrush: SPIR-V validator = C:/VulkanSDK/1.4.350.0/Bin/spirv-val.exe
+-- Using Win32 for window creation
+-- vulkan: glslc = C:/VulkanSDK/1.4.350.0/Bin/glslc.exe
+-- Configuring done (3.8s)
+-- Generating done (2.3s)
+-- Build files have been written to: C:/dev/blender/sculptcore-blender-addon/engine/build/native
+[0/4] Re-checking globbed directories...
+ninja: no work to do.
+codegen: typescript/sculptcore/brush/brushWgsl.ts up to date
+[33m[0/2] Re-checking globbed directories...
+[39m
+ninja: no work to do.

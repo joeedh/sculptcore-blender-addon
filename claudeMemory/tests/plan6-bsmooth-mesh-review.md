@@ -1,0 +1,14 @@
+**No mesh blockers substantiated by this packet.** The plan addresses the exposed hook and topology hazards without requiring the deferred general host integration.
+
+- **Hook classification:** BSMOOTH has only the boundary refresh; FEATURE_ALIGN shares that callback but also requires a cross-field pass (`brush_hooks.cc:69–73`). Plan lines 10–14 correctly require explicit metadata and exclude FEATURE_ALIGN. Sharing the callback must never make the entire FEATURE_ALIGN hook set prepared-safe.
+- **Preflight:** Both prepared entrypoints currently validate before execution. Single-dab radius validation precedes publication (`brush_executor.cc:154–180`); program preparation validates every stage’s radius before publishing its output (`brush_program_preparation.cc:179–204`). Plan lines 21–29 preserve that ordering and require hooks after complete validation.
+- **Topology lifetime:** The refresh actually checks `boundaryDirty`, thaws frozen topology, then recomputes (`brush_executor.h:1312–1318`). Running it before the existing single/program topology decisions (`brush_executor.cc:187–194,272–281`) addresses the dropped-page hazard. Running it independently of first-dab status also handles empty dabs, which currently clear that status (`brush_executor.cc:208,300`).
+- **Program execution and undo:** The plan preserves the common node set and per-stage working values. Existing execution assigns separate capture slots before each stage (`brush_executor.cc:289–295`); capture elision checks both stroke and tool within each slot (`brush_executor.h:820–841`). Nothing supplied establishes an undo defect introduced by this boundary change.
+
+**Acceptance refinements, not blockers:**
+
+1. **Separate the empty-first-dab test from raw parity.** Raw single and program hooks remain gated by `isFirstOfStep` (`brush_executor.h:1765–1768,1891–1894`). For the planned zero/miss regression, explicitly establish fresh boundary classes in the reference fixture; raw execution alone is not a reliable oracle for the intended corrected refresh behavior.
+
+2. **Make scalar expectations entrypoint-specific.** Single execution calls `prepared.publish`; program execution uses `ScopedBrushWorkingValues` (`brush_executor.cc:178,273–274,292`). Clarify plan line 40 so “restoration” preserves each entrypoint’s existing contract rather than accidentally requiring program-style rollback from standalone execution.
+
+3. **Define “exact undo/redo” observables.** Attribute binding and boundary refresh precede kernel capture (`brush_executor.h:727–765,836`; plan lines 23–24). The supplied excerpts do not establish whether derived boundary inventory participates in undo. Require exact geometry restoration and correct subsequent BSMOOTH behavior after undo/redo; separately specify any intended inventory/cache restoration requirement. Missing evidence here is not a demonstrated blocker.

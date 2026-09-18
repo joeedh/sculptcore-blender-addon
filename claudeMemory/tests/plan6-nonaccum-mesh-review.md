@@ -1,0 +1,19 @@
+**No substantiated mesh blockers in the supplied packet.** The proposed factory change matches the existing raw selection rule and preserves the ordering needed for atomic preflight. I would tighten acceptance in four places.
+
+The implementation is supported by the supplied code:
+
+- **Factory and template selection:** The predicate exactly matches raw mesh dispatch (`brush_executor.h:520–523`). A fresh `AccumOrig` command avoids duplicated manifests; using a temporary `Brush` isolates extra-registry default seeding (`:457–481`). Collect program manifest spans only after replacement, and propagate failure from either factory call.
+- **Preflight atomicity:** All commands and scalar stages are prepared before region selection or execution (`brush_executor.cc:244–278`). Displacement allocation and stamping happen inside `exec` (`brush_executor.h:908–1013`), after capture. The planned scratch factory introduces no reason to move these operations into preflight.
+- **Stage mixing and capture:** Each prepared stage already receives its own capture slot (`brush_executor.cc:311–317`), with capture elision keyed by stroke, slot and tool (`brush_executor.h:814–842`). Relaxation stays live under the existing predicate. Its live writes can adjust `co - disp`, consistent with the plan’s preservation of base-adjustment behavior.
+
+**Acceptance refinements, not blockers:**
+
+1. **Assert the actual non-accumulating semantics.** `AccumOrig` adds `want - base` to both live coordinates and displacement; it does **not** impose a height cap (`accum_mode.h:154–164`). The introductory convergence comment at `:8–11` contradicts that implementation. Use the implementation as the oracle, and demonstrate that the chosen fixture produces different accumulation-on/off geometry. Changing pressure alone does not guarantee discrimination.
+
+2. **Prove growth reaches newly selected leaves.** The supplied test’s `outside > 0` only proves movement outside the initial **DRAW** ownership set (`test_brush_prepared_execution.cc:742–755,799–806`). The larger smooth radius can satisfy that on the first dab. Record the first dab’s complete program leaf union, then require a later dab to select and move vertices in a previously unselected leaf. Verify their displacement generation and undo restoration. Program selection already uses the maximum evaluated radius (`brush_program_preparation.cc:192–201`).
+
+3. **Exercise displacement lifetime across stage boundaries.** Beyond final raw/prepared parity, inspect representative vertices after DRAW, after BSMOOTH, and after the next DRAW. DRAW should preserve the derived base while increasing displacement; smoothing should retain its existing base-adjustment behavior. Include overlap and smooth-only regions. For the fresh second stroke, verify that stale displacement is reset on first contact under the new generation (`brush_executor.h:975–984`).
+
+4. **Make rejected-preflight and capture checks non-vacuous.** Reject a later command both before any successful dab and after a successful dab has populated displacement and capture stamps. Compare pages, values, stamps, geometry and first-dab state; then execute a valid dab. Also verify that both active program slots are captured on newly entered leaves. Final undo equality alone does not establish correct slot handling.
+
+The packet omits mesh stroke-generation setup, generated DRAW/BSMOOTH bodies and capture-policy internals, so it cannot establish their complete correctness. That is an evidence limit, not a demonstrated defect in this plan. Nothing supplied justifies expanding this change into the separately gated features.

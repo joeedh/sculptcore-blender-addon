@@ -1,0 +1,49 @@
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+PLAN6_GENERIC_ROUTE_USED
+PLAN6_PREVIEW_MODAL_CASE_PASS False ANCHORED False
+Info: attribute UVMap changed index in mesh
+Info: attribute .face.normal changed index in mesh
+Info: attribute .select_vert changed index in mesh
+Info: attribute .select_vert changed index in mesh
+Info: attribute .face.normal changed index in mesh
+Info: attribute UVMap changed index in mesh
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+PLAN6_GENERIC_ROUTE_USED
+PLAN6_GENERIC_ROUTE_USED
+PLAN6_PREVIEW_MODAL_CASE_PASS False ANCHORED True
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+PLAN6_GENERIC_ROUTE_USED
+PLAN6_GENERIC_ROUTE_USED
+PLAN6_PREVIEW_MODAL_CASE_PASS False DRAG_DOT False
+Info: attribute .face.normal changed index in mesh
+Info: attribute .select_vert changed index in mesh
+Info: attribute .select_vert changed index in mesh
+Info: attribute .face.normal changed index in mesh
+Info: attribute UVMap changed index in mesh
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+PLAN6_GENERIC_ROUTE_USED
+PLAN6_GENERIC_ROUTE_USED
+PLAN6_PREVIEW_MODAL_CASE_PASS False DRAG_DOT True
+PLAN6_GENERIC_ROUTE_USED
+PLAN6_GENERIC_ROUTE_USED
+PLAN6_PREVIEW_MODAL_CASE_PASS True ANCHORED False
+PLAN6_GENERIC_ROUTE_USED
+PLAN6_GENERIC_ROUTE_USED
+PLAN6_PREVIEW_MODAL_CASE_PASS True ANCHORED True
+PLAN6_GENERIC_ROUTE_USED
+PLAN6_GENERIC_ROUTE_USED
+PLAN6_PREVIEW_MODAL_CASE_PASS True DRAG_DOT False
+PLAN6_GENERIC_ROUTE_USED
+PLAN6_GENERIC_ROUTE_USED
+PLAN6_PREVIEW_MODAL_CASE_PASS True DRAG_DOT True
+PLAN6_PREVIEW_MODAL_PASS
+00:38.485  blend            | Saved session recovery to "C:\Users\joeed\AppData\Local\Temp\quit.blend"
+Info: attribute uv changed index in mesh
+Info: attribute .face.normal changed index in mesh
+Info: attribute uv changed index in mesh
+Info: attribute .face.normal changed index in mesh
+Info: attribute .face.normal changed index in mesh
+
+[error] toml::parse: Error opening file "C:\Users\joeed\AppData\Roaming\Blender Foundation\Blender\5.3\config\recents.toml"
+

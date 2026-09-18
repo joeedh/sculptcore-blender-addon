@@ -1,0 +1,32 @@
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+PLAN6_DYNTOPO_MODAL_CASE_PASS False False
+Info: attribute UVMap changed index in mesh
+Info: attribute .face.normal changed index in mesh
+Info: attribute normals changed index in mesh
+Info: attribute normals changed index in mesh
+Info: attribute .face.normal changed index in mesh
+Info: attribute UVMap changed index in mesh
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+PLAN6_DYNTOPO_MODAL_CASE_PASS False True
+Info: attribute .face.normal changed index in mesh
+Info: attribute normals changed index in mesh
+Info: attribute .face.normal changed index in mesh
+Info: attribute UVMap changed index in mesh
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+PLAN6_DYNTOPO_MODAL_CASE_PASS True False
+Info: attribute .face.normal changed index in mesh
+Info: attribute normals changed index in mesh
+Info: attribute .face.normal changed index in mesh
+Info: attribute UVMap changed index in mesh
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+PLAN6_DYNTOPO_MODAL_CASE_PASS True True
+PLAN6_DYNTOPO_MODAL_PASS
+00:29.297  blend            | Saved session recovery to "C:\Users\joeed\AppData\Local\Temp\quit.blend"
+Info: attribute .face.normal changed index in mesh
+Info: attribute normals changed index in mesh
+Info: attribute .face.normal changed index in mesh
+Info: attribute UVMap changed index in mesh
+
+[error] toml::parse: Error opening file "C:\Users\joeed\AppData\Roaming\Blender Foundation\Blender\5.3\config\recents.toml"
+

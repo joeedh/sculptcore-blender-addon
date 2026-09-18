@@ -1,0 +1,15 @@
+{
+  "suite": "test_gpu_uniform_pack",
+  "command": [
+    "C:\\Program Files\\nodejs\\node.EXE",
+    "make.mjs",
+    "test",
+    "test_gpu_uniform_pack"
+  ],
+  "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_gpu_uniform_pack.cc_out.exe",
+  "returncode": 0,
+  "passed": true,
+  "binary_sha256": "4b34fe99c629781dcc917c188b15a21f09562a7754ab270780a78cade3b6f093",
+  "stdout": "",
+  "stderr": ""
+}

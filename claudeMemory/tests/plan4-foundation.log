@@ -1,0 +1,16 @@
+test_absent_defaults_and_unknowns_never_allocate_or_delete (__main__.FoundationTests.test_absent_defaults_and_unknowns_never_allocate_or_delete) ... ok
+test_all_twelve_owner_combinations_and_effective_writes (__main__.FoundationTests.test_all_twelve_owner_combinations_and_effective_writes) ... ok
+test_definition_deep_immutability_positions_and_registry_revision (__main__.FoundationTests.test_definition_deep_immutability_positions_and_registry_revision) ... ok
+test_execution_availability_does_not_discard_authoring (__main__.FoundationTests.test_execution_availability_does_not_discard_authoring) ... ok
+test_independent_capability_fallbacks_and_keys (__main__.FoundationTests.test_independent_capability_fallbacks_and_keys) ... ok
+test_owner_restricted_metadata_and_malformed_capabilities (__main__.FoundationTests.test_owner_restricted_metadata_and_malformed_capabilities) ... ok
+test_policy_edits_preserve_dormant_values_and_root_never_inherits (__main__.FoundationTests.test_policy_edits_preserve_dormant_values_and_root_never_inherits) ... ok
+test_read_only_effective_owner_and_invalid_write_atomicity (__main__.FoundationTests.test_read_only_effective_owner_and_invalid_write_atomicity) ... ok
+test_scalar_types_ranges_and_exact_integer (__main__.FoundationTests.test_scalar_types_ranges_and_exact_integer) ... ok
+test_unique_ordered_devices_and_disabled_preservation (__main__.FoundationTests.test_unique_ordered_devices_and_disabled_preservation) ... ok
+test_whole_value_replacement_can_repair_without_consuming_invalid_old_value (__main__.FoundationTests.test_whole_value_replacement_can_repair_without_consuming_invalid_old_value) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.003s
+
+OK

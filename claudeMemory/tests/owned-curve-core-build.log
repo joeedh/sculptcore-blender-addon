@@ -1,0 +1,14 @@
+[1/8] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\curvemapping_owned.cc.obj
+curvemapping_owned.cc
+[2/8] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\lib_id_delete.cc.obj
+lib_id_delete.cc
+[3/8] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\idprop.cc.obj
+idprop.cc
+[4/8] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\colortools.cc.obj
+colortools.cc
+[5/8] Building CXX object source\blender\blenkernel\CMakeFiles\blenkernel_curvemapping_owned_test.dir\intern\curvemapping_owned_test.cc.obj
+curvemapping_owned_test.cc
+[6/8] Building CXX object source\blender\blenkernel\CMakeFiles\bf_blenkernel.dir\intern\lib_id.cc.obj
+lib_id.cc
+[7/8] Linking CXX static library lib\bf_blenkernel.lib
+[8/8] Linking CXX executable bin\tests\blenkernel_curvemapping_owned_test.exe

@@ -1,0 +1,19 @@
+[
+  "changed Brush commit",
+  "foreign undo preserves accumulated authoring",
+  "Scene undo leaves other owners authored",
+  "Scene undo restores native cavity, exact sizes and legacy unified flags",
+  "second Scene undo restores before",
+  "Brush undo restores scalar and exact native pair",
+  "Brush undo restores pressure flag, native response and cavity mapping",
+  "no-op preserves redo",
+  "Brush redo after no-op",
+  "Brush redo restores pressure and cavity",
+  "other Scene redo",
+  "active Scene redo restores preserved UPS",
+  "Scene redo restores native cavity and exact sizes",
+  "cancel restores Brush without losing foreign redo",
+  "foreign redo remains after cancel",
+  "changed commit truncates redo branch",
+  "new branch undo"
+]

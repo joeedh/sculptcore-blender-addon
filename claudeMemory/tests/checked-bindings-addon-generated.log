@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "dll": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\sculptcore_capi.dll",
+  "sha256": "0261ba6c7c8cb053907f22d74440a9b4de552f3244732f406f22944c514895eb",
+  "reflection_abi": 1,
+  "written_to_source": true,
+  "scope": "Python/TS declaration generation; TypeScript runtime transport is not tested"
+}
+15 Python and 74 TypeScript files

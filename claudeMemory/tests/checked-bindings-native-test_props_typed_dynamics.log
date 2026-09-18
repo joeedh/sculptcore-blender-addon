@@ -1,0 +1,15 @@
+{
+  "suite": "test_props_typed_dynamics",
+  "command": [
+    "C:\\Program Files\\nodejs\\node.EXE",
+    "make.mjs",
+    "test",
+    "test_props_typed_dynamics"
+  ],
+  "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_props_typed_dynamics.cc_out.exe",
+  "returncode": 0,
+  "passed": true,
+  "binary_sha256": "e5af46a2328f59cabd7eabdb837874d6675394052b3dd022855e1d0050e7d7f2",
+  "stdout": "",
+  "stderr": ""
+}

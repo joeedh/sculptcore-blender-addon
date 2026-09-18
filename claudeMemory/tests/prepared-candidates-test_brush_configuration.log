@@ -1,0 +1,15 @@
+{
+  "suite": "test_brush_configuration",
+  "command": [
+    "C:\\Program Files\\nodejs\\node.EXE",
+    "make.mjs",
+    "test",
+    "test_brush_configuration"
+  ],
+  "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_brush_configuration.cc_out.exe",
+  "returncode": 0,
+  "passed": true,
+  "binary_sha256": "f06cee2806eba05d0bc31a654565c3e1fa77cefaf54cc997127f739f21acf7e1",
+  "stdout": "",
+  "stderr": "brush property 'legacy': configuration error 1\r\n"
+}

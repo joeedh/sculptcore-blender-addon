@@ -746,7 +746,15 @@ def _tile_repeat(bl_brush, context):
     if region is None or region.height <= 0:
         return 1.0
     from . import mapping
-    radius = mapping.pixel_radius(context.tool_settings.sculpt, bl_brush)
+    session = engine.sessions.get(context.active_object.name) if context.active_object else None
+    if session is not None and session.generic_runtime is not None:
+        from .brush_properties.stroke_settings import pixel_radius
+        from . import stroke
+        origin, direction = stroke._ray_origin_dir(context, (region.width * .5, region.height * .5))
+        hit = stroke.raycast(session, origin, direction)
+        radius = pixel_radius(context, session.generic_runtime.settings.size, hit[0] if hit else (0, 0, 0))
+    else:
+        radius = mapping.pixel_radius(context.tool_settings.sculpt, bl_brush)
     if radius <= 0.0:
         return 1.0
     return region.height / (2.0 * radius)

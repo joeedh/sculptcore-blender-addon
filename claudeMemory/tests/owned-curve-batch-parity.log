@@ -1,0 +1,18 @@
+Blender 5.3.0 Alpha
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+  ok   mesh dabBatch accepted (got 64)
+  ok   mesh dabBatch accepted (got 30)
+  ok   mesh arm: same vert count
+  ok   mesh arm bit-exact (max |delta| = 0.0)
+  ok   mesh arm actually sculpted (0.21509)
+  ok   parity_grids_py: grids stroke dispatched
+  ok   parity_grids_batch: grids stroke dispatched
+  ok   grids dabBatch accepted (got 82)
+  ok   grids dabBatch accepted (got 50)
+  ok   grids arm: same vert count
+  ok   grids arm within thread noise (max |delta| = 1.1920928955078125e-07)
+test_batch_parity: all checks passed
+
+Blender quit

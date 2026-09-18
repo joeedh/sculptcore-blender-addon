@@ -1,0 +1,17 @@
+test_props_declarations: PASS
+test_props_checked_access: PASS
+test_props_typed_dynamics: PASS
+test_props: PASS
+test_sbrush_member_types: PASS
+test_brush_dynamics: PASS
+test_brush_uniform_validate: PASS
+test_sbrush_attr_writes: PASS
+test_gpu_uniform_pack: PASS
+test_brush_declarations: PASS
+test_brush_props: PASS
+test_brush_registry: PASS
+test_grid_stroke: PASS
+test_brush_named_storage: PASS
+test_brush_typed_extras: FAIL
+test_brush_configuration: PASS
+test_brush_prepared_execution: PASS

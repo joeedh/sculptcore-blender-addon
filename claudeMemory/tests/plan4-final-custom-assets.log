@@ -1,0 +1,13 @@
+Blender 5.3.0 Alpha
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+00:06.141  blend            | Read blend: "C:\dev\blender\sculptcore-blender-addon\claudeMemory\tests\generic-brush-v0\legacy.blend"
+00:06.594  asset.index      | ERROR Index not created: couldn't create folder "C:\Users\joeed\AppData\Local\Blender Foundation\Blender\Cache\asset-library-indices\67231b167629e133\3fb9f3706c9b7bdd_CustomActiveOwner.asset.blend.index.json".
+00:06.609  asset.index      | ERROR Index not created: couldn't create folder "C:\Users\joeed\AppData\Local\Blender Foundation\Blender\Cache\asset-library-indices\67231b167629e133\44c555729da78fb0_CustomEditedOwner.asset.blend.index.json".
+00:06.969  asset.index      | ERROR Index not created: couldn't create folder "C:\Users\joeed\AppData\Local\Blender Foundation\Blender\Cache\asset-library-indices\67231b167629e133\3fb9f3706c9b7bdd_CustomActiveOwner.asset.blend.index.json".
+00:06.984  asset.index      | ERROR Index not created: couldn't create folder "C:\Users\joeed\AppData\Local\Blender Foundation\Blender\Cache\asset-library-indices\67231b167629e133\44c555729da78fb0_CustomEditedOwner.asset.blend.index.json".
+00:07.359  asset.index      | ERROR Index not created: couldn't create folder "C:\Users\joeed\AppData\Local\Blender Foundation\Blender\Cache\asset-library-indices\67231b167629e133\3fb9f3706c9b7bdd_CustomActiveOwner.asset.blend.index.json".
+00:07.359  asset.index      | ERROR Index not created: couldn't create folder "C:\Users\joeed\AppData\Local\Blender Foundation\Blender\Cache\asset-library-indices\67231b167629e133\44c555729da78fb0_CustomEditedOwner.asset.blend.index.json".
+CUSTOM_ASSETS_OK test 5
+
+Blender quit
+

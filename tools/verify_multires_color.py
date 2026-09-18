@@ -504,7 +504,8 @@ def run_cage_smooth():
     re-derive per dab, and undo.push pairs the cage columns with the stroke's
     own (dab-empty) meshlog step."""
     ob = _object("cssmoothmr", 2, 5)
-    convert.enter(ob)
+    ob.select_set(True)
+    bpy.ops.object.custom_mode_toggle(mode_id="sculptcore.sculpt")
     session = engine.sessions[ob.name]
     convert.ensure_multires_slot(session)
     check(session.multires_active_level == 5, "the session is at level 5")
@@ -590,7 +591,7 @@ def run_cage_smooth():
                           cage_after[CENTER_VERT * 4:CENTER_VERT * 4 + 4],
                           atol=1e-6),
           "ob.data holds the smoothed centre vert after flush")
-    convert.exit_(ob)
+    bpy.ops.object.custom_mode_toggle(mode_id="sculptcore.sculpt")
     path = os.path.join(tempfile.gettempdir(), "sculptcore_cage_smooth_gate.blend")
     bpy.ops.wm.save_as_mainfile(filepath=path)
     bpy.ops.wm.open_mainfile(filepath=path)

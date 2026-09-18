@@ -1,0 +1,32 @@
+[==========] Running 11 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 11 tests from OwnedCurveRuntimeTest
+color_management | Using fallback mode for management
+                 | C:\dev\blender\main\source\blender\imbuf\intern\colormanagement.cc:352 colormanagement_init
+[ RUN      ] OwnedCurveRuntimeTest.CommitAndImmutableCopies
+[       OK ] OwnedCurveRuntimeTest.CommitAndImmutableCopies (0 ms)
+[ RUN      ] OwnedCurveRuntimeTest.RejectedTransactionsAndExplicitSync
+[       OK ] OwnedCurveRuntimeTest.RejectedTransactionsAndExplicitSync (0 ms)
+[ RUN      ] OwnedCurveRuntimeTest.ReadOnlyAndEditableAssets
+[       OK ] OwnedCurveRuntimeTest.ReadOnlyAndEditableAssets (0 ms)
+[ RUN      ] OwnedCurveRuntimeTest.DetachReattachAndAncestorReplacement
+[       OK ] OwnedCurveRuntimeTest.DetachReattachAndAncestorReplacement (0 ms)
+[ RUN      ] OwnedCurveRuntimeTest.SystemCollectionGrowthMoveAndDeletion
+[       OK ] OwnedCurveRuntimeTest.SystemCollectionGrowthMoveAndDeletion (0 ms)
+[ RUN      ] OwnedCurveRuntimeTest.OwnerCopySwapDeleteAndUnregisteredWorkerFree
+[       OK ] OwnedCurveRuntimeTest.OwnerCopySwapDeleteAndUnregisteredWorkerFree (0 ms)
+[ RUN      ] OwnedCurveRuntimeTest.ExactDataComparisonAndPresentation
+[       OK ] OwnedCurveRuntimeTest.ExactDataComparisonAndPresentation (0 ms)
+[ RUN      ] OwnedCurveRuntimeTest.GuardedEvaluation
+[       OK ] OwnedCurveRuntimeTest.GuardedEvaluation (0 ms)
+[ RUN      ] OwnedCurveRuntimeTest.PathWatchGroupMutationAndLifetime
+[       OK ] OwnedCurveRuntimeTest.PathWatchGroupMutationAndLifetime (0 ms)
+[ RUN      ] OwnedCurveRuntimeTest.PathWatchArrayIdentityIsIndependentOfCurveRecords
+[       OK ] OwnedCurveRuntimeTest.PathWatchArrayIdentityIsIndependentOfCurveRecords (0 ms)
+[ RUN      ] OwnedCurveRuntimeTest.PathWatchContentReplacementAndUnrelatedTemporaryData
+[       OK ] OwnedCurveRuntimeTest.PathWatchContentReplacementAndUnrelatedTemporaryData (0 ms)
+[----------] 11 tests from OwnedCurveRuntimeTest (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 11 tests from 1 test suite ran. (211 ms total)
+[  PASSED  ] 11 tests.

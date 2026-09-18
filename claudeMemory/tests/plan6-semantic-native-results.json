@@ -1,0 +1,17 @@
+[
+  {
+    "suite": "test_semantic_scalars",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_semantic_scalars"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_semantic_scalars.cc_out.exe",
+    "returncode": 0,
+    "passed": true,
+    "binary_sha256": "9c4390a1d8f51c8b4cd176f3624c4bdcf29bf6a7e70ff5d8de0fd6e95fc80b77",
+    "stdout": "",
+    "stderr": "semantic typed domains, input presence and atomic evaluation passed\r\n"
+  }
+]

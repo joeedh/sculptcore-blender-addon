@@ -1,0 +1,5 @@
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+OWNED_EDITOR_READY {"draws": 1, "callbacks": 0, "root_set": false, "curve_set": false, "areas": [["PROPERTIES", 1053, 29, 225, 600], ["OUTLINER", 1053, 632, 225, 135], ["DOPESHEET_EDITOR", 2, 29, 1048, 52], ["VIEW_3D", 2, 84, 1048, 683]]}
+06:22.391  asset.index      | ERROR Index not created: couldn't create folder "C:\Users\joeed\AppData\Local\Blender Foundation\Blender\Cache\asset-library-indices\6ada85861936af84\0c24bfd2dc504014_OwnedEditorBrush.asset.blend.index.json".
+07:00.875  asset.index      | ERROR Index not created: couldn't create folder "C:\Users\joeed\AppData\Local\Blender Foundation\Blender\Cache\asset-library-indices\6ada85861936af84\0c24bfd2dc504014_OwnedEditorBrush.asset.blend.index.json".
+07:00.891  asset.index      | ERROR Index not created: couldn't create folder "C:\Users\joeed\AppData\Local\Blender Foundation\Blender\Cache\asset-library-indices\6ada85861936af84\0d0554b5fb5dab52_OwnedEditorOther.asset.blend.index.json".

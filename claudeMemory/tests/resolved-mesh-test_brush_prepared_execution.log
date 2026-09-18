@@ -1,0 +1,15 @@
+{
+  "suite": "test_brush_prepared_execution",
+  "command": [
+    "C:\\Program Files\\nodejs\\node.EXE",
+    "make.mjs",
+    "test",
+    "test_brush_prepared_execution"
+  ],
+  "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_brush_prepared_execution.cc_out.exe",
+  "returncode": 1,
+  "passed": false,
+  "binary_sha256": "c31ebf59eb7bd4f3781594a2cf8bccfd40e040f03dbacd2616814d11f527cc22",
+  "stdout": "Info: attribute normals changed index in mesh\r\nInfo: attribute normals changed index in mesh\r\nInfo: attribute .face.normal changed index in mesh\r\n\"Vector data:984\"  (000001A80C40CDC0)\r\n\"Vector data:984\"  (000001A80C3597A0)\r\n",
+  "stderr": "resolved DRAW expanded region, rejection and undo passed (337 outside raw leaves)\r\nresolved mesh capability and neighbor dispatch passed\r\nCommand failed: build\\native\\tests\\test_brush_prepared_execution.cc_out.exe\n"
+}

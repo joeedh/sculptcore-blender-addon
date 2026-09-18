@@ -23,6 +23,9 @@ bl_info = {
 
 import bpy
 
+from . import debug_server
+from .brush_properties import lifecycle as brush_property_lifecycle
+from .brush_properties import authoring as brush_property_authoring
 from . import convert, cursor, engine, engine_props, gestures, handlers, keymap, layers, menus, ops, props, stroke, texture, tools, ui, undo, vanilla_panels
 
 
@@ -90,6 +93,17 @@ def _check_draw_provider(mode):
 
 
 def register():
+    brush_property_lifecycle.register()
+    try:
+        brush_property_authoring.register()
+        _register_modules()
+    except Exception:
+        brush_property_authoring.unregister()
+        brush_property_lifecycle.unregister()
+        raise
+
+
+def _register_modules():
     props.register()
     engine_props.register()
     stroke.register()
@@ -135,6 +149,9 @@ def register():
 
 
 def unregister():
+    brush_property_authoring.unregister()
+    brush_property_lifecycle.unregister()
+    debug_server.stop()
     # Unregistering the mode type force-exits every object still in the
     # mode (exit -> flush -> free) before the class goes away; this only
     # catches sessions those exits left behind.

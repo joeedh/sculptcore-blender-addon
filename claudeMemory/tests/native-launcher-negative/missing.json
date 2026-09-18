@@ -1,0 +1,20 @@
+{
+  "command": [
+    "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\native-launcher-negative\\missing-test.exe"
+  ],
+  "cwd": "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin",
+  "expected_count": 1,
+  "timeout_seconds": 5,
+  "binary_sha256": null,
+  "returncode": null,
+  "status_hex": null,
+  "stdout": "",
+  "stderr": "",
+  "passed": false,
+  "error": "FileNotFoundError: [Errno 2] No such file or directory: 'C:\\\\dev\\\\blender\\\\sculptcore-blender-addon\\\\claudeMemory\\\\tests\\\\native-launcher-negative\\\\missing-test.exe'",
+  "runtime_search_path": [
+    "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.shared",
+    "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin"
+  ],
+  "elapsed_seconds": 7.570000889245421e-05
+}

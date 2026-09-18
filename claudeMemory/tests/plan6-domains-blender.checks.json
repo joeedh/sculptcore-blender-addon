@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "checks": [
+    "capture/compilation preserves persistent records and independent owners",
+    "Scene INT32 spacing rounds before percent conversion; dormant local is intact",
+    "native-domain snake dynamics precede its nonlinear-direction remap",
+    "Scene strength with Brush native custom curve evaluates before compensation",
+    "effective SIZE pair and Scene custom stack evaluate once on supplied object-space radius",
+    "800 warm evaluations survive owner deletion/cache retirement with no owner access or new bakes"
+  ],
+  "warm_evaluations": 800,
+  "extra_bakes": 0
+}

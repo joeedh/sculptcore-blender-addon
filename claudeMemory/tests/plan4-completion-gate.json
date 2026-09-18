@@ -1,0 +1,408 @@
+{
+  "passed": true,
+  "plan": 4,
+  "binary_sha256": "1c93a65f4ed4f53ca3a18bf34c1808c5802341e9a26356b46bdc3ca74b28ba84",
+  "engine_sha256": "4e5961047db841289d9d52c6fd1b48eef689fd1e60c0c1b09204646199441a4e",
+  "launchers": {
+    "plan4-final-authoring_snapshot": {
+      "seconds": 7.717218299978413,
+      "command": [
+        "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+        "--factory-startup",
+        "--python-exit-code",
+        "1",
+        "--background",
+        "--python",
+        "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_authoring_snapshot.py"
+      ]
+    },
+    "plan4-final-native_adapters": {
+      "seconds": 7.993788699997822,
+      "command": [
+        "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+        "--factory-startup",
+        "--python-exit-code",
+        "1",
+        "--background",
+        "--python",
+        "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_native_adapters.py"
+      ]
+    },
+    "plan4-final-native_adapters_fresh": {
+      "seconds": 7.885995200020261,
+      "command": [
+        "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+        "--factory-startup",
+        "--python-exit-code",
+        "1",
+        "--background",
+        "--python",
+        "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_native_adapters_fresh.py"
+      ]
+    },
+    "plan4-final-native_inventory_coverage": {
+      "seconds": 8.400094399985392,
+      "command": [
+        "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+        "--factory-startup",
+        "--python-exit-code",
+        "1",
+        "--background",
+        "--python",
+        "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_native_inventory_coverage.py"
+      ]
+    },
+    "plan4-final-atomic_scalar_storage": {
+      "seconds": 9.543721699999878,
+      "command": [
+        "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+        "--factory-startup",
+        "--python-exit-code",
+        "1",
+        "--background",
+        "--python",
+        "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_atomic_scalar_storage.py"
+      ]
+    },
+    "plan4-final-atomic_scalar_storage-verify": {
+      "seconds": 9.67587820001063,
+      "command": [
+        "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+        "--factory-startup",
+        "--python-exit-code",
+        "1",
+        "--background",
+        "--python",
+        "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_atomic_scalar_storage.py",
+        "--",
+        "verify"
+      ]
+    },
+    "plan4-final-persistent_stacks": {
+      "seconds": 8.232221100013703,
+      "command": [
+        "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+        "--factory-startup",
+        "--python-exit-code",
+        "1",
+        "--background",
+        "--python",
+        "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_persistent_stacks.py"
+      ]
+    },
+    "plan4-final-persistent_stacks-verify": {
+      "seconds": 7.850271600007545,
+      "command": [
+        "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+        "--factory-startup",
+        "--python-exit-code",
+        "1",
+        "--background",
+        "--python",
+        "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_persistent_stacks.py",
+        "--",
+        "verify"
+      ]
+    },
+    "plan4-final-persistent_positions": {
+      "seconds": 8.121109200001229,
+      "command": [
+        "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+        "--factory-startup",
+        "--python-exit-code",
+        "1",
+        "--background",
+        "--python",
+        "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_persistent_positions.py"
+      ]
+    },
+    "plan4-final-persistent_positions-verify": {
+      "seconds": 7.994130899984157,
+      "command": [
+        "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+        "--factory-startup",
+        "--python-exit-code",
+        "1",
+        "--background",
+        "--python",
+        "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_persistent_positions.py",
+        "--",
+        "verify"
+      ]
+    },
+    "plan4-final-custom_curve_storage": {
+      "seconds": 8.06702220000443,
+      "command": [
+        "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+        "--factory-startup",
+        "--python-exit-code",
+        "1",
+        "--background",
+        "--python",
+        "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_custom_curve_storage.py"
+      ]
+    },
+    "plan4-final-frozen_authoring": {
+      "seconds": 8.182878699997673,
+      "command": [
+        "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+        "--factory-startup",
+        "--python-exit-code",
+        "1",
+        "--background",
+        "--python",
+        "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_frozen_authoring.py"
+      ]
+    },
+    "plan4-final-frozen_authoring_fresh": {
+      "seconds": 7.896797399997013,
+      "command": [
+        "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+        "--factory-startup",
+        "--python-exit-code",
+        "1",
+        "--background",
+        "--python",
+        "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_frozen_authoring_fresh.py"
+      ]
+    },
+    "plan4-final-custom-assets": {
+      "seconds": 9.093252199993003,
+      "command": [
+        "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+        "--factory-startup",
+        "--python-exit-code",
+        "1",
+        "--background",
+        "--python",
+        "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_custom_curve_assets.py"
+      ]
+    },
+    "plan4-final-custom-assets-fresh": {
+      "seconds": 8.76150319998851,
+      "command": [
+        "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+        "--factory-startup",
+        "--python-exit-code",
+        "1",
+        "--background",
+        "--python",
+        "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_custom_curve_assets.py",
+        "--",
+        "verify"
+      ]
+    },
+    "plan4-final-owner-safety": {
+      "seconds": 9.675489899993408,
+      "command": [
+        "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+        "--factory-startup",
+        "--python-exit-code",
+        "1",
+        "--background",
+        "--python",
+        "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_generic_property_owner_safety.py"
+      ]
+    },
+    "plan4-final-owner-safety-fresh": {
+      "seconds": 9.354289200011408,
+      "command": [
+        "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+        "--factory-startup",
+        "--python-exit-code",
+        "1",
+        "--background",
+        "--python",
+        "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_generic_property_owner_safety.py",
+        "--",
+        "verify"
+      ]
+    },
+    "plan4-final-smoke": {
+      "seconds": 7.654775300004985,
+      "command": [
+        "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+        "--factory-startup",
+        "--python-exit-code",
+        "1",
+        "--background",
+        "--python",
+        "C:\\dev\\blender\\sculptcore-blender-addon\\tools\\smoke_test_package.py"
+      ]
+    },
+    "plan4-authoring-undo-headed": {
+      "seconds": 18.206946499994956,
+      "command": [
+        "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+        "--factory-startup",
+        "--python-exit-code",
+        "1",
+        "--enable-event-simulate",
+        "--no-window-focus",
+        "-p",
+        "0",
+        "0",
+        "1280",
+        "800",
+        "--python",
+        "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_authoring_undo_headed.py"
+      ]
+    },
+    "plan4-authoring-collections": {
+      "seconds": 19.834596100001363,
+      "command": [
+        "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+        "--factory-startup",
+        "--python-exit-code",
+        "1",
+        "--enable-event-simulate",
+        "--no-window-focus",
+        "-p",
+        "0",
+        "0",
+        "1280",
+        "800",
+        "--python",
+        "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_authoring_collections_headed.py"
+      ]
+    },
+    "plan4-authoring-custom-undo": {
+      "seconds": 21.331607700005407,
+      "command": [
+        "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+        "--factory-startup",
+        "--python-exit-code",
+        "1",
+        "--enable-event-simulate",
+        "--no-window-focus",
+        "-p",
+        "0",
+        "0",
+        "1280",
+        "800",
+        "--python",
+        "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_authoring_custom_undo.py"
+      ]
+    },
+    "plan4-authoring-undo-limits": {
+      "seconds": 15.993240300012985,
+      "command": [
+        "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+        "--factory-startup",
+        "--python-exit-code",
+        "1",
+        "--enable-event-simulate",
+        "--no-window-focus",
+        "-p",
+        "0",
+        "0",
+        "1280",
+        "800",
+        "--python",
+        "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_authoring_undo_limits.py"
+      ]
+    },
+    "plan4-authoring-owner-identity": {
+      "seconds": 15.800955800019437,
+      "command": [
+        "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+        "--factory-startup",
+        "--python-exit-code",
+        "1",
+        "--enable-event-simulate",
+        "--no-window-focus",
+        "-p",
+        "0",
+        "0",
+        "1280",
+        "800",
+        "--python",
+        "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_authoring_owner_identity.py"
+      ]
+    },
+    "plan4-curve-widget": {
+      "seconds": 23.07660840000608,
+      "command": [
+        "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+        "--factory-startup",
+        "--python-exit-code",
+        "1",
+        "--enable-event-simulate",
+        "--no-window-focus",
+        "-p",
+        "0",
+        "0",
+        "1280",
+        "800",
+        "--python",
+        "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_owned_curve_editor_live.py"
+      ]
+    },
+    "plan4-object-mode-base": {
+      "seconds": 11.195172800013097,
+      "command": [
+        "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+        "--factory-startup",
+        "--python-exit-code",
+        "1",
+        "--background",
+        "--python",
+        "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_object_mode_base.py"
+      ]
+    }
+  },
+  "check_counts": {
+    "plan4-authoring-snapshot.checks.json": 23,
+    "plan4-native-adapters.checks.json": 150,
+    "plan4-native-adapters-fresh.checks.json": 13,
+    "plan4-native-inventory-coverage.checks.json": 407,
+    "plan4-atomic/test-results.json": 64,
+    "plan4-atomic/verify-results.json": 5,
+    "plan4-stacks/test-results.json": 77,
+    "plan4-stacks/verify-results.json": 5,
+    "plan4-positions/test-results.json": 64,
+    "plan4-positions/verify-results.json": 3,
+    "plan4-custom/test.json": 58,
+    "plan4-custom-assets/test.json": 5,
+    "plan4-custom-assets/verify.json": 5,
+    "plan4-frozen/results.json": 77,
+    "plan4-frozen/fresh.json": 7,
+    "plan4-owner-assets/test-results.json": 43,
+    "plan4-owner-assets/verify-results.json": 1,
+    "plan4-authoring-undo-headed.checks.json": 17,
+    "plan4-authoring-collections.checks.json": 4,
+    "plan4-authoring-custom-undo.checks.json": 14,
+    "plan4-authoring-undo-limits.checks.json": 9,
+    "plan4-authoring-owner-identity.checks.json": 5,
+    "plan4-curve-widget/checks.json": 5,
+    "plan4-object-mode-base.checks.json": 3
+  },
+  "addon_sources": {
+    "brush_properties\\adapters.py": "15723b26665a343214d35820e617298f831239318bd342c6f844e781d7ec6460",
+    "brush_properties\\authoring.py": "8f558b5b24dfe1983965ebb416c626bd51264b684ab60e0ff9f7d5ec6823c12f",
+    "brush_properties\\bindings.py": "2cd903f149ee95d74e8174d6ae2a1b4cade01d1a2402e460c2e42d1318c212d5",
+    "brush_properties\\curves.py": "47d65fe0dee1b22d0c220953712121125226dbd74c0fc31913109cec3e170685",
+    "brush_properties\\edits.py": "2925fb8574f47b72498464282fe5016f6ee7f7bde95ad243718bb13d11175632",
+    "brush_properties\\frozen_v0.py": "f17ce275da6f15b0d2be6be2f4b6bf165f381e1eddac377c7ade64ab7d64d8a6",
+    "brush_properties\\legacy.py": "865e70e0c61805da99acb7eb96dde60e9c57edf53a1ced22d5be8ab54d33b233",
+    "brush_properties\\lifecycle.py": "d3393301f0a303d834e45af8f654f1e40cedb5674c60036bb29c1f1f0c861985",
+    "brush_properties\\native.py": "073c60c8f45bc6b6c3bbcc3fe15f78ccbcc31b278a577ad0e3c7cfae941a65ff",
+    "brush_properties\\native_v0.py": "0c98bb1501e1b423e3f60b2a31d0942d60f9c5d7f6d7c815d6aa4e611a8f7abc",
+    "brush_properties\\registry.py": "621fefb154e7bde389e07452119e640eef2927f7fbdcc4e65541ecd7929f5957",
+    "brush_properties\\resolver.py": "12711648be5255716caa4f66318d1d2c0e7c16b99ea0c8ca01eb14bd2a3f8a84",
+    "brush_properties\\storage.py": "0b0bdad0ea79e8a9bc0384bddd94e05fc32a43a79e7e8664e71f54bf2f6a5d3b",
+    "brush_properties\\__init__.py": "235c233dd8417a69cd5936b69d4de0a898f629a33cbea230d45a6eea562424d5"
+  },
+  "fork_sources": {
+    "source/blender/editors/undo/authoring_undo.cc": "de1c173e5b4263036a0794d659bfc2780010e9903c1cf42253bf66b8710042cb",
+    "source/blender/editors/include/ED_authoring_undo.hh": "f9dca09764d3d36063aef39bf2b39ce11fa750b9743310dd33a1e7d58872c4b9",
+    "source/blender/python/intern/bpy_rna_authoring.cc": "68e8fa6dbba512c831598ffeec4ba0122c8669a7bfae0d49f611812a032c5681",
+    "source/blender/python/intern/bpy_rna_types_capi.cc": "1c8febff1ca6f6e6ee80804a7aadb2cabdca21e6898c60f68c20fe137cb28569",
+    "source/blender/editors/interface/templates/interface_template_curve_mapping.cc": "75413fd71b3c8973fc304decdece78f66731fc943339ab11316dba5a22d381e8",
+    "source/blender/makesrna/intern/rna_owned_curve.cc": "cb9064527d456b1890cfcca36bebf4deef1fcdb11f839f3a8f7e92f6ad49e527",
+    "scripts/modules/_bpy_types.py": "e0d82e0ecacef5d4622a81ad88b5cf1afe0541cc3d25f0ff7c61dc281a858af4",
+    "doc/python_api/rst/info_property_authoring.rst": "1d5128efd58e3fbdc40b67925b23e131e546a8911115a4375e45299a3b9550d2"
+  },
+  "pure_tests": 11,
+  "scope": "Authoring model complete; generic stroke/UI consumers remain Plans 5-8"
+}

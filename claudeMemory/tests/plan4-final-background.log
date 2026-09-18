@@ -1,0 +1,202 @@
+{
+  "command": [
+    "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+    "--factory-startup",
+    "--python-exit-code",
+    "1",
+    "--background",
+    "--python",
+    "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_authoring_snapshot.py"
+  ],
+  "passed": true,
+  "sha256": "1c93a65f4ed4f53ca3a18bf34c1808c5802341e9a26356b46bdc3ca74b28ba84",
+  "returncode": 0,
+  "seconds": 7.717218299978413
+}
+{
+  "command": [
+    "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+    "--factory-startup",
+    "--python-exit-code",
+    "1",
+    "--background",
+    "--python",
+    "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_native_adapters.py"
+  ],
+  "passed": true,
+  "sha256": "1c93a65f4ed4f53ca3a18bf34c1808c5802341e9a26356b46bdc3ca74b28ba84",
+  "returncode": 0,
+  "seconds": 7.993788699997822
+}
+{
+  "command": [
+    "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+    "--factory-startup",
+    "--python-exit-code",
+    "1",
+    "--background",
+    "--python",
+    "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_native_adapters_fresh.py"
+  ],
+  "passed": true,
+  "sha256": "1c93a65f4ed4f53ca3a18bf34c1808c5802341e9a26356b46bdc3ca74b28ba84",
+  "returncode": 0,
+  "seconds": 7.885995200020261
+}
+{
+  "command": [
+    "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+    "--factory-startup",
+    "--python-exit-code",
+    "1",
+    "--background",
+    "--python",
+    "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_native_inventory_coverage.py"
+  ],
+  "passed": true,
+  "sha256": "1c93a65f4ed4f53ca3a18bf34c1808c5802341e9a26356b46bdc3ca74b28ba84",
+  "returncode": 0,
+  "seconds": 8.400094399985392
+}
+{
+  "command": [
+    "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+    "--factory-startup",
+    "--python-exit-code",
+    "1",
+    "--background",
+    "--python",
+    "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_atomic_scalar_storage.py"
+  ],
+  "passed": true,
+  "sha256": "1c93a65f4ed4f53ca3a18bf34c1808c5802341e9a26356b46bdc3ca74b28ba84",
+  "returncode": 0,
+  "seconds": 9.543721699999878
+}
+{
+  "command": [
+    "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+    "--factory-startup",
+    "--python-exit-code",
+    "1",
+    "--background",
+    "--python",
+    "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_atomic_scalar_storage.py",
+    "--",
+    "verify"
+  ],
+  "passed": true,
+  "sha256": "1c93a65f4ed4f53ca3a18bf34c1808c5802341e9a26356b46bdc3ca74b28ba84",
+  "returncode": 0,
+  "seconds": 9.67587820001063
+}
+{
+  "command": [
+    "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+    "--factory-startup",
+    "--python-exit-code",
+    "1",
+    "--background",
+    "--python",
+    "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_persistent_stacks.py"
+  ],
+  "passed": true,
+  "sha256": "1c93a65f4ed4f53ca3a18bf34c1808c5802341e9a26356b46bdc3ca74b28ba84",
+  "returncode": 0,
+  "seconds": 8.232221100013703
+}
+{
+  "command": [
+    "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+    "--factory-startup",
+    "--python-exit-code",
+    "1",
+    "--background",
+    "--python",
+    "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_persistent_stacks.py",
+    "--",
+    "verify"
+  ],
+  "passed": true,
+  "sha256": "1c93a65f4ed4f53ca3a18bf34c1808c5802341e9a26356b46bdc3ca74b28ba84",
+  "returncode": 0,
+  "seconds": 7.850271600007545
+}
+{
+  "command": [
+    "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+    "--factory-startup",
+    "--python-exit-code",
+    "1",
+    "--background",
+    "--python",
+    "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_persistent_positions.py"
+  ],
+  "passed": true,
+  "sha256": "1c93a65f4ed4f53ca3a18bf34c1808c5802341e9a26356b46bdc3ca74b28ba84",
+  "returncode": 0,
+  "seconds": 8.121109200001229
+}
+{
+  "command": [
+    "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+    "--factory-startup",
+    "--python-exit-code",
+    "1",
+    "--background",
+    "--python",
+    "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_persistent_positions.py",
+    "--",
+    "verify"
+  ],
+  "passed": true,
+  "sha256": "1c93a65f4ed4f53ca3a18bf34c1808c5802341e9a26356b46bdc3ca74b28ba84",
+  "returncode": 0,
+  "seconds": 7.994130899984157
+}
+{
+  "command": [
+    "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+    "--factory-startup",
+    "--python-exit-code",
+    "1",
+    "--background",
+    "--python",
+    "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_custom_curve_storage.py"
+  ],
+  "passed": true,
+  "sha256": "1c93a65f4ed4f53ca3a18bf34c1808c5802341e9a26356b46bdc3ca74b28ba84",
+  "returncode": 0,
+  "seconds": 8.06702220000443
+}
+{
+  "command": [
+    "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+    "--factory-startup",
+    "--python-exit-code",
+    "1",
+    "--background",
+    "--python",
+    "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_frozen_authoring.py"
+  ],
+  "passed": true,
+  "sha256": "1c93a65f4ed4f53ca3a18bf34c1808c5802341e9a26356b46bdc3ca74b28ba84",
+  "returncode": 0,
+  "seconds": 8.182878699997673
+}
+{
+  "command": [
+    "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+    "--factory-startup",
+    "--python-exit-code",
+    "1",
+    "--background",
+    "--python",
+    "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_frozen_authoring_fresh.py"
+  ],
+  "passed": true,
+  "sha256": "1c93a65f4ed4f53ca3a18bf34c1808c5802341e9a26356b46bdc3ca74b28ba84",
+  "returncode": 0,
+  "seconds": 7.896797399997013
+}
+FINAL_BACKGROUND_FAILURES []

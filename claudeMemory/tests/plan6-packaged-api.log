@@ -1,0 +1,11 @@
+Blender 5.3.0 Alpha
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+PLAN6_PACKAGED_API_PASS {"passed": true, "dll": "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\5.3\\scripts\\addons_core\\sculptcore_addon\\lib\\sculptcore\\sculptcore_capi.dll", "sha256": "1847947f3fc31a7bd9c1ead24112ef5364b065a06c1ef2fdf8393d0dc2370b32", "checks": ["Production addon-only runtime loaded from packaged lib directory", "Packaged host DAG builder and scalar/empty-stack C APIs construct a candidate", "Packaged analytic stack replacement, type rejection and inheritance restoration", "Legacy mesh/grid batch wrappers reject stack-only overrides on zero-dab and miss paths"]}
+
+Blender quit
+
+SculptCore: rejected command[0].typed overrides require resolved execution (property status 4)
+SculptCore: rejected command[0].unsupported raw grid override (property status 4)
+SculptCore: rejected command[0].typed overrides require resolved execution (property status 4)
+SculptCore: rejected command[0].unsupported raw grid override (property status 4)

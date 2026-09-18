@@ -1,0 +1,47 @@
+# SPDX-FileCopyrightText: 2026 Blender Authors
+# SPDX-License-Identifier: GPL-2.0-or-later
+"""Fresh reload/linked reads of frozen authoring and actual clean external assets."""
+import json
+from pathlib import Path
+import bpy
+from sculptcore_addon.brush_properties import authoring
+from sculptcore_addon.brush_properties.registry import scalar
+
+DIRECTORY = Path(__file__).resolve().parents[1] / 'tests/plan4-frozen'
+bpy.ops.wm.open_mainfile(filepath=str(DIRECTORY / 'frozen.blend'))
+nu = authoring.registry.get('sculptcore.kernel.kelvinlet.nu')
+brush = bpy.data.brushes['GenericLegacyV0']
+assert authoring.store(brush).read_value(nu).value == scalar('FLOAT32', .3)
+assert authoring.store(bpy.data.brushes['FrozenIndependentCopy']).read_value(nu).value == .125
+assert authoring.store(bpy.data.scenes['FrozenSwitchFirst']).feature_enabled() is True
+assert authoring.store(bpy.data.brushes['FrozenDoubleLegacy']).read_value(nu).value == nu.maximum
+assert authoring.curve_bank.reference(authoring.store(brush), nu, 'SPEED').mapping_key[0] > 0
+checks = ['fresh generic value', 'fresh independent copy', 'fresh saved readiness switch',
+          'fresh raw DOUBLE frozen boundary', 'fresh missing-engine authored custom curve']
+
+library = Path(__file__).resolve().parents[1] / 'tests/generic-brush-v0/library'
+files = sorted(library.rglob('*.blend'))
+assert files, library
+with bpy.data.libraries.load(str(files[0]), link=True) as (source, target):
+    target.brushes = source.brushes[:1]
+linked = target.brushes[0]
+assert linked.library and not linked.is_editable
+store = authoring.store(linked)
+before = linked.has_unsaved_changes
+for _ in range(5):
+    for definition in authoring.DEFINITIONS:
+        store.read_value(definition)
+assert linked.has_unsaved_changes == before
+checks.append('fresh linked asset reads preserve dirty state')
+bpy.data.brushes.remove(linked)
+with bpy.data.libraries.load(str(files[0])) as (source, target):
+    target.brushes = source.brushes[:1]
+editable = target.brushes[0]
+assert editable.library is None and editable.is_editable
+before = editable.has_unsaved_changes
+for definition in authoring.DEFINITIONS:
+    authoring.store(editable).read_value(definition)
+assert editable.has_unsaved_changes == before
+checks.append('editable imported asset reads preserve dirty state')
+(DIRECTORY / 'fresh.json').write_text(json.dumps(checks, indent=2))
+print('FROZEN_FRESH_OK', len(checks), flush=True)

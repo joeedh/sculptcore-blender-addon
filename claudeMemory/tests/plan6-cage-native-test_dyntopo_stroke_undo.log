@@ -1,0 +1,15 @@
+{
+  "suite": "test_dyntopo_stroke_undo",
+  "command": [
+    "C:\\Program Files\\nodejs\\node.EXE",
+    "make.mjs",
+    "test",
+    "test_dyntopo_stroke_undo"
+  ],
+  "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_dyntopo_stroke_undo.cc_out.exe",
+  "returncode": 0,
+  "passed": true,
+  "binary_sha256": "b2ec46e769a135baac2473ceea6f20f65e4cc11a36f048e25188e2e2d7d2aa75",
+  "stdout": "  stroke: v 296->1181, f 294->2358\r\nInfo: attribute .face.normal changed index in mesh\r\nInfo: attribute normals changed index in mesh\r\n  after undo: v=296 (want 296), f=294 (want 294)\r\nInfo: attribute normals changed index in mesh\r\nInfo: attribute .face.normal changed index in mesh\r\n  after redo: v=1181 (want 1181), f=2358 (want 2358)\r\n  normal err vs global: forward max=1.29488, redo max=1.29488\r\ndyntopo_stroke_undo: ok\r\n",
+  "stderr": ""
+}

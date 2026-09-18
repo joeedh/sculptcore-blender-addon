@@ -1,0 +1,15 @@
+{
+  "suite": "test_sbrush_member_types",
+  "command": [
+    "C:\\Program Files\\nodejs\\node.EXE",
+    "make.mjs",
+    "test",
+    "test_sbrush_member_types"
+  ],
+  "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_sbrush_member_types.cc_out.exe",
+  "returncode": 0,
+  "passed": true,
+  "binary_sha256": "8f9bb453947fc26f2c2f541d5d41f7ab3641a0bbbdcb395101222589c34264ba",
+  "stdout": "",
+  "stderr": ""
+}

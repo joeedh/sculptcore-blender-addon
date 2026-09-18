@@ -136,6 +136,24 @@ def register():
                     "instead of per dab through Python",
         default=True,
     )
+    def generic_get(scene):
+        from .brush_properties import authoring
+        return authoring.store(scene).feature_enabled()
+
+    def generic_set(scene, value):
+        from .brush_properties import authoring
+        authoring.store(scene).write_feature_enabled(value)
+
+    bpy.types.Scene.sculptcore_generic_properties = bpy.props.BoolProperty(
+        name="Generic Brush Properties",
+        description="Use resolved brush properties and independent device stacks",
+        get=generic_get, set=generic_set,
+    )
+    bpy.types.Scene.sculptcore_speed_reference = bpy.props.FloatProperty(
+        name="Stroke Speed Reference",
+        description="Screen pixels per second corresponding to full speed input",
+        default=1000.0, min=0.001,
+    )
     # The texture-script kill switch (plans/blender-texture-system-port.md
     # 1.5): a ported .stex that compiles and is wrong has no other backstop,
     # since _apply_script falls back to the 2D bake only on compile failure.
@@ -162,4 +180,6 @@ def unregister():
     del bpy.types.Scene.sculptcore_reproject_uvs
     del bpy.types.Scene.sculptcore_uv_margin
     del bpy.types.Scene.sculptcore_cpp_dab_loop
+    del bpy.types.Scene.sculptcore_generic_properties
+    del bpy.types.Scene.sculptcore_speed_reference
     del bpy.types.Scene.sculptcore_texture_scripts

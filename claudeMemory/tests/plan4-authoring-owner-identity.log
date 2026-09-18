@@ -1,0 +1,8 @@
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+AUTHORING_OWNER_IDENTITY_OK 5
+00:14.016  blend            | Saved session recovery to "C:\Users\joeed\AppData\Local\Temp\quit.blend"
+
+[error] toml::parse: Error opening file "C:\Users\joeed\AppData\Roaming\Blender Foundation\Blender\5.3\config\recents.toml"
+
+Authoring undo skipped: owner was removed or replaced
+Authoring undo skipped: owner was removed or replaced

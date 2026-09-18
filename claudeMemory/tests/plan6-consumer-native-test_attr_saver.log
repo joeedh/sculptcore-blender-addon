@@ -1,0 +1,15 @@
+{
+  "suite": "test_attr_saver",
+  "command": [
+    "C:\\Program Files\\nodejs\\node.EXE",
+    "make.mjs",
+    "test",
+    "test_attr_saver"
+  ],
+  "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_attr_saver.cc_out.exe",
+  "returncode": 0,
+  "passed": true,
+  "binary_sha256": "a8c49156d2c9b512e3da9ae100d9135793c251cff5aa6bad50f81719b6cb3415",
+  "stdout": "",
+  "stderr": ""
+}

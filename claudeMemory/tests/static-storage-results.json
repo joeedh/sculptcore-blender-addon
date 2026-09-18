@@ -1,0 +1,244 @@
+[
+  {
+    "suite": "test_props_declarations",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_props_declarations"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_props_declarations.cc_out.exe",
+    "returncode": 1,
+    "passed": false,
+    "binary_sha256": "3752af74b84366b0cb5df821b639e64a51aa15cdcc5dc729eeb06bb4bc8d705b",
+    "stdout": "",
+    "stderr": "node:internal/modules/esm/resolve:205\r\n  const resolvedOption = FSLegacyMainResolve(pkgPath, packageConfig.main, baseStringified);\r\n                         ^\r\n\r\nError: Cannot find package 'C:\\dev\\blender\\sculptcore-blender-addon\\engine\\node_modules\\yargs\\index.js' imported from C:\\dev\\blender\\sculptcore-blender-addon\\engine\\make.mjs\r\n    at legacyMainResolve (node:internal/modules/esm/resolve:205:26)\r\n    at packageResolve (node:internal/modules/esm/resolve:778:12)\r\n    at moduleResolve (node:internal/modules/esm/resolve:859:18)\r\n    at defaultResolve (node:internal/modules/esm/resolve:991:11)\r\n    at #cachedDefaultResolve (node:internal/modules/esm/loader:719:20)\r\n    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:736:38)\r\n    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:765:52)\r\n    at #resolve (node:internal/modules/esm/loader:701:17)\r\n    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:621:35)\r\n    at ModuleJob.syncLink (node:internal/modules/esm/module_job:160:33) {\r\n  code: 'ERR_MODULE_NOT_FOUND'\r\n}\r\n\r\nNode.js v24.14.0\r\n"
+  },
+  {
+    "suite": "test_props_checked_access",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_props_checked_access"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_props_checked_access.cc_out.exe",
+    "returncode": 1,
+    "passed": false,
+    "binary_sha256": "23a74e1a0b5223670f7e9fad5cf5c16beb974c0c2fcd3eb776d23348376207eb",
+    "stdout": "",
+    "stderr": "node:internal/modules/esm/resolve:205\r\n  const resolvedOption = FSLegacyMainResolve(pkgPath, packageConfig.main, baseStringified);\r\n                         ^\r\n\r\nError: Cannot find package 'C:\\dev\\blender\\sculptcore-blender-addon\\engine\\node_modules\\yargs\\index.js' imported from C:\\dev\\blender\\sculptcore-blender-addon\\engine\\make.mjs\r\n    at legacyMainResolve (node:internal/modules/esm/resolve:205:26)\r\n    at packageResolve (node:internal/modules/esm/resolve:778:12)\r\n    at moduleResolve (node:internal/modules/esm/resolve:859:18)\r\n    at defaultResolve (node:internal/modules/esm/resolve:991:11)\r\n    at #cachedDefaultResolve (node:internal/modules/esm/loader:719:20)\r\n    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:736:38)\r\n    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:765:52)\r\n    at #resolve (node:internal/modules/esm/loader:701:17)\r\n    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:621:35)\r\n    at ModuleJob.syncLink (node:internal/modules/esm/module_job:160:33) {\r\n  code: 'ERR_MODULE_NOT_FOUND'\r\n}\r\n\r\nNode.js v24.14.0\r\n"
+  },
+  {
+    "suite": "test_props_typed_dynamics",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_props_typed_dynamics"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_props_typed_dynamics.cc_out.exe",
+    "returncode": 1,
+    "passed": false,
+    "binary_sha256": "730960cae41728de8c45cc400aed2efef3c031481b784d03a8eefe2a23eaea9d",
+    "stdout": "",
+    "stderr": "node:internal/modules/esm/resolve:205\r\n  const resolvedOption = FSLegacyMainResolve(pkgPath, packageConfig.main, baseStringified);\r\n                         ^\r\n\r\nError: Cannot find package 'C:\\dev\\blender\\sculptcore-blender-addon\\engine\\node_modules\\yargs\\index.js' imported from C:\\dev\\blender\\sculptcore-blender-addon\\engine\\make.mjs\r\n    at legacyMainResolve (node:internal/modules/esm/resolve:205:26)\r\n    at packageResolve (node:internal/modules/esm/resolve:778:12)\r\n    at moduleResolve (node:internal/modules/esm/resolve:859:18)\r\n    at defaultResolve (node:internal/modules/esm/resolve:991:11)\r\n    at #cachedDefaultResolve (node:internal/modules/esm/loader:719:20)\r\n    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:736:38)\r\n    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:765:52)\r\n    at #resolve (node:internal/modules/esm/loader:701:17)\r\n    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:621:35)\r\n    at ModuleJob.syncLink (node:internal/modules/esm/module_job:160:33) {\r\n  code: 'ERR_MODULE_NOT_FOUND'\r\n}\r\n\r\nNode.js v24.14.0\r\n"
+  },
+  {
+    "suite": "test_props",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_props"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_props.cc_out.exe",
+    "returncode": 1,
+    "passed": false,
+    "binary_sha256": "6d8ad1215919f7feac4509b60d2c60e7b746dcf04a0eb3d61c36fb52fdfffed1",
+    "stdout": "",
+    "stderr": "node:internal/modules/esm/resolve:205\r\n  const resolvedOption = FSLegacyMainResolve(pkgPath, packageConfig.main, baseStringified);\r\n                         ^\r\n\r\nError: Cannot find package 'C:\\dev\\blender\\sculptcore-blender-addon\\engine\\node_modules\\yargs\\index.js' imported from C:\\dev\\blender\\sculptcore-blender-addon\\engine\\make.mjs\r\n    at legacyMainResolve (node:internal/modules/esm/resolve:205:26)\r\n    at packageResolve (node:internal/modules/esm/resolve:778:12)\r\n    at moduleResolve (node:internal/modules/esm/resolve:859:18)\r\n    at defaultResolve (node:internal/modules/esm/resolve:991:11)\r\n    at #cachedDefaultResolve (node:internal/modules/esm/loader:719:20)\r\n    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:736:38)\r\n    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:765:52)\r\n    at #resolve (node:internal/modules/esm/loader:701:17)\r\n    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:621:35)\r\n    at ModuleJob.syncLink (node:internal/modules/esm/module_job:160:33) {\r\n  code: 'ERR_MODULE_NOT_FOUND'\r\n}\r\n\r\nNode.js v24.14.0\r\n"
+  },
+  {
+    "suite": "test_sbrush_member_types",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_sbrush_member_types"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_sbrush_member_types.cc_out.exe",
+    "returncode": 1,
+    "passed": false,
+    "binary_sha256": "1e0b792e808470b5deae6831f41feea2b17a32ea744dfa1f4cb1d0a4ee355de7",
+    "stdout": "",
+    "stderr": "node:internal/modules/esm/resolve:205\r\n  const resolvedOption = FSLegacyMainResolve(pkgPath, packageConfig.main, baseStringified);\r\n                         ^\r\n\r\nError: Cannot find package 'C:\\dev\\blender\\sculptcore-blender-addon\\engine\\node_modules\\yargs\\index.js' imported from C:\\dev\\blender\\sculptcore-blender-addon\\engine\\make.mjs\r\n    at legacyMainResolve (node:internal/modules/esm/resolve:205:26)\r\n    at packageResolve (node:internal/modules/esm/resolve:778:12)\r\n    at moduleResolve (node:internal/modules/esm/resolve:859:18)\r\n    at defaultResolve (node:internal/modules/esm/resolve:991:11)\r\n    at #cachedDefaultResolve (node:internal/modules/esm/loader:719:20)\r\n    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:736:38)\r\n    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:765:52)\r\n    at #resolve (node:internal/modules/esm/loader:701:17)\r\n    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:621:35)\r\n    at ModuleJob.syncLink (node:internal/modules/esm/module_job:160:33) {\r\n  code: 'ERR_MODULE_NOT_FOUND'\r\n}\r\n\r\nNode.js v24.14.0\r\n"
+  },
+  {
+    "suite": "test_brush_dynamics",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_brush_dynamics"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_brush_dynamics.cc_out.exe",
+    "returncode": 1,
+    "passed": false,
+    "binary_sha256": "e9d8df56f12d7d14f5be7c4e4b4b6de57a69565244746b32827e2b2d71f16977",
+    "stdout": "",
+    "stderr": "node:internal/modules/esm/resolve:205\r\n  const resolvedOption = FSLegacyMainResolve(pkgPath, packageConfig.main, baseStringified);\r\n                         ^\r\n\r\nError: Cannot find package 'C:\\dev\\blender\\sculptcore-blender-addon\\engine\\node_modules\\yargs\\index.js' imported from C:\\dev\\blender\\sculptcore-blender-addon\\engine\\make.mjs\r\n    at legacyMainResolve (node:internal/modules/esm/resolve:205:26)\r\n    at packageResolve (node:internal/modules/esm/resolve:778:12)\r\n    at moduleResolve (node:internal/modules/esm/resolve:859:18)\r\n    at defaultResolve (node:internal/modules/esm/resolve:991:11)\r\n    at #cachedDefaultResolve (node:internal/modules/esm/loader:719:20)\r\n    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:736:38)\r\n    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:765:52)\r\n    at #resolve (node:internal/modules/esm/loader:701:17)\r\n    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:621:35)\r\n    at ModuleJob.syncLink (node:internal/modules/esm/module_job:160:33) {\r\n  code: 'ERR_MODULE_NOT_FOUND'\r\n}\r\n\r\nNode.js v24.14.0\r\n"
+  },
+  {
+    "suite": "test_brush_uniform_validate",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_brush_uniform_validate"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_brush_uniform_validate.cc_out.exe",
+    "returncode": 1,
+    "passed": false,
+    "binary_sha256": "5790d149c2ddbf7651193109f39f3f1596f5b76b555b83c9d76098f2af6614c6",
+    "stdout": "",
+    "stderr": "node:internal/modules/esm/resolve:205\r\n  const resolvedOption = FSLegacyMainResolve(pkgPath, packageConfig.main, baseStringified);\r\n                         ^\r\n\r\nError: Cannot find package 'C:\\dev\\blender\\sculptcore-blender-addon\\engine\\node_modules\\yargs\\index.js' imported from C:\\dev\\blender\\sculptcore-blender-addon\\engine\\make.mjs\r\n    at legacyMainResolve (node:internal/modules/esm/resolve:205:26)\r\n    at packageResolve (node:internal/modules/esm/resolve:778:12)\r\n    at moduleResolve (node:internal/modules/esm/resolve:859:18)\r\n    at defaultResolve (node:internal/modules/esm/resolve:991:11)\r\n    at #cachedDefaultResolve (node:internal/modules/esm/loader:719:20)\r\n    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:736:38)\r\n    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:765:52)\r\n    at #resolve (node:internal/modules/esm/loader:701:17)\r\n    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:621:35)\r\n    at ModuleJob.syncLink (node:internal/modules/esm/module_job:160:33) {\r\n  code: 'ERR_MODULE_NOT_FOUND'\r\n}\r\n\r\nNode.js v24.14.0\r\n"
+  },
+  {
+    "suite": "test_sbrush_attr_writes",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_sbrush_attr_writes"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_sbrush_attr_writes.cc_out.exe",
+    "returncode": 1,
+    "passed": false,
+    "binary_sha256": "475a9c48d6f86260e7b7b185fae91c49de9d059a85e09ac545c0dce662e8c33b",
+    "stdout": "",
+    "stderr": "node:internal/modules/esm/resolve:205\r\n  const resolvedOption = FSLegacyMainResolve(pkgPath, packageConfig.main, baseStringified);\r\n                         ^\r\n\r\nError: Cannot find package 'C:\\dev\\blender\\sculptcore-blender-addon\\engine\\node_modules\\yargs\\index.js' imported from C:\\dev\\blender\\sculptcore-blender-addon\\engine\\make.mjs\r\n    at legacyMainResolve (node:internal/modules/esm/resolve:205:26)\r\n    at packageResolve (node:internal/modules/esm/resolve:778:12)\r\n    at moduleResolve (node:internal/modules/esm/resolve:859:18)\r\n    at defaultResolve (node:internal/modules/esm/resolve:991:11)\r\n    at #cachedDefaultResolve (node:internal/modules/esm/loader:719:20)\r\n    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:736:38)\r\n    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:765:52)\r\n    at #resolve (node:internal/modules/esm/loader:701:17)\r\n    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:621:35)\r\n    at ModuleJob.syncLink (node:internal/modules/esm/module_job:160:33) {\r\n  code: 'ERR_MODULE_NOT_FOUND'\r\n}\r\n\r\nNode.js v24.14.0\r\n"
+  },
+  {
+    "suite": "test_gpu_uniform_pack",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_gpu_uniform_pack"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_gpu_uniform_pack.cc_out.exe",
+    "returncode": 1,
+    "passed": false,
+    "binary_sha256": "f6a841163e65875cc2f5eab7856d477058281e572b6402a9e970b44507a1f8c0",
+    "stdout": "",
+    "stderr": "node:internal/modules/esm/resolve:205\r\n  const resolvedOption = FSLegacyMainResolve(pkgPath, packageConfig.main, baseStringified);\r\n                         ^\r\n\r\nError: Cannot find package 'C:\\dev\\blender\\sculptcore-blender-addon\\engine\\node_modules\\yargs\\index.js' imported from C:\\dev\\blender\\sculptcore-blender-addon\\engine\\make.mjs\r\n    at legacyMainResolve (node:internal/modules/esm/resolve:205:26)\r\n    at packageResolve (node:internal/modules/esm/resolve:778:12)\r\n    at moduleResolve (node:internal/modules/esm/resolve:859:18)\r\n    at defaultResolve (node:internal/modules/esm/resolve:991:11)\r\n    at #cachedDefaultResolve (node:internal/modules/esm/loader:719:20)\r\n    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:736:38)\r\n    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:765:52)\r\n    at #resolve (node:internal/modules/esm/loader:701:17)\r\n    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:621:35)\r\n    at ModuleJob.syncLink (node:internal/modules/esm/module_job:160:33) {\r\n  code: 'ERR_MODULE_NOT_FOUND'\r\n}\r\n\r\nNode.js v24.14.0\r\n"
+  },
+  {
+    "suite": "test_brush_declarations",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_brush_declarations"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_brush_declarations.cc_out.exe",
+    "returncode": 1,
+    "passed": false,
+    "binary_sha256": "2162dba73911216fb203683e1634e3c57ed549c6879500a5912fec941d41a5b4",
+    "stdout": "",
+    "stderr": "node:internal/modules/esm/resolve:205\r\n  const resolvedOption = FSLegacyMainResolve(pkgPath, packageConfig.main, baseStringified);\r\n                         ^\r\n\r\nError: Cannot find package 'C:\\dev\\blender\\sculptcore-blender-addon\\engine\\node_modules\\yargs\\index.js' imported from C:\\dev\\blender\\sculptcore-blender-addon\\engine\\make.mjs\r\n    at legacyMainResolve (node:internal/modules/esm/resolve:205:26)\r\n    at packageResolve (node:internal/modules/esm/resolve:778:12)\r\n    at moduleResolve (node:internal/modules/esm/resolve:859:18)\r\n    at defaultResolve (node:internal/modules/esm/resolve:991:11)\r\n    at #cachedDefaultResolve (node:internal/modules/esm/loader:719:20)\r\n    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:736:38)\r\n    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:765:52)\r\n    at #resolve (node:internal/modules/esm/loader:701:17)\r\n    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:621:35)\r\n    at ModuleJob.syncLink (node:internal/modules/esm/module_job:160:33) {\r\n  code: 'ERR_MODULE_NOT_FOUND'\r\n}\r\n\r\nNode.js v24.14.0\r\n",
+    "error": "The extra-kernel registration branch did not run"
+  },
+  {
+    "suite": "test_brush_props",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_brush_props"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_brush_props.cc_out.exe",
+    "returncode": 1,
+    "passed": false,
+    "binary_sha256": "7f9967153f63c8a21e4326ed10da7c3057eca5f27abd9859e9ab4e593259997f",
+    "stdout": "",
+    "stderr": "node:internal/modules/esm/resolve:205\r\n  const resolvedOption = FSLegacyMainResolve(pkgPath, packageConfig.main, baseStringified);\r\n                         ^\r\n\r\nError: Cannot find package 'C:\\dev\\blender\\sculptcore-blender-addon\\engine\\node_modules\\yargs\\index.js' imported from C:\\dev\\blender\\sculptcore-blender-addon\\engine\\make.mjs\r\n    at legacyMainResolve (node:internal/modules/esm/resolve:205:26)\r\n    at packageResolve (node:internal/modules/esm/resolve:778:12)\r\n    at moduleResolve (node:internal/modules/esm/resolve:859:18)\r\n    at defaultResolve (node:internal/modules/esm/resolve:991:11)\r\n    at #cachedDefaultResolve (node:internal/modules/esm/loader:719:20)\r\n    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:736:38)\r\n    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:765:52)\r\n    at #resolve (node:internal/modules/esm/loader:701:17)\r\n    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:621:35)\r\n    at ModuleJob.syncLink (node:internal/modules/esm/module_job:160:33) {\r\n  code: 'ERR_MODULE_NOT_FOUND'\r\n}\r\n\r\nNode.js v24.14.0\r\n"
+  },
+  {
+    "suite": "test_brush_registry",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_brush_registry"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_brush_registry.cc_out.exe",
+    "returncode": 1,
+    "passed": false,
+    "binary_sha256": "e947356985b7985e7228bbf9fa3d146b9e49db6dcb728028ddba0119b0643789",
+    "stdout": "",
+    "stderr": "node:internal/modules/esm/resolve:205\r\n  const resolvedOption = FSLegacyMainResolve(pkgPath, packageConfig.main, baseStringified);\r\n                         ^\r\n\r\nError: Cannot find package 'C:\\dev\\blender\\sculptcore-blender-addon\\engine\\node_modules\\yargs\\index.js' imported from C:\\dev\\blender\\sculptcore-blender-addon\\engine\\make.mjs\r\n    at legacyMainResolve (node:internal/modules/esm/resolve:205:26)\r\n    at packageResolve (node:internal/modules/esm/resolve:778:12)\r\n    at moduleResolve (node:internal/modules/esm/resolve:859:18)\r\n    at defaultResolve (node:internal/modules/esm/resolve:991:11)\r\n    at #cachedDefaultResolve (node:internal/modules/esm/loader:719:20)\r\n    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:736:38)\r\n    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:765:52)\r\n    at #resolve (node:internal/modules/esm/loader:701:17)\r\n    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:621:35)\r\n    at ModuleJob.syncLink (node:internal/modules/esm/module_job:160:33) {\r\n  code: 'ERR_MODULE_NOT_FOUND'\r\n}\r\n\r\nNode.js v24.14.0\r\n"
+  },
+  {
+    "suite": "test_grid_stroke",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_grid_stroke"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_grid_stroke.cc_out.exe",
+    "returncode": 1,
+    "passed": false,
+    "binary_sha256": "421600da8f67ac4d5db829ad06ee961ecf228ca786ab1451c8111009531b405d",
+    "stdout": "",
+    "stderr": "node:internal/modules/esm/resolve:205\r\n  const resolvedOption = FSLegacyMainResolve(pkgPath, packageConfig.main, baseStringified);\r\n                         ^\r\n\r\nError: Cannot find package 'C:\\dev\\blender\\sculptcore-blender-addon\\engine\\node_modules\\yargs\\index.js' imported from C:\\dev\\blender\\sculptcore-blender-addon\\engine\\make.mjs\r\n    at legacyMainResolve (node:internal/modules/esm/resolve:205:26)\r\n    at packageResolve (node:internal/modules/esm/resolve:778:12)\r\n    at moduleResolve (node:internal/modules/esm/resolve:859:18)\r\n    at defaultResolve (node:internal/modules/esm/resolve:991:11)\r\n    at #cachedDefaultResolve (node:internal/modules/esm/loader:719:20)\r\n    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:736:38)\r\n    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:765:52)\r\n    at #resolve (node:internal/modules/esm/loader:701:17)\r\n    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:621:35)\r\n    at ModuleJob.syncLink (node:internal/modules/esm/module_job:160:33) {\r\n  code: 'ERR_MODULE_NOT_FOUND'\r\n}\r\n\r\nNode.js v24.14.0\r\n"
+  },
+  {
+    "suite": "test_brush_named_storage",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_brush_named_storage"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_brush_named_storage.cc_out.exe",
+    "returncode": 1,
+    "passed": false,
+    "binary_sha256": "0780e3d86fec1bbceb291c7880f87ad69cb172c5f40df84b74b4f23459fcb8b1",
+    "stdout": "",
+    "stderr": "node:internal/modules/esm/resolve:205\r\n  const resolvedOption = FSLegacyMainResolve(pkgPath, packageConfig.main, baseStringified);\r\n                         ^\r\n\r\nError: Cannot find package 'C:\\dev\\blender\\sculptcore-blender-addon\\engine\\node_modules\\yargs\\index.js' imported from C:\\dev\\blender\\sculptcore-blender-addon\\engine\\make.mjs\r\n    at legacyMainResolve (node:internal/modules/esm/resolve:205:26)\r\n    at packageResolve (node:internal/modules/esm/resolve:778:12)\r\n    at moduleResolve (node:internal/modules/esm/resolve:859:18)\r\n    at defaultResolve (node:internal/modules/esm/resolve:991:11)\r\n    at #cachedDefaultResolve (node:internal/modules/esm/loader:719:20)\r\n    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:736:38)\r\n    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:765:52)\r\n    at #resolve (node:internal/modules/esm/loader:701:17)\r\n    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:621:35)\r\n    at ModuleJob.syncLink (node:internal/modules/esm/module_job:160:33) {\r\n  code: 'ERR_MODULE_NOT_FOUND'\r\n}\r\n\r\nNode.js v24.14.0\r\n"
+  },
+  {
+    "suite": "test_brush_typed_extras",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_brush_typed_extras"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_brush_typed_extras.cc_out.exe",
+    "returncode": 1,
+    "passed": false,
+    "binary_sha256": "019dae01999f6c2cd114da66526e2fc3a4d2bcd5e8b9a6528fe11017ed4d29be",
+    "stdout": "",
+    "stderr": "node:internal/modules/esm/resolve:205\r\n  const resolvedOption = FSLegacyMainResolve(pkgPath, packageConfig.main, baseStringified);\r\n                         ^\r\n\r\nError: Cannot find package 'C:\\dev\\blender\\sculptcore-blender-addon\\engine\\node_modules\\yargs\\index.js' imported from C:\\dev\\blender\\sculptcore-blender-addon\\engine\\make.mjs\r\n    at legacyMainResolve (node:internal/modules/esm/resolve:205:26)\r\n    at packageResolve (node:internal/modules/esm/resolve:778:12)\r\n    at moduleResolve (node:internal/modules/esm/resolve:859:18)\r\n    at defaultResolve (node:internal/modules/esm/resolve:991:11)\r\n    at #cachedDefaultResolve (node:internal/modules/esm/loader:719:20)\r\n    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:736:38)\r\n    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:765:52)\r\n    at #resolve (node:internal/modules/esm/loader:701:17)\r\n    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:621:35)\r\n    at ModuleJob.syncLink (node:internal/modules/esm/module_job:160:33) {\r\n  code: 'ERR_MODULE_NOT_FOUND'\r\n}\r\n\r\nNode.js v24.14.0\r\n",
+    "error": "Missing required fixture marker: typed extra grid program geometry passed"
+  },
+  {
+    "suite": "test_brush_configuration",
+    "command": [
+      "C:\\Program Files\\nodejs\\node.EXE",
+      "make.mjs",
+      "test",
+      "test_brush_configuration"
+    ],
+    "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_brush_configuration.cc_out.exe",
+    "returncode": 1,
+    "passed": false,
+    "binary_sha256": "6f572cc4f44c3fb81d05bab50eae02bf68ff1616b6bce6b909777e93e3400eca",
+    "stdout": "",
+    "stderr": "node:internal/modules/esm/resolve:205\r\n  const resolvedOption = FSLegacyMainResolve(pkgPath, packageConfig.main, baseStringified);\r\n                         ^\r\n\r\nError: Cannot find package 'C:\\dev\\blender\\sculptcore-blender-addon\\engine\\node_modules\\yargs\\index.js' imported from C:\\dev\\blender\\sculptcore-blender-addon\\engine\\make.mjs\r\n    at legacyMainResolve (node:internal/modules/esm/resolve:205:26)\r\n    at packageResolve (node:internal/modules/esm/resolve:778:12)\r\n    at moduleResolve (node:internal/modules/esm/resolve:859:18)\r\n    at defaultResolve (node:internal/modules/esm/resolve:991:11)\r\n    at #cachedDefaultResolve (node:internal/modules/esm/loader:719:20)\r\n    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:736:38)\r\n    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:765:52)\r\n    at #resolve (node:internal/modules/esm/loader:701:17)\r\n    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:621:35)\r\n    at ModuleJob.syncLink (node:internal/modules/esm/module_job:160:33) {\r\n  code: 'ERR_MODULE_NOT_FOUND'\r\n}\r\n\r\nNode.js v24.14.0\r\n"
+  }
+]

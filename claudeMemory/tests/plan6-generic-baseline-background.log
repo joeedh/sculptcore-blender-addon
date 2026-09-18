@@ -1,0 +1,15 @@
+Blender 5.3.0 Alpha
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+00:08.296  blend            | Read blend: "C:\dev\blender\sculptcore-blender-addon\claudeMemory\tests\generic-brush-v0\legacy.blend"
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+BASELINE_FIELDS {'strength': 0.75, 'spacing': 0.23000000417232513, 'autosmooth': 0.0, 'planeoff': 0.0, 'automask_cavity': True, 'cavity_factor': 1.75, 'cavity_blur_steps': 3, 'cavity_inverted': False, 'cavity_use_curve': True, 'falloff_kind': 3, 'falloff_shape': 0} {'strength': 0.75, 'spacing': 0.23000000417232513, 'autosmooth': 0.0, 'planeoff': 0.0, 'automask_cavity': True, 'cavity_factor': 1.75, 'cavity_blur_steps': 3, 'cavity_inverted': False, 'cavity_use_curve': True, 'falloff_kind': 3, 'falloff_shape': 0}
+
+Blender quit
+
+Traceback (most recent call last):
+  File "C:\dev\blender\sculptcore-blender-addon\claudeMemory\scripts\test_plan6_generic_baseline.py", line 69, in <module>
+    assert np.allclose(actual, expected, atol=2e-6, rtol=0), (key, error)
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('fixture_draw_plain', 0.0481814444065094)
+
+Error: script failed, file: 'C:\dev\blender\sculptcore-blender-addon\claudeMemory\scripts\test_plan6_generic_baseline.py', exiting.

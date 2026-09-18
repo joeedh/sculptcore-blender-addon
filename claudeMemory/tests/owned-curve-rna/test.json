@@ -1,0 +1,31 @@
+{
+  "checks": [
+    "unset_and_atomic_failed_initialization",
+    "root_path_initialization_native_types_and_callback",
+    "retained_mapping_channel_point_vector_iterator",
+    "field_array_and_mathutils_transactions",
+    "invalid_numbers_and_transactions_preserve_value",
+    "point_functions_and_membership",
+    "raw_sync_unknown_version_and_extension_preservation",
+    "malformed_sibling_preserved_and_explicit_unset",
+    "collection_growth_move_delete_and_current_callback_parent",
+    "independent_owner_copy_and_deleted_owner",
+    "off_main_thread_rejected",
+    "declaration_replacement_invalidates_old_wrappers",
+    "direct_id_storage_and_unset",
+    "same_curve_callback_recursion_guard",
+    "point_return_after_callback_owner_deletion",
+    "callback_unregisters_its_own_declaration",
+    "numeric_conversion_owner_deletion",
+    "boolean_conversion_owner_deletion",
+    "callback_unset_suppresses_same_curve_recursion",
+    "callback_curve_removal_rejects_reinitialization",
+    "callback_item_removal_rejects_reinitialization",
+    "callback_ancestor_removal_rejects_reinitialization",
+    "unsupported_declaration_rejected",
+    "read_only_linked_owner",
+    "save_reload_invalidates_retained_handles"
+  ],
+  "binary": "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+  "version": "5.3.0 Alpha"
+}

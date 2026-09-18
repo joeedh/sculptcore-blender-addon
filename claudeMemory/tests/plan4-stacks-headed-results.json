@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "checks": [
+    "undo restores disabled entry/curve and retires old store",
+    "undo restores absent root without read allocation",
+    "redo restores both complete stack states"
+  ]
+}

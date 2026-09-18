@@ -1,0 +1,1 @@
+@brush("invalid") brush Invalid { uniform float3 state @dynamic; vertex void apply(inout Vertex v) {} }

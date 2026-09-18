@@ -1,0 +1,6 @@
+[
+  "Brush undo restores scalar, positions, disabled selection and custom payload",
+  "second Brush undo restores complete absence",
+  "redo restores creation followed by removal and explicit empty positions",
+  "native undo works with addon unregistered and mapping declarations absent"
+]

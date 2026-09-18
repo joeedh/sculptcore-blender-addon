@@ -1,0 +1,57 @@
+{
+  "passed": true,
+  "scope": "Persistent scalar values/policies and atomic scalar UI metadata",
+  "blender_sha256": "1cc56a5abf9786bc0f0de6366f2c22c9bebd5e5127ca033377cacea3d3e00c84",
+  "engine_sha256": "4e5961047db841289d9d52c6fd1b48eef689fd1e60c0c1b09204646199441a4e",
+  "addon_sources": {
+    "__init__.py": "e3cd0534294b7c2f7344009f127f9330590a9e689c3e847aebb199d6dfdcf6bb",
+    "brush_properties/__init__.py": "235c233dd8417a69cd5936b69d4de0a898f629a33cbea230d45a6eea562424d5",
+    "brush_properties/lifecycle.py": "878197eb0371e2ad4d94ec68a29e86b5b6d0ac000f0ad5eae00c47cea2d60c19",
+    "brush_properties/native.py": "073c60c8f45bc6b6c3bbcc3fe15f78ccbcc31b278a577ad0e3c7cfae941a65ff",
+    "brush_properties/registry.py": "e8ae9f2b8700e2b87916e01fdb78091d6639008594868cd0e0e0b9fae589c696",
+    "brush_properties/resolver.py": "a419913091aa0b035f73eb8d3899a92022be64805b7fb0339aa1d208e02bc24f",
+    "brush_properties/storage.py": "1e7d394fbf999126abd957c705ffe16109483c733f2774c2d577239e919690be"
+  },
+  "fork_sources": {
+    "source/blender/python/intern/bpy_rna_idprops.cc": "7e959e333670a5a2e35ac6bb38fb82ad5b4f533a0d14249069185c644a7c8cab",
+    "source/blender/python/intern/bpy_rna_idprops.hh": "6272f5f09532f3b26cab67984abeab743a02252bdbdc82acdfdb311b5058b8c1",
+    "source/blender/python/intern/bpy_rna_types_capi.cc": "34f762123e643fe2c44de3adf5e38ca016951cc8b7e9d31d53918c782ee3f048",
+    "source/blender/python/intern/CMakeLists.txt": "937b40afb6ca428feaaaab3b4091afb954ab9c0a357419d30c8389c8e683c0de",
+    "source/blender/python/generic/idprop_py_ui_api.cc": "6c3cba9c9d2f41c3b7015a86f5e2b3ea6b67eff01156051d9f5aa4d51a04ae33",
+    "source/blender/python/generic/idprop_py_ui_api.hh": "b0f6f7a8811d4d0d99367dc8cdb1d64be4e6458b90dedb0d4f8cea31a88505b9",
+    "doc/python_api/rst/info_atomic_id_properties.rst": "4401f0f247d3ef9ae4b046be51eac0117f42922d0d5dd2d91bbc12c7da85b96a"
+  },
+  "launchers": [
+    "plan4-atomic",
+    "plan4-atomic-assets",
+    "plan4-atomic-assets-fresh",
+    "plan4-atomic-headed",
+    "plan4-atomic-without-authoring",
+    "plan4-atomic-fresh",
+    "plan4-atomic-owner-regression",
+    "plan4-atomic-cache",
+    "plan4-atomic-smoke"
+  ],
+  "counts": {
+    "plan4-atomic/test-results": 64,
+    "plan4-atomic/verify-results": 5,
+    "plan4-atomic-assets/test-results": 14,
+    "plan4-atomic-assets/verify-results": 2,
+    "plan4-atomic-headed-results": 4,
+    "plan4-owner-assets/test-results": 43
+  },
+  "pure_tests": 11,
+  "owned_cache_checks": 13,
+  "without_authoring": {
+    "passed": true,
+    "authoring_imports_blocked": true,
+    "addon_disabled": true,
+    "preserved_records": 6
+  },
+  "limitations": [
+    "Persistent stacks, saved positions, custom curve bank and further native adapters remain open",
+    "Headed undo covers generic Scene data; Brush/native Scene authoring undo remains open",
+    "No new stroke/UI consumer or feature switch is enabled",
+    "Headless package smoke does not map wgpu_native and is not a clean-machine GPU test"
+  ]
+}

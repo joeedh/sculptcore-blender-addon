@@ -1,0 +1,24 @@
+Blender 5.3.0 Alpha
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+AUTHORING_SNAPSHOT_OK 23
+
+Blender quit
+
+C:\dev\blender\sculptcore-blender-addon\claudeMemory\scripts\test_authoring_snapshot.py:78: DeprecationWarning: 'UnifiedPaintSettings.use_unified_size' is expected to be removed in Blender 6.0
+  before = (ups.use_unified_size, ups.use_unified_strength, ups.use_unified_color, ups.use_locked_size)
+C:\dev\blender\sculptcore-blender-addon\claudeMemory\scripts\test_authoring_snapshot.py:78: DeprecationWarning: 'UnifiedPaintSettings.use_unified_strength' is expected to be removed in Blender 6.0
+  before = (ups.use_unified_size, ups.use_unified_strength, ups.use_unified_color, ups.use_locked_size)
+C:\dev\blender\sculptcore-blender-addon\claudeMemory\scripts\test_authoring_snapshot.py:78: DeprecationWarning: 'UnifiedPaintSettings.use_unified_color' is expected to be removed in Blender 6.0
+  before = (ups.use_unified_size, ups.use_unified_strength, ups.use_unified_color, ups.use_locked_size)
+C:\dev\blender\sculptcore-blender-addon\claudeMemory\scripts\test_authoring_snapshot.py:80: DeprecationWarning: 'UnifiedPaintSettings.use_unified_size' is expected to be removed in Blender 6.0
+  ups.use_unified_size = not before[0]
+C:\dev\blender\sculptcore-blender-addon\claudeMemory\scripts\test_authoring_snapshot.py:81: DeprecationWarning: 'UnifiedPaintSettings.use_unified_strength' is expected to be removed in Blender 6.0
+  ups.use_unified_strength = not before[1]
+C:\dev\blender\sculptcore-blender-addon\claudeMemory\scripts\test_authoring_snapshot.py:82: DeprecationWarning: 'UnifiedPaintSettings.use_unified_color' is expected to be removed in Blender 6.0
+  ups.use_unified_color = not before[2]
+C:\dev\blender\sculptcore-blender-addon\claudeMemory\scripts\test_authoring_snapshot.py:86: DeprecationWarning: 'UnifiedPaintSettings.use_unified_size' is expected to be removed in Blender 6.0
+  ups.use_unified_size, ups.use_unified_strength, ups.use_unified_color, ups.use_locked_size))
+C:\dev\blender\sculptcore-blender-addon\claudeMemory\scripts\test_authoring_snapshot.py:86: DeprecationWarning: 'UnifiedPaintSettings.use_unified_strength' is expected to be removed in Blender 6.0
+  ups.use_unified_size, ups.use_unified_strength, ups.use_unified_color, ups.use_locked_size))
+C:\dev\blender\sculptcore-blender-addon\claudeMemory\scripts\test_authoring_snapshot.py:86: DeprecationWarning: 'UnifiedPaintSettings.use_unified_color' is expected to be removed in Blender 6.0
+  ups.use_unified_size, ups.use_unified_strength, ups.use_unified_color, ups.use_locked_size))

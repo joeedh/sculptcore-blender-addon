@@ -18,6 +18,102 @@ Working notes Claude maintains for this repository. See the top-level
 
 ## Index
 
+- [Plan 6 integration](plans/generic-brush-plan6-integration.md)
+  — reviewed command stacks, immutable host ancestry, and the remaining stroke
+  snapshot/adoption sequence. [Progress and evidence](codebase/generic-brush-plan6-evidence.md).
+  [Completed authoring snapshot prerequisite](plans/generic-brush-plan6-snapshots.md)
+  and [verified snapshot gate](tests/plan6-snapshot-gate.json) cover independent
+  native/curve owners, paired size domains and DLL-independent automasking defaults.
+  [Current consumer audit](codebase/generic-brush-consumer-audit.md) identifies the
+  remaining modal/batch/projection/UI seams. The next
+  [typed execution-domain slice](plans/generic-brush-execution-domains.md) passed
+  both independent reviews and [its native/Blender gate](tests/plan6-domains-gate.json).
+
+- [Plan 5 completion evidence](codebase/generic-brush-plan5-evidence.md)
+  — analytic presets, owned/native customization, bounded revision/content caches,
+  checked bulk uploads and measured zero-work warm strokes.
+  [Reviewed implementation plan](plans/generic-brush-curve-evaluation.md) and
+  [verified completion manifest](tests/plan5-completion-gate.json).
+
+- [design/generic-brush-contract-v1.md](design/generic-brush-contract-v1.md)
+  — reviewed ownership, migration, typed dynamics, input and command contracts.
+  [Owned-curve format](design/owned-curve-storage-v1.md),
+  [inventory](design/generic-brush-inventory-v1.json), and
+  [Plan 1 completion evidence](codebase/generic-brush-plan1-evidence.md).
+
+- [codebase/blender-debug-server.md](codebase/blender-debug-server.md)
+  — opt-in remote Blender Python console, startup/client commands, main-thread
+  execution, lifecycle and validation. [Plan](plans/blender-debug-server.md).
+- [codebase/generic-brush-plan2-evidence.md](codebase/generic-brush-plan2-evidence.md)
+  — native owned-curve codec and owner-notification implementation, old-reader
+  preservation tests and completed native/API/editor gate.
+  [Runtime review findings](plans/owned-curve-runtime-implementation.md).
+  [Reviewed native runtime core](plans/owned-curve-runtime-core.md) — immutable
+  snapshots, atomic commits/sync and lifecycle invalidation; eight native cases
+  plus background/headed regressions passed.
+  [Reviewed RNA layer](plans/owned-curve-rna-layer.md) — property declaration,
+  transactional native/Python access, retained handles and callback safety;
+  25 lifecycle/callback checks, owned external assets, fresh reads and headed
+  RNA undo/redo and actual editor gates passed.
+  [Reviewed owned curve editor](plans/owned-curve-editor.md) — guarded path
+  initialization and revision-bound transactions; headed lifecycle gate passed.
+  [Cache API finalization](plans/owned-curve-api-finalization.md) — immutable
+  integer keys, capability metadata and generated documentation; 13 real API
+  checks plus headed undo/redo passed.
+  [Array-watch performance correction](plans/owned-curve-array-watch-performance.md)
+  — reviewed fix for quadratic array construction found by the headed point-limit gate.
+- [plans/generic-brush-typed-core.md](plans/generic-brush-typed-core.md)
+  — completed first Plan 3 engine slice; native build and four test suites passed.
+  [Plan 3 evidence](codebase/generic-brush-plan3-evidence.md) records scope and limits.
+  [Generated registration](plans/generic-brush-generated-registration.md) passed
+  13 native suites and five addon error-boundary tests.
+  [Typed named working stores](plans/generic-brush-named-storage.md) passed 14
+  native suites with NUDGE enabled and an exact-DLL float/manifest binding smoke.
+  [Checked configuration](plans/generic-brush-checked-configuration.md) passes
+  16 native suites and actual typed/common Python binding tests; addon-only
+  restoration and declaration checking also pass. The [binding test](scripts/test_checked_brush_bindings.py)
+  and [declaration generator](scripts/generate_checked_brush_bindings.py) pin the
+  exact DLL and record binary/artifact hashes. One-time implementation helpers:
+  [native wiring](scripts/wire_checked_configuration.py),
+  [binding wiring](scripts/wire_checked_query_bindings.py),
+  [shared Python access](scripts/factor_checked_python_access.py).
+  [TypeScript formatting](scripts/format_checked_typescript.mjs) applies the
+  existing generator convention and records formatted artifact hashes.
+  [Prepared execution](plans/generic-brush-prepared-execution.md) is the next
+  Plan 3 gate. Fresh codegen/state and execution-seam reviews are folded in;
+  its nonmutating device-evaluation and static-storage prerequisites pass native
+  and exact-DLL Python gates. Static adapters also pass actual fixture mesh/grid
+  geometry and addon-only restoration. Declaration preflight without publication
+  passes a fresh native/Python gate. The [scalar candidate helper](../engine/source/brush/brush_preparation.h)
+  passes fixture and restored addon-only native/Python gates after fresh adversarial
+  reviews. The [bounded prepared mesh gate](plans/generic-brush-prepared-execution.md#bounded-mesh-execution-evidence)
+  now passes 17 fixture and restored addon-only native suites plus exact-DLL Python
+  checks. It covers atomic publication/working-cache application, generated
+  capability guards, typed geometry, evaluated-radius selection and undo/redo;
+  [native execution regression](../engine/tests/test_brush_prepared_execution.cc).
+  The [bounded prepared grid gate](plans/generic-brush-prepared-execution.md#bounded-grid-execution-evidence)
+  also passes 17 fixture and restored addon-only suites plus exact-DLL Python
+  checks. It covers typed geometry, lifecycle rejection, deferred normals,
+  expanded-radius selection, and seam bounds through execution/undo/redo.
+  The [bounded program gate](plans/generic-brush-prepared-programs.md)
+  passes fixture and restored addon-only native/Python checks. It adds typed
+  overrides before dynamics, complete command preflight, expanded-radius queries
+  and exact sparse working-state restoration across mesh/grid programs.
+  Public execution bindings, batch/preview and addon adoption remain open.
+  [Typed configuration and generated uniforms](plans/generic-brush-typed-integration.md)
+  — reviewed next slice; checked access/native member validation passed eight
+    suites. The [atomic declaration foundation](plans/generic-brush-registration.md)
+    passes nine suites; typed extra emission and configuration bindings now pass
+    their gates. Full prepared execution remains open.
+- [debugging.md](debugging.md) — running debugging guide and lessons learned.
+- [plans/generic-brush-properties-tasks.md](plans/generic-brush-properties-tasks.md)
+  — eight implementation plans for the owner-aware CurveMapping API, typed
+  device dynamics, generic properties/adapters, curves/caching, execution, UI,
+  and migration/release, with dependencies and completion gates.
+- [research/curve-mapping-brush-assets.md](research/curve-mapping-brush-assets.md)
+  — tested node-backed curves through external brush asset save/load and copy;
+  packaging works, but Revert reuses unsaved node-tree contents and curve edits
+  need brush dirty propagation. Includes a reproducible headless probe.
 - [plans/program-grids-routing.md](plans/program-grids-routing.md)
   — routing brush programs (Clay's `[main, BSMOOTH]` autosmooth, and programs
   in general) onto the grids path and the C++ batch driver: BSMOOTH-on-grids
@@ -400,3 +496,112 @@ Working notes Claude maintains for this repository. See the top-level
   scaffolding was reverted; the note records the exact patch, the caveats (shared
   Blender arena, nesting sites left hand-flattened), and the one untested case
   where TBB should still win.
+- [plans/blender-native-test-launcher.md](plans/blender-native-test-launcher.md)
+  — completed fix for standalone Blender test DLL popups; reusable
+  [launcher](scripts/run_blender_native_tests.py),
+  [failure harness](scripts/test_blender_native_launcher.py), and recorded 20-test rerun.
+- [plans/generic-brush-typed-extras.md](plans/generic-brush-typed-extras.md)
+  — reviewed typed extra compiler gate; [shader and CLI checks](scripts/test_typed_extra_compiler.py).
+- [codebase/brush-input-delivery.md](codebase/brush-input-delivery.md)
+  — completed Plan 3 event/sample and execution API; final evidence in
+  [Plan 3 completion](codebase/generic-brush-plan3-evidence.md#completion-gate--2026-09-17).
+- [plans/generic-brush-plan4-foundation.md](plans/generic-brush-plan4-foundation.md)
+  — Plan 4 registry, resolver and native-adapter implementation sequence.
+- [plans/generic-brush-plan4-storage.md](plans/generic-brush-plan4-storage.md)
+  — completed owner-safety prerequisite and historical storage proposal, superseded
+  for metadata by the atomic scalar plan. Records the reopened Brush undo gap.
+- [plans/generic-brush-atomic-scalars.md](plans/generic-brush-atomic-scalars.md)
+  — reviewed and implemented persistent typed values/policies with lossless native
+  atomic publication, per-definition UI metadata and real asset/Scene undo gates.
+- [plans/generic-brush-persistent-stacks.md](plans/generic-brush-persistent-stacks.md)
+  — reviewed persistent ordered generated-response stacks, independent effective
+  owners, lossless atomic updates and real asset/Scene undo gates.
+- [plans/generic-brush-persistent-positions.md](plans/generic-brush-persistent-positions.md)
+  — saved plural placements, local ownership, explicit empty/default/reset states,
+  atomic publication and asset/Scene undo evidence.
+- [research/generic-brush-curve-bank-integration.md](research/generic-brush-curve-bank-integration.md)
+  — current direct/nested owned-curve API findings and integration boundaries to
+  resolve in the next reviewed implementation plan.
+- [codebase/generic-brush-plan4-evidence.md](codebase/generic-brush-plan4-evidence.md)
+  — completed Plan 4 authoring gate: 25 Blender launches, 11 pure tests, native
+  inventory, persistent storage/assets and actual Brush/native-Scene/custom-mode
+  undo. Includes the correction closing Plan 2's Brush undo gap.
+- [plans/generic-brush-plan4-completion.md](plans/generic-brush-plan4-completion.md)
+  — completed Plan 4 sequence and reviewed owner-aware custom-curve integration.
+- [plans/generic-brush-frozen-authoring.md](plans/generic-brush-frozen-authoring.md)
+  — reviewed DLL-independent catalogue, legacy reads and saved readiness switch.
+- [plans/generic-brush-authoring-undo.md](plans/generic-brush-authoring-undo.md)
+  — reviewed and implemented scoped native snapshots, rollback and undo boundary.
+- [plans/generic-brush-native-adapters.md](plans/generic-brush-native-adapters.md)
+  — authoritative native scalar/size/pressure/cavity adapters and retained widgets.
+- [plans/generic-brush-undo-reregistration.md](plans/generic-brush-undo-reregistration.md)
+  — two fresh reviews proved the registration cache bug; stable ObjectModeType
+  Python base fixes repeated registration independently of undo.
+- [design/generic-brush-native-coverage-v1.json](design/generic-brush-native-coverage-v1.json)
+  — path-keyed coverage for all 882 frozen inventory rows; generated by
+  [generate_native_coverage.py](scripts/generate_native_coverage.py) and checked
+  by [test_native_inventory_coverage.py](scripts/test_native_inventory_coverage.py).
+- [implementation/info_property_authoring.rst](implementation/info_property_authoring.rst)
+  — fork API reference, installed by [install_authoring_docs.py](scripts/install_authoring_docs.py).
+  Native source helpers: [header](implementation/ED_authoring_undo.hh),
+  [snapshots/undo](implementation/authoring_undo.cc),
+  [Python API](implementation/bpy_rna_authoring.cc),
+  [installer](scripts/install_authoring_undo.py).
+- [scripts/install_object_mode_base.py](scripts/install_object_mode_base.py)
+  — bounded fork Python registration repair/staging;
+  [registration regression](scripts/test_object_mode_base.py).
+- [scripts/generate_native_authoring.py](scripts/generate_native_authoring.py)
+  — frozen native catalogue with reproducible `--check` generation.
+- [scripts/run_plan4_final_background.py](scripts/run_plan4_final_background.py)
+  and [record_plan4_completion.py](scripts/record_plan4_completion.py)
+  — final safe-launch regression runner and source/hash/evidence verifier;
+  [completion manifest](tests/plan4-completion-gate.json).
+- Plan 4 focused acceptance harnesses:
+  [snapshot](scripts/test_authoring_snapshot.py),
+  [native adapters](scripts/test_native_adapters.py),
+  [fresh native assets](scripts/test_native_adapters_fresh.py),
+  [native undo](scripts/test_authoring_undo_headed.py),
+  [collections undo](scripts/test_authoring_collections_headed.py),
+  [custom sculpt interleave](scripts/test_authoring_custom_undo.py),
+  [history limits](scripts/test_authoring_undo_limits.py),
+  [owner identity](scripts/test_authoring_owner_identity.py),
+  [actual widget driver](scripts/test_authoring_widget_finish.py).
+
+- [Prepared BSMOOTH gate](tests/plan6-bsmooth-gate.json) — actual boundary-aware mesh/grid programs, 17 native suites and 16 headed cases; [next non-accumulation plan](plans/generic-brush-prepared-nonaccum.md).
+
+- [Prepared non-accumulation gate](tests/plan6-nonaccum-gate.json) — 17 native suites, 16 installed headed cases, 248 required prepared calls and package smoke.
+- [Prepared mask gate](tests/plan6-mask-gate.json) — 17 native suites, exact finer-level undo,
+  12 DLL comparisons, 42 preflight checks, eight installed headed cases and package smoke;
+  [mask plan](plans/generic-brush-prepared-mask.md) and
+  [finer undo correction](plans/generic-brush-mask-finer-undo.md).
+- [Command automasking gate](tests/plan6-automask-gate.json) — 17 native suites,
+  eight exact DLL comparisons, eight headed cavity cases and matching controls;
+  [reviewed plan](plans/generic-brush-command-automasking.md).
+- [Prepared unbounded slice](plans/generic-brush-prepared-unbounded.md) — completed:
+  17 native and 17 fixture suites, shader validation, installed background/headed
+  batch comparisons and package smoke; [verified gate](tests/plan6-unbounded-gate.json).
+  [Kelvinlet numerical correction](plans/generic-brush-kelvinlet-numerics.md)
+  includes the independent numerical and compatibility review dispositions.
+- [Prepared ENHANCE](plans/generic-brush-prepared-enhance.md) — completed:
+  17 native suites, independent field/support oracles, 16 prepared installed host
+  cases and four raw controls in background/headed Blender, shader and package
+  checks; [verified gate](tests/plan6-enhance-gate.json).
+- [Prepared anchored grab](plans/generic-brush-prepared-grab.md) — completed:
+  17 native suites, independent GRAB/Kelvinlet oracles, 48 installed cases in
+  background and headed Blender, generated bindings and package smoke;
+  [verified gate](tests/plan6-grab-gate.json).
+- [Prepared preview rollback](plans/generic-brush-prepared-preview.md) — completed:
+  20 native suites, 64 installed cases in background and headed Blender, eight
+  real Anchored/Drag Dot gestures with cancel/undo/redo and package smoke;
+  [verified gate](tests/plan6-preview-gate.json).
+- [Prepared dyntopo](plans/generic-brush-prepared-dyntopo.md) — completed:
+  26 native suites, eight installed cases plus four exact legacy controls in
+  background/headed Blender, four real gestures and package smoke;
+  [verified gate](tests/plan6-dyntopo-gate.json).
+
+- Prepared mesh attributes: [contract](plans/generic-brush-prepared-attributes.md),
+  [verified gate](tests/plan6-attributes-gate.json).
+
+- Checked cage smoothing: [verified gate](tests/plan6-cage-gate.json).
+
+- Prepared falloff and grid-layer policies: [verified gate](tests/plan6-host-policies-gate.json).

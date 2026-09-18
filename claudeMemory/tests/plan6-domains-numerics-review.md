@@ -1,0 +1,21 @@
+**One blocker: the plan does not define representable typed bounds.** No integration-boundary blocker found for this evaluator prerequisite.
+
+1. **Resolve typed ranges before implementing the final clamp.** The plan says to clamp to the effective native/declared domain and storage range, then round INT32 (`generic-brush-execution-domains.md:26–27`). However, `Definition` accepts fractional INT32 bounds and non-FLOAT32-representable float bounds (`registry.py:204–218`), whereas native `evaluateChecked` receives bounds already typed as `T` (`prop_dynamics.h:359–381`).
+
+   Concrete failures:
+   - A valid INT32 definition with range `[0.2, 1.6]` and default `1`, evaluated with REPLACE `0.2`, clamps to `0.2` and rounds to `0`—outside its declared range.
+   - A valid FLOAT32 definition with range `[0, 0.1]` and default `0`, evaluated above its maximum, clamps to Python double `0.1`. Returning that violates FLOAT32 storage; rounding it to FLOAT32 produces approximately `0.10000000149`, outside the declared range.
+
+   **Correction:** Specify canonical execution bounds: INT32 uses `ceil(minimum)`/`floor(maximum)`; FLOAT32 uses inward representable endpoints after storage intersection; BOOL uses its admissible stored values. Reject empty representable domains. State that native-backed evaluation selects the captured `value_domain`, with SIZE’s explicit radius override, and define any intended intersection with registry bounds. Feed identical typed bounds to native verification. Add both counterexamples and singleton BOOL domains to independent tests. Reconcile this explicitly with the contract’s existing clamp-before-conversion wording (`generic-brush-contract-v1.md:204–207`).
+
+The remaining numerical concerns are implementation traps already covered in principle by the plan, rather than additional blockers:
+
+- **Runtime narrowing must preserve overflow semantics.** The existing `scalar('FLOAT32', …)` rejects overflow (`registry.py:43–50`); it cannot directly implement arithmetic that must overflow and abandon only the current layer. Likewise, analytic levels remain double until `Real(...)`, so a finite level such as `1e300` must cause a skipped response for FLOAT32 but remain usable for INT32/BOOL’s FLOAT64 arithmetic (`prop_dynamics.h:214–222,245–272`). Add explicit cross-width cases, including zero mix factors. Specify that finite device values overflowing transport become nonfinite/missing *before* response clamping, consistent with native presence checking (`prop_dynamics.h:395–403`).
+
+- **Interpolation must reproduce the expression and endpoint branch.** Native interpolation scales/indexes in `Real`, returns the last sample directly at the endpoint, and otherwise computes `a*(1-t)+b*t` (`prop_dynamics.h:225–235`). Testing only ordinary randomized tables can miss incorrect FLOAT32 indexing, reassociation, signed zero, and subnormal behavior. Add targeted knot-adjacent and endpoint vectors. Keeping `PreparedResponse.evaluate` unchanged is appropriate because its current arithmetic is Python double (`responses.py:76–84`).
+
+- **Keep native parity a hard gate.** Actual `UniformProperties.read(..., evaluate=True)` is demonstrated in the supplied fixture harness (`test_checked_brush_bindings.py:108–123,249–272`). The plan correctly requires this comparison and binary hashes (`generic-brush-execution-domains.md:53–63`). Define how “where the engine’s build arithmetic permits” is established; a contraction or underflow mismatch must produce a documented arithmetic-policy decision and rerun, not an unexplained tolerance.
+
+The integration boundary is viable: snapshots preserve the effective SIZE owner’s complete pair independently of stack ownership (`snapshots.py:92–120`; `commands.py:62–69`). Evaluating spacing before percent conversion, snake pinch before remapping, and strength before compensation preserves the required semantic ordering. The projected SIZE override and primitive result support applying its stack once (`generic-brush-execution-domains.md:29–42`). Deferred modal, projection, and batch adoption are not blockers here; the plan explicitly leaves them open without authorizing fallback (`generic-brush-execution-domains.md:64–71`).
+
+Review used only the supplied source; no execution or native verification was performed.

@@ -1,0 +1,37 @@
+{
+  "passed": true,
+  "scope": "Native owner safety only; persistent generic storage remains unimplemented",
+  "blender_sha256": "aa2b3fc9dfa0fe4e7d7ef305a91c68e35c6707da1c4edbd50d072974f75df0cc",
+  "engine_sha256": "4e5961047db841289d9d52c6fd1b48eef689fd1e60c0c1b09204646199441a4e",
+  "addon_sources": {
+    "__init__.py": "e3cd0534294b7c2f7344009f127f9330590a9e689c3e847aebb199d6dfdcf6bb",
+    "brush_properties/native.py": "073c60c8f45bc6b6c3bbcc3fe15f78ccbcc31b278a577ad0e3c7cfae941a65ff",
+    "brush_properties/lifecycle.py": "878197eb0371e2ad4d94ec68a29e86b5b6d0ac000f0ad5eae00c47cea2d60c19"
+  },
+  "fork_source_sha256": "88b376d3b6b4c14dcaecc4b2994e72d42f65c6b3ac2b9ff92a68136e67d7656a",
+  "launchers": [
+    "plan4-native",
+    "plan4-owner-safety",
+    "plan4-owner-fresh",
+    "plan4-owner-headed",
+    "plan4-native-curve-notifications",
+    "plan4-native-curve-fresh",
+    "plan4-owned-cache",
+    "plan4-owner-smoke"
+  ],
+  "counts": {
+    "plan4-native-results": 22,
+    "plan4-owner-assets/test-results": 43,
+    "plan4-owner-assets/verify-results": 1,
+    "plan4-owner-headed-results": 3,
+    "plan4-native-curve-assets/results": 16
+  },
+  "pure_tests": 11,
+  "owned_cache_checks": 13,
+  "limitations": [
+    "Notifier recipient verified by source audit, not direct runtime notifier observation",
+    "Undo test covers a Scene custom-property sentinel and lifetime; Brush/native Scene settings retain current values",
+    "Import isolation does not unload the engine already loaded by the startup addon",
+    "Headless package smoke does not map wgpu_native; no GPU packaging assertion"
+  ]
+}

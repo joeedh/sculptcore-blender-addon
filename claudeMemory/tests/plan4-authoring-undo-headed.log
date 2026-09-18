@@ -1,0 +1,14 @@
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+AUTHORING_UNDO_HEADED_OK 17
+00:16.359  blend            | Saved session recovery to "C:\Users\joeed\AppData\Local\Temp\quit.blend"
+
+[error] toml::parse: Error opening file "C:\Users\joeed\AppData\Roaming\Blender Foundation\Blender\5.3\config\recents.toml"
+
+C:\dev\blender\sculptcore-blender-addon\claudeMemory\scripts\test_authoring_undo_headed.py:38: DeprecationWarning: 'UnifiedPaintSettings.use_unified_size' is expected to be removed in Blender 6.0
+  return (u.size, u.unprojected_size, u.use_locked_size, u.use_unified_size, u.use_unified_strength,
+C:\dev\blender\sculptcore-blender-addon\claudeMemory\scripts\test_authoring_undo_headed.py:38: DeprecationWarning: 'UnifiedPaintSettings.use_unified_strength' is expected to be removed in Blender 6.0
+  return (u.size, u.unprojected_size, u.use_locked_size, u.use_unified_size, u.use_unified_strength,
+C:\dev\blender\sculptcore-blender-addon\claudeMemory\scripts\test_authoring_undo_headed.py:84: DeprecationWarning: 'UnifiedPaintSettings.use_unified_size' is expected to be removed in Blender 6.0
+  u.use_unified_size = not u.use_unified_size
+C:\dev\blender\sculptcore-blender-addon\claudeMemory\scripts\test_authoring_undo_headed.py:85: DeprecationWarning: 'UnifiedPaintSettings.use_unified_strength' is expected to be removed in Blender 6.0
+  u.use_unified_strength = not u.use_unified_strength

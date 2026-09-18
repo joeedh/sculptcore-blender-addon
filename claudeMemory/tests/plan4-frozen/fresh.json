@@ -1,0 +1,9 @@
+[
+  "fresh generic value",
+  "fresh independent copy",
+  "fresh saved readiness switch",
+  "fresh raw DOUBLE frozen boundary",
+  "fresh missing-engine authored custom curve",
+  "fresh linked asset reads preserve dirty state",
+  "editable imported asset reads preserve dirty state"
+]

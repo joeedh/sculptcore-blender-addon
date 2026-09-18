@@ -1,0 +1,15 @@
+{
+  "suite": "test_dyntopo",
+  "command": [
+    "C:\\Program Files\\nodejs\\node.EXE",
+    "make.mjs",
+    "test",
+    "test_dyntopo"
+  ],
+  "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_dyntopo.cc_out.exe",
+  "returncode": 0,
+  "passed": true,
+  "binary_sha256": "e9a2b0c67ab6ffa0d78585e489441259f3667f4d02286946e1d22377847165f3",
+  "stdout": "subdivide: V 81->174, F 128->314, 93 splits, 8 rounds\r\ncollapse: V 289->226, F 512->386, 63 collapses, 17 rounds\r\ndyntopo test: ok\r\n",
+  "stderr": ""
+}

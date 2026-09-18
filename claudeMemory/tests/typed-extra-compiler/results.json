@@ -1,0 +1,304 @@
+[
+  {
+    "command": [
+      "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\source\\brush\\compiler\\sbrushc.exe",
+      "--backend=wgsl",
+      "--in=C:\\dev\\blender\\sculptcore-blender-addon\\engine\\tests\\assets\\typed_extras\\typed_probe.sbrush",
+      "--out=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\typed_probe.wgsl"
+    ],
+    "returncode": 0,
+    "passed": true,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "C:\\dev\\tint\\tint.exe",
+      "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\typed_probe.wgsl",
+      "--format",
+      "wgsl",
+      "-o",
+      "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\typed_probe.validated.wgsl"
+    ],
+    "returncode": 0,
+    "passed": true,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "C:\\dev\\tint\\tint.exe",
+      "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\typed_probe.wgsl",
+      "--format",
+      "spirv",
+      "-o",
+      "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\typed_probe.spv"
+    ],
+    "returncode": 0,
+    "passed": true,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "C:\\VulkanSDK\\1.4.350.0\\Bin\\spirv-val.exe",
+      "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\typed_probe.spv"
+    ],
+    "returncode": 0,
+    "passed": true,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\source\\brush\\compiler\\sbrushc.exe",
+      "--backend=cpp",
+      "--extras",
+      "--in=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\invalid_0.sbrush",
+      "--out=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\rejected.h"
+    ],
+    "returncode": 1,
+    "passed": true,
+    "stdout": "",
+    "stderr": "sbrushc: emit error: field 'state': native semantics do not allow dynamics\r\n"
+  },
+  {
+    "command": [
+      "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\source\\brush\\compiler\\sbrushc.exe",
+      "--registry",
+      "--in=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\invalid_0.sbrush",
+      "--out-dir=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler"
+    ],
+    "returncode": 1,
+    "passed": true,
+    "stdout": "",
+    "stderr": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\invalid_0.sbrush: field 'state': native semantics do not allow dynamics\r\n"
+  },
+  {
+    "command": [
+      "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\source\\brush\\compiler\\sbrushc.exe",
+      "--backend=cpp",
+      "--extras",
+      "--in=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\invalid_1.sbrush",
+      "--out=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\rejected.h"
+    ],
+    "returncode": 1,
+    "passed": true,
+    "stdout": "",
+    "stderr": "sbrushc: emit error: field 'invert': type does not match native Brush member\r\n"
+  },
+  {
+    "command": [
+      "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\source\\brush\\compiler\\sbrushc.exe",
+      "--registry",
+      "--in=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\invalid_1.sbrush",
+      "--out-dir=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler"
+    ],
+    "returncode": 1,
+    "passed": true,
+    "stdout": "",
+    "stderr": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\invalid_1.sbrush: field 'invert': type does not match native Brush member\r\n"
+  },
+  {
+    "command": [
+      "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\source\\brush\\compiler\\sbrushc.exe",
+      "--backend=cpp",
+      "--extras",
+      "--in=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\invalid_2.sbrush",
+      "--out=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\rejected.h"
+    ],
+    "returncode": 1,
+    "passed": true,
+    "stdout": "",
+    "stderr": "sbrushc: emit error: field 'nonaccum': reserved execution field cannot be a uniform\r\n"
+  },
+  {
+    "command": [
+      "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\source\\brush\\compiler\\sbrushc.exe",
+      "--registry",
+      "--in=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\invalid_2.sbrush",
+      "--out-dir=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler"
+    ],
+    "returncode": 1,
+    "passed": true,
+    "stdout": "",
+    "stderr": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\invalid_2.sbrush: field 'nonaccum': reserved execution field cannot be a uniform\r\n"
+  },
+  {
+    "command": [
+      "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\source\\brush\\compiler\\sbrushc.exe",
+      "--backend=cpp",
+      "--extras",
+      "--in=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\invalid_3.sbrush",
+      "--out=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\rejected.h"
+    ],
+    "returncode": 1,
+    "passed": true,
+    "stdout": "",
+    "stderr": "sbrushc: emit error: uniform 'state': invalid scalar default or range\r\n"
+  },
+  {
+    "command": [
+      "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\source\\brush\\compiler\\sbrushc.exe",
+      "--registry",
+      "--in=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\invalid_3.sbrush",
+      "--out-dir=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler"
+    ],
+    "returncode": 1,
+    "passed": true,
+    "stdout": "",
+    "stderr": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\invalid_3.sbrush: uniform 'state': invalid scalar default or range\r\n"
+  },
+  {
+    "command": [
+      "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\source\\brush\\compiler\\sbrushc.exe",
+      "--backend=cpp",
+      "--extras",
+      "--in=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\invalid_4.sbrush",
+      "--out=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\rejected.h"
+    ],
+    "returncode": 1,
+    "passed": true,
+    "stdout": "",
+    "stderr": "sbrushc: emit error: uniform 'state': invalid scalar default or range\r\n"
+  },
+  {
+    "command": [
+      "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\source\\brush\\compiler\\sbrushc.exe",
+      "--registry",
+      "--in=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\invalid_4.sbrush",
+      "--out-dir=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler"
+    ],
+    "returncode": 1,
+    "passed": true,
+    "stdout": "",
+    "stderr": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\invalid_4.sbrush: uniform 'state': invalid scalar default or range\r\n"
+  },
+  {
+    "command": [
+      "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\source\\brush\\compiler\\sbrushc.exe",
+      "--backend=cpp",
+      "--extras",
+      "--in=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\invalid_5.sbrush",
+      "--out=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\rejected.h"
+    ],
+    "returncode": 1,
+    "passed": true,
+    "stdout": "",
+    "stderr": "sbrushc: emit error: duplicate field 'count'\r\n"
+  },
+  {
+    "command": [
+      "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\source\\brush\\compiler\\sbrushc.exe",
+      "--registry",
+      "--in=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\invalid_5.sbrush",
+      "--out-dir=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler"
+    ],
+    "returncode": 1,
+    "passed": true,
+    "stdout": "",
+    "stderr": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\invalid_5.sbrush: duplicate field 'count'\r\n"
+  },
+  {
+    "command": [
+      "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\source\\brush\\compiler\\sbrushc.exe",
+      "--backend=cpp",
+      "--extras",
+      "--in=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\invalid_6.sbrush",
+      "--out=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\rejected.h"
+    ],
+    "returncode": 1,
+    "passed": true,
+    "stdout": "",
+    "stderr": "sbrushc: emit error: duplicate field 'count'\r\n"
+  },
+  {
+    "command": [
+      "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\source\\brush\\compiler\\sbrushc.exe",
+      "--registry",
+      "--in=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\invalid_6.sbrush",
+      "--out-dir=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler"
+    ],
+    "returncode": 1,
+    "passed": true,
+    "stdout": "",
+    "stderr": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\invalid_6.sbrush: duplicate field 'count'\r\n"
+  },
+  {
+    "command": [
+      "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\source\\brush\\compiler\\sbrushc.exe",
+      "--backend=cpp",
+      "--extras",
+      "--in=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\invalid_7.sbrush",
+      "--out=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\rejected.h"
+    ],
+    "returncode": 1,
+    "passed": true,
+    "stdout": "",
+    "stderr": "sbrushc: emit error: field 'state': native semantics do not allow dynamics\r\nsbrushc: emit error: extra kernel uniform 'state': only float/int/bool scalars can use the named store; a float3 uniform needs an existing Brush member\r\n"
+  },
+  {
+    "command": [
+      "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\source\\brush\\compiler\\sbrushc.exe",
+      "--registry",
+      "--in=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\invalid_7.sbrush",
+      "--out-dir=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler"
+    ],
+    "returncode": 1,
+    "passed": true,
+    "stdout": "",
+    "stderr": "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\invalid_7.sbrush: field 'state': native semantics do not allow dynamics\r\nC:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\invalid_7.sbrush: extra kernel uniform 'state': only float/int/bool scalars can use the named store; a float3 uniform needs an existing Brush member\r\n"
+  },
+  {
+    "command": [
+      "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\source\\brush\\compiler\\sbrushc.exe",
+      "--registry",
+      "--in=C:\\dev\\blender\\sculptcore-blender-addon\\engine\\tests\\assets\\typed_extras\\typed_probe.sbrush",
+      "--in=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\typed_peer.sbrush",
+      "--out-dir=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler"
+    ],
+    "returncode": 0,
+    "passed": true,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\source\\brush\\compiler\\sbrushc.exe",
+      "--registry",
+      "--in=C:\\dev\\blender\\sculptcore-blender-addon\\engine\\tests\\assets\\typed_extras\\typed_probe.sbrush",
+      "--in=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\typed_peer.sbrush",
+      "--out-dir=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler"
+    ],
+    "returncode": 1,
+    "passed": true,
+    "stdout": "",
+    "stderr": "sbrushc: registry error: store uniform \"typed_count\" is declared with conflicting scalar declarations in two extra kernels\r\n"
+  },
+  {
+    "command": [
+      "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\source\\brush\\compiler\\sbrushc.exe",
+      "--registry",
+      "--in=C:\\dev\\blender\\sculptcore-blender-addon\\engine\\tests\\assets\\typed_extras\\typed_probe.sbrush",
+      "--in=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\typed_peer.sbrush",
+      "--out-dir=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler"
+    ],
+    "returncode": 1,
+    "passed": true,
+    "stdout": "",
+    "stderr": "sbrushc: registry error: store uniform \"typed_count\" is declared with conflicting scalar declarations in two extra kernels\r\n"
+  },
+  {
+    "command": [
+      "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\source\\brush\\compiler\\sbrushc.exe",
+      "--registry",
+      "--in=C:\\dev\\blender\\sculptcore-blender-addon\\engine\\tests\\assets\\typed_extras\\typed_probe.sbrush",
+      "--in=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler\\typed_peer.sbrush",
+      "--out-dir=C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\tests\\typed-extra-compiler"
+    ],
+    "returncode": 1,
+    "passed": true,
+    "stdout": "",
+    "stderr": "sbrushc: registry error: store uniform \"typed_enabled\" is declared with conflicting scalar declarations in two extra kernels\r\n"
+  }
+]

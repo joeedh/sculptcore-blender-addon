@@ -1,0 +1,211 @@
+Building...
+[0/2] Re-checking globbed directories...
+ninja: no work to do.
+codegen: typescript/sculptcore/brush/brushWgsl.ts up to date
+[33m[0/2] Re-checking globbed directories...
+[39m
+[33m[1/87] Building CXX object source/props/CMakeFiles/props.dir/prop_declarations.cc.obj
+[39m
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_declarations.cc:5:
+[36msource\props\prop_coerce.h:13:11: [39m[33mwarning[39m:[33m 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch][39m
+[34m   13 [39m|   [34mswitch[39m [33m([39mtype[33m)[39m [33m{[39m
+      |           [33m^[39m[31m~[39m[31m~[39m[31m~[39m
+[36msource\props\prop_coerce.h:28:11: [39m[33mwarning[39m:[33m 19 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch][39m
+[34m   28 [39m|   [34mswitch[39m [33m([39mtype[33m)[39m [33m{[39m
+      |           [33m^[39m[31m~[39m[31m~[39m[31m~[39m
+[36msource\props\prop_coerce.h:13:11: [39m[33mwarning[39m:[33m 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch][39m
+[34m   13 [39m|   [34mswitch[39m [33m([39mtype[33m)[39m [33m{[39m
+      |           [33m^[39m[31m~[39m[31m~[39m[31m~[39m
+[36msource\props\prop_coerce.h:83:3: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::props::numtype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\prop_coerce.h:83:32)>'[39m requested here
+[34m   83 [39m|   numtype_dispatch[33m([39mprop[2m-[39m[34m>[39mtype[2m,[39m [33m[[39mprop[2m,[39m [2m&[39mretval[33m][39m[34m<[39m[34mtypename[39m T[34m>[39m[33m([39m[33m)[39m [33m{[39m
+      |   [33m^[39m
+[36msource\props\prop_coerce.h:13:11: [39m[33mwarning[39m:[33m 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch][39m
+[34m   13 [39m|   [34mswitch[39m [33m([39mtype[33m)[39m [33m{[39m
+      |           [33m^[39m[31m~[39m[31m~[39m[31m~[39m
+[36msource\props\prop_coerce.h:94:3: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::props::numtype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\prop_coerce.h:94:32)>'[39m requested here
+[34m   94 [39m|   numtype_dispatch[33m([39mprop[2m-[39m[34m>[39mtype[2m,[39m [33m[[39m[2m&[39m[33m][39m[34m<[39m[34mtypename[39m PropType[34m>[39m[33m([39m[33m)[39m [33m{[39m
+      |   [33m^[39m
+[36msource\props\prop_coerce.h:13:11: [39m[33mwarning[39m:[33m 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch][39m
+[34m   13 [39m|   [34mswitch[39m [33m([39mtype[33m)[39m [33m{[39m
+      |           [33m^[39m[31m~[39m[31m~[39m[31m~[39m
+[36msource\props\prop_declarations.cc:47:3: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::props::numtype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\prop_declarations.cc:47:38)>'[39m requested here
+[34m   47 [39m|   numtype_dispatch[33m([39mdeclaration.type[2m,[39m [33m[[39m[2m&[39m[33m][39m[34m<[39m[34mtypename[39m P[34m>[39m[33m([39m[33m)[39m [33m{[39m
+      |   [33m^[39m
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_declarations.cc:5:
+[36msource\props\prop_coerce.h:13:11: [39m[33mwarning[39m:[33m 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch][39m
+[34m   13 [39m|   [34mswitch[39m [33m([39mtype[33m)[39m [33m{[39m
+      |           [33m^[39m[31m~[39m[31m~[39m[31m~[39m
+[36msource\props\prop_declarations.cc:105:3: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::props::numtype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\prop_declarations.cc:105:36)>'[39m requested here
+[34m  105 [39m|   numtype_dispatch[33m([39mproperty[2m-[39m[34m>[39mtype[2m,[39m [33m[[39m[2m&[39m[33m][39m[34m<[39m[34mtypename[39m P[34m>[39m[33m([39m[33m)[39m [33m{[39m
+      |   [33m^[39m
+6 warnings generated.
+[33m[2/87] Linking CXX static library source\props\props.lib
+[39m
+[33m[3/87] Linking CXX executable tests\test_props.cc_out.exe
+[39m
+[33m[4/87] Linking CXX executable tests\test_props_typed_dynamics.cc_out.exe
+[39m
+[33m[5/87] Linking CXX executable tests\test_props_checked_access.cc_out.exe
+[39m
+[33m[6/87] Linking CXX executable tests\test_props_declarations.cc_out.exe
+[39m
+[33m[7/87] Linking CXX shared library sculptcore.dll
+[39m
+[33m[8/87] Linking CXX executable tests\test_props_curve.cc_out.exe
+[39m
+[33m[9/87] Linking CXX executable tests\test_meshlog_topo.cc_out.exe
+[39m
+[33m[10/87] Linking CXX executable tests\test_meshlog_preview_unbound.cc_out.exe
+[39m
+[33m[11/87] Linking CXX executable tests\test_dyntopo_undo.cc_out.exe
+[39m
+[33m[12/87] Linking CXX executable tests\test_mesh_reorder.cc_out.exe
+[39m
+[33m[13/87] Linking CXX executable source\remesh\cli\remesh_cli.exe
+[39m
+[33m[14/87] Linking CXX executable tests\test_weights_undo.cc_out.exe
+[39m
+[33m[15/87] Linking CXX executable tests\test_subdiv.cc_out.exe
+[39m
+[33m[16/87] Linking CXX executable tests\test_grids_store.cc_out.exe
+[39m
+[33m[17/87] Linking CXX executable tests\test_multires.cc_out.exe
+[39m
+[33m[18/87] Linking CXX executable tests\test_multires_attrs.cc_out.exe
+[39m
+[33m[19/87] Linking CXX executable tests\test_vdm_store.cc_out.exe
+[39m
+[33m[20/87] Linking CXX executable tests\test_grid_domain.cc_out.exe
+[39m
+[33m[21/87] Linking CXX executable source\debug\debug_app.exe
+[39m
+[33m[22/87] Linking CXX executable tests\test_vdm_gpu.cc_out.exe
+[39m
+[33m[23/87] Linking CXX shared library sculptcore_capi.dll
+[39m
+[33m[24/87] Linking CXX executable tests\test_grid_stroke.cc_out.exe
+[39m
+[33m[25/87] Linking CXX executable tests\test_remesh_curvature.cc_out.exe
+[39m
+[33m[26/87] Linking CXX executable tests\test_remesh_curvature_filter.cc_out.exe
+[39m
+[33m[27/87] Linking CXX executable tests\test_remesh_density.cc_out.exe
+[39m
+[33m[28/87] Linking CXX executable tests\test_remesh_field.cc_out.exe
+[39m
+[33m[29/87] Linking CXX executable tests\test_remesh_param.cc_out.exe
+[39m
+[33m[30/87] Linking CXX executable tests\test_remesh_singularity.cc_out.exe
+[39m
+[33m[31/87] Linking CXX executable tests\test_remesh_metrics.cc_out.exe
+[39m
+[33m[32/87] Linking CXX executable tests\test_remesh_triage.cc_out.exe
+[39m
+[33m[33/87] Linking CXX executable tests\test_remesh_scaffold.cc_out.exe
+[39m
+[33m[34/87] Linking CXX executable tests\test_remesh_feature_filter.cc_out.exe
+[39m
+[33m[35/87] Linking CXX executable tests\test_stroke_driver.cc_out.exe
+[39m
+[33m[36/87] Linking CXX executable source\debug\remesh_debug_app.exe
+[39m
+[33m[37/87] Linking CXX executable tests\test_remesh_extract.cc_out.exe
+[39m
+[33m[38/87] Linking CXX executable tests\test_remesh_quantize.cc_out.exe
+[39m
+[33m[39/87] Linking CXX executable tests\test_brush_metadata.cc_out.exe
+[39m
+[33m[40/87] Linking CXX executable tests\test_remesh_preremesh.cc_out.exe
+[39m
+[33m[41/87] Linking CXX executable tests\test_texture_c_jit.cc_out.exe
+[39m
+[33m[42/87] Linking CXX executable tests\test_gpu_uniform_pack.cc_out.exe
+[39m
+[33m[43/87] Linking CXX executable tests\test_brush_live_links.cc_out.exe
+[39m
+[33m[44/87] Linking CXX executable tests\test_brush_registry.cc_out.exe
+[39m
+[33m[45/87] Linking CXX executable tests\test_texture_program.cc_out.exe
+[39m
+[33m[46/87] Linking CXX executable tests\test_remesh_retry.cc_out.exe
+[39m
+[33m[47/87] Linking CXX executable tests\test_tcc_jit.cc_out.exe
+[39m
+[33m[48/87] Linking CXX executable tests\test_remesh_preset.cc_out.exe
+[39m
+[33m[49/87] Linking CXX executable tests\test_texture_stroke.cc_out.exe
+[39m
+[33m[50/87] Linking CXX executable tests\test_live_stroke.cc_out.exe
+[39m
+[33m[51/87] Linking CXX executable tests\test_debug_script.cc_out.exe
+[39m
+[33m[52/87] Linking CXX executable tests\test_dyntopo_stroke_undo.cc_out.exe
+[39m
+[33m[53/87] Linking CXX executable tests\test_dyntopo_collapse_crash.cc_out.exe
+[39m
+[33m[54/87] Linking CXX executable tests\test_meshlog_preview_rollback.cc_out.exe
+[39m
+[33m[55/87] Linking CXX executable tests\test_dyntopo_undo_nonnewest.cc_out.exe
+[39m
+[33m[56/87] Linking CXX executable tests\test_spatial_update_split.cc_out.exe
+[39m
+[33m[57/87] Linking CXX executable tests\test_dyntopo_multistep_gpu.cc_out.exe
+[39m
+[33m[58/87] Linking CXX executable tests\test_paint_undo.cc_out.exe
+[39m
+[33m[59/87] Linking CXX executable tests\test_brush_attr.cc_out.exe
+[39m
+[33m[60/87] Linking CXX executable tests\test_layer_stroke_undo.cc_out.exe
+[39m
+[33m[61/87] Linking CXX executable tests\test_grid_gpu.cc_out.exe
+[39m
+[33m[62/87] Linking CXX executable tests\test_multires_stroke.cc_out.exe
+[39m
+[33m[63/87] Linking CXX executable tests\test_color_mix_gpu.cc_out.exe
+[39m
+[33m[64/87] Linking CXX executable tests\test_vdm_stroke.cc_out.exe
+[39m
+[33m[65/87] Linking CXX executable tests\test_vdm_promote.cc_out.exe
+[39m
+[33m[66/87] Linking CXX executable tests\test_dyntopo_nonaccum_collapse.cc_out.exe
+[39m
+[33m[67/87] Linking CXX executable tests\test_brush_nonaccum.cc_out.exe
+[39m
+[33m[68/87] Linking CXX executable tests\test_brush_noise.cc_out.exe
+[39m
+[33m[69/87] Linking CXX executable tests\test_brush_mirror_grab.cc_out.exe
+[39m
+[33m[70/87] Linking CXX executable tests\test_grab_region.cc_out.exe
+[39m
+[33m[71/87] Linking CXX executable tests\test_wingscrape.cc_out.exe
+[39m
+[33m[72/87] Linking CXX executable tests\test_snakehook.cc_out.exe
+[39m
+[33m[73/87] Linking CXX executable tests\test_gpu_brush_seam.cc_out.exe
+[39m
+[33m[74/87] Linking CXX executable tests\test_brush_dynamics.cc_out.exe
+[39m
+[33m[75/87] Linking CXX executable tests\test_brush_props.cc_out.exe
+[39m
+[33m[76/87] Linking CXX executable tests\test_brush_falloff.cc_out.exe
+[39m
+[33m[77/87] Linking CXX executable tests\test_brush_uniform_validate.cc_out.exe
+[39m
+[33m[78/87] Linking CXX executable tests\test_unbounded_seam.cc_out.exe
+[39m
+[33m[79/87] Linking CXX executable tests\test_automask_stroke.cc_out.exe
+[39m
+[33m[80/87] Linking CXX executable tests\test_automask_gpu.cc_out.exe
+[39m
+[33m[81/87] Linking CXX executable tests\test_enhance.cc_out.exe
+[39m
+[33m[82/87] Linking CXX executable tests\test_automask_view_normal.cc_out.exe
+[39m
+[33m[83/87] Linking CXX executable tests\test_bsmooth.cc_out.exe
+[39m
+[33m[84/87] Linking CXX executable tests\test_spatial_boundary_normals.cc_out.exe
+[39m
+[33m[85/87] Linking CXX executable tests\test_stencil_gpu.cc_out.exe
+[39m
+[33m[86/87] Linking CXX executable tests\test_webgpu_render.cc_out.exe
+[39m

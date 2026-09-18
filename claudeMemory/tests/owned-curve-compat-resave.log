@@ -1,0 +1,10 @@
+00:08.344  blend            | Read blend: "C:\dev\blender\sculptcore-blender-addon\claudeMemory\tests\owned-curve-compat-v1\owned-definitions.blend"
+00:08.484  blend            | Read blend: "C:\dev\blender\sculptcore-blender-addon\claudeMemory\tests\owned-curve-compat-v1\owned-asset.blend"
+Warning: File written by newer Blender binary (503.17), expect loss of data!
+Info: Saved as "old-reader-resaved.blend"
+Warning: File written by newer Blender binary (503.17), expect loss of data!
+Warning: Library file, loading empty scene
+OWNED_CURVE_STORAGE_COMPAT_PASS resave
+Blender 5.0.1 (hash a3db93c5b259 built 2025-12-16 01:32:30)
+
+Blender quit

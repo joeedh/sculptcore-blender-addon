@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "checks": [
+    "undo restores Scene IDProperties; Brush and native Scene settings retain current state",
+    "undo invalidates both owners and a store created in another pre-handler",
+    "redo invalidates existing and pre-handler stores; fresh store works"
+  ],
+  "undo_scope": "Scene custom-property sentinel only; generic brush storage unimplemented"
+}

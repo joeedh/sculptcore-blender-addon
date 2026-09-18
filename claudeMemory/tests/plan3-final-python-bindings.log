@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "dll": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\sculptcore_capi.dll",
+  "sha256": "4589006e4e6c860ba658a8a5b9de959eafa490470ba1d4690cb05f1e6d3f136c",
+  "checks": [
+    "Exact float/int/bool authored values and int32 endpoints",
+    "Static checked values share native working slots and survive regenerated defaults",
+    "Static native member reads and writes agree through the actual CLAY manifest",
+    "Python pre-marshalling and native numeric rejection preserve generation/values",
+    "Ordered mixes, move, upsert, enable and bulk table preservation",
+    "Failed bulk/configuration operations are atomic; vectors remain caller-owned",
+    "Typed integer rounding and boolean threshold use changing device inputs",
+    "Pending uploads reject evaluation until publication; bulk/clear cancel staging",
+    "Stale/wrong-owner/wrong-executor queries reject; owned results survive requery",
+    "Common invert adapter evaluates boolean dynamics without replacing authored value",
+    "Common Python adapter shares strict selectors, scalar transport and all stack operations"
+  ]
+}

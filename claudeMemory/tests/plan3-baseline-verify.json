@@ -1,0 +1,18 @@
+{
+  "command": [
+    "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+    "--factory-startup",
+    "--python-exit-code",
+    "1",
+    "--background",
+    "--python",
+    "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\generic_brush_baseline.py",
+    "--",
+    "verify",
+    "claudeMemory/tests/generic-brush-v0"
+  ],
+  "passed": true,
+  "sha256": "cd15fa6c69b5a17a408a534c260f918a085e7efe792b542545c6319016153673",
+  "returncode": 0,
+  "seconds": 15.98030120000476
+}

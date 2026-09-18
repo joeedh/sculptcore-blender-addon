@@ -1,0 +1,15 @@
+{
+  "suite": "test_meshlog_preview_rollback",
+  "command": [
+    "C:\\Program Files\\nodejs\\node.EXE",
+    "make.mjs",
+    "test",
+    "test_meshlog_preview_rollback"
+  ],
+  "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_meshlog_preview_rollback.cc_out.exe",
+  "returncode": 0,
+  "passed": true,
+  "binary_sha256": "1909ee4b1e77d0effc4c3c1152fdafcdddc4cc09046ecbfa60853f3bc7409eab",
+  "stdout": "  preview dab: counts changed, 983 verts moved\r\n  after rollback: v=611 (want 611) f=1218 (want 1218)\r\nInfo: attribute .face.normal changed index in mesh\r\nInfo: attribute .boundary.vert.class changed index in mesh\r\n  after undo: v=296 (want 296) f=294 (want 294)\r\nInfo: attribute .face.normal changed index in mesh\r\n  after redo: v=878 (want 878) f=1752 (want 1752)\r\nInfo: attribute .boundary.vert.class changed index in mesh\r\nInfo: attribute .face.normal changed index in mesh\r\nInfo: attribute .boundary.vert.class changed index in mesh\r\nInfo: attribute .boundary.vert.class changed index in mesh\r\nInfo: attribute .face.normal changed index in mesh\r\nInfo: attribute .boundary.vert.class changed index in mesh\r\n  symmetry preview group: counts changed, 861 verts moved\r\nInfo: attribute .face.normal changed index in mesh\r\nInfo: attribute .boundary.vert.class changed index in mesh\r\n  after symmetry-stroke undo: v=1289 (want 1289) f=2574 (want 2574)\r\nInfo: attribute .boundary.vert.class changed index in mesh\r\nInfo: attribute .face.normal changed index in mesh\r\nmeshlog_preview_rollback: ok\r\n",
+  "stderr": ""
+}

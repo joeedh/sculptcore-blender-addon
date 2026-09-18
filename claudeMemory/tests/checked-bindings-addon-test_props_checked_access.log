@@ -1,0 +1,15 @@
+{
+  "suite": "test_props_checked_access",
+  "command": [
+    "C:\\Program Files\\nodejs\\node.EXE",
+    "make.mjs",
+    "test",
+    "test_props_checked_access"
+  ],
+  "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_props_checked_access.cc_out.exe",
+  "returncode": 0,
+  "passed": true,
+  "binary_sha256": "b9b5763e3c66554aa68d130039c1a9f0ce20222fed0d427e6da83071fff5df61",
+  "stdout": "",
+  "stderr": ""
+}

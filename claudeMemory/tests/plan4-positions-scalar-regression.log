@@ -1,0 +1,9 @@
+Blender 5.3.0 Alpha
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Info: Saved as "records.blend"
+ATOMIC_SCALAR_STORAGE_PASS test 64
+
+Blender quit
+
+C:\dev\blender\sculptcore-blender-addon\claudeMemory\scripts\test_atomic_scalar_storage.py:255: DeprecationWarning: 'UnifiedPaintSettings.use_unified_strength' is expected to be removed in Blender 6.0
+  and native_scene.tool_settings.sculpt.unified_paint_settings.use_unified_strength

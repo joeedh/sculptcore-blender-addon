@@ -1,0 +1,187 @@
+{
+  "passed": true,
+  "scope": "Plan 6B immutable authoring snapshot prerequisite; full Plan 6 remains open",
+  "launchers": {
+    "plan6-snapshots": {
+      "command": [
+        "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+        "--factory-startup",
+        "--python-exit-code",
+        "1",
+        "--background",
+        "--python",
+        "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_plan6_snapshots.py"
+      ],
+      "passed": true,
+      "sha256": "1c93a65f4ed4f53ca3a18bf34c1808c5802341e9a26356b46bdc3ca74b28ba84",
+      "returncode": 0,
+      "seconds": 7.584176699980162
+    },
+    "plan6-snapshots-fresh": {
+      "command": [
+        "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+        "--factory-startup",
+        "--python-exit-code",
+        "1",
+        "--background",
+        "--python",
+        "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_plan6_snapshots_fresh.py"
+      ],
+      "passed": true,
+      "sha256": "1c93a65f4ed4f53ca3a18bf34c1808c5802341e9a26356b46bdc3ca74b28ba84",
+      "returncode": 0,
+      "seconds": 7.226182799990056
+    },
+    "plan6-snapshots-frozen": {
+      "command": [
+        "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+        "--factory-startup",
+        "--python-exit-code",
+        "1",
+        "--background",
+        "--python",
+        "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_frozen_authoring.py"
+      ],
+      "passed": true,
+      "sha256": "1c93a65f4ed4f53ca3a18bf34c1808c5802341e9a26356b46bdc3ca74b28ba84",
+      "returncode": 0,
+      "seconds": 8.41959420000785
+    }
+  },
+  "checks": {
+    "plan6-snapshots": {
+      "passed": true,
+      "checks": [
+        "unset defaults allocate no generic storage",
+        "engine defaults remain unset with frozen generic domain",
+        "exact engine float32 defaults",
+        "angle metadata radians and rounded pi bounds",
+        "native reads allocate no generic storage or owned curves",
+        "unset legacy presence",
+        "authored legacy remains visible",
+        "generic override preserves dormant legacy",
+        "independent effective owners False False",
+        "independent effective owners False True",
+        "independent effective owners True False",
+        "independent effective owners True True",
+        "paired native size VIEW False False",
+        "malformed paired size VIEW False pixels",
+        "malformed paired size VIEW False pixels",
+        "malformed paired size VIEW False world",
+        "malformed paired size VIEW False world",
+        "malformed paired size VIEW False mode",
+        "size active field mismatch",
+        "paired native size VIEW False True",
+        "malformed paired size VIEW False pixels",
+        "malformed paired size VIEW False pixels",
+        "malformed paired size VIEW False world",
+        "malformed paired size VIEW False world",
+        "malformed paired size VIEW False mode",
+        "size active field mismatch",
+        "paired native size VIEW True False",
+        "malformed paired size VIEW True pixels",
+        "malformed paired size VIEW True pixels",
+        "malformed paired size VIEW True world",
+        "malformed paired size VIEW True world",
+        "malformed paired size VIEW True mode",
+        "size active field mismatch",
+        "paired native size VIEW True True",
+        "malformed paired size VIEW True pixels",
+        "malformed paired size VIEW True pixels",
+        "malformed paired size VIEW True world",
+        "malformed paired size VIEW True world",
+        "malformed paired size VIEW True mode",
+        "size active field mismatch",
+        "paired native size SCENE False False",
+        "malformed paired size SCENE False pixels",
+        "malformed paired size SCENE False pixels",
+        "malformed paired size SCENE False world",
+        "malformed paired size SCENE False world",
+        "malformed paired size SCENE False mode",
+        "size active field mismatch",
+        "paired native size SCENE False True",
+        "malformed paired size SCENE False pixels",
+        "malformed paired size SCENE False pixels",
+        "malformed paired size SCENE False world",
+        "malformed paired size SCENE False world",
+        "malformed paired size SCENE False mode",
+        "size active field mismatch",
+        "paired native size SCENE True False",
+        "malformed paired size SCENE True pixels",
+        "malformed paired size SCENE True pixels",
+        "malformed paired size SCENE True world",
+        "malformed paired size SCENE True world",
+        "malformed paired size SCENE True mode",
+        "size active field mismatch",
+        "paired native size SCENE True True",
+        "malformed paired size SCENE True pixels",
+        "malformed paired size SCENE True pixels",
+        "malformed paired size SCENE True world",
+        "malformed paired size SCENE True world",
+        "malformed paired size SCENE True mode",
+        "size active field mismatch",
+        "unavailable static alias sculptcore.brush.size_pixels",
+        "unavailable static alias sculptcore.brush.size_world",
+        "duplicate request",
+        "unknown request",
+        "unavailable dynamic stack",
+        "warm stale native mapping",
+        "warm stale native pressure capability",
+        "warm stale custom mapping",
+        "all snapshot graphs are immutable and owner-free",
+        "completed snapshots survive source edits and cache clear",
+        "capture requires main thread",
+        "restoration invalidates empty/generated owner",
+        "restoration invalidates empty/generated owner",
+        "removed empty-stack owner",
+        "new engine settings use Scene generic values sculptcore.brush.automask_view_normal",
+        "dormant generic local value sculptcore.brush.automask_view_normal",
+        "new engine settings use Scene generic values sculptcore.brush.view_normal_limit",
+        "dormant generic local value sculptcore.brush.view_normal_limit",
+        "new engine settings use Scene generic values sculptcore.brush.view_normal_falloff",
+        "dormant generic local value sculptcore.brush.view_normal_falloff",
+        "new engine settings use Scene generic values sculptcore.brush.cull_backfaces",
+        "dormant generic local value sculptcore.brush.cull_backfaces",
+        "catalogue and declarations",
+        "file restoration invalidates previous stores",
+        "completed snapshots survive file restoration"
+      ],
+      "snapshot_hash_unchanged": true
+    },
+    "plan6-snapshots-fresh": {
+      "passed": true,
+      "checks": [
+        "fresh process preserves overrides, inheritance and dormant local values",
+        "legacy manifest catalogue remains separate",
+        "static fields declare no custom curves",
+        "DLL-off registration/defaults/persisted reads cycle 0",
+        "DLL-off registration/defaults/persisted reads cycle 1"
+      ]
+    }
+  },
+  "frozen_checks": 77,
+  "pure": [
+    {
+      "suite": "test_plan6_commands",
+      "tests": 7,
+      "passed": true
+    },
+    {
+      "suite": "test_generic_property_foundation",
+      "tests": 11,
+      "passed": true
+    },
+    {
+      "suite": "test_curve_response_cache",
+      "tests": 6,
+      "passed": true
+    }
+  ],
+  "source_sha256": {
+    "authoring.py": "3d601a1f7ad71e3ae316808b8265ba7b94e8997832872e3ac3251ac24221d9a7",
+    "engine_catalogue.py": "5c1ddf22c16b0d4de70c098c82c831cb0ede4be113f30da42095cc534365badf",
+    "snapshots.py": "98e93157b5c0331f9faa0a5252450e4345affb6b8ccdb618e75c473cf11275a8"
+  },
+  "blender_sha256": "1c93a65f4ed4f53ca3a18bf34c1808c5802341e9a26356b46bdc3ca74b28ba84",
+  "installed_engine_sha256": "1847947f3fc31a7bd9c1ead24112ef5364b065a06c1ef2fdf8393d0dc2370b32"
+}

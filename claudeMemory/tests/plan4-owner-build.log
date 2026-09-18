@@ -1,0 +1,12 @@
+[1/551] Building CXX object source\blender\makesrna\intern\CMakeFiles\makesrna.dir\rna_sculpt_paint.cc.obj
+rna_sculpt_paint.cc
+[2/551] Linking CXX executable bin\makesrna.exe
+[3/551] Generating rna_ID_gen.cc, rna_action_gen.cc, rna_animation_gen.cc, rna_animviz_gen.cc, rna_annotations_gen.cc, rna_armature_gen.cc, rna_asset_gen.cc, rna_attribute_gen.cc, rna_blender_project_gen.cc, rna_blendfile_import_gen.cc, rna_boid_gen.cc, rna_brush_gen.cc, rna_cachefile_gen.cc, rna_camera_gen.cc, rna_cloth_gen.cc, rna_collection_gen.cc, rna_color_gen.cc, rna_constraint_gen.cc, rna_context_gen.cc, rna_curve_gen.cc, rna_curveprofile_gen.cc, rna_curves_gen.cc, rna_depsgraph_gen.cc, rna_dynamicpaint_gen.cc, rna_fcurve_gen.cc, rna_fluid_gen.cc, rna_grease_pencil_gen.cc, rna_image_gen.cc, rna_key_gen.cc, rna_lattice_gen.cc, rna_layer_gen.cc, rna_light_gen.cc, rna_lightprobe_gen.cc, rna_linestyle_gen.cc, rna_main_gen.cc, rna_mask_gen.cc, rna_material_gen.cc, rna_mesh_gen.cc, rna_meta_gen.cc, rna_modifier_gen.cc, rna_movieclip_gen.cc, rna_nla_gen.cc, rna_node_socket_gen.cc, rna_node_tree_interface_gen.cc, rna_nodetree_gen.cc, rna_object_gen.cc, rna_object_force_gen.cc, rna_packedfile_gen.cc, rna_object_mode_gen.cc, rna_palette_gen.cc, rna_particle_gen.cc, rna_pointcloud_gen.cc, rna_pose_gen.cc, rna_render_gen.cc, rna_rigidbody_gen.cc, rna_rna_gen.cc, rna_scene_gen.cc, rna_screen_gen.cc, rna_sculpt_paint_gen.cc, rna_sequencer_gen.cc, rna_shader_fx_gen.cc, rna_sound_gen.cc, rna_space_gen.cc, rna_speaker_gen.cc, rna_test_gen.cc, rna_text_gen.cc, rna_texture_gen.cc, rna_timeline_gen.cc, rna_tracking_gen.cc, rna_ui_gen.cc, rna_userdef_gen.cc, rna_vfont_gen.cc, rna_volume_gen.cc, rna_wm_gen.cc, rna_wm_gizmo_gen.cc, rna_wm_undo_gen.cc, rna_workspace_gen.cc, rna_world_gen.cc, rna_xr_gen.cc, rna_usd_gen.cc, rna_prototypes_gen.hh, ../RNA_prototypes.hh
+[4/7] Building CXX object source\blender\makesrna\intern\CMakeFiles\bf_rna.dir\rna_sculpt_paint_gen.cc.obj
+rna_sculpt_paint_gen.cc
+[5/7] Linking CXX static library lib\bf_rna.lib
+[6/7] Linking CXX executable bin\blender.exe; Stripping PDB file...
+Run: "ninja install" to copy runtime files and scripts to: C:/dev/blender/build_windows_x64_clang_RelWithDebInfo/bin/5.3
+[6/7] Install the project...
+-- Install configuration: "Release"
+-- Installing: C:/dev/blender/build_windows_x64_clang_RelWithDebInfo/bin/./blender.pdb

@@ -1,0 +1,436 @@
+Building...
+[0/2] Re-checking globbed directories...
+[1/15] Building CXX object source/props/CMakeFiles/props.dir/curve_bake.cc.obj
+[2/15] Building CXX object source/props/CMakeFiles/props.dir/props.cc.obj
+[3/15] Building CXX object source/props/CMakeFiles/props.dir/curve_cache.cc.obj
+[4/15] Building CXX object source/props/CMakeFiles/props.dir/curve_bspline.cc.obj
+[5/15] Building CXX object source/props/CMakeFiles/props.dir/prop_inherit.cc.obj
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_inherit.cc:1:9: warning: #pragma once in main file [-Wpragma-once-outside-header]
+    1 | #pragma once
+      |         ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_inherit.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:28:11: warning: 19 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   28 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:83:3: note: in instantiation of function template specialization 'sculptcore::props::numtype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\..\props\prop_coerce.h:83:32)>' requested here
+   83 |   numtype_dispatch(prop->type, [prop, &retval]<typename T>() {
+      |   ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:94:3: note: in instantiation of function template specialization 'sculptcore::props::numtype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\..\props\prop_coerce.h:94:32)>' requested here
+   94 |   numtype_dispatch(prop->type, [&]<typename PropType>() {
+      |   ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:28:11: warning: 19 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   28 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_inherit.cc:13:3: note: in instantiation of function template specialization 'sculptcore::props::proptype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\prop_inherit.cc:13:33)>' requested here
+   13 |   proptype_dispatch(prop->type, [&]<typename PropType>() {
+      |   ^
+6 warnings generated.
+[6/15] Building CXX object source/props/CMakeFiles/props.dir/prop_declarations.cc.obj
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_declarations.cc:5:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props\prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props\prop_coerce.h:28:11: warning: 19 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   28 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props\prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props\prop_coerce.h:83:3: note: in instantiation of function template specialization 'sculptcore::props::numtype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\prop_coerce.h:83:32)>' requested here
+   83 |   numtype_dispatch(prop->type, [prop, &retval]<typename T>() {
+      |   ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props\prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props\prop_coerce.h:94:3: note: in instantiation of function template specialization 'sculptcore::props::numtype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\prop_coerce.h:94:32)>' requested here
+   94 |   numtype_dispatch(prop->type, [&]<typename PropType>() {
+      |   ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props\prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_declarations.cc:47:3: note: in instantiation of function template specialization 'sculptcore::props::numtype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\prop_declarations.cc:47:38)>' requested here
+   47 |   numtype_dispatch(declaration.type, [&]<typename P>() {
+      |   ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_declarations.cc:5:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props\prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_declarations.cc:105:3: note: in instantiation of function template specialization 'sculptcore::props::numtype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\prop_declarations.cc:105:36)>' requested here
+  105 |   numtype_dispatch(property->type, [&]<typename P>() {
+      |   ^
+6 warnings generated.
+[7/15] Building CXX object source/props/CMakeFiles/props.dir/prop_struct.cc.obj
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:28:11: warning: 19 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   28 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:83:3: note: in instantiation of function template specialization 'sculptcore::props::numtype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\..\props\prop_coerce.h:83:32)>' requested here
+   83 |   numtype_dispatch(prop->type, [prop, &retval]<typename T>() {
+      |   ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:94:3: note: in instantiation of function template specialization 'sculptcore::props::numtype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\..\props\prop_coerce.h:94:32)>' requested here
+   94 |   numtype_dispatch(prop->type, [&]<typename PropType>() {
+      |   ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:35:3: note: in instantiation of function template specialization 'sculptcore::props::numtype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\prop_struct.cc:35:26)>' requested here
+   35 |   numtype_dispatch(type, [&]<typename P>() {
+      |   ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:79:3: note: in instantiation of function template specialization 'sculptcore::props::numtype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\prop_struct.cc:79:26)>' requested here
+   79 |   numtype_dispatch(type, [&]<typename P>() {
+      |   ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:131:5: note: in instantiation of function template specialization 'sculptcore::props::numtype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\prop_struct.cc:131:34)>' requested here
+  131 |     numtype_dispatch(prop->type, [&]<typename P>() {
+      |     ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:28:11: warning: 19 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   28 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:111:3: note: in instantiation of function template specialization 'sculptcore::props::proptype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\..\props\prop_coerce.h:111:33)>' requested here
+  111 |   proptype_dispatch(prop->type, [prop, &result]<typename PropType>() {
+      |   ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:129:18: note: in instantiation of function template specialization 'sculptcore::props::prop_value_get<float>' requested here
+  129 |     *value_out = prop_value_get<Type>(prop);
+      |                  ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:152:21: note: in instantiation of function template specialization 'sculptcore::props::prop_coerce<float>' requested here
+  152 |   PropError error = prop_coerce<T>(prop, &value);
+      |                     ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:28:11: warning: 19 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   28 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:144:5: note: in instantiation of function template specialization 'sculptcore::props::proptype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\..\props\prop_coerce.h:144:35)>' requested here
+  144 |     proptype_dispatch(prop->type, [&]<typename PropType>() {
+      |     ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:152:21: note: in instantiation of function template specialization 'sculptcore::props::prop_coerce<float>' requested here
+  152 |   PropError error = prop_coerce<T>(prop, &value);
+      |                     ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:131:5: note: in instantiation of function template specialization 'sculptcore::props::numtype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\prop_struct.cc:131:34)>' requested here
+  131 |     numtype_dispatch(prop->type, [&]<typename P>() {
+      |     ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:28:11: warning: 19 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   28 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:111:3: note: in instantiation of function template specialization 'sculptcore::props::proptype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\..\props\prop_coerce.h:111:33)>' requested here
+  111 |   proptype_dispatch(prop->type, [prop, &result]<typename PropType>() {
+      |   ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:129:18: note: in instantiation of function template specialization 'sculptcore::props::prop_value_get<double>' requested here
+  129 |     *value_out = prop_value_get<Type>(prop);
+      |                  ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:152:21: note: in instantiation of function template specialization 'sculptcore::props::prop_coerce<double>' requested here
+  152 |   PropError error = prop_coerce<T>(prop, &value);
+      |                     ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:28:11: warning: 19 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   28 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:144:5: note: in instantiation of function template specialization 'sculptcore::props::proptype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\..\props\prop_coerce.h:144:35)>' requested here
+  144 |     proptype_dispatch(prop->type, [&]<typename PropType>() {
+      |     ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:152:21: note: in instantiation of function template specialization 'sculptcore::props::prop_coerce<double>' requested here
+  152 |   PropError error = prop_coerce<T>(prop, &value);
+      |                     ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:131:5: note: in instantiation of function template specialization 'sculptcore::props::numtype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\prop_struct.cc:131:34)>' requested here
+  131 |     numtype_dispatch(prop->type, [&]<typename P>() {
+      |     ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:28:11: warning: 19 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   28 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:111:3: note: in instantiation of function template specialization 'sculptcore::props::proptype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\..\props\prop_coerce.h:111:33)>' requested here
+  111 |   proptype_dispatch(prop->type, [prop, &result]<typename PropType>() {
+      |   ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:129:18: note: in instantiation of function template specialization 'sculptcore::props::prop_value_get<int>' requested here
+  129 |     *value_out = prop_value_get<Type>(prop);
+      |                  ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:152:21: note: in instantiation of function template specialization 'sculptcore::props::prop_coerce<int>' requested here
+  152 |   PropError error = prop_coerce<T>(prop, &value);
+      |                     ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:28:11: warning: 19 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   28 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:144:5: note: in instantiation of function template specialization 'sculptcore::props::proptype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\..\props\prop_coerce.h:144:35)>' requested here
+  144 |     proptype_dispatch(prop->type, [&]<typename PropType>() {
+      |     ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:152:21: note: in instantiation of function template specialization 'sculptcore::props::prop_coerce<int>' requested here
+  152 |   PropError error = prop_coerce<T>(prop, &value);
+      |                     ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:131:5: note: in instantiation of function template specialization 'sculptcore::props::numtype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\prop_struct.cc:131:34)>' requested here
+  131 |     numtype_dispatch(prop->type, [&]<typename P>() {
+      |     ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:28:11: warning: 19 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   28 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:111:3: note: in instantiation of function template specialization 'sculptcore::props::proptype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\..\props\prop_coerce.h:111:33)>' requested here
+  111 |   proptype_dispatch(prop->type, [prop, &result]<typename PropType>() {
+      |   ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:129:18: note: in instantiation of function template specialization 'sculptcore::props::prop_value_get<bool>' requested here
+  129 |     *value_out = prop_value_get<Type>(prop);
+      |                  ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:152:21: note: in instantiation of function template specialization 'sculptcore::props::prop_coerce<bool>' requested here
+  152 |   PropError error = prop_coerce<T>(prop, &value);
+      |                     ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:28:11: warning: 19 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   28 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:144:5: note: in instantiation of function template specialization 'sculptcore::props::proptype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\..\props\prop_coerce.h:144:35)>' requested here
+  144 |     proptype_dispatch(prop->type, [&]<typename PropType>() {
+      |     ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:152:21: note: in instantiation of function template specialization 'sculptcore::props::prop_coerce<bool>' requested here
+  152 |   PropError error = prop_coerce<T>(prop, &value);
+      |                     ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:13:11: warning: 20 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   13 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:131:5: note: in instantiation of function template specialization 'sculptcore::props::numtype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\prop_struct.cc:131:34)>' requested here
+  131 |     numtype_dispatch(prop->type, [&]<typename P>() {
+      |     ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:28:11: warning: 19 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   28 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:111:3: note: in instantiation of function template specialization 'sculptcore::props::proptype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\..\props\prop_coerce.h:111:33)>' requested here
+  111 |   proptype_dispatch(prop->type, [prop, &result]<typename PropType>() {
+      |   ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:129:18: note: in instantiation of function template specialization 'sculptcore::props::prop_value_get<short>' requested here
+  129 |     *value_out = prop_value_get<Type>(prop);
+      |                  ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:152:21: note: in instantiation of function template specialization 'sculptcore::props::prop_coerce<short>' requested here
+  152 |   PropError error = prop_coerce<T>(prop, &value);
+      |                     ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:28:11: warning: 19 enumeration values not handled in switch: 'INVALID_TYPE', 'FLOAT64', 'INT64'... [-Wswitch]
+   28 |   switch (type) {
+      |           ^~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/..\props/prop_coerce.h:144:5: note: in instantiation of function template specialization 'sculptcore::props::proptype_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\props\..\props\prop_coerce.h:144:35)>' requested here
+  144 |     proptype_dispatch(prop->type, [&]<typename PropType>() {
+      |     ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/props/prop_struct.cc:152:21: note: in instantiation of function template specialization 'sculptcore::props::prop_coerce<short>' requested here
+  152 |   PropError error = prop_coerce<T>(prop, &value);
+      |                     ^
+21 warnings generated.
+[8/15] Building CXX object source/props/CMakeFiles/props.dir/bindings.cc.obj
+[9/15] Building CXX object source/brush/compiler/CMakeFiles/sbrushc_core.dir/emit_cpp.cc.obj
+FAILED: [code=1] source/brush/compiler/CMakeFiles/sbrushc_core.dir/emit_cpp.cc.obj 
+C:\dev\sccache\target\release\sccache.exe C:\PROGRA~1\MICROS~3\18\COMMUN~1\VC\Tools\Llvm\x64\bin\CLANG_~1.EXE -DSCULPTCORE_EXTRA_BRUSHES=1 -IC:/dev/blender/sculptcore-blender-addon/engine/build/native/sbrush_extra/gen -IC:/dev/blender/sculptcore-blender-addon/engine/source -IC:/dev/blender/sculptcore-blender-addon/engine/source/litestl/util/eigen -IC:/dev/blender/sculptcore-blender-addon/engine/source/litestl/util/.. -IC:/dev/blender/sculptcore-blender-addon/engine/source/litestl/util/../.. -IC:/dev/blender/sculptcore-blender-addon/engine/source/litestl/extern/eigen/.. -IC:/dev/blender/sculptcore-blender-addon/engine/source/litestl/extern/eigen/../.. -IC:/dev/blender/sculptcore-blender-addon/engine/source/litestl/math/eigen -IC:/dev/blender/sculptcore-blender-addon/engine/source/litestl/math/util -IC:/dev/blender/sculptcore-blender-addon/engine/source/litestl/math/.. -IC:/dev/blender/sculptcore-blender-addon/engine/source/litestl/math/../.. -IC:/dev/blender/sculptcore-blender-addon/engine/source/props/eigen -IC:/dev/blender/sculptcore-blender-addon/engine/source/props/util -IC:/dev/blender/sculptcore-blender-addon/engine/source/props/math -IC:/dev/blender/sculptcore-blender-addon/engine/source/props/.. -ffp-contract=off -ffp-contract=off -O2 -DNDEBUG -g -Xclang -gcodeview -std=gnu++20 -D_DLL -D_MT -Xclang --dependent-lib=msvcrt -D_CRT_SECURE_NO_DEPRECATE -D_CRT_SECURE_NO_WARNINGS -Wno-invalid-offsetof -DWIN32 -Wno-parentheses-equality -MD -MT source/brush/compiler/CMakeFiles/sbrushc_core.dir/emit_cpp.cc.obj -MF source\brush\compiler\CMakeFiles\sbrushc_core.dir\emit_cpp.cc.obj.d -o source/brush/compiler/CMakeFiles/sbrushc_core.dir/emit_cpp.cc.obj -c C:/dev/blender/sculptcore-blender-addon/engine/source/brush/compiler/emit_cpp.cc
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/compiler/emit_cpp.cc:5:
+C:/dev/blender/sculptcore-blender-addon/engine/source\brush/brush.h:753:46: error: no template named 'Vector'; did you mean 'sbrush::Vector'?
+  753 |                                        const Vector<float> &samples)
+      |                                              ^~~~~~
+      |                                              sbrush::Vector
+C:/dev/blender/sculptcore-blender-addon/engine/source/brush/compiler\../kernels/ir/intrinsics.h:19:22: note: 'sbrush::Vector' declared here
+   19 | using litestl::util::Vector;
+      |                      ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/compiler/emit_cpp.cc:5:
+C:/dev/blender/sculptcore-blender-addon/engine/source\brush/brush.h:767:42: error: no template named 'Vector'; did you mean 'sbrush::Vector'?
+  767 |                                    const Vector<int> &devices,
+      |                                          ^~~~~~
+      |                                          sbrush::Vector
+C:/dev/blender/sculptcore-blender-addon/engine/source/brush/compiler\../kernels/ir/intrinsics.h:19:22: note: 'sbrush::Vector' declared here
+   19 | using litestl::util::Vector;
+      |                      ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/compiler/emit_cpp.cc:5:
+C:/dev/blender/sculptcore-blender-addon/engine/source\brush/brush.h:768:42: error: no template named 'Vector'; did you mean 'sbrush::Vector'?
+  768 |                                    const Vector<int> &modes,
+      |                                          ^~~~~~
+      |                                          sbrush::Vector
+C:/dev/blender/sculptcore-blender-addon/engine/source/brush/compiler\../kernels/ir/intrinsics.h:19:22: note: 'sbrush::Vector' declared here
+   19 | using litestl::util::Vector;
+      |                      ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/compiler/emit_cpp.cc:5:
+C:/dev/blender/sculptcore-blender-addon/engine/source\brush/brush.h:769:42: error: no template named 'Vector'; did you mean 'sbrush::Vector'?
+  769 |                                    const Vector<float> &factors,
+      |                                          ^~~~~~
+      |                                          sbrush::Vector
+C:/dev/blender/sculptcore-blender-addon/engine/source/brush/compiler\../kernels/ir/intrinsics.h:19:22: note: 'sbrush::Vector' declared here
+   19 | using litestl::util::Vector;
+      |                      ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/compiler/emit_cpp.cc:5:
+C:/dev/blender/sculptcore-blender-addon/engine/source\brush/brush.h:770:42: error: no template named 'Vector'; did you mean 'sbrush::Vector'?
+  770 |                                    const Vector<int> &enabled,
+      |                                          ^~~~~~
+      |                                          sbrush::Vector
+C:/dev/blender/sculptcore-blender-addon/engine/source/brush/compiler\../kernels/ir/intrinsics.h:19:22: note: 'sbrush::Vector' declared here
+   19 | using litestl::util::Vector;
+      |                      ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/compiler/emit_cpp.cc:5:
+C:/dev/blender/sculptcore-blender-addon/engine/source\brush/brush.h:771:42: error: no template named 'Vector'; did you mean 'sbrush::Vector'?
+  771 |                                    const Vector<int> &offsets,
+      |                                          ^~~~~~
+      |                                          sbrush::Vector
+C:/dev/blender/sculptcore-blender-addon/engine/source/brush/compiler\../kernels/ir/intrinsics.h:19:22: note: 'sbrush::Vector' declared here
+   19 | using litestl::util::Vector;
+      |                      ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/compiler/emit_cpp.cc:5:
+C:/dev/blender/sculptcore-blender-addon/engine/source\brush/brush.h:772:42: error: no template named 'Vector'; did you mean 'sbrush::Vector'?
+  772 |                                    const Vector<float> &samples)
+      |                                          ^~~~~~
+      |                                          sbrush::Vector
+C:/dev/blender/sculptcore-blender-addon/engine/source/brush/compiler\../kernels/ir/intrinsics.h:19:22: note: 'sbrush::Vector' declared here
+   19 | using litestl::util::Vector;
+      |                      ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/compiler/emit_cpp.cc:5:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source\brush/brush.h:2:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source\brush\../props/prop_curve.h:3:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source\brush\../props\prop_base.h:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source\litestl/binding/binding.h:65:10: error: no matching member function for call to 'resize'
+   65 |       v->resize(*newsize);
+      |       ~~~^~~~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source\litestl/binding/binding.h:62:55: note: while substituting into a lambda expression here
+   62 |     m->thunk = [](void *self, void **args, void *ret) {
+      |                                                       ^
+C:/dev/blender/sculptcore-blender-addon/engine/source\litestl/binding\binding_bind.h:14:21: note: in instantiation of member function 'litestl::binding::Binder<const litestl::util::Vector<float>>::bind' requested here
+   14 |   return Binder<T>::bind();
+      |                     ^
+C:/dev/blender/sculptcore-blender-addon/engine/source\litestl/binding\binding_bind.h:14:21: note: in instantiation of member function 'litestl::binding::Binder<const litestl::util::Vector<float> &>::bind' requested here
+C:/dev/blender/sculptcore-blender-addon/engine/source\litestl/binding\binding_method.h:144:5: note: in instantiation of function template specialization 'litestl::binding::types::MethodBuilder<&sculptcore::brush::Brush::replaceCommonDynamicTableChecked>::fillParamsImpl<0ULL, 1ULL, 2ULL, 3ULL>' requested here
+  144 |     fillParamsImpl(out, std::make_index_sequence<arity>{});
+      |     ^
+C:/dev/blender/sculptcore-blender-addon/engine/source\litestl/binding\binding_struct.h:168:14: note: in instantiation of member function 'litestl::binding::types::MethodBuilder<&sculptcore::brush::Brush::replaceCommonDynamicTableChecked>::fillParams' requested here
+  168 |     Builder::fillParams(method->params);
+      |              ^
+C:/dev/blender/sculptcore-blender-addon/engine/source\brush/brush.h:610:5: note: in instantiation of function template specialization 'litestl::binding::types::Struct<sculptcore::brush::Brush>::_addMethod<&sculptcore::brush::Brush::replaceCommonDynamicTableChecked>' requested here
+  610 |     BIND_STRUCT_METHOD(st,
+      |     ^
+C:/dev/blender/sculptcore-blender-addon/engine/source\litestl/binding\binding_method.h:204:8: note: expanded from macro 'BIND_STRUCT_METHOD'
+  204 |   def->_addMethod<&std::remove_reference_t<decltype(*(def)->type_null)>::mname>(#mname)  \
+      |        ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/litestl/util/..\util/vector.h:739:8: note: candidate function template not viable: 'this' argument has type 'const litestl::util::Vector<float>', but method is not marked const
+  739 |   void resize(size_t newsize)
+      |        ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/compiler/emit_cpp.cc:5:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source\brush/brush.h:2:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source\brush\../props/prop_curve.h:3:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source\brush\../props\prop_base.h:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source\litestl/binding/binding.h:78:19: error: no matching member function for call to 'resize'
+   78 |       v->template resize<false>(*newsize);
+      |       ~~~~~~~~~~~~^~~~~~~~~~~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source\litestl/binding/binding.h:75:55: note: while substituting into a lambda expression here
+   75 |     m->thunk = [](void *self, void **args, void *ret) {
+      |                                                       ^
+C:/dev/blender/sculptcore-blender-addon/engine/source\litestl/binding\binding_bind.h:14:21: note: in instantiation of member function 'litestl::binding::Binder<const litestl::util::Vector<float>>::bind' requested here
+   14 |   return Binder<T>::bind();
+      |                     ^
+C:/dev/blender/sculptcore-blender-addon/engine/source\litestl/binding\binding_bind.h:14:21: note: in instantiation of member function 'litestl::binding::Binder<const litestl::util::Vector<float> &>::bind' requested here
+C:/dev/blender/sculptcore-blender-addon/engine/source\litestl/binding\binding_method.h:144:5: note: in instantiation of function template specialization 'litestl::binding::types::MethodBuilder<&sculptcore::brush::Brush::replaceCommonDynamicTableChecked>::fillParamsImpl<0ULL, 1ULL, 2ULL, 3ULL>' requested here
+  144 |     fillParamsImpl(out, std::make_index_sequence<arity>{});
+      |     ^
+C:/dev/blender/sculptcore-blender-addon/engine/source\litestl/binding\binding_struct.h:168:14: note: in instantiation of member function 'litestl::binding::types::MethodBuilder<&sculptcore::brush::Brush::replaceCommonDynamicTableChecked>::fillParams' requested here
+  168 |     Builder::fillParams(method->params);
+      |              ^
+C:/dev/blender/sculptcore-blender-addon/engine/source\brush/brush.h:610:5: note: in instantiation of function template specialization 'litestl::binding::types::Struct<sculptcore::brush::Brush>::_addMethod<&sculptcore::brush::Brush::replaceCommonDynamicTableChecked>' requested here
+  610 |     BIND_STRUCT_METHOD(st,
+      |     ^
+C:/dev/blender/sculptcore-blender-addon/engine/source\litestl/binding\binding_method.h:204:8: note: expanded from macro 'BIND_STRUCT_METHOD'
+  204 |   def->_addMethod<&std::remove_reference_t<decltype(*(def)->type_null)>::mname>(#mname)  \
+      |        ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/litestl/util/..\util/vector.h:739:8: note: candidate function template not viable: 'this' argument has type 'const litestl::util::Vector<float>', but method is not marked const
+  739 |   void resize(size_t newsize)
+      |        ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/compiler/emit_cpp.cc:5:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source\brush/brush.h:2:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source\brush\../props/prop_curve.h:3:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source\brush\../props\prop_base.h:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source\litestl/binding/binding.h:65:10: error: no matching member function for call to 'resize'
+   65 |       v->resize(*newsize);
+      |       ~~~^~~~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source\litestl/binding/binding.h:62:55: note: while substituting into a lambda expression here
+   62 |     m->thunk = [](void *self, void **args, void *ret) {
+      |                                                       ^
+C:/dev/blender/sculptcore-blender-addon/engine/source\litestl/binding\binding_bind.h:14:21: note: in instantiation of member function 'litestl::binding::Binder<const litestl::util::Vector<int>>::bind' requested here
+   14 |   return Binder<T>::bind();
+      |                     ^
+C:/dev/blender/sculptcore-blender-addon/engine/source\litestl/binding\binding_bind.h:14:21: note: in instantiation of member function 'litestl::binding::Binder<const litestl::util::Vector<int> &>::bind' requested here
+C:/dev/blender/sculptcore-blender-addon/engine/source\litestl/binding\binding_method.h:144:5: note: in instantiation of function template specialization 'litestl::binding::types::MethodBuilder<&sculptcore::brush::Brush::replaceCommonDynamicsChecked>::fillParamsImpl<0ULL, 1ULL, 2ULL, 3ULL, 4ULL, 5ULL, 6ULL, 7ULL>' requested here
+  144 |     fillParamsImpl(out, std::make_index_sequence<arity>{});
+      |     ^
+C:/dev/blender/sculptcore-blender-addon/engine/source\litestl/binding\binding_struct.h:168:14: note: in instantiation of member function 'litestl::binding::types::MethodBuilder<&sculptcore::brush::Brush::replaceCommonDynamicsChecked>::fillParams' requested here
+  168 |     Builder::fillParams(method->params);
+      |              ^
+C:/dev/blender/sculptcore-blender-addon/engine/source\brush/brush.h:617:5: note: in instantiation of function template specialization 'litestl::binding::types::Struct<sculptcore::brush::Brush>::_addMethod<&sculptcore::brush::Brush::replaceCommonDynamicsChecked>' requested here
+  617 |     BIND_STRUCT_METHOD(st,
+      |     ^
+C:/dev/blender/sculptcore-blender-addon/engine/source\litestl/binding\binding_method.h:204:8: note: expanded from macro 'BIND_STRUCT_METHOD'
+  204 |   def->_addMethod<&std::remove_reference_t<decltype(*(def)->type_null)>::mname>(#mname)  \
+      |        ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/litestl/util/..\util/vector.h:739:8: note: candidate function template not viable: 'this' argument has type 'const litestl::util::Vector<int>', but method is not marked const
+  739 |   void resize(size_t newsize)
+      |        ^
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/brush/compiler/emit_cpp.cc:5:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source\brush/brush.h:2:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source\brush\../props/prop_curve.h:3:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source\brush\../props\prop_base.h:3:
+C:/dev/blender/sculptcore-blender-addon/engine/source\litestl/binding/binding.h:78:19: error: no matching member function for call to 'resize'
+   78 |       v->template resize<false>(*newsize);
+      |       ~~~~~~~~~~~~^~~~~~~~~~~~~
+C:/dev/blender/sculptcore-blender-addon/engine/source\litestl/binding/binding.h:75:55: note: while substituting into a lambda expression here
+   75 |     m->thunk = [](void *self, void **args, void *ret) {
+      |                                                       ^
+C:/dev/blender/sculptcore-blender-addon/engine/source\litestl/binding\binding_bind.h:14:21: note: in instantiation of member function 'litestl::binding::Binder<const litestl::util::Vector<int>>::bind' requested here
+   14 |   return Binder<T>::bind();
+      |                     ^
+C:/dev/blender/sculptcore-blender-addon/engine/source\litestl/binding\binding_bind.h:14:21: note: in instantiation of member function 'litestl::binding::Binder<const litestl::util::Vector<int> &>::bind' requested here
+C:/dev/blender/sculptcore-blender-addon/engine/source\litestl/binding\binding_method.h:144:5: note: in instantiation of function template specialization 'litestl::binding::types::MethodBuilder<&sculptcore::brush::Brush::replaceCommonDynamicsChecked>::fillParamsImpl<0ULL, 1ULL, 2ULL, 3ULL, 4ULL, 5ULL, 6ULL, 7ULL>' requested here
+  144 |     fillParamsImpl(out, std::make_index_sequence<arity>{});
+      |     ^
+C:/dev/blender/sculptcore-blender-addon/engine/source\litestl/binding\binding_struct.h:168:14: note: in instantiation of member function 'litestl::binding::types::MethodBuilder<&sculptcore::brush::Brush::replaceCommonDynamicsChecked>::fillParams' requested here
+  168 |     Builder::fillParams(method->params);
+      |              ^
+C:/dev/blender/sculptcore-blender-addon/engine/source\brush/brush.h:617:5: note: in instantiation of function template specialization 'litestl::binding::types::Struct<sculptcore::brush::Brush>::_addMethod<&sculptcore::brush::Brush::replaceCommonDynamicsChecked>' requested here
+  617 |     BIND_STRUCT_METHOD(st,
+      |     ^
+C:/dev/blender/sculptcore-blender-addon/engine/source\litestl/binding\binding_method.h:204:8: note: expanded from macro 'BIND_STRUCT_METHOD'
+  204 |   def->_addMethod<&std::remove_reference_t<decltype(*(def)->type_null)>::mname>(#mname)  \
+      |        ^
+C:/dev/blender/sculptcore-blender-addon/engine/source/litestl/util/..\util/vector.h:739:8: note: candidate function template not viable: 'this' argument has type 'const litestl::util::Vector<int>', but method is not marked const
+  739 |   void resize(size_t newsize)
+      |        ^
+11 errors generated.
+[10/15] Linking CXX static library source\props\props.lib
+[11/15] Building CXX object source/brush/compiler/CMakeFiles/sbrushc_core.dir/emit_registry.cc.obj
+[12/15] Building CXX object source/brush/compiler/CMakeFiles/sbrushc.dir/sbrushc_main.cc.obj
+ninja: build stopped: subcommand failed.
+Command failed: cd build/native && node ../../configureEnv.mjs cmake --build . --target sbrushc --parallel 8

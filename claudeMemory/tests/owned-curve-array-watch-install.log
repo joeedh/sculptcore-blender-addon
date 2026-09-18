@@ -1,0 +1,1061 @@
+[1/532] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_19_c.c.obj
+unity_19_c.c
+[2/532] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_13_c.c.obj
+unity_13_c.c
+[3/532] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_15_c.c.obj
+unity_15_c.c
+[4/532] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_12_c.c.obj
+unity_12_c.c
+[5/532] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_17_c.c.obj
+unity_17_c.c
+[6/532] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_16_c.c.obj
+unity_16_c.c
+[7/532] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_14_c.c.obj
+unity_14_c.c
+[8/532] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_18_c.c.obj
+unity_18_c.c
+[9/532] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_11_c.c.obj
+unity_11_c.c
+[10/532] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_10_c.c.obj
+unity_10_c.c
+[11/532] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_8_c.c.obj
+unity_8_c.c
+[12/532] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_9_c.c.obj
+unity_9_c.c
+[13/532] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_6_c.c.obj
+unity_6_c.c
+[14/532] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_7_c.c.obj
+unity_7_c.c
+[15/532] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_4_c.c.obj
+unity_4_c.c
+[16/532] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_5_c.c.obj
+unity_5_c.c
+[17/532] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_3_c.c.obj
+unity_3_c.c
+[18/532] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_2_c.c.obj
+unity_2_c.c
+[19/532] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_0_c.c.obj
+unity_0_c.c
+[20/532] Building C object source\blender\gpu\CMakeFiles\bf_gpu_shaders.dir\Unity\unity_1_c.c.obj
+unity_1_c.c
+[21/532] Linking C static library lib\bf_gpu_shaders.lib
+[22/532] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_frag.dir\draw_debug_draw_display_frag.glsl.cc.obj
+draw_debug_draw_display_frag.glsl.cc
+[23/532] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_vert.dir\draw_debug_draw_display_vert.glsl.cc.obj
+draw_debug_draw_display_vert.glsl.cc
+[24/532] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\draw_command_generate_comp.glsl.cc.obj
+draw_command_generate_comp.glsl.cc
+[25/532] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\draw_view_finalize_comp.glsl.cc.obj
+draw_view_finalize_comp.glsl.cc
+[26/532] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\draw_curves_topology_comp.glsl.cc.obj
+draw_curves_topology_comp.glsl.cc
+[27/532] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_vert.dir\draw_curves_test.glsl.cc.obj
+draw_curves_test.glsl.cc
+[28/532] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\draw_visibility_comp.glsl.cc.obj
+draw_visibility_comp.glsl.cc
+[29/532] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\draw_curves_interpolation_comp.glsl.cc.obj
+draw_curves_interpolation_comp.glsl.cc
+[30/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_batch_presets.cc.obj
+gpu_batch_presets.cc
+[31/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_batch_utils.cc.obj
+gpu_batch_utils.cc
+[32/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_compute.cc.obj
+gpu_compute.cc
+[33/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_capabilities.cc.obj
+gpu_capabilities.cc
+[34/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_batch.cc.obj
+gpu_batch.cc
+[35/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_codegen.cc.obj
+gpu_codegen.cc
+[36/532] Building CXX object source\blender\editors\interface\CMakeFiles\bf_editor_interface.dir\templates\interface_template_curve_mapping.cc.obj
+interface_template_curve_mapping.cc
+[37/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_debug.cc.obj
+gpu_debug.cc
+[38/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_immediate_util.cc.obj
+gpu_immediate_util.cc
+[39/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_framebuffer.cc.obj
+gpu_framebuffer.cc
+[40/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_immediate.cc.obj
+gpu_immediate.cc
+[41/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_index_buffer.cc.obj
+gpu_index_buffer.cc
+[42/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_init_exit.cc.obj
+gpu_init_exit.cc
+[43/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_platform.cc.obj
+gpu_platform.cc
+[44/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_context.cc.obj
+gpu_context.cc
+[45/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_matrix.cc.obj
+gpu_matrix.cc
+[46/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_material.cc.obj
+gpu_material.cc
+[47/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_node_graph.cc.obj
+gpu_node_graph.cc
+[48/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_query.cc.obj
+gpu_query.cc
+[49/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_pass.cc.obj
+gpu_pass.cc
+[50/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\cmake_pch.cxx.obj
+cmake_pch.cxx
+[51/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_select.cc.obj
+gpu_select.cc
+[52/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_ray_tracing.cc.obj
+gpu_ray_tracing.cc
+[53/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_select_next.cc.obj
+gpu_select_next.cc
+[54/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_select_pick.cc.obj
+gpu_select_pick.cc
+[55/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_select_sample_query.cc.obj
+gpu_select_sample_query.cc
+[56/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_shader_builtin.cc.obj
+gpu_shader_builtin.cc
+[57/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_shader_interface.cc.obj
+gpu_shader_interface.cc
+[58/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_shader_log.cc.obj
+gpu_shader_log.cc
+[59/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_state.cc.obj
+gpu_state.cc
+[60/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_storage_buffer.cc.obj
+gpu_storage_buffer.cc
+[61/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_shader.cc.obj
+gpu_shader.cc
+[62/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_shader_preprocessor.cc.obj
+gpu_shader_preprocessor.cc
+[63/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_texture.cc.obj
+gpu_texture.cc
+[64/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_texture_mipmap.cc.obj
+gpu_texture_mipmap.cc
+[65/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_texture_pool.cc.obj
+gpu_texture_pool.cc
+[66/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_vertex_format_normals.cc.obj
+gpu_vertex_format_normals.cc
+[67/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_uniform_buffer.cc.obj
+gpu_uniform_buffer.cc
+[68/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_vertex_format.cc.obj
+gpu_vertex_format.cc
+[69/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_vertex_buffer.cc.obj
+gpu_vertex_buffer.cc
+[70/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_viewport.cc.obj
+gpu_viewport.cc
+[71/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_worker.cc.obj
+gpu_worker.cc
+[72/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_work_in_flight.cc.obj
+gpu_work_in_flight.cc
+[73/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_shader_create_info.cc.obj
+gpu_shader_create_info.cc
+[74/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\ast.cc.obj
+ast.cc
+[75/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\attribute.cc.obj
+attribute.cc
+[76/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\grammar.cc.obj
+grammar.cc
+[77/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\enum.cc.obj
+enum.cc
+[78/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\intermediate.cc.obj
+intermediate.cc
+[79/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\metadata.cc.obj
+metadata.cc
+[80/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\flow_control.cc.obj
+flow_control.cc
+[81/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\function.cc.obj
+function.cc
+[82/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\string.cc.obj
+string.cc
+[83/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\namespace.cc.obj
+namespace.cc
+[84/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\lexit\lexit.cc.obj
+lexit.cc
+[85/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\template.cc.obj
+template.cc
+[86/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\bsl\constructor.cc.obj
+constructor.cc
+[87/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\bsl\grammar.cc.obj
+grammar.cc
+[88/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\resource_table.cc.obj
+resource_table.cc
+[89/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\bsl\operator.cc.obj
+operator.cc
+[90/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\bsl\resource.cc.obj
+resource.cc
+[91/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\union.cc.obj
+union.cc
+[92/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\struct.cc.obj
+struct.cc
+[93/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\bsl\symbol_function.cc.obj
+symbol_function.cc
+[94/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\bsl\symbol_class.cc.obj
+symbol_class.cc
+[95/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\bsl\codegen.cc.obj
+codegen.cc
+[96/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\bsl\symbol.cc.obj
+symbol.cc
+[97/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\bsl\symbol_scope.cc.obj
+symbol_scope.cc
+[98/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\bsl\symbol_variable.cc.obj
+symbol_variable.cc
+[99/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\bsl\symbol_template.cc.obj
+symbol_template.cc
+[100/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\processor.cc.obj
+processor.cc
+[101/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\bsl\type_checker.cc.obj
+type_checker.cc
+[102/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_compilation_subprocess.cc.obj
+gl_compilation_subprocess.cc
+[103/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_batch.cc.obj
+gl_batch.cc
+[104/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_compute.cc.obj
+gl_compute.cc
+[105/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_backend.cc.obj
+gl_backend.cc
+[106/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_context.cc.obj
+gl_context.cc
+[107/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_query.cc.obj
+gl_query.cc
+[108/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_framebuffer.cc.obj
+gl_framebuffer.cc
+[109/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_debug.cc.obj
+gl_debug.cc
+[110/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\shader_tool\bsl\symbol_table.cc.obj
+symbol_table.cc
+[111/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_immediate.cc.obj
+gl_immediate.cc
+[112/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_index_buffer.cc.obj
+gl_index_buffer.cc
+[113/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\intern\gpu_shader_dependency.cc.obj
+gpu_shader_dependency.cc
+[114/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_shader_interface.cc.obj
+gl_shader_interface.cc
+[115/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_state.cc.obj
+gl_state.cc
+[116/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_shader_log.cc.obj
+gl_shader_log.cc
+[117/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_storage_buffer.cc.obj
+gl_storage_buffer.cc
+[118/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_texture.cc.obj
+gl_texture.cc
+[119/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_texture_pool.cc.obj
+gl_texture_pool.cc
+[120/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_work_in_flight.cc.obj
+gl_work_in_flight.cc
+[121/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_shader.cc.obj
+gl_shader.cc
+[122/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_uniform_buffer.cc.obj
+gl_uniform_buffer.cc
+[123/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_vertex_array.cc.obj
+gl_vertex_array.cc
+[124/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\opengl\gl_vertex_buffer.cc.obj
+gl_vertex_buffer.cc
+[125/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_buffer_pool.cc.obj
+vk_buffer_pool.cc
+[126/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_buffer.cc.obj
+vk_buffer.cc
+[127/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_data_conversion.cc.obj
+vk_data_conversion.cc
+[128/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_batch.cc.obj
+vk_batch.cc
+[129/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_common.cc.obj
+vk_common.cc
+[130/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_backend.cc.obj
+vk_backend.cc
+[131/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_context.cc.obj
+vk_context.cc
+[132/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_debug.cc.obj
+vk_debug.cc
+[133/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_descriptor_pools.cc.obj
+vk_descriptor_pools.cc
+[134/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_descriptor_set_layouts.cc.obj
+vk_descriptor_set_layouts.cc
+[135/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_descriptor_set.cc.obj
+vk_descriptor_set.cc
+[136/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_fence.cc.obj
+vk_fence.cc
+[137/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_device.cc.obj
+vk_device.cc
+[138/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_device_submission.cc.obj
+vk_device_submission.cc
+[139/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_framebuffer.cc.obj
+vk_framebuffer.cc
+[140/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_image_view.cc.obj
+vk_image_view.cc
+[141/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_memory_layout.cc.obj
+vk_memory_layout.cc
+[142/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_immediate.cc.obj
+vk_immediate.cc
+[143/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_memory_pool.cc.obj
+vk_memory_pool.cc
+[144/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_index_buffer.cc.obj
+vk_index_buffer.cc
+[145/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_pixel_buffer.cc.obj
+vk_pixel_buffer.cc
+[146/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_push_constants.cc.obj
+vk_push_constants.cc
+[147/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_query.cc.obj
+vk_query.cc
+[148/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_pipeline_pool.cc.obj
+vk_pipeline_pool.cc
+[149/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_ray_tracing.cc.obj
+vk_ray_tracing.cc
+[150/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\render_graph\nodes\vk_pipeline_data.cc.obj
+vk_pipeline_data.cc
+[151/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\render_graph\vk_command_buffer_wrapper.cc.obj
+vk_command_buffer_wrapper.cc
+[152/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\render_graph\vk_render_graph.cc.obj
+vk_render_graph.cc
+[153/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\render_graph\vk_render_graph_links.cc.obj
+vk_render_graph_links.cc
+[154/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\render_graph\vk_command_builder.cc.obj
+vk_command_builder.cc
+[155/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\render_graph\vk_resource_state_tracker.cc.obj
+vk_resource_state_tracker.cc
+[156/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\render_graph\vk_resource_access_info.cc.obj
+vk_resource_access_info.cc
+[157/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\render_graph\vk_scheduler.cc.obj
+vk_scheduler.cc
+[158/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_samplers.cc.obj
+vk_samplers.cc
+[159/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_sampler.cc.obj
+vk_sampler.cc
+[160/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_resource_pool.cc.obj
+vk_resource_pool.cc
+[161/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_shader_log.cc.obj
+vk_shader_log.cc
+[162/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_shader_interface.cc.obj
+vk_shader_interface.cc
+[163/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_shader_compiler.cc.obj
+vk_shader_compiler.cc
+[164/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_shader.cc.obj
+vk_shader.cc
+[165/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_shader_module.cc.obj
+vk_shader_module.cc
+[166/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_staging_buffer.cc.obj
+vk_staging_buffer.cc
+[167/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_state_manager.cc.obj
+vk_state_manager.cc
+[168/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_streaming_buffer.cc.obj
+vk_streaming_buffer.cc
+[169/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_storage_buffer.cc.obj
+vk_storage_buffer.cc
+[170/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_to_string.cc.obj
+vk_to_string.cc
+[171/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_texture.cc.obj
+vk_texture.cc
+[172/532] Linking CXX static library lib\bf_editor_interface.lib
+[173/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_texture_pool.cc.obj
+vk_texture_pool.cc
+[174/532] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\draw_curves_length_intercept_comp.glsl.cc.obj
+draw_curves_length_intercept_comp.glsl.cc
+[175/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_uniform_buffer.cc.obj
+vk_uniform_buffer.cc
+[176/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_vertex_attribute_object.cc.obj
+vk_vertex_attribute_object.cc
+[177/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_vertex_attribute_object_cache.cc.obj
+vk_vertex_attribute_object_cache.cc
+[178/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_armature_utils.cc.obj
+usd_armature_utils.cc
+[179/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_work_in_flight.cc.obj
+vk_work_in_flight.cc
+[180/532] Building CXX object source\blender\gpu\CMakeFiles\bf_gpu.dir\vulkan\vk_vertex_buffer.cc.obj
+vk_vertex_buffer.cc
+[181/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_asset_utils.cc.obj
+usd_asset_utils.cc
+[182/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_blend_shape_utils.cc.obj
+usd_blend_shape_utils.cc
+[183/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_colorspace_utils.cc.obj
+usd_colorspace_utils.cc
+[184/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_capi_import.cc.obj
+usd_capi_import.cc
+[185/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_instancing_utils.cc.obj
+usd_instancing_utils.cc
+[186/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_hierarchy_iterator.cc.obj
+usd_hierarchy_iterator.cc
+[187/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_capi_export.cc.obj
+usd_capi_export.cc
+[188/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_mesh_utils.cc.obj
+usd_mesh_utils.cc
+[189/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_utils.cc.obj
+usd_utils.cc
+[190/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_hook.cc.obj
+usd_hook.cc
+[191/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_light_convert.cc.obj
+usd_light_convert.cc
+[192/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_attribute_utils.cc.obj
+usd_attribute_utils.cc
+[193/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_writer_hair.cc.obj
+usd_writer_hair.cc
+[194/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_writer_armature.cc.obj
+usd_writer_armature.cc
+[195/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_writer_abstract.cc.obj
+usd_writer_abstract.cc
+[196/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_writer_camera.cc.obj
+usd_writer_camera.cc
+[197/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_writer_light.cc.obj
+usd_writer_light.cc
+[198/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_writer_text.cc.obj
+usd_writer_text.cc
+[199/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_writer_metaball.cc.obj
+usd_writer_metaball.cc
+[200/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_writer_curves.cc.obj
+usd_writer_curves.cc
+[201/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_writer_transform.cc.obj
+usd_writer_transform.cc
+[202/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_writer_points.cc.obj
+usd_writer_points.cc
+[203/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_writer_mesh.cc.obj
+usd_writer_mesh.cc
+[204/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_camera.cc.obj
+usd_reader_camera.cc
+[205/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_writer_material.cc.obj
+usd_writer_material.cc
+[206/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_geom.cc.obj
+usd_reader_geom.cc
+[207/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_writer_pointinstancer.cc.obj
+usd_writer_pointinstancer.cc
+[208/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_domelight.cc.obj
+usd_reader_domelight.cc
+[209/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_writer_volume.cc.obj
+usd_writer_volume.cc
+[210/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_curve.cc.obj
+usd_reader_curve.cc
+[211/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_instance.cc.obj
+usd_reader_instance.cc
+[212/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_light.cc.obj
+usd_reader_light.cc
+[213/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_prim.cc.obj
+usd_reader_prim.cc
+[214/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_nurbs.cc.obj
+usd_reader_nurbs.cc
+[215/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_skeleton.cc.obj
+usd_reader_skeleton.cc
+[216/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_points.cc.obj
+usd_reader_points.cc
+[217/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_pointinstancer.cc.obj
+usd_reader_pointinstancer.cc
+[218/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_utils.cc.obj
+usd_reader_utils.cc
+[219/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_material.cc.obj
+usd_reader_material.cc
+[220/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_shape.cc.obj
+usd_reader_shape.cc
+[221/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_volume.cc.obj
+usd_reader_volume.cc
+[222/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_xform.cc.obj
+usd_reader_xform.cc
+[223/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_mesh.cc.obj
+usd_reader_mesh.cc
+[224/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_skel_root_utils.cc.obj
+usd_skel_root_utils.cc
+[225/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\hydra\instancer.cc.obj
+instancer.cc
+[226/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\hydra\image.cc.obj
+image.cc
+[227/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\hydra\camera_delegate.cc.obj
+camera_delegate.cc
+[228/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_reader_stage.cc.obj
+usd_reader_stage.cc
+[229/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\hydra\light.cc.obj
+light.cc
+[230/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\intern\usd_skel_convert.cc.obj
+usd_skel_convert.cc
+[231/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\hydra\curves.cc.obj
+curves.cc
+[232/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\hydra\volume_modifier.cc.obj
+volume_modifier.cc
+[233/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\hydra\usd_scene_index.cc.obj
+usd_scene_index.cc
+[234/532] Linking CXX static library lib\bf_gpu.lib
+[235/532] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\subdiv_ibo_lines_comp.glsl.cc.obj
+subdiv_ibo_lines_comp.glsl.cc
+[236/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\hydra\populate_context.cc.obj
+populate_context.cc
+[237/532] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\subdiv_ibo_tris_comp.glsl.cc.obj
+subdiv_ibo_tris_comp.glsl.cc
+[238/532] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\subdiv_vbo_edge_fac_comp.glsl.cc.obj
+subdiv_vbo_edge_fac_comp.glsl.cc
+[239/532] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\subdiv_vbo_sculpt_data_comp.glsl.cc.obj
+subdiv_vbo_sculpt_data_comp.glsl.cc
+[240/532] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\subdiv_custom_data_interp_comp.glsl.cc.obj
+subdiv_custom_data_interp_comp.glsl.cc
+[241/532] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\subdiv_vbo_edituv_stretch_angle_comp.glsl.cc.obj
+subdiv_vbo_edituv_stretch_angle_comp.glsl.cc
+[242/532] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\subdiv_vbo_edituv_stretch_area_comp.glsl.cc.obj
+subdiv_vbo_edituv_stretch_area_comp.glsl.cc
+[243/532] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\subdiv_vbo_lnor_comp.glsl.cc.obj
+subdiv_vbo_lnor_comp.glsl.cc
+[244/532] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\subdiv_vbo_paint_overlay_flag_comp.glsl.cc.obj
+subdiv_vbo_paint_overlay_flag_comp.glsl.cc
+[245/532] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_comp.dir\subdiv_normals_accumulate_comp.glsl.cc.obj
+subdiv_normals_accumulate_comp.glsl.cc
+[246/532] Building CXX object source\blender\draw\intern\shaders\CMakeFiles\draw_cpp_shaders_bsl.dir\bsl_shader_linting.cc.cc.obj
+bsl_shader_linting.cc.cc
+[247/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\hydra\material.cc.obj
+material.cc
+[248/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\hydra\volume.cc.obj
+volume.cc
+[249/532] Building CXX object source\blender\draw\engines\gpencil\shaders\CMakeFiles\gpencil_cpp_shaders_vert.dir\gpencil_depth_merge_vert.glsl.cc.obj
+gpencil_depth_merge_vert.glsl.cc
+[250/532] Building CXX object source\blender\draw\engines\gpencil\shaders\CMakeFiles\gpencil_cpp_shaders_vert.dir\gpencil_antialiasing_vert.glsl.cc.obj
+gpencil_antialiasing_vert.glsl.cc
+[251/532] Building CXX object source\blender\draw\engines\gpencil\shaders\CMakeFiles\gpencil_cpp_shaders_vert.dir\gpencil_fullscreen_vert.glsl.cc.obj
+gpencil_fullscreen_vert.glsl.cc
+[252/532] Building CXX object source\blender\draw\engines\gpencil\shaders\CMakeFiles\gpencil_cpp_shaders_frag.dir\gpencil_antialiasing_accumulation_frag.glsl.cc.obj
+gpencil_antialiasing_accumulation_frag.glsl.cc
+[253/532] Building CXX object source\blender\draw\engines\gpencil\shaders\CMakeFiles\gpencil_cpp_shaders_frag.dir\gpencil_depth_merge_frag.glsl.cc.obj
+gpencil_depth_merge_frag.glsl.cc
+[254/532] Building CXX object source\blender\draw\engines\gpencil\shaders\CMakeFiles\gpencil_cpp_shaders_frag.dir\gpencil_antialiasing_frag.glsl.cc.obj
+gpencil_antialiasing_frag.glsl.cc
+[255/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\hydra\mesh.cc.obj
+mesh.cc
+[256/532] Building CXX object source\blender\draw\engines\gpencil\shaders\CMakeFiles\gpencil_cpp_shaders_vert.dir\gpencil_vert.glsl.cc.obj
+gpencil_vert.glsl.cc
+[257/532] Building CXX object source\blender\draw\engines\gpencil\shaders\CMakeFiles\gpencil_cpp_shaders_frag.dir\gpencil_depth_pass_merge_frag.glsl.cc.obj
+gpencil_depth_pass_merge_frag.glsl.cc
+[258/532] Building CXX object source\blender\draw\engines\gpencil\shaders\CMakeFiles\gpencil_cpp_shaders_frag.dir\gpencil_layer_blend_frag.glsl.cc.obj
+gpencil_layer_blend_frag.glsl.cc
+[259/532] Building CXX object source\blender\draw\engines\gpencil\shaders\CMakeFiles\gpencil_cpp_shaders_frag.dir\gpencil_mask_invert_frag.glsl.cc.obj
+gpencil_mask_invert_frag.glsl.cc
+[260/532] Building CXX object source\blender\draw\engines\gpencil\shaders\CMakeFiles\gpencil_cpp_shaders_frag.dir\gpencil_vfx_frag.glsl.cc.obj
+gpencil_vfx_frag.glsl.cc
+[261/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\hydra\scene_index.cc.obj
+scene_index.cc
+[262/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_armature_dof_vert.glsl.cc.obj
+overlay_armature_dof_vert.glsl.cc
+[263/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_armature_envelope_outline_vert.glsl.cc.obj
+overlay_armature_envelope_outline_vert.glsl.cc
+[264/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_armature_envelope_solid_vert.glsl.cc.obj
+overlay_armature_envelope_solid_vert.glsl.cc
+[265/532] Building CXX object source\blender\draw\engines\gpencil\shaders\CMakeFiles\gpencil_cpp_shaders_frag.dir\gpencil_frag.glsl.cc.obj
+gpencil_frag.glsl.cc
+[266/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_armature_shape_outline_vert.glsl.cc.obj
+overlay_armature_shape_outline_vert.glsl.cc
+[267/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_armature_shape_solid_vert.glsl.cc.obj
+overlay_armature_shape_solid_vert.glsl.cc
+[268/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_armature_shape_wire_vert.glsl.cc.obj
+overlay_armature_shape_wire_vert.glsl.cc
+[269/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_armature_sphere_outline_vert.glsl.cc.obj
+overlay_armature_sphere_outline_vert.glsl.cc
+[270/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_armature_sphere_solid_vert.glsl.cc.obj
+overlay_armature_sphere_solid_vert.glsl.cc
+[271/532] Building CXX object source\blender\io\usd\CMakeFiles\bf_io_usd.dir\hydra\world.cc.obj
+world.cc
+[272/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_armature_stick_vert.glsl.cc.obj
+overlay_armature_stick_vert.glsl.cc
+[273/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_armature_wire_vert.glsl.cc.obj
+overlay_armature_wire_vert.glsl.cc
+[274/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_clipbound_vert.glsl.cc.obj
+overlay_clipbound_vert.glsl.cc
+[275/532] Linking CXX static library lib\bf_io_usd.lib
+[276/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_depth_only_curves_vert.glsl.cc.obj
+overlay_depth_only_curves_vert.glsl.cc
+[277/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_depth_only_mesh_conservative_vert.glsl.cc.obj
+overlay_depth_only_mesh_conservative_vert.glsl.cc
+[278/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_depth_only_vert.glsl.cc.obj
+overlay_depth_only_vert.glsl.cc
+[279/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_depth_only_pointcloud_vert.glsl.cc.obj
+overlay_depth_only_pointcloud_vert.glsl.cc
+[280/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_depth_only_gpencil_vert.glsl.cc.obj
+overlay_depth_only_gpencil_vert.glsl.cc
+[281/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_edit_curve_handle_vert.glsl.cc.obj
+overlay_edit_curve_handle_vert.glsl.cc
+[282/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_edit_curve_normals_vert.glsl.cc.obj
+overlay_edit_curve_normals_vert.glsl.cc
+[283/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_edit_curve_point_vert.glsl.cc.obj
+overlay_edit_curve_point_vert.glsl.cc
+[284/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_edit_curve_wire_vert.glsl.cc.obj
+overlay_edit_curve_wire_vert.glsl.cc
+[285/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_edit_gpencil_canvas_vert.glsl.cc.obj
+overlay_edit_gpencil_canvas_vert.glsl.cc
+[286/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_edit_curves_handle_vert.glsl.cc.obj
+overlay_edit_curves_handle_vert.glsl.cc
+[287/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_edit_lattice_point_vert.glsl.cc.obj
+overlay_edit_lattice_point_vert.glsl.cc
+[288/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_edit_lattice_wire_vert.glsl.cc.obj
+overlay_edit_lattice_wire_vert.glsl.cc
+[289/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_edit_pointcloud_vert.glsl.cc.obj
+overlay_edit_pointcloud_vert.glsl.cc
+[290/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_edit_mesh_analysis_vert.glsl.cc.obj
+overlay_edit_mesh_analysis_vert.glsl.cc
+[291/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_edit_mesh_depth_vert.glsl.cc.obj
+overlay_edit_mesh_depth_vert.glsl.cc
+[292/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_edit_mesh_skin_root_vert.glsl.cc.obj
+overlay_edit_mesh_skin_root_vert.glsl.cc
+[293/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_edit_mesh_normal_vert.glsl.cc.obj
+overlay_edit_mesh_normal_vert.glsl.cc
+[294/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_edit_mesh_vert.glsl.cc.obj
+overlay_edit_mesh_vert.glsl.cc
+[295/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_edit_mesh_facedot_vert.glsl.cc.obj
+overlay_edit_mesh_facedot_vert.glsl.cc
+[296/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_edit_mesh_edge_vert.glsl.cc.obj
+overlay_edit_mesh_edge_vert.glsl.cc
+[297/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_edit_particle_point_vert.glsl.cc.obj
+overlay_edit_particle_point_vert.glsl.cc
+[298/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_edit_particle_strand_vert.glsl.cc.obj
+overlay_edit_particle_strand_vert.glsl.cc
+[299/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_edit_uv_face_dots_vert.glsl.cc.obj
+overlay_edit_uv_face_dots_vert.glsl.cc
+[300/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_edit_uv_faces_vert.glsl.cc.obj
+overlay_edit_uv_faces_vert.glsl.cc
+[301/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_edit_uv_image_vert.glsl.cc.obj
+overlay_edit_uv_image_vert.glsl.cc
+[302/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_edit_uv_edges_vert.glsl.cc.obj
+overlay_edit_uv_edges_vert.glsl.cc
+[303/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_edit_uv_stretching_vert.glsl.cc.obj
+overlay_edit_uv_stretching_vert.glsl.cc
+[304/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_edit_uv_tiled_image_borders_vert.glsl.cc.obj
+overlay_edit_uv_tiled_image_borders_vert.glsl.cc
+[305/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_edit_uv_verts_vert.glsl.cc.obj
+overlay_edit_uv_verts_vert.glsl.cc
+[306/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_extra_groundline_vert.glsl.cc.obj
+overlay_extra_groundline_vert.glsl.cc
+[307/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_extra_loose_point_vert.glsl.cc.obj
+overlay_extra_loose_point_vert.glsl.cc
+[308/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_extra_lightprobe_grid_vert.glsl.cc.obj
+overlay_extra_lightprobe_grid_vert.glsl.cc
+[309/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_extra_point_vert.glsl.cc.obj
+overlay_extra_point_vert.glsl.cc
+[310/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_extra_vert.glsl.cc.obj
+overlay_extra_vert.glsl.cc
+[311/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_extra_wire_vert.glsl.cc.obj
+overlay_extra_wire_vert.glsl.cc
+[312/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_facing_vert.glsl.cc.obj
+overlay_facing_vert.glsl.cc
+[313/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_fullscreen_vert.glsl.cc.obj
+overlay_fullscreen_vert.glsl.cc
+[314/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_image_vert.glsl.cc.obj
+overlay_image_vert.glsl.cc
+[315/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_grid_vert.glsl.cc.obj
+overlay_grid_vert.glsl.cc
+[316/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_motion_path_point_vert.glsl.cc.obj
+overlay_motion_path_point_vert.glsl.cc
+[317/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_motion_path_line_vert.glsl.cc.obj
+overlay_motion_path_line_vert.glsl.cc
+[318/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_outline_prepass_curves_vert.glsl.cc.obj
+overlay_outline_prepass_curves_vert.glsl.cc
+[319/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_outline_prepass_vert.glsl.cc.obj
+overlay_outline_prepass_vert.glsl.cc
+[320/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_outline_prepass_pointcloud_vert.glsl.cc.obj
+overlay_outline_prepass_pointcloud_vert.glsl.cc
+[321/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_outline_prepass_gpencil_vert.glsl.cc.obj
+overlay_outline_prepass_gpencil_vert.glsl.cc
+[322/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_outline_prepass_wire_vert.glsl.cc.obj
+overlay_outline_prepass_wire_vert.glsl.cc
+[323/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_paint_face_vert.glsl.cc.obj
+overlay_paint_face_vert.glsl.cc
+[324/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_paint_point_vert.glsl.cc.obj
+overlay_paint_point_vert.glsl.cc
+[325/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_paint_texture_vert.glsl.cc.obj
+overlay_paint_texture_vert.glsl.cc
+[326/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_paint_weight_vert.glsl.cc.obj
+overlay_paint_weight_vert.glsl.cc
+[327/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_particle_shape_vert.glsl.cc.obj
+overlay_particle_shape_vert.glsl.cc
+[328/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_sculpt_curves_cage_vert.glsl.cc.obj
+overlay_sculpt_curves_cage_vert.glsl.cc
+[329/532] Building CXX object source\blender\draw\engines\eevee\shaders\CMakeFiles\eevee_cpp_shaders_bsl.dir\bsl_shader_linting.cc.cc.obj
+bsl_shader_linting.cc.cc
+[330/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_paint_wire_vert.glsl.cc.obj
+overlay_paint_wire_vert.glsl.cc
+[331/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_particle_vert.glsl.cc.obj
+overlay_particle_vert.glsl.cc
+[332/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_particle_hair_vert.glsl.cc.obj
+overlay_particle_hair_vert.glsl.cc
+[333/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_sculpt_mask_vert.glsl.cc.obj
+overlay_sculpt_mask_vert.glsl.cc
+[334/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_sculpt_curves_selection_vert.glsl.cc.obj
+overlay_sculpt_curves_selection_vert.glsl.cc
+[335/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_viewer_attribute_curve_vert.glsl.cc.obj
+overlay_viewer_attribute_curve_vert.glsl.cc
+[336/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_volume_gridlines_vert.glsl.cc.obj
+overlay_volume_gridlines_vert.glsl.cc
+[337/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_viewer_attribute_mesh_vert.glsl.cc.obj
+overlay_viewer_attribute_mesh_vert.glsl.cc
+[338/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_viewer_attribute_curves_vert.glsl.cc.obj
+overlay_viewer_attribute_curves_vert.glsl.cc
+[339/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_volume_velocity_vert.glsl.cc.obj
+overlay_volume_velocity_vert.glsl.cc
+[340/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_armature_dof_solid_frag.glsl.cc.obj
+overlay_armature_dof_solid_frag.glsl.cc
+[341/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_viewer_attribute_pointcloud_vert.glsl.cc.obj
+overlay_viewer_attribute_pointcloud_vert.glsl.cc
+[342/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_armature_envelope_solid_frag.glsl.cc.obj
+overlay_armature_envelope_solid_frag.glsl.cc
+[343/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_armature_shape_solid_frag.glsl.cc.obj
+overlay_armature_shape_solid_frag.glsl.cc
+[344/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_armature_shape_wire_frag.glsl.cc.obj
+overlay_armature_shape_wire_frag.glsl.cc
+[345/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_armature_stick_frag.glsl.cc.obj
+overlay_armature_stick_frag.glsl.cc
+[346/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_vert.dir\overlay_wireframe_vert.glsl.cc.obj
+overlay_wireframe_vert.glsl.cc
+[347/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_armature_sphere_solid_frag.glsl.cc.obj
+overlay_armature_sphere_solid_frag.glsl.cc
+[348/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_background_frag.glsl.cc.obj
+overlay_background_frag.glsl.cc
+[349/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_armature_wire_frag.glsl.cc.obj
+overlay_armature_wire_frag.glsl.cc
+[350/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_depth_only_frag.glsl.cc.obj
+overlay_depth_only_frag.glsl.cc
+[351/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_edit_mesh_analysis_frag.glsl.cc.obj
+overlay_edit_mesh_analysis_frag.glsl.cc
+[352/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_edit_uv_image_mask_frag.glsl.cc.obj
+overlay_edit_uv_image_mask_frag.glsl.cc
+[353/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_edit_mesh_frag.glsl.cc.obj
+overlay_edit_mesh_frag.glsl.cc
+[354/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_edit_uv_verts_frag.glsl.cc.obj
+overlay_edit_uv_verts_frag.glsl.cc
+[355/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_edit_uv_edges_frag.glsl.cc.obj
+overlay_edit_uv_edges_frag.glsl.cc
+[356/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_depth_only_gpencil_frag.glsl.cc.obj
+overlay_depth_only_gpencil_frag.glsl.cc
+[357/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_extra_loose_point_frag.glsl.cc.obj
+overlay_extra_loose_point_frag.glsl.cc
+[358/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_extra_frag.glsl.cc.obj
+overlay_extra_frag.glsl.cc
+[359/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_facing_frag.glsl.cc.obj
+overlay_facing_frag.glsl.cc
+[360/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_extra_wire_frag.glsl.cc.obj
+overlay_extra_wire_frag.glsl.cc
+[361/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_image_frag.glsl.cc.obj
+overlay_image_frag.glsl.cc
+[362/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_motion_path_line_frag.glsl.cc.obj
+overlay_motion_path_line_frag.glsl.cc
+[363/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_grid_frag.glsl.cc.obj
+overlay_grid_frag.glsl.cc
+[364/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_outline_prepass_frag.glsl.cc.obj
+overlay_outline_prepass_frag.glsl.cc
+[365/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_outline_detect_frag.glsl.cc.obj
+overlay_outline_detect_frag.glsl.cc
+[366/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_paint_texture_frag.glsl.cc.obj
+overlay_paint_texture_frag.glsl.cc
+[367/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_paint_weight_frag.glsl.cc.obj
+overlay_paint_weight_frag.glsl.cc
+[368/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_point_varying_color_frag.glsl.cc.obj
+overlay_point_varying_color_frag.glsl.cc
+[369/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_particle_frag.glsl.cc.obj
+overlay_particle_frag.glsl.cc
+[370/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_particle_shape_frag.glsl.cc.obj
+overlay_particle_shape_frag.glsl.cc
+[371/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_point_varying_color_varying_outline_aa_frag.glsl.cc.obj
+overlay_point_varying_color_varying_outline_aa_frag.glsl.cc
+[372/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_outline_prepass_gpencil_frag.glsl.cc.obj
+overlay_outline_prepass_gpencil_frag.glsl.cc
+[373/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_sculpt_curves_selection_frag.glsl.cc.obj
+overlay_sculpt_curves_selection_frag.glsl.cc
+[374/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_sculpt_mask_frag.glsl.cc.obj
+overlay_sculpt_mask_frag.glsl.cc
+[375/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_uniform_color_frag.glsl.cc.obj
+overlay_uniform_color_frag.glsl.cc
+[376/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_viewer_attribute_frag.glsl.cc.obj
+overlay_viewer_attribute_frag.glsl.cc
+[377/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_varying_color.glsl.cc.obj
+overlay_varying_color.glsl.cc
+[378/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_frag.dir\overlay_wireframe_frag.glsl.cc.obj
+overlay_wireframe_frag.glsl.cc
+[379/532] Building CXX object source\blender\draw\engines\workbench\shaders\CMakeFiles\workbench_cpp_shaders_vert.dir\workbench_fullscreen_vert.glsl.cc.obj
+workbench_fullscreen_vert.glsl.cc
+[380/532] Building CXX object source\blender\draw\engines\overlay\shaders\CMakeFiles\overlay_cpp_shaders_bsl.dir\bsl_shader_linting.cc.cc.obj
+bsl_shader_linting.cc.cc
+[381/532] Building CXX object source\blender\draw\engines\workbench\shaders\CMakeFiles\workbench_cpp_shaders_vert.dir\workbench_effect_smaa_vert.glsl.cc.obj
+workbench_effect_smaa_vert.glsl.cc
+[382/532] Building CXX object source\blender\draw\engines\workbench\shaders\CMakeFiles\workbench_cpp_shaders_frag.dir\workbench_effect_dof_prepare_frag.glsl.cc.obj
+workbench_effect_dof_prepare_frag.glsl.cc
+[383/532] Building CXX object source\blender\draw\engines\workbench\shaders\CMakeFiles\workbench_cpp_shaders_frag.dir\workbench_effect_dof_downsample_frag.glsl.cc.obj
+workbench_effect_dof_downsample_frag.glsl.cc
+[384/532] Building CXX object source\blender\draw\engines\workbench\shaders\CMakeFiles\workbench_cpp_shaders_frag.dir\workbench_effect_dof_blur1_frag.glsl.cc.obj
+workbench_effect_dof_blur1_frag.glsl.cc
+[385/532] Building CXX object source\blender\draw\engines\workbench\shaders\CMakeFiles\workbench_cpp_shaders_frag.dir\workbench_effect_outline_frag.glsl.cc.obj
+workbench_effect_outline_frag.glsl.cc
+[386/532] Building CXX object source\blender\draw\engines\workbench\shaders\CMakeFiles\workbench_cpp_shaders_frag.dir\workbench_effect_taa_frag.glsl.cc.obj
+workbench_effect_taa_frag.glsl.cc
+[387/532] Building CXX object source\blender\draw\engines\workbench\shaders\CMakeFiles\workbench_cpp_shaders_frag.dir\workbench_effect_dof_blur2_frag.glsl.cc.obj
+workbench_effect_dof_blur2_frag.glsl.cc
+[388/532] Building CXX object source\blender\draw\engines\workbench\shaders\CMakeFiles\workbench_cpp_shaders_frag.dir\workbench_effect_smaa_frag.glsl.cc.obj
+workbench_effect_smaa_frag.glsl.cc
+[389/532] Building CXX object source\blender\draw\engines\workbench\shaders\CMakeFiles\workbench_cpp_shaders_frag.dir\workbench_effect_dof_resolve_frag.glsl.cc.obj
+workbench_effect_dof_resolve_frag.glsl.cc
+[390/532] Building CXX object source\blender\draw\engines\workbench\shaders\CMakeFiles\workbench_cpp_shaders_frag.dir\workbench_merge_depth_frag.glsl.cc.obj
+workbench_merge_depth_frag.glsl.cc
+[391/532] Building CXX object source\blender\draw\engines\workbench\shaders\CMakeFiles\workbench_cpp_shaders_frag.dir\workbench_overlay_depth_frag.glsl.cc.obj
+workbench_overlay_depth_frag.glsl.cc
+[392/532] Building CXX object source\blender\draw\engines\workbench\shaders\CMakeFiles\workbench_cpp_shaders_frag.dir\workbench_transparent_resolve_frag.glsl.cc.obj
+workbench_transparent_resolve_frag.glsl.cc
+[393/532] Building CXX object source\blender\gpu\tests\shaders\CMakeFiles\gpu_test_cpp_shaders_vert.dir\gpu_framebuffer_layer_viewport_test.glsl.cc.obj
+gpu_framebuffer_layer_viewport_test.glsl.cc
+[394/532] Building CXX object source\blender\gpu\tests\shaders\CMakeFiles\gpu_test_cpp_shaders_vert.dir\gpu_framebuffer_subpass_input_test.glsl.cc.obj
+gpu_framebuffer_subpass_input_test.glsl.cc
+[395/532] Building CXX object source\blender\gpu\tests\shaders\CMakeFiles\gpu_test_cpp_shaders_vert.dir\gpu_texture_test.glsl.cc.obj
+gpu_texture_test.glsl.cc
+[396/532] Building CXX object source\blender\gpu\tests\shaders\CMakeFiles\gpu_test_cpp_shaders_frag.dir\gpu_framebuffer_layer_viewport_test.glsl.cc.obj
+gpu_framebuffer_layer_viewport_test.glsl.cc
+[397/532] Building CXX object source\blender\gpu\tests\shaders\CMakeFiles\gpu_test_cpp_shaders_frag.dir\gpu_framebuffer_subpass_input_test.glsl.cc.obj
+gpu_framebuffer_subpass_input_test.glsl.cc
+[398/532] Building CXX object source\blender\gpu\tests\shaders\CMakeFiles\gpu_test_cpp_shaders_frag.dir\gpu_specialization_test.glsl.cc.obj
+gpu_specialization_test.glsl.cc
+[399/532] Building CXX object source\blender\gpu\tests\shaders\CMakeFiles\gpu_test_cpp_shaders_frag.dir\gpu_texture_test.glsl.cc.obj
+gpu_texture_test.glsl.cc
+[400/532] Building CXX object source\blender\gpu\tests\shaders\CMakeFiles\gpu_test_cpp_shaders_comp.dir\gpu_buffer_texture_test.glsl.cc.obj
+gpu_buffer_texture_test.glsl.cc
+[401/532] Building CXX object source\blender\gpu\tests\shaders\CMakeFiles\gpu_test_cpp_shaders_comp.dir\gpu_compute_1d_test.glsl.cc.obj
+gpu_compute_1d_test.glsl.cc
+[402/532] Building CXX object source\blender\gpu\tests\shaders\CMakeFiles\gpu_test_cpp_shaders_comp.dir\gpu_compute_2d_test.glsl.cc.obj
+gpu_compute_2d_test.glsl.cc
+[403/532] Building CXX object source\blender\gpu\tests\shaders\CMakeFiles\gpu_test_cpp_shaders_comp.dir\gpu_compute_dummy_test.glsl.cc.obj
+gpu_compute_dummy_test.glsl.cc
+[404/532] Building CXX object source\blender\gpu\tests\shaders\CMakeFiles\gpu_test_cpp_shaders_comp.dir\gpu_compute_ibo_test.glsl.cc.obj
+gpu_compute_ibo_test.glsl.cc
+[405/532] Building CXX object source\blender\gpu\tests\shaders\CMakeFiles\gpu_test_cpp_shaders_comp.dir\gpu_compute_ssbo_test.glsl.cc.obj
+gpu_compute_ssbo_test.glsl.cc
+[406/532] Building CXX object source\blender\gpu\tests\shaders\CMakeFiles\gpu_test_cpp_shaders_comp.dir\gpu_compute_vbo_test.glsl.cc.obj
+gpu_compute_vbo_test.glsl.cc
+[407/532] Building CXX object source\blender\gpu\tests\shaders\CMakeFiles\gpu_test_cpp_shaders_comp.dir\gpu_push_constants_test.glsl.cc.obj
+gpu_push_constants_test.glsl.cc
+[408/532] Building CXX object source\blender\gpu\tests\shaders\CMakeFiles\gpu_test_cpp_shaders_comp.dir\gpu_ray_query_test.glsl.cc.obj
+gpu_ray_query_test.glsl.cc
+[409/532] Building CXX object source\blender\gpu\tests\shaders\CMakeFiles\gpu_test_cpp_shaders_comp.dir\gpu_ray_query_raster_test.glsl.cc.obj
+gpu_ray_query_raster_test.glsl.cc
+[410/532] Building CXX object source\blender\gpu\tests\shaders\CMakeFiles\gpu_test_cpp_shaders_comp.dir\gpu_ray_query_custom_index_test.glsl.cc.obj
+gpu_ray_query_custom_index_test.glsl.cc
+[411/532] Building CXX object source\blender\gpu\tests\shaders\CMakeFiles\gpu_test_cpp_shaders_comp.dir\gpu_specialization_test.glsl.cc.obj
+gpu_specialization_test.glsl.cc
+[412/532] Building CXX object source\blender\gpu\tests\shaders\CMakeFiles\gpu_test_cpp_shaders_comp.dir\gpu_texture_atomic_test.glsl.cc.obj
+gpu_texture_atomic_test.glsl.cc
+[413/532] Building CXX object source\blender\draw\engines\workbench\shaders\CMakeFiles\workbench_cpp_shaders_bsl.dir\bsl_shader_linting.cc.cc.obj
+bsl_shader_linting.cc.cc
+[414/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_alpha_crop.glsl.cc.obj
+compositor_alpha_crop.glsl.cc
+[415/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_bilateral_blur.glsl.cc.obj
+compositor_bilateral_blur.glsl.cc
+[416/532] Building CXX object source\blender\gpu\shaders\CMakeFiles\gpu_cpp_shaders_bsl.dir\bsl_shader_linting.cc.cc.obj
+bsl_shader_linting.cc.cc
+[417/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_bokeh_blur.glsl.cc.obj
+compositor_bokeh_blur.glsl.cc
+[418/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_bokeh_image.glsl.cc.obj
+compositor_bokeh_image.glsl.cc
+[419/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_box_mask.glsl.cc.obj
+compositor_box_mask.glsl.cc
+[420/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_bokeh_blur_variable_size.glsl.cc.obj
+compositor_bokeh_blur_variable_size.glsl.cc
+[421/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_compute_preview.glsl.cc.obj
+compositor_compute_preview.glsl.cc
+[422/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_cryptomatte_image.glsl.cc.obj
+compositor_cryptomatte_image.glsl.cc
+[423/532] Building CXX object source\blender\gpu\tests\shaders\CMakeFiles\gpu_test_cpp_shaders_bsl.dir\bsl_shader_linting.cc.cc.obj
+bsl_shader_linting.cc.cc
+[424/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_cryptomatte_matte.glsl.cc.obj
+compositor_cryptomatte_matte.glsl.cc
+[425/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_cryptomatte_pick.glsl.cc.obj
+compositor_cryptomatte_pick.glsl.cc
+[426/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_defocus_radius_from_depth.glsl.cc.obj
+compositor_defocus_radius_from_depth.glsl.cc
+[427/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_defocus_radius_from_scale.glsl.cc.obj
+compositor_defocus_radius_from_scale.glsl.cc
+[428/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_defocus_blur.glsl.cc.obj
+compositor_defocus_blur.glsl.cc
+[429/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_deriche_gaussian_blur_sum.glsl.cc.obj
+compositor_deriche_gaussian_blur_sum.glsl.cc
+[430/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_convert.glsl.cc.obj
+compositor_convert.glsl.cc
+[431/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_deriche_gaussian_blur.glsl.cc.obj
+compositor_deriche_gaussian_blur.glsl.cc
+[432/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_directional_blur.glsl.cc.obj
+compositor_directional_blur.glsl.cc
+[433/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_despeckle.glsl.cc.obj
+compositor_despeckle.glsl.cc
+[434/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_displace_anisotropic.glsl.cc.obj
+compositor_displace_anisotropic.glsl.cc
+[435/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_displace.glsl.cc.obj
+compositor_displace.glsl.cc
+[436/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_double_edge_mask_compute_gradient.glsl.cc.obj
+compositor_double_edge_mask_compute_gradient.glsl.cc
+[437/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_double_edge_mask_compute_boundary.glsl.cc.obj
+compositor_double_edge_mask_compute_boundary.glsl.cc
+[438/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_edge_filter.glsl.cc.obj
+compositor_edge_filter.glsl.cc
+[439/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_ellipse_mask.glsl.cc.obj
+compositor_ellipse_mask.glsl.cc
+[440/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_filter.glsl.cc.obj
+compositor_filter.glsl.cc
+[441/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_flip.glsl.cc.obj
+compositor_flip.glsl.cc
+[442/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_gamma_correct.glsl.cc.obj
+compositor_gamma_correct.glsl.cc
+[443/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_glare_bloom_upsample.glsl.cc.obj
+compositor_glare_bloom_upsample.glsl.cc
+[444/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_glare_bloom_downsample.glsl.cc.obj
+compositor_glare_bloom_downsample.glsl.cc
+[445/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_glare_ghost_accumulate.glsl.cc.obj
+compositor_glare_ghost_accumulate.glsl.cc
+[446/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_glare_ghost_base.glsl.cc.obj
+compositor_glare_ghost_base.glsl.cc
+[447/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_glare_kernel_downsample.glsl.cc.obj
+compositor_glare_kernel_downsample.glsl.cc
+[448/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_glare_highlights.glsl.cc.obj
+compositor_glare_highlights.glsl.cc
+[449/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_glare_mix.glsl.cc.obj
+compositor_glare_mix.glsl.cc
+[450/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_glare_simple_star_anti_diagonal_pass.glsl.cc.obj
+compositor_glare_simple_star_anti_diagonal_pass.glsl.cc
+[451/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_glare_simple_star_horizontal_pass.glsl.cc.obj
+compositor_glare_simple_star_horizontal_pass.glsl.cc
+[452/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_glare_simple_star_diagonal_pass.glsl.cc.obj
+compositor_glare_simple_star_diagonal_pass.glsl.cc
+[453/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_glare_simple_star_vertical_pass.glsl.cc.obj
+compositor_glare_simple_star_vertical_pass.glsl.cc
+[454/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_glare_streaks_accumulate.glsl.cc.obj
+compositor_glare_streaks_accumulate.glsl.cc
+[455/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_glare_streaks_filter.glsl.cc.obj
+compositor_glare_streaks_filter.glsl.cc
+[456/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_glare_write_highlights_output.glsl.cc.obj
+compositor_glare_write_highlights_output.glsl.cc
+[457/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_glare_write_glare_output.glsl.cc.obj
+compositor_glare_write_glare_output.glsl.cc
+[458/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_glare_sun_beams.glsl.cc.obj
+compositor_glare_sun_beams.glsl.cc
+[459/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_id_mask.glsl.cc.obj
+compositor_id_mask.glsl.cc
+[460/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_horizontal_lens_distortion.glsl.cc.obj
+compositor_horizontal_lens_distortion.glsl.cc
+[461/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_image_coordinates_normalized.glsl.cc.obj
+compositor_image_coordinates_normalized.glsl.cc
+[462/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_image_coordinates_pixel.glsl.cc.obj
+compositor_image_coordinates_pixel.glsl.cc
+[463/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_image_coordinates_uniform.glsl.cc.obj
+compositor_image_coordinates_uniform.glsl.cc
+[464/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_image_crop.glsl.cc.obj
+compositor_image_crop.glsl.cc
+[465/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_inpaint_compute_boundary.glsl.cc.obj
+compositor_inpaint_compute_boundary.glsl.cc
+[466/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_inpaint_compute_region.glsl.cc.obj
+compositor_inpaint_compute_region.glsl.cc
+[467/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_inpaint_fill_region.glsl.cc.obj
+compositor_inpaint_fill_region.glsl.cc
+[468/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_keying_compute_image.glsl.cc.obj
+compositor_keying_compute_image.glsl.cc
+[469/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_jump_flooding.glsl.cc.obj
+compositor_jump_flooding.glsl.cc
+[470/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_keying_extract_chroma.glsl.cc.obj
+compositor_keying_extract_chroma.glsl.cc
+[471/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_keying_compute_matte.glsl.cc.obj
+compositor_keying_compute_matte.glsl.cc
+[472/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_keying_screen.glsl.cc.obj
+compositor_keying_screen.glsl.cc
+[473/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_keying_replace_chroma.glsl.cc.obj
+compositor_keying_replace_chroma.glsl.cc
+[474/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_keying_tweak_matte.glsl.cc.obj
+compositor_keying_tweak_matte.glsl.cc
+[475/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_kuwahara_anisotropic_compute_structure_tensor.glsl.cc.obj
+compositor_kuwahara_anisotropic_compute_structure_tensor.glsl.cc
+[476/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_kuwahara_anisotropic.glsl.cc.obj
+compositor_kuwahara_anisotropic.glsl.cc
+[477/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_kuwahara_classic.glsl.cc.obj
+compositor_kuwahara_classic.glsl.cc
+[478/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_map_uv_anisotropic.glsl.cc.obj
+compositor_map_uv_anisotropic.glsl.cc
+[479/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_map_uv.glsl.cc.obj
+compositor_map_uv.glsl.cc
+[480/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_mask_to_sdf_compute_boundary.glsl.cc.obj
+compositor_mask_to_sdf_compute_boundary.glsl.cc
+[481/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_mask_to_sdf_compute_distance.glsl.cc.obj
+compositor_mask_to_sdf_compute_distance.glsl.cc
+[482/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_morphological_blur.glsl.cc.obj
+compositor_morphological_blur.glsl.cc
+[483/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_morphological_distance_feather.glsl.cc.obj
+compositor_morphological_distance_feather.glsl.cc
+[484/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_morphological_distance_threshold.glsl.cc.obj
+compositor_morphological_distance_threshold.glsl.cc
+[485/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_morphological_distance_threshold_seeds.glsl.cc.obj
+compositor_morphological_distance_threshold_seeds.glsl.cc
+[486/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_morphological_distance.glsl.cc.obj
+compositor_morphological_distance.glsl.cc
+[487/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_morphological_step.glsl.cc.obj
+compositor_morphological_step.glsl.cc
+[488/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_motion_blur.glsl.cc.obj
+compositor_motion_blur.glsl.cc
+[489/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_motion_blur_max_velocity_dilate.glsl.cc.obj
+compositor_motion_blur_max_velocity_dilate.glsl.cc
+[490/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_movie_distortion.glsl.cc.obj
+compositor_movie_distortion.glsl.cc
+[491/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_normalize.glsl.cc.obj
+compositor_normalize.glsl.cc
+[492/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_pad.glsl.cc.obj
+compositor_pad.glsl.cc
+[493/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_pixelate.glsl.cc.obj
+compositor_pixelate.glsl.cc
+[494/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_plane_deform_anisotropic.glsl.cc.obj
+compositor_plane_deform_anisotropic.glsl.cc
+[495/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_plane_deform_mask.glsl.cc.obj
+compositor_plane_deform_mask.glsl.cc
+[496/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_plane_deform_motion_blur_mask.glsl.cc.obj
+compositor_plane_deform_motion_blur_mask.glsl.cc
+[497/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_parallel_reduction.glsl.cc.obj
+compositor_parallel_reduction.glsl.cc
+[498/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_plane_deform_motion_blur.glsl.cc.obj
+compositor_plane_deform_motion_blur.glsl.cc
+[499/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_plane_deform.glsl.cc.obj
+compositor_plane_deform.glsl.cc
+[500/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_premultiply_alpha.glsl.cc.obj
+compositor_premultiply_alpha.glsl.cc
+[501/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_realize_on_domain.glsl.cc.obj
+compositor_realize_on_domain.glsl.cc
+[502/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_relative_to_pixel_float.glsl.cc.obj
+compositor_relative_to_pixel_float.glsl.cc
+[503/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_radial_lens_distortion.glsl.cc.obj
+compositor_radial_lens_distortion.glsl.cc
+[504/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_relative_to_pixel_float_per_dimension.glsl.cc.obj
+compositor_relative_to_pixel_float_per_dimension.glsl.cc
+[505/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_relative_to_pixel_vector.glsl.cc.obj
+compositor_relative_to_pixel_vector.glsl.cc
+[506/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_sample_pixel.glsl.cc.obj
+compositor_sample_pixel.glsl.cc
+[507/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_scale_variable.glsl.cc.obj
+compositor_scale_variable.glsl.cc
+[508/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_smaa_blending_weight_calculation.glsl.cc.obj
+compositor_smaa_blending_weight_calculation.glsl.cc
+[509/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_split.glsl.cc.obj
+compositor_split.glsl.cc
+[510/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_smaa_edge_detection.glsl.cc.obj
+compositor_smaa_edge_detection.glsl.cc
+[511/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_summed_area_table_compute_complete_blocks.glsl.cc.obj
+compositor_summed_area_table_compute_complete_blocks.glsl.cc
+[512/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_summed_area_table_compute_complete_x_prologues.glsl.cc.obj
+compositor_summed_area_table_compute_complete_x_prologues.glsl.cc
+[513/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_smaa_neighborhood_blending.glsl.cc.obj
+compositor_smaa_neighborhood_blending.glsl.cc
+[514/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_summed_area_table_compute_complete_y_prologues.glsl.cc.obj
+compositor_summed_area_table_compute_complete_y_prologues.glsl.cc
+[515/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_summed_area_table_compute_incomplete_prologues.glsl.cc.obj
+compositor_summed_area_table_compute_incomplete_prologues.glsl.cc
+[516/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_symmetric_blur.glsl.cc.obj
+compositor_symmetric_blur.glsl.cc
+[517/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_symmetric_separable_blur_variable_size.glsl.cc.obj
+compositor_symmetric_separable_blur_variable_size.glsl.cc
+[518/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_symmetric_separable_blur.glsl.cc.obj
+compositor_symmetric_separable_blur.glsl.cc
+[519/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_symmetric_blur_variable_size.glsl.cc.obj
+compositor_symmetric_blur_variable_size.glsl.cc
+[520/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_van_vliet_gaussian_blur_sum.glsl.cc.obj
+compositor_van_vliet_gaussian_blur_sum.glsl.cc
+[521/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_translate_wrapped.glsl.cc.obj
+compositor_translate_wrapped.glsl.cc
+[522/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_tone_map_simple.glsl.cc.obj
+compositor_tone_map_simple.glsl.cc
+[523/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_tone_map_photoreceptor.glsl.cc.obj
+compositor_tone_map_photoreceptor.glsl.cc
+[524/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_van_vliet_gaussian_blur.glsl.cc.obj
+compositor_van_vliet_gaussian_blur.glsl.cc
+[525/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_write_output.glsl.cc.obj
+compositor_write_output.glsl.cc
+[526/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_z_combine_compute_mask.glsl.cc.obj
+compositor_z_combine_compute_mask.glsl.cc
+[527/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_z_combine_from_mask_depth.glsl.cc.obj
+compositor_z_combine_from_mask_depth.glsl.cc
+[528/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_z_combine_from_mask_image.glsl.cc.obj
+compositor_z_combine_from_mask_image.glsl.cc
+[529/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_z_combine_simple_depth.glsl.cc.obj
+compositor_z_combine_simple_depth.glsl.cc
+[530/532] Building CXX object source\blender\compositor\shaders\CMakeFiles\compositor_cpp_shaders_comp.dir\compositor_z_combine_simple_image.glsl.cc.obj
+compositor_z_combine_simple_image.glsl.cc
+[531/532] Linking CXX executable bin\blender.exe; Stripping PDB file...
+Run: "ninja install" to copy runtime files and scripts to: C:/dev/blender/build_windows_x64_clang_RelWithDebInfo/bin/5.3
+[531/532] Install the project...
+-- Install configuration: "Release"
+-- Installing: C:/dev/blender/build_windows_x64_clang_RelWithDebInfo/bin/./blender.pdb

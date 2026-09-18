@@ -350,6 +350,31 @@ class _CApi:
             ctypes.c_float, ctypes.c_int, ctypes.c_float, ctypes.c_int,
             ctypes.c_float, f32p, ctypes.c_int]
         lib.MeshStroke_dabBatchProgram.restype = ctypes.c_int
+        for domain in ("Mesh", "Grid"):
+            prefix = domain + "Stroke_"
+            image = getattr(lib, prefix + "dabResolvedImage")
+            image.argtypes = [ctypes.c_void_p, ctypes.c_int] + [ctypes.c_float] * 6 + [ctypes.c_int]
+            image.restype = ctypes.c_int
+            for program in (False, True):
+                single = getattr(lib, prefix + ("dabProgramResolved" if program else "dabResolved"))
+                single.argtypes = [ctypes.c_void_p, ctypes.c_void_p if program else ctypes.c_int] + [ctypes.c_float] * 6
+                single.restype = ctypes.c_int
+                batch = getattr(lib, prefix + ("dabBatchProgramInputs" if program else "dabBatchInputs"))
+                batch.argtypes = ([ctypes.c_void_p] * (4 if domain == "Mesh" else 1)
+                                  + [ctypes.c_void_p if program else ctypes.c_int, ctypes.c_int, f32p,
+                                     ctypes.c_float, f32p]
+                                  + ([ctypes.c_float] if domain == "Mesh" else [])
+                                  + [f32p, ctypes.c_int, ctypes.c_int])
+                batch.restype = ctypes.c_int
+        lib.GridStroke_supportsResolved.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p]
+        lib.MeshStroke_dabProgramResolvedImage.argtypes = (
+            [ctypes.c_void_p, ctypes.c_void_p] + [ctypes.c_float] * 6 + [ctypes.c_int])
+        lib.MeshStroke_dabProgramResolvedImage.restype = ctypes.c_int
+        lib.MeshStroke_dabProgramResolvedDyntopo.argtypes = (
+            [ctypes.c_void_p, ctypes.c_void_p] + [ctypes.c_float] * 7
+            + [ctypes.c_void_p, ctypes.c_uint32])
+        lib.MeshStroke_dabProgramResolvedDyntopo.restype = ctypes.c_int
+        lib.GridStroke_supportsResolved.restype = ctypes.c_int
         lib.GridStroke_end.argtypes = [ctypes.c_void_p]
         lib.GridStroke_end.restype = None
         # Cage-dab colour smoothing over multires (grids-native-completion CS3):
@@ -368,6 +393,12 @@ class _CApi:
             ctypes.c_float, ctypes.c_int, ctypes.c_float, ctypes.c_int,
             ctypes.c_void_p, ctypes.c_int]
         lib.CageSmooth_dabBatch.restype = ctypes.c_int
+        lib.CageSmooth_dabCurrentInputs.argtypes = [ctypes.c_void_p, ctypes.c_int, f32p, ctypes.c_float]
+        lib.CageSmooth_dabCurrentInputs.restype = ctypes.c_int
+        lib.CageSmooth_supportsResolved.argtypes = [ctypes.c_void_p, ctypes.c_int]
+        lib.CageSmooth_supportsResolved.restype = ctypes.c_int
+        lib.CageSmooth_dabResolved.argtypes = [ctypes.c_void_p, ctypes.c_int] + [ctypes.c_float] * 6
+        lib.CageSmooth_dabResolved.restype = ctypes.c_int
         lib.CageSmooth_end.argtypes = [ctypes.c_void_p]
         lib.CageSmooth_end.restype = None
         lib.GridStroke_canUndo.argtypes = [ctypes.c_void_p]

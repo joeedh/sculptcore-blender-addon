@@ -1,0 +1,10 @@
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+PLAN4_OWNER_HEADED_PASS
+00:15.593  blend            | Saved session recovery to "C:\Users\joeed\AppData\Local\Temp\quit.blend"
+
+[error] toml::parse: Error opening file "C:\Users\joeed\AppData\Roaming\Blender Foundation\Blender\5.3\config\recents.toml"
+
+C:\dev\blender\sculptcore-blender-addon\claudeMemory\scripts\test_generic_property_owner_headed.py:57: DeprecationWarning: 'UnifiedPaintSettings.use_unified_strength' is expected to be removed in Blender 6.0
+  ups.use_unified_strength = False
+C:\dev\blender\sculptcore-blender-addon\claudeMemory\scripts\test_generic_property_owner_headed.py:64: DeprecationWarning: 'UnifiedPaintSettings.use_unified_strength' is expected to be removed in Blender 6.0
+  ups.use_unified_strength = True

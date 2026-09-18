@@ -1,0 +1,134 @@
+
+Microsoft (R) Windows Debugger Version 10.0.22621.2428 AMD64
+Copyright (c) Microsoft Corporation. All rights reserved.
+
+CommandLine: C:\dev\blender\sculptcore-blender-addon\engine\build\native\tests\test_brush_prepared_execution.cc_out.exe
+
+************* Path validation summary **************
+Response                         Time (ms)     Location
+Deferred                                       srv*
+Symbol search path is: srv*
+Executable search path is: 
+ModLoad: 00007ff7`ee820000 00007ff7`eedf6000   test_brush_prepared_execution.cc_out.exe
+ModLoad: 00007ff9`438a0000 00007ff9`43b07000   ntdll.dll
+ModLoad: 00007ff9`42250000 00007ff9`4231b000   C:\WINDOWS\System32\KERNEL32.DLL
+ModLoad: 00007ff9`40f10000 00007ff9`41312000   C:\WINDOWS\System32\KERNELBASE.dll
+ModLoad: 00007ff9`41320000 00007ff9`4146c000   C:\WINDOWS\System32\ucrtbase.dll
+ModLoad: 00007ff9`2b520000 00007ff9`2b5bd000   C:\WINDOWS\SYSTEM32\MSVCP140.dll
+ModLoad: 00007ff8`897e0000 00007ff8`89823000   C:\WINDOWS\SYSTEM32\MSVCP140_2.dll
+ModLoad: 00007ff9`2b4f0000 00007ff9`2b51c000   C:\WINDOWS\SYSTEM32\VCRUNTIME140.dll
+ModLoad: 00007ff9`3dd30000 00007ff9`3df7c000   C:\WINDOWS\SYSTEM32\dbghelp.dll
+ModLoad: 00000211`569e0000 00000211`56a0c000   C:\WINDOWS\SYSTEM32\VCRUNTIME140.dll
+ModLoad: 00007ff9`2b4e0000 00007ff9`2b4ec000   C:\WINDOWS\SYSTEM32\VCRUNTIME140_1.dll
+ModLoad: 00007ff9`433d0000 00007ff9`43755000   C:\WINDOWS\System32\combase.dll
+ModLoad: 00007ff9`415c0000 00007ff9`416d8000   C:\WINDOWS\System32\RPCRT4.dll
+ModLoad: 00007ff9`41870000 00007ff9`41949000   C:\WINDOWS\System32\OLEAUT32.dll
+ModLoad: 00007ff9`41510000 00007ff9`415b3000   C:\WINDOWS\System32\msvcp_win.dll
+ModLoad: 00007ff9`3f730000 00007ff9`3f74b000   C:\WINDOWS\SYSTEM32\kernel.appcore.dll
+ModLoad: 00007ff9`42400000 00007ff9`424a9000   C:\WINDOWS\System32\msvcrt.dll
+(b7e4.17a3c): Access violation - code c0000005 (first chance)
+First chance exceptions are reported before any exception handling.
+This exception may be expected and handled.
+*** WARNING: Unable to verify checksum for test_brush_prepared_execution.cc_out.exe
+test_brush_prepared_execution_cc_out!preparedDyntopoState+0x2ed:
+00007ff7`ee96743d f2420f2a04e0    cvtsi2sd xmm0,dword ptr [rax+r12*8] ds:00000000`00000000=????????
+0:000> cdb: Reading initial command '.sympath+ C:\dev\blender\sculptcore-blender-addon\engine\build\native\tests; sxe av; g; .ecxr; k; q'
+WARNING: Whitespace at start of path element
+WARNING: Whitespace at start of path element
+WARNING: Whitespace at start of path element
+WARNING: Whitespace at start of path element
+WARNING: Whitespace at start of path element
+*** WARNING: Unable to verify checksum for test_brush_prepared_execution.cc_out.exe
+Symbol search path is: srv*;C:\dev\blender\sculptcore-blender-addon\engine\build\native\tests; sxe av; g; .ecxr; k; q
+Expanded Symbol search path is: cache*;SRV*https://msdl.microsoft.com/download/symbols;c:\dev\blender\sculptcore-blender-addon\engine\build\native\tests; sxe av; g; .ecxr; k; q
+WARNING: Whitespace at start of path element
+WARNING: Whitespace at start of path element
+WARNING: Whitespace at start of path element
+WARNING: Whitespace at start of path element
+WARNING: Whitespace at start of path element
+
+************* Path validation summary **************
+Response                         Time (ms)     Location
+Deferred                                       srv*
+OK                                             C:\dev\blender\sculptcore-blender-addon\engine\build\native\tests
+0:000> NatVis script unloaded from 'C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\Visualizers\atlmfc.natvis'
+NatVis script unloaded from 'C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\Visualizers\ObjectiveC.natvis'
+NatVis script unloaded from 'C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\Visualizers\concurrency.natvis'
+NatVis script unloaded from 'C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\Visualizers\cpp_rest.natvis'
+NatVis script unloaded from 'C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\Visualizers\stl.natvis'
+NatVis script unloaded from 'C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Data.Json.natvis'
+NatVis script unloaded from 'C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Devices.Geolocation.natvis'
+NatVis script unloaded from 'C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Devices.Sensors.natvis'
+NatVis script unloaded from 'C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Media.natvis'
+NatVis script unloaded from 'C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\Visualizers\windows.natvis'
+NatVis script unloaded from 'C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\Visualizers\winrt.natvis'
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+color.get_data<float4>()->safe_get(v).lengthSqr() == 0 failed
+prepared attribute tool 13

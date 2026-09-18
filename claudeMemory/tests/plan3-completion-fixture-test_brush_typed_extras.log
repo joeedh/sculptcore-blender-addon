@@ -1,0 +1,15 @@
+{
+  "suite": "test_brush_typed_extras",
+  "command": [
+    "C:\\Program Files\\nodejs\\node.EXE",
+    "make.mjs",
+    "test",
+    "test_brush_typed_extras"
+  ],
+  "binary": "C:\\dev\\blender\\sculptcore-blender-addon\\engine\\build\\native\\tests\\test_brush_typed_extras.cc_out.exe",
+  "returncode": 0,
+  "passed": true,
+  "binary_sha256": "701fcd73f12b846bde90dda7e3c03c373ef48e56c6baf9be97e444ad1f6d2b04",
+  "stdout": "Info: attribute .face.normal changed index in mesh\r\nInfo: attribute normals changed index in mesh\r\nInfo: attribute normals changed index in mesh\r\nInfo: attribute .face.normal changed index in mesh\r\nInfo: attribute .face.normal changed index in mesh\r\nInfo: attribute normals changed index in mesh\r\nInfo: attribute .face.normal changed index in mesh\r\nInfo: attribute .face.normal changed index in mesh\r\nInfo: attribute normals changed index in mesh\r\nInfo: attribute normals changed index in mesh\r\nInfo: attribute .face.normal changed index in mesh\r\nInfo: attribute .face.normal changed index in mesh\r\nInfo: attribute normals changed index in mesh\r\nInfo: attribute normals changed index in mesh\r\nInfo: attribute .face.normal changed index in mesh\r\n",
+  "stderr": "prepared scalar compiler capability guards passed\r\ntyped extra candidate defaults and readonly evaluation passed\r\ntyped extra registry, authored/cache writes and packed bytes passed\r\ntyped extra mesh program geometry passed\r\ntyped extra grid program geometry passed\r\ntyped extra resolved mesh geometry and atomic publication passed\r\ntyped extra resolved grid geometry and atomic publication passed\r\nresolved grid unqueried seam bounds and undo passed\r\ntyped extra resolved mesh program geometry and exact restoration passed\r\ntyped extra resolved grid program geometry and exact restoration passed\r\nSculptCore: rejected typed_gain (property status 16)\r\npublic typed inputs mesh standalone single geometry and undo passed\r\nSculptCore: rejected typed_gain (property status 16)\r\npublic typed inputs mesh standalone batch geometry and undo passed\r\nSculptCore: rejected command[0].typed_gain (property status 16)\r\npublic typed inputs mesh program single geometry and undo passed\r\nSculptCore: rejected command[0].typed_gain (property status 16)\r\npublic typed inputs mesh program batch geometry and undo passed\r\nSculptCore: rejected typed_gain (property status 16)\r\npublic typed inputs grid standalone single geometry and undo passed\r\nSculptCore: rejected typed_gain (property status 16)\r\npublic typed inputs grid standalone batch geometry and undo passed\r\nSculptCore: rejected command[0].typed_gain (property status 16)\r\npublic typed inputs grid program single geometry and undo passed\r\nSculptCore: rejected command[0].typed_gain (property status 16)\r\npublic typed inputs grid program batch geometry and undo passed\r\n"
+}

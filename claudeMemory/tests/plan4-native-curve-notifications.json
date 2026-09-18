@@ -1,0 +1,18 @@
+{
+  "command": [
+    "C:\\dev\\blender\\build_windows_x64_clang_RelWithDebInfo\\bin\\blender.exe",
+    "--factory-startup",
+    "--python-exit-code",
+    "1",
+    "--background",
+    "--python",
+    "C:\\dev\\blender\\sculptcore-blender-addon\\claudeMemory\\scripts\\test_native_curve_notifications.py",
+    "--",
+    "test",
+    "claudeMemory/tests/plan4-native-curve-assets"
+  ],
+  "passed": true,
+  "sha256": "aa2b3fc9dfa0fe4e7d7ef305a91c68e35c6707da1c4edbd50d072974f75df0cc",
+  "returncode": 0,
+  "seconds": 13.642845900001703
+}

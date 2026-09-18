@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"C:/dev/blender/sculptcore-blender-addon/claudeMemory/tests/cmake-git-import/passing/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

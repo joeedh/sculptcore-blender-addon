@@ -107,7 +107,7 @@ def sub_cubic(bez, a, b):
     return left
 
 
-def arc_length_walk(bez, spacing, carry, chords=32):
+def arc_length_walk(bez, spacing, carry, chords=32, *, with_fractions=False):
     """Walk ``bez`` at even arc-length ``spacing``, returning
     ``(points, carry_out)``.
 
@@ -116,7 +116,8 @@ def arc_length_walk(bez, spacing, carry, chords=32):
     leftover past the last emitted point, to be threaded into the next segment's
     walk so cadence never clusters at a joint. Arc length is approximated with
     ``chords`` straight chords; the parameter is interpolated linearly inside the
-    chord that contains each target distance."""
+    chord that contains each target distance. With ``with_fractions``, each point
+    carries its traveled arc fraction within this segment."""
     if spacing <= 0.0:
         return [], carry
 
@@ -142,7 +143,9 @@ def arc_length_walk(bez, spacing, carry, chords=32):
             chord_len = cum[seg + 1] - cum[seg]
             frac = 0.0 if chord_len <= _EPS else (target - cum[seg]) / chord_len
             t = (seg + frac) / chords
-        emitted.append(eval_cubic(bez, min(max(t, 0.0), 1.0)))
+        point = eval_cubic(bez, min(max(t, 0.0), 1.0))
+        fraction = min(1.0, max(0.0, target / total)) if total > 0 else 0.0
+        emitted.append((point, fraction) if with_fractions else point)
         target += spacing
 
     # `target - spacing` is the arc position of the last emitted point (or

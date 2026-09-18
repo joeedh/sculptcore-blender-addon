@@ -1,0 +1,22 @@
+Blender 5.3.0 Alpha
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+00:08.453  blend            | Read blend: "C:\dev\blender\sculptcore-blender-addon\claudeMemory\tests\generic-brush-v0\legacy.blend"
+00:09.718  asset.index      | ERROR Index not created: couldn't create folder "C:\Users\joeed\AppData\Local\Blender Foundation\Blender\Cache\asset-library-indices\9af0276b866d12e0\3b2efa53a6c96bd5_NativeCurveEditedOwnerV1.asset.blend.index.json".
+00:10.234  asset.index      | ERROR Index not created: couldn't create folder "C:\Users\joeed\AppData\Local\Blender Foundation\Blender\Cache\asset-library-indices\9af0276b866d12e0\c5c30f0102691742_NativeCurveActiveOwnerV1.asset.blend.index.json".
+00:10.234  asset.index      | ERROR Index not created: couldn't create folder "C:\Users\joeed\AppData\Local\Blender Foundation\Blender\Cache\asset-library-indices\9af0276b866d12e0\3b2efa53a6c96bd5_NativeCurveEditedOwnerV1.asset.blend.index.json".
+Traceback (most recent call last):
+  File "C:\dev\blender\sculptcore-blender-addon\claudeMemory\scripts\test_native_curve_notifications.py", line 77, in <module>
+    check_mutation("point location", lambda b: setattr(
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        b.curve_strength.curves[0].points[-1].location, "y", 0.375))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\dev\blender\sculptcore-blender-addon\claudeMemory\scripts\test_native_curve_notifications.py", line 73, in check_mutation
+    assert edited.has_unsaved_changes, label + " did not dirty its owner"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: point location did not dirty its owner
+Info: Saved "C:\dev\blender\sculptcore-blender-addon\claudeMemory\tests\native-curve-notifications-v1\library\Saved\Brushes\NativeCurveEditedOwnerV1.asset.blend"
+Info: Saved "C:\dev\blender\sculptcore-blender-addon\claudeMemory\tests\native-curve-notifications-v1\library\Saved\Brushes\NativeCurveActiveOwnerV1.asset.blend"
+
+Error: script failed, file: 'claudeMemory/scripts/test_native_curve_notifications.py', exiting.
+
+Blender quit

@@ -1,0 +1,62 @@
+Building...
+[0/2] Re-checking globbed directories...
+ninja: no work to do.
+codegen: typescript/sculptcore/brush/brushWgsl.ts up to date
+[33m[0/2] Re-checking globbed directories...
+[39m
+[33m[1/3] Building CXX object tests/CMakeFiles/test_brush_typed_extras.cc_out.dir/test_brush_typed_extras.cc.obj
+[39m
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/tests/test_brush_typed_extras.cc:5:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/litestl/util/../..\brush/brush_executor.h:5:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/litestl/util/../..\brush\brush_command.h:6:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/litestl/util/../..\brush\brush_concepts.h:5:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/litestl/util/../..\spatial/node.h:3:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/litestl/util/../..\gpu/command.h:8:
+[36msource\gpu\vbo.h:144:13: [39m[33mwarning[39m:[33m enumeration values 'TYPE_INVALID', 'FLOAT16', and 'FLOAT64' not handled in switch [-Wswitch][39m
+[34m  144 [39m|     [34mswitch[39m [33m([39mtype[33m)[39m [33m{[39m
+      |             [33m^[39m[31m~[39m[31m~[39m[31m~[39m
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/tests/test_brush_typed_extras.cc:5:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/litestl/util/../..\brush/brush_executor.h:12:
+In file included from C:/dev/blender/sculptcore-blender-addon/engine/source/litestl/util/../..\dyntopo/dyntopo.h:32:
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[33mwarning[39m:[33m first argument in call to 'memcpy' is a pointer to non-trivially copyable type 'litestl::math::Vec<float, 2>' [-Wnontrivial-memcall][39m
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+[36msource\mesh\attribute.h:419:23: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::collapseEdge(Mesh &, int, std::optional<litestl::math::float3>, float, EdgeCollapseResult *, MeshCallbacks *, bool)::(lambda)::operator()<litestl::math::Vec<float, 2>>'[39m requested here
+[34m  419 [39m|     callback.[34mtemplate[39m [34moperator[39m[33m([39m[33m)[39m[34m<[39mmath[2m:[39m[2m:[39mfloat2[34m>[39m[33m([39m[33m)[39m[2m;[39m
+      |                       [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:582:15: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::detail::type_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\litestl\util\..\..\mesh\utils\edge_collapse.h:582:41)>'[39m requested here
+[34m  582 [39m|       detail[2m:[39m[2m:[39mtype_dispatch[33m([39mcattr.type[2m,[39m [33m[[39m[2m&[39m[33m][39m[34m<[39m[34mtypename[39m T[34m>[39m[33m([39m[33m)[39m [33m{[39m
+      |               [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[32mnote[39m: explicitly cast the pointer to silence [34mthis[39m warning
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+      |                           (void*)
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[33mwarning[39m:[33m first argument in call to 'memcpy' is a pointer to non-trivially copyable type 'litestl::math::Vec<float, 3>' [-Wnontrivial-memcall][39m
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+[36msource\mesh\attribute.h:422:23: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::collapseEdge(Mesh &, int, std::optional<litestl::math::float3>, float, EdgeCollapseResult *, MeshCallbacks *, bool)::(lambda)::operator()<litestl::math::Vec<float, 3>>'[39m requested here
+[34m  422 [39m|     callback.[34mtemplate[39m [34moperator[39m[33m([39m[33m)[39m[34m<[39mmath[2m:[39m[2m:[39mfloat3[34m>[39m[33m([39m[33m)[39m[2m;[39m
+      |                       [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:582:15: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::detail::type_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\litestl\util\..\..\mesh\utils\edge_collapse.h:582:41)>'[39m requested here
+[34m  582 [39m|       detail[2m:[39m[2m:[39mtype_dispatch[33m([39mcattr.type[2m,[39m [33m[[39m[2m&[39m[33m][39m[34m<[39m[34mtypename[39m T[34m>[39m[33m([39m[33m)[39m [33m{[39m
+      |               [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[32mnote[39m: explicitly cast the pointer to silence [34mthis[39m warning
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+      |                           (void*)
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[33mwarning[39m:[33m first argument in call to 'memcpy' is a pointer to non-trivially copyable type 'litestl::math::Vec<float, 4>' [-Wnontrivial-memcall][39m
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+[36msource\mesh\attribute.h:425:23: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::collapseEdge(Mesh &, int, std::optional<litestl::math::float3>, float, EdgeCollapseResult *, MeshCallbacks *, bool)::(lambda)::operator()<litestl::math::Vec<float, 4>>'[39m requested here
+[34m  425 [39m|     callback.[34mtemplate[39m [34moperator[39m[33m([39m[33m)[39m[34m<[39mmath[2m:[39m[2m:[39mfloat4[34m>[39m[33m([39m[33m)[39m[2m;[39m
+      |                       [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:582:15: [39m[32mnote[39m: in instantiation of function [34mtemplate[39m specialization [32m'sculptcore::mesh::detail::type_dispatch<(lambda at C:\dev\blender\sculptcore-blender-addon\engine\source\litestl\util\..\..\mesh\utils\edge_collapse.h:582:41)>'[39m requested here
+[34m  582 [39m|       detail[2m:[39m[2m:[39mtype_dispatch[33m([39mcattr.type[2m,[39m [33m[[39m[2m&[39m[33m][39m[34m<[39m[34mtypename[39m T[34m>[39m[33m([39m[33m)[39m [33m{[39m
+      |               [33m^[39m
+[36msource\mesh\utils\edge_collapse.h:592:27: [39m[32mnote[39m: explicitly cast the pointer to silence [34mthis[39m warning
+[34m  592 [39m|               [36mstd[39m[2m:[39m[2m:[39mmemcpy[33m([39m[2m&[39mv[2m,[39m snap.cells[33m[[39mai[33m][39m.bytes[2m,[39m [34msizeof[39m[33m([39mT[33m)[39m[33m)[39m[2m;[39m
+      |                           [33m^[39m
+      |                           (void*)
+4 warnings generated.
+[33m[2/3] Linking CXX executable tests\test_brush_typed_extras.cc_out.exe
+[39m

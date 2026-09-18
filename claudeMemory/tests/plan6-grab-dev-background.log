@@ -1,0 +1,29 @@
+Blender 5.3.0 Alpha
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
+
+Blender quit
+
+Traceback (most recent call last):
+  File "C:\dev\blender\sculptcore-blender-addon\claudeMemory\scripts\test_plan6_grab_host.py", line 63, in <module>
+    original = positions(session)
+  File "C:\dev\blender\sculptcore-blender-addon\claudeMemory\scripts\test_plan6_grab_host.py", line 35, in positions
+    session.mesh().dumpVertCo(data)
+    ~~~~~~~~~~~~^^
+  File "C:\dev\blender\build_windows_x64_clang_RelWithDebInfo\bin\5.3\scripts\addons_core\sculptcore_addon\session.py", line 244, in mesh
+    raise RuntimeError(
+        "SculptCore: no engine mesh (multires slot not materialized)")
+RuntimeError: SculptCore: no engine mesh (multires slot not materialized)
+
+Error: script failed, file: 'C:\dev\blender\sculptcore-blender-addon\claudeMemory\scripts\test_plan6_grab_host.py', exiting.
