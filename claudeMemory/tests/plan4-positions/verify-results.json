@@ -1,8 +1,0 @@
-{
-  "passed": true,
-  "checks": [
-    "fresh Brush placements",
-    "fresh Scene explicit empty",
-    "fresh opaque position data"
-  ]
-}

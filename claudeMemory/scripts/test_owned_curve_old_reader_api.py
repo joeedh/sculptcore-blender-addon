@@ -47,5 +47,6 @@ for cls in (bpy.types.Brush, bpy.types.Scene):
     del cls.owned_curve_compat
 bpy.utils.unregister_class(OwnedCurveCompatRoot)
 bpy.utils.unregister_class(OwnedCurveCompatItem)
+(root / "owned-curve-rna").mkdir(exist_ok=True)
 (root / "owned-curve-rna/old-reader-api.json").write_text(json.dumps(checks, indent=2) + "\n")
 print("OWNED_CURVE_OLD_READER_API_PASS 2 readers, Brush/Scene/library", flush=True)

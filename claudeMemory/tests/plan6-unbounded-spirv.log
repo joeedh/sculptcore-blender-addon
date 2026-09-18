@@ -1,32 +1,0 @@
--- sculptcore: sccache compiler launcher enabled (C:/dev/sccache/target/release/sccache.exe)
--- sbrush: tint = C:/dev/tint/tint.exe
--- sbrush: SPIR-V validator = C:/VulkanSDK/1.4.350.0/Bin/spirv-val.exe
--- Using Win32 for window creation
--- vulkan: glslc = C:/VulkanSDK/1.4.350.0/Bin/glslc.exe
--- Configuring done (5.5s)
--- Generating done (3.3s)
--- Build files have been written to: C:/dev/blender/sculptcore-blender-addon/engine/build/native
-[33m[0/2] Re-checking globbed directories...[39m
-[33m[1/23] sbrush spirv (via tint) + spirv-val: bsmooth.spv[39m
-[33m[2/23] sbrush spirv (via tint) + spirv-val: colorsmooth.spv[39m
-[33m[3/23] sbrush spirv (via tint) + spirv-val: color.spv[39m
-[33m[4/23] sbrush spirv (via tint) + spirv-val: draw.spv[39m
-[33m[5/23] sbrush spirv (via tint) + spirv-val: featurealign.spv[39m
-[33m[6/23] sbrush spirv (via tint) + spirv-val: grab.spv[39m
-[33m[7/23] sbrush spirv (via tint) + spirv-val: enhance.spv[39m
-[33m[8/23] sbrush spirv (via tint) + spirv-val: graddraw.spv[39m
-[33m[9/23] sbrush spirv (via tint) + spirv-val: inflate.spv[39m
-[33m[10/23] sbrush spirv (via tint) + spirv-val: mask.spv[39m
-[33m[11/23] sbrush spirv (via tint) + spirv-val: layerdraw.spv[39m
-[33m[12/23] sbrush spirv (via tint) + spirv-val: pinch.spv[39m
-[33m[13/23] sbrush spirv (via tint) + spirv-val: kelvinlet.spv[39m
-[33m[14/23] sbrush spirv (via tint) + spirv-val: polygroup.spv[39m
-[33m[15/23] sbrush spirv (via tint) + spirv-val: plane.spv[39m
-[33m[16/23] sbrush spirv (via tint) + spirv-val: pose.spv[39m
-[33m[17/23] sbrush spirv (via tint) + spirv-val: sharp.spv[39m
-[33m[18/23] sbrush spirv (via tint) + spirv-val: smooth.spv[39m
-[33m[19/23] sbrush spirv (via tint) + spirv-val: snakehook.spv[39m
-[33m[20/23] sbrush spirv (via tint) + spirv-val: texdraw.spv[39m
-[33m[21/23] sbrush spirv (via tint) + spirv-val: texgrad.spv[39m
-[33m[22/23] sbrush spirv (via tint) + spirv-val: wingscrape.spv[39m
-

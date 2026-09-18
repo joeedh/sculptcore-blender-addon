@@ -1,7 +1,0 @@
-{
-  "passed": true,
-  "checks": [
-    "fresh asset preserves disabled generated stack",
-    "fresh asset preserves unrelated owned curve"
-  ]
-}

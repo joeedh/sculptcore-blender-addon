@@ -1,9 +1,0 @@
--- Found Git: C:/Program Files/Git/cmd/git.exe (found version "2.55.0.windows.5")
--- Configuring done (1.0s)
-CMake Error in CMakeLists.txt:
-  IMPORTED_LOCATION not set for imported target "Git::Git" configuration
-  "Release".
-
-
--- Generating done (0.2s)
-CMake Generate step failed.  Build files cannot be regenerated correctly.

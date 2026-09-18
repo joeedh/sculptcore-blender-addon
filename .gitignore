@@ -21,3 +21,44 @@ __pycache__/
 # GPU-trace A/B output: the JSON summaries are committed, the RenderDoc
 # captures they were derived from (~4-8 MB per .rdc) are not.
 /claudeMemory/scripts/gpu-trace-results*/captures/
+
+# Generated test evidence is local. Only reviewed frozen inputs are tracked.
+/claudeMemory/tests/**
+!/claudeMemory/tests/**/
+!/claudeMemory/tests/fixtures.json
+!/claudeMemory/tests/generic-brush-v0/baseline.json
+!/claudeMemory/tests/generic-brush-v0/fixture-geometry.json
+!/claudeMemory/tests/generic-brush-v0/fixture_clay_plain.npy
+!/claudeMemory/tests/generic-brush-v0/fixture_clay_pressure.npy
+!/claudeMemory/tests/generic-brush-v0/fixture_draw_plain.npy
+!/claudeMemory/tests/generic-brush-v0/fixture_draw_pressure.npy
+!/claudeMemory/tests/generic-brush-v0/fixture_nudge_plain.npy
+!/claudeMemory/tests/generic-brush-v0/fixture_nudge_pressure.npy
+!/claudeMemory/tests/generic-brush-v0/fixture_plane_plain.npy
+!/claudeMemory/tests/generic-brush-v0/fixture_plane_pressure.npy
+!/claudeMemory/tests/generic-brush-v0/legacy.blend
+!/claudeMemory/tests/generic-brush-v0/library/Saved/Brushes/GenericLegacyV0.asset.blend
+!/claudeMemory/tests/generic-brush-v0/library/Saved/Brushes/GenericLifecycleV0.asset.blend
+!/claudeMemory/tests/generic-brush-v0/library/Saved/Brushes/GenericLifecycleV0Checked.asset.blend
+!/claudeMemory/tests/generic-brush-v0/library/Saved/Brushes/GenericLifecycleV0Ready.asset.blend
+!/claudeMemory/tests/generic-brush-v0/library/Saved/Brushes/GenericLifecycleV0Reloaded.asset.blend
+!/claudeMemory/tests/generic-brush-v0/plain.npy
+!/claudeMemory/tests/generic-brush-v0/pressure.npy
+!/claudeMemory/tests/generic-brush-v0/registered-rna.json
+!/claudeMemory/tests/generic-brush-v0/runtime.json
+!/claudeMemory/tests/owned-curve-compat-prefork-v1/old-reader-asset.blend
+!/claudeMemory/tests/owned-curve-compat-prefork-v1/old-reader-resaved.blend
+!/claudeMemory/tests/owned-curve-compat-prefork-v1/owned-asset.blend
+!/claudeMemory/tests/owned-curve-compat-prefork-v1/owned-definitions.blend
+!/claudeMemory/tests/owned-curve-compat-v1/old-reader-asset.blend
+!/claudeMemory/tests/owned-curve-compat-v1/old-reader-resaved.blend
+!/claudeMemory/tests/owned-curve-compat-v1/owned-asset.blend
+!/claudeMemory/tests/owned-curve-compat-v1/owned-definitions.blend
+!/claudeMemory/tests/owned-curve-system-compat-prefork-v1/system-asset-resaved.blend
+!/claudeMemory/tests/owned-curve-system-compat-prefork-v1/system-asset.blend
+!/claudeMemory/tests/owned-curve-system-compat-prefork-v1/system-definitions.blend
+!/claudeMemory/tests/owned-curve-system-compat-prefork-v1/system-resaved.blend
+!/claudeMemory/tests/owned-curve-system-compat-v1/system-asset-resaved.blend
+!/claudeMemory/tests/owned-curve-system-compat-v1/system-asset.blend
+!/claudeMemory/tests/owned-curve-system-compat-v1/system-definitions.blend
+!/claudeMemory/tests/owned-curve-system-compat-v1/system-resaved.blend

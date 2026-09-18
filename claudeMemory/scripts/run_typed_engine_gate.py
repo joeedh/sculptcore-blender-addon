@@ -35,6 +35,7 @@ def main():
     root = Path(__file__).resolve().parents[2]
     engine = root / "engine"
     output = root / "claudeMemory/tests"
+    output.mkdir(exist_ok=True)
     suites = (
         "test_props_declarations", "test_props_checked_access", "test_props_typed_dynamics",
         "test_props", "test_sbrush_member_types", "test_brush_dynamics",

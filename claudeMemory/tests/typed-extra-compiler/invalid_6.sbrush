@@ -1,1 +1,0 @@
-@brush("invalid") brush Invalid { uniform int count; ctx bool count; vertex void apply(inout Vertex v) {} }

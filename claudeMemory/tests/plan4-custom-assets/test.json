@@ -1,7 +1,0 @@
-[
-  "custom reads and identical selection/initialize keep assets clean",
-  "inactive custom widget payload edit dirties only actual owner",
-  "Revert restores custom payload and selection",
-  "Revert retires old custom reference and owner",
-  "Scene custom edits keep assets clean"
-]

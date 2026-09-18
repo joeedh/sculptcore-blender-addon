@@ -1,6 +1,0 @@
-{
-  "passed": true,
-  "checks": [
-    "fresh process native asset readback"
-  ]
-}

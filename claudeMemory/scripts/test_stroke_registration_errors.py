@@ -71,7 +71,7 @@ class StrokeRegistrationErrors(unittest.TestCase):
                          ("apply_dyntopo_dab", "apply_dab_program", "apply_dab")}
                 self.namespace.update(calls)
                 dab = function("_apply_one_image", self.namespace, method=True)
-                op = SimpleNamespace(session=self.session, _engine_dead=False, _dab_count=0,
+                op = SimpleNamespace(session=self.session, _engine_dead=False, _dab_count=0, _generic=None,
                                      _dyntopo=Mock() if path == "apply_dyntopo_dab" else None,
                                      _program=None if path == "apply_dab" else Mock(), kernel=1)
                 dab(op, (0, 0, 0), (0, 0, 1), 1, False)
@@ -83,7 +83,7 @@ class StrokeRegistrationErrors(unittest.TestCase):
     def test_preview_failure_stops_new_snapshots(self):
         self.namespace.update(apply_dab_program=Mock(return_value=-1), apply_dab=Mock())
         dab = function("_preview_apply_image", self.namespace, method=True)
-        op = SimpleNamespace(session=self.session, _engine_dead=False, _program=Mock(), kernel=1)
+        op = SimpleNamespace(session=self.session, _engine_dead=False, _program=Mock(), kernel=1, _generic=None)
         dab(op, (0, 0, 0), (0, 0, 1), 1, False)
         self.assertTrue(op._engine_dead)
         dab(op, (0, 0, 0), (0, 0, 1), 1, True)

@@ -1,9 +1,0 @@
-{
-  "passed": true,
-  "checks": [
-    "undo reset restores explicit empty and retires store",
-    "undo empty restores explicitly authored defaults",
-    "undo creation restores absent override without allocation",
-    "redo traverses explicit defaults, empty, reset distinctly"
-  ]
-}

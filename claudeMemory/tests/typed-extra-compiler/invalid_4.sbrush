@@ -1,1 +1,0 @@
-@brush("invalid") brush Invalid { ctx bool state = 0.5; vertex void apply(inout Vertex v) {} }

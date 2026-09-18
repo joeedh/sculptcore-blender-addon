@@ -1,7 +1,10 @@
 # Generic brush contract, version 1
 
 Status: Plan 1 fixture gate passed (2026-09-15); downstream implementation in progress.
-These are implementation decisions, not additional user requirements.
+These are implementation decisions unless explicitly attributed to the user.
+The current status and corrections are in [the implementation reference](../codebase/generic-brush-properties.md).
+The automasking table below records the initial inventory; view-normal/backface
+execution is now wired behind opt-in, but the generic UI is unfinished.
 The eight gates in [the task list](../plans/generic-brush-properties-tasks.md)
 remain mandatory. This contract does not enable the new path.
 
@@ -370,7 +373,7 @@ inheritance flags. Existing main-plus-smooth programs retain their explicit
 strength/invert behavior. A command without a parent uses registry defaults.
 
 Evaluate command radius/extents before node selection, pinning, undo capture or
-mutation. Use conservative union regions (all nodes for unbounded policies),
+mutation. Use conservative union regions (all nodes only for explicitly declared unbounded commands),
 then execute with exactly the preflighted values. Restore authored brush and
 command state on success, errors and cancellation. No previous-command leakage.
 Preflight the union of topology/host-preparation requirements too. Classify
@@ -381,3 +384,13 @@ rings/inner values). Test later-command cavity enable and differently configured
 ENHANCE commands; shared-brush hook execution cannot satisfy this contract.
 New per-command UI is outside this migration. New path remains opt-in until
 all eight gates pass; gate tests assert which path actually executed.
+
+## Spatial support clarification from the user (2026-09-18)
+
+Ordinary brushes never acquire unbounded reads from their falloff kind, shape or
+nonzero endpoint. They hard-clip to zero outside the falloff boundary. Whole-mesh
+reads require an explicit declaration, such as Kelvinlet's `@unbounded`.
+This supersedes the earlier prepared-falloff all-node policy and its parity oracle.
+Correct bounded selection and pointwise clipping together; test independence from
+spatial leaf partitioning. Frozen fixtures showing spill outside the boundary
+remain historical evidence, not the desired corrected result.

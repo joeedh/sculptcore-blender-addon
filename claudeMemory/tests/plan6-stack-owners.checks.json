@@ -1,8 +1,0 @@
-{
-  "passed": true,
-  "checks": [
-    "Scene value with Brush custom stack samples effective stack owner",
-    "Brush value with Scene custom stack samples effective stack owner",
-    "Stale authoring references reject; completed snapshots survive edits and cache retirement"
-  ]
-}

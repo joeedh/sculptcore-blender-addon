@@ -1,9 +1,0 @@
-Blender 5.3.0 Alpha
-Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
-OWNED_COPY_CHECK Scene.copy nested collection independent
-OWNED_COPY_CHECK Brush.copy nested collection independent
-OVERRIDE_FIXTURE C:\dev\blender\sculptcore-blender-addon\claudeMemory\tests\owned-curve-copy-policy\linked.blend False
-OWNED_COPY_CHECK library override reads and rejected writes preserve definition
-OWNED_CURVE_COPY_POLICY_PASS 3
-
-Blender quit

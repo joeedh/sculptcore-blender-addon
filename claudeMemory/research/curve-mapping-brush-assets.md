@@ -1,5 +1,10 @@
 # CurveMapping storage in external brush assets
 
+Historical investigation (2026-09-15). The NodeTree approach was rejected.
+The owned API has since been implemented; see [current reference](../codebase/generic-brush-properties.md).
+The one-time probe is archived in addon commit `dbbd225`; commands below describe
+that historical experiment and are not current test instructions.
+
 Investigated 2026-09-15 against the local Blender fork source and
 `C:/dev/blender/build_windows_x64_clang_RelWithDebInfo/bin/blender.exe`
 (reported Blender 5.3.0 Alpha, build hash Unknown).

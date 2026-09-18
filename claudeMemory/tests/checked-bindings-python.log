@@ -1,5 +1,0 @@
-Traceback (most recent call last):
-  File "C:\dev\blender\sculptcore-blender-addon\claudeMemory\scripts\test_checked_brush_bindings.py", line 190, in <module>
-    assert brush.configureCommonDynamicChecked(5, BOOL, 0, 1, 1) == 0
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError

@@ -1,7 +1,0 @@
-[
-  "undo follows session identity after rename",
-  "redo preserves renamed owner identity",
-  "deleted-owner token rejects same-name replacement",
-  "native undo skips deleted owner without resurrection or name redirect",
-  "native redo skips deleted owner"
-]

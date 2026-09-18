@@ -1,2 +1,0 @@
-C:/dev/blender/sculptcore-blender-addon/claudeMemory/tests/cmake-git-import/passing/CMakeFiles/edit_cache.dir
-C:/dev/blender/sculptcore-blender-addon/claudeMemory/tests/cmake-git-import/passing/CMakeFiles/rebuild_cache.dir

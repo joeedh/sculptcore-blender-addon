@@ -1,9 +1,0 @@
-Blender 5.3.0 Alpha
-Mesh_buildSpatialTree: leafLimit=0 depthLimit=0 gpuTriTarget=0
-00:09.032  blend            | Read blend: "C:\dev\blender\sculptcore-blender-addon\claudeMemory\tests\plan4-atomic\records.blend"
-Extensions: writing cache failed ([WinError 183] Cannot create a file when that file already exists: 'C:\\Users\\joeed\\AppData\\Roaming\\Blender Foundation\\Blender\\5.3\\extensions\\.cache').
-Info: Saved as "without-authoring.blend"
-ATOMIC_WITHOUT_AUTHORING_PASS
-
-Blender quit
-

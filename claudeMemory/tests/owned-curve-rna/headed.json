@@ -1,9 +1,0 @@
-{
-  "undo_edit": 0.375,
-  "undo_initialize_unset": true,
-  "redo": 0.375,
-  "old_wrappers_invalidated": true,
-  "template_draws": 7,
-  "editor_drag_tested": false,
-  "cache_identity_and_captured_method_undo_redo": true
-}

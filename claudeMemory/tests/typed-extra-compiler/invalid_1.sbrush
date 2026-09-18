@@ -1,1 +1,0 @@
-@brush("invalid") brush Invalid { uniform float invert; vertex void apply(inout Vertex v) {} }

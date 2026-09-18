@@ -1,6 +1,0 @@
-channel c-api: add/remove level diffs=0
-cage colour smooth: 16 grids
-resident slot freshness: coarse level followed the cage write-back
-attr down-propagation: 16 grids, 576 coarse samples moved
-mask edit propagation: 16 grids, 49 fine samples moved
-mask sync protocol: 16 grids, gen 8

@@ -336,6 +336,22 @@ the fork's artifacts) and `contents:write` on `joeedh/sculptblender-builds`.
   back into the plan before any phase starts. A citation audit is not a
   substitute: it verifies references, not buildability.
 
+## Test artifacts and development notes
+
+- Keep generated logs, JSON results, screenshots, scratch assets, rendered API
+  docs and copied bindings out of Git. `claudeMemory/tests/` is ignored except
+  for the explicit frozen-input allowlist and its checksum manifest.
+- Select focused regression suites from
+  [the test guide](claudeMemory/codebase/generic-brush-testing.md). Do not rerun
+  every historical implementation gate for routine changes.
+- Maintain one current task list and concise reference/history documents for
+  generic brush properties. Record durable behavior, decisions, limitations and
+  reproducible commands. Do not accumulate gate transcripts or overlapping plans.
+- Edit canonical source directly. Do not retain one-time source patch/install
+  scripts or copies of fork/engine source under development notes.
+- Historical artifacts remain in Git history. Read a specific historical file
+  only when needed; superseded plans and passing reports are not current authority.
+
 ## Coding style
 
 - **Python** follows Blender's guidelines: PEP 8, 4-space indent, 120-column
