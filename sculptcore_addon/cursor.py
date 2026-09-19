@@ -47,6 +47,9 @@ def draw(context, x, y):
     """Draw the cursor circle; radius follows the (unified) brush pixel size,
     color the brush's cursor color. No-op without a live session or brush."""
     global _failed
+    from .brush_properties import radial
+    if radial.active(context):
+        return
     if _failed:
         return
     ob = context.active_object
@@ -86,19 +89,8 @@ def draw(context, x, y):
         radius = mapping.pixel_radius(sculpt, brush) * _size_scale
 
     try:
-        import gpu
-
-        batch = _ensure_batch()
         color = tuple(brush.cursor_color_add[:3]) + (0.9,)
-        gpu.state.blend_set('ALPHA')
-        gpu.state.line_width_set(2.0)
-        with gpu.matrix.push_pop():
-            gpu.matrix.translate((x, y, 0.0))
-            gpu.matrix.scale_uniform(float(radius))
-            _shader.uniform_float("color", color)
-            batch.draw(_shader)
-        gpu.state.line_width_set(1.0)
-        gpu.state.blend_set('NONE')
+        draw_ring(x, y, radius, color)
     except Exception:
         # A broken draw would re-raise on every redraw; report once and stop.
         import traceback
@@ -106,3 +98,20 @@ def draw(context, x, y):
         traceback.print_exc()
         print("SculptCore: cursor draw failed; overlay disabled")
         _failed = True
+
+
+def draw_ring(x, y, radius, color):
+    """Shared brush/radial overlay using the cached unit circle."""
+    import gpu
+    batch = _ensure_batch()
+    gpu.state.blend_set('ALPHA')
+    gpu.state.line_width_set(2.0)
+    try:
+        with gpu.matrix.push_pop():
+            gpu.matrix.translate((x, y, 0.0))
+            gpu.matrix.scale_uniform(float(radius))
+            _shader.uniform_float("color", color)
+            batch.draw(_shader)
+    finally:
+        gpu.state.line_width_set(1.0)
+        gpu.state.blend_set('NONE')

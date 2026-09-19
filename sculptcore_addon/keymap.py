@@ -8,7 +8,7 @@ viewport's dynamic keymap handler activates it while the mode is active).
 
 Vanilla-chord-compatible (tracked by the T3 keymap diff): LMB strokes,
 Ctrl-LMB inverts, Shift-LMB smooths; F / Shift-F radial size/strength
-(unified-aware, same property paths as vanilla); Alt-M / Ctrl-I mask
+(effective-owner aware on the generic path); Alt-M / Ctrl-I mask
 clear/invert; RMB / menu key context menu; Ctrl-digit / Alt-1/2 multires
 levels.
 """
@@ -18,7 +18,6 @@ import bpy
 _KEYMAP_NAME = "SculptCore Mode"
 
 _BRUSH_PATH = "tool_settings.sculpt.brush"
-_UNIFIED_PATH = "tool_settings.sculpt.unified_paint_settings"
 
 # Essentials brush-asset shortcuts, verbatim from the vanilla Sculpt keymap
 # (T3). Brushes are shared assets, so activation works in-mode; brushes
@@ -38,15 +37,9 @@ _BRUSH_ASSET_KEYS = (
 )
 
 
-def _radial(km, prop, unified_prop, **kwargs):
-    kmi = km.keymap_items.new("wm.radial_control", 'F', 'PRESS', **kwargs)
-    props = kmi.properties
-    props.data_path_primary = "{:s}.{:s}".format(_BRUSH_PATH, prop)
-    props.data_path_secondary = "{:s}.{:s}".format(_UNIFIED_PATH, prop)
-    props.use_secondary = "{:s}.{:s}".format(_UNIFIED_PATH, unified_prop)
-    props.rotation_path = "{:s}.texture_slot.angle".format(_BRUSH_PATH)
-    props.color_path = "{:s}.cursor_color_add".format(_BRUSH_PATH)
-    props.image_id = _BRUSH_PATH
+def _radial(km, prop, **kwargs):
+    kmi = km.keymap_items.new("sculptcore.brush_radial_control", 'F', 'PRESS', **kwargs)
+    kmi.properties.property = prop.upper()
 
 
 def register():
@@ -65,8 +58,8 @@ def register():
     kmi.properties.mode = 'MASK'
     kmi = km.keymap_items.new("sculptcore.brush_stroke", 'LEFTMOUSE', 'PRESS', ctrl=True, alt=True)
     kmi.properties.mode = 'MASK'
-    _radial(km, "size", "use_unified_size")
-    _radial(km, "strength", "use_unified_strength", shift=True)
+    _radial(km, "size")
+    _radial(km, "strength", shift=True)
 
     # Brush selection + sizing + stroke toggles (all shared-brush state).
     for key, mods, brush_name, use_toggle in _BRUSH_ASSET_KEYS:

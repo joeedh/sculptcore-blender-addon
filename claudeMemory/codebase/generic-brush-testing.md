@@ -73,6 +73,15 @@ editor changes. Their fresh-process and actual widget behavior cannot be replace
 by checking setter return values. Debug-server protocol and native-launcher
 tests are independent infrastructure tests.
 
+The existing `test_authoring_custom_undo.py` driver covers real bracket events by
+default. Pass `--args radial` to its dialog-safe headed launcher for F/Shift-F
+owner/domain, numeric, precision, cancel, undo and teardown checks; use
+`--args radial-legacy` for the generic-disabled native fallback. For example:
+
+```powershell
+& $brushPython claudeMemory/scripts/run_blender_test.py --script claudeMemory/scripts/test_authoring_custom_undo.py --headed --prefix brush-radial --marker AUTHORING_CUSTOM_UNDO_OK --timeout 180 --args radial
+```
+
 Old slice-specific host drivers were retired where the current generic runtime,
 parameterized gestures and native prepared-execution suite cover the same
 boundary. Standalone scalar/stack/placement Scene undo demos were superseded by

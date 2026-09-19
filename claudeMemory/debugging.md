@@ -835,3 +835,16 @@ extra kernel directories; the production DLL intentionally omits these probes.
 The probe's candidate-count assertion also needed to exclude ENHANCE's two
 kernel-specific settings. Its complete execution matrix passes with that explicit
 exclusion; a compiler-only run without the probe is not equivalent coverage.
+
+## Generic radial authoring - 2026-09-18
+
+Cancel modal property edits before unregistering authoring/curve services. A
+draw-handler removal alone leaves the native owner edit scope alive. Keep an
+explicit active-operator list, close its scopes on load/undo/redo and addon
+shutdown, and let a later queued modal event return cancelled without touching
+retired state. Real F/Shift-F events exercise this teardown and owner changes.
+Treat the Shift-F shortcut modifier separately from a subsequent precision Shift
+press; otherwise strength starts unexpectedly at one tenth of the drag speed.
+Keep a fractional drag accumulator separate from the rounded integer size.
+Rounding each individual precision movement loses small events; the fixture
+uses ten consecutive one-pixel moves to retain this coverage.

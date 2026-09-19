@@ -120,10 +120,11 @@ effective-owner editing and discoverable metadata.
   paired native sizes, dormant values and independent stacks. The existing
   custom-mode authoring fixture exercises real bracket keys across all 12
   inheritance/unified/size-mode combinations and undo/redo.
-- [ ] Rebind F/Shift-F radial controls to the generic owner-aware adapter. Their
-  current native-unified flag routing cannot represent Always/Never inherit.
-  Resolve the right owner at invocation and preserve cancel/undo behavior without
-  editing dormant values.
+- [x] Rebind F/Shift-F radial controls to the generic owner-aware adapter. Pin
+  the effective owner and size domain at invocation; preserve dormant values and
+  independent stacks. The headed authoring fixture passed 176 checks across 18
+  ownership/domain combinations, numeric entry, precision, cancel, undo/redo,
+  owner changes and addon disable. Native fallback passed with generic disabled.
 
 **Gate:** interactive checklists demonstrate that each visible row changes the
 right owner and affects real sculpt behavior; saved layout survives reload.

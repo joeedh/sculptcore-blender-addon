@@ -3,7 +3,7 @@
 """Owner-pinned edits shared by numeric rows, radial controls and size shortcuts."""
 from . import authoring
 from .edits import authoring_edit
-from .registry import PropertyError
+from .registry import PropertyError, finite
 from .resolver import resolve_value
 
 
@@ -71,10 +71,15 @@ class ValueEdit:
         self.finish()
 
     def scaled(self, factor):
-        value = self.initial * factor
+        return self.bounded(self.initial * factor)
+
+    def bounded(self, value):
+        if not finite(value):
+            raise PropertyError("Enter a finite number")
+        value = min(self.domain.maximum, max(self.domain.minimum, value))
         if self.kind == 'INT32':
             value = int(value + .5)
-        return min(self.domain.maximum, max(self.domain.minimum, value))
+        return value
 
 
 class _Cancelled(Exception):

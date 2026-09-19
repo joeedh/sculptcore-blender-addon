@@ -224,5 +224,17 @@ using a grouped authoring edit to preserve coupled native values through undo.
 With generic properties disabled they delegate to the existing native operator.
 The existing custom-mode authoring fixture covers bracket events across all 12
 inheritance/unified/size-mode combinations, independent stacks and undo/redo.
-Generic rows, radial ownership, automasking panel consolidation, versioned
+F/Shift-F also pin the effective size/strength owner. Horizontal movement and
+numeric entry share the same adapter and one explicit authoring undo scope.
+Pressing Shift during a gesture enables precision; the Shift-F invocation itself
+does not. Size numbers are pixel diameters in VIEW and Blender units in SCENE.
+Escape/right-click, owner/domain changes and addon shutdown restore coupled
+native values and release the overlay/timer. Generic-disabled controls delegate
+to Blender's native radial operator. The headed fixture passed 176 checks over
+18 combinations plus owner-change/shutdown cases; native fallback passed all four
+size/strength and unified-flag cases. This verifies these shortcuts, not the
+remaining row, layout or multi-window gate.
+The same staged Blender build (`1c93a65f4ed4`) passed the maintained headed Draw
+regression after sharing the cursor overlay; the unit suite also passed.
+Generic rows, automasking panel consolidation, versioned
 migration and packaged default rollout remain unapproved by tests.
