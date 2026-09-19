@@ -147,7 +147,7 @@ def register():
     bpy.types.Scene.sculptcore_generic_properties = bpy.props.BoolProperty(
         name="Generic Brush Properties",
         description="Use resolved brush properties and independent device stacks",
-        get=generic_get, set=generic_set,
+        get=generic_get, set=generic_set, default=True,
     )
     bpy.types.Scene.sculptcore_speed_reference = bpy.props.FloatProperty(
         name="Stroke Speed Reference",

@@ -21,10 +21,14 @@ _execution_ready = False
 
 def register():
     curve_bank.register()
+    from . import migration
+    migration.register()
 
 
 def unregister():
     global _manifest_status, _execution_ready
+    from . import migration
+    migration.unregister()
     curve_bank.unregister()
     _manifest_status = MappingProxyType({})
     _execution_ready = False

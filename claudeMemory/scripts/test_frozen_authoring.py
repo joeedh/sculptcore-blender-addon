@@ -10,7 +10,7 @@ import time
 from unittest.mock import patch
 import bpy
 import sculptcore_addon as addon
-from sculptcore_addon.brush_properties import authoring, legacy, migration
+from sculptcore_addon.brush_properties import authoring, capabilities, legacy, migration
 from sculptcore_addon.brush_properties.curves import declaration_name
 from sculptcore_addon.brush_properties.registry import DeviceLayer, PropertyError, Registry, scalar
 from sculptcore_addon.brush_properties.storage import ROOT, PersistentOwnerStore
@@ -34,6 +34,12 @@ def reject(name, action, types=(PropertyError,)):
         check(name)
     else:
         raise AssertionError('Accepted: ' + name)
+
+
+with patch.object(bpy.props, 'CurveMappingProperty', None):
+    reject('missing owned-curve host capability diagnosed', capabilities.require_host, (RuntimeError,))
+with patch.object(capabilities, 'ENGINE_EXPORTS', ('DeliberatelyMissingTypedExport',)):
+    reject('missing typed-engine capability diagnosed', capabilities.verify_roundtrip, (RuntimeError,))
 
 
 baseline = Path(__file__).resolve().parents[1] / 'tests/generic-brush-v0/legacy.blend'
@@ -116,6 +122,7 @@ mixed.use_fake_user = True
 mixed_store = authoring.store(mixed)
 mixed_store.write_value(fanout[0], -.75)
 mixed_store.write_positions(fanout[0], ())
+del mixed[ROOT][migration.FIELD]  # Simulate a v1 record authored before migration shipped.
 mixed[ROOT]['opaque'] = {'future': b'keep'}
 mixed.sculptcore['unknown_legacy'] = {'future': [1, 2]}
 check('mixed initial migration runs', bool(migration.migrate(mixed_store)))
@@ -148,6 +155,42 @@ for field, version in (('schema_version', 99), (migration.FIELD, 99)):
         mixed[ROOT][field] = 1
 reject('migration never writes Scene', lambda: migration.migrate(authoring.store(bpy.context.scene)))
 
+mixed.sculpt_brush_type = 'CLAY'
+mixed.sculptcore.planeSide = .625
+check('public RNA assignment fans out immediately', all(mixed_store.read_value(item).value == .625 for item in fanout))
+mixed_store.write_value(fanout[0], .125)
+check('public RNA reads active kernel independent value', mixed.sculptcore.planeSide == .125)
+mixed.sculptcore.planeSide = .625
+check('same raw RNA assignment reunifies diverged values', all(
+    mixed_store.read_value(item).value == .625 for item in fanout))
+mixed.sculptcore.property_unset('planeSide')
+check('RNA unset overlays frozen default without draw mutation', all(
+    not mixed_store.read_value(item).present for item in fanout))
+mixed_store.write_value(fanout[0], .125)
+check('generic edit atomically synchronizes pending unset', mixed_store.read_value(fanout[0]).value == .125
+      and all(not mixed_store.read_value(item).present for item in fanout[1:]))
+reject('Brush cannot own a legacy driver', lambda: mixed.driver_add('sculptcore.planeSide'), (TypeError, RuntimeError))
+reject('Brush cannot own legacy keyframes', lambda: mixed.keyframe_insert('sculptcore.planeSide'), (TypeError, RuntimeError))
+driver_scene = bpy.context.scene
+driver_scene['legacy_alias_probe'] = 0.0
+driver = driver_scene.driver_add('["legacy_alias_probe"]').driver
+variable = driver.variables.new()
+variable.name = 'value'
+variable.type = 'SINGLE_PROP'
+variable.targets[0].id_type = 'BRUSH'
+variable.targets[0].id = mixed
+variable.targets[0].data_path = 'sculptcore.planeSide'
+driver.expression = 'value * 2'
+driver_scene.frame_set(2)
+check('driver variable reads preserved public RNA path', driver.is_valid
+      and abs(driver_scene['legacy_alias_probe'] - .25) < 1e-7)
+mixed_store.write_value(fanout[0], .375)
+driver_scene.frame_set(3)
+check('generic edits refresh driver variables', driver.is_valid
+      and abs(driver_scene['legacy_alias_probe'] - .75) < 1e-7)
+driver_scene.driver_remove('["legacy_alias_probe"]')
+del driver_scene['legacy_alias_probe']
+
 # Simulate a replacement DLL registering different RNA defaults. Reading those
 # defaults creates ghost properties; they must not become authored legacy data.
 addon.engine_props.unregister()
@@ -157,8 +200,8 @@ try:
         addon.engine_props.register()
     changed_defaults = bpy.data.brushes.new('FrozenChangedDefaults', mode='SCULPT')
     changed_defaults.use_fake_user = True
-    check('replacement RNA actually has different defaults', changed_defaults.sculptcore.mu == .25
-          and changed_defaults.sculptcore.planeSide == .25)
+    check('replacement manifest cannot change public RNA defaults', changed_defaults.sculptcore.mu == 1.0
+          and changed_defaults.sculptcore.planeSide == 1.0)
     changed_store = authoring.store(changed_defaults)
     migration.migrate(changed_store)
     check('changed DLL defaults do not become authored', all(
@@ -178,14 +221,13 @@ for changes in (dict(default=.1), dict(maximum=10), dict(dynamic=False), dict(ow
     bad_store = PersistentOwnerStore(brush, conflicting)
     reject('reserved frozen contract ' + str(changes), lambda: bad_store.write_value(wrong, wrong.default))
 target.write_positions(nu, ())
-check('metadata-only record sees authored legacy', target.read_value(nu).source == 'LEGACY')
+check('metadata edit migrates authored legacy', target.read_value(nu).source == 'GENERIC')
 plane = [item for item in legacy.DEFINITIONS if item.identifier.endswith('.planeSide')]
 target.write_value(plane[0], -.25)
 check('one fanout override independent', target.read_value(plane[0]).value == -.25
       and all(not target.read_value(item).present for item in plane[1:]))
 brush.sculptcore['planeSide'] = .5
-check('raw legacy script change visible to remaining fanout', all(
-    target.read_value(item).value == .5 for item in plane[1:]) and target.read_value(plane[0]).value == -.25)
+check('raw legacy script change overlays every fanout', all(target.read_value(item).value == .5 for item in plane))
 brush.sculptcore['nu'] = .4
 check('raw double follows native float conversion', target.read_value(nu).value == brush.sculptcore.nu)
 double_brush = bpy.data.brushes.new('FrozenDoubleLegacy', mode='SCULPT')
@@ -199,9 +241,11 @@ target.write_value(nu, .3)
 check('generic explicit value wins', target.read_value(nu).value == scalar('FLOAT32', .3))
 scene = bpy.data.scenes.new('FrozenSwitchFirst')
 parent = authoring.store(scene)
-check('absent switch nonallocating', parent.feature_enabled() is False and ROOT not in scene)
+check('generic release default nonallocating', parent.feature_enabled() is True and ROOT not in scene)
+parent.write_feature_enabled(True)
+check('true no-op nonallocating', ROOT not in scene)
 parent.write_feature_enabled(False)
-check('false no-op nonallocating', ROOT not in scene)
+check('saved explicit opt-out honored', not parent.feature_enabled())
 parent.write_feature_enabled(True)
 check('flag-first root valid', parent.feature_enabled() and not parent.read_value(nu).present
       and parent.read_stack(nu) == ())
@@ -243,12 +287,13 @@ with patch.object(addon.engine, 'capi', side_effect=RuntimeError('Engine deliber
     authoring.register()
     check('production registration without engine', len(authoring.registry.definitions()) == 27)
     value = authoring.store(brush).read_value(plane[1])
-    check('unregistered legacy RNA still readable', value.value == .5 and value.source == 'LEGACY')
+    check('missing engine retains migrated reads and public RNA', value.value == .5 and hasattr(brush, 'sculptcore'))
     missing_engine = brush.copy()
     missing_engine.name = 'FrozenMissingEngineMigration'
     missing_engine.use_fake_user = True
+    del missing_engine[ROOT][migration.FIELD]
     missing_store = authoring.store(missing_engine)
-    check('migration runs with engine and legacy RNA absent', bool(migration.migrate(missing_store)))
+    check('migration runs without engine and retains public RNA', bool(migration.migrate(missing_store)))
     check('missing engine preserves independent generic edits', missing_store.read_value(nu).value == scalar('FLOAT32', .3))
     check('missing engine still fans out raw legacy data', missing_store.read_value(plane[1]).value == .5
           and missing_store.read_value(plane[1]).source == 'GENERIC')

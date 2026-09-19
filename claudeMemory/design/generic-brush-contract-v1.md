@@ -4,7 +4,7 @@ Status: Plan 1 fixture gate passed (2026-09-15); downstream implementation in pr
 These are implementation decisions unless explicitly attributed to the user.
 The current status and corrections are in [the implementation reference](../codebase/generic-brush-properties.md).
 The automasking table below records the initial inventory; view-normal/backface
-execution is now wired behind opt-in, but the generic UI is unfinished.
+execution and the generic UI are now implemented.
 The eight gates in [the task list](../plans/generic-brush-properties-tasks.md)
 remain mandatory. This contract does not enable the new path.
 
@@ -37,16 +37,21 @@ adds metadata and unmapped storage only. Legacy assets are migrated lazily in
 memory after activation; persistence requires explicit asset save. Read-only
 assets expose resolved reads and require Save As for changes. No library scan
 rewrites assets. Existing native RNA paths stay intact; generated legacy paths
-need aliases with fan-out writes in Plan 8. Drivers on ambiguous shared legacy
-paths continue to affect all associated IDs until explicitly migrated.
+have aliases with fan-out writes. Driver variables on other IDs can read these
+paths, including the active kernel's independent value.
 
 Legacy alias reads select the active kernel's ID when it owns the name;
 otherwise return the preserved legacy value/default. Unset clears all fan-out
-authoring flags and restores their frozen defaults. A legacy animated path is
-an explicit resolver-time overlay on every associated ID, even after those IDs
-diverge; removing/muting that animation reveals the independent values. Raw
-legacy writes are detected by comparing value/presence at synchronization.
-Use evaluated animation data, not update callbacks, as the overlay source.
+authoring flags and restores their frozen defaults. Raw legacy writes are
+detected by comparing value/presence at synchronization; pending changes also
+have a non-mutating read overlay so display and execution agree before the next
+synchronization. **September 19 correction:** the fork marks Brush with
+`IDTYPE_FLAGS_NO_ANIMDATA`; Brush has no animation_data and rejects both
+driver_add and keyframe_insert. The originally planned evaluated-animation
+overlay therefore has no supported legacy Brush data to preserve. Keep that
+native limitation instead of introducing Brush animation as part of migration.
+Scene animation and driver variables referencing Brush paths remain native;
+the actual driver-variable read/update case is covered by the frozen fixture.
 Freeze union-declaration winning provenance, hard/soft ranges and DLL/source
 identity alongside manifest associations.
 

@@ -184,6 +184,10 @@ class PersistentOwnerStore:
         record = self._checked_definition(definition)
         if self._native.handles(definition.identifier):
             return self._native.read_value(definition)
+        from .compatibility import overlay
+        override = overlay(self, definition)
+        if override is not None:
+            return override
         if record is None or 'value' not in record:
             return legacy.read_value(self, definition)
         value = record['value']
@@ -309,6 +313,10 @@ class PersistentOwnerStore:
             ('SET', (*prefix, 'scalar_type'), definition.scalar_type, None),
         ) + tuple(('SET', (*prefix, *path), value, ui) for path, value, ui in fields)
         operations += tuple(('DELETE', (*prefix, *path)) for path in delete_paths)
+        if self.kind == 'BRUSH' and definition.identifier in legacy.BY_ID:
+            from .migration import operations as migration_operations
+            _, imported = migration_operations(self)
+            operations = tuple({operation[1]: operation for operation in imported + operations}.values())
         try:
             return self.owner.id_properties_update_atomic(ROOT, operations)
         except (ValueError, TypeError, OverflowError, PermissionError) as error:
@@ -479,12 +487,12 @@ class PersistentOwnerStore:
         return value_metadata(definition)
 
     def feature_enabled(self):
-        """Saved readiness switch; generic consumers are introduced in Plan 6."""
+        """Generic is the release default; preserve an explicit saved opt-out."""
         self._guard.check()
         if self.kind != 'SCENE':
             raise PropertyError("Generic readiness switch belongs to Scene")
         root = _root(self.owner)
-        value = root.get('generic_path_enabled', False) if root is not None else False
+        value = root.get('generic_path_enabled', True) if root is not None else True
         if type(value) is not bool:
             raise PropertyError("Malformed generic readiness switch")
         return value

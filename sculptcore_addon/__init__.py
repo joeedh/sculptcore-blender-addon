@@ -95,6 +95,8 @@ def _check_draw_provider(mode):
 
 
 def register():
+    from .brush_properties.capabilities import require_host
+    require_host()
     brush_property_lifecycle.register()
     try:
         brush_property_authoring.register()

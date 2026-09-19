@@ -912,3 +912,17 @@ verifies both migration and fresh reload against the frozen declarations.
 To test a malformed raw legacy type, delete its existing scalar first: assigning
 a string over an existing Float IDProperty is rejected by Blender before the
 migrator can inspect it.
+
+The fork's Brush type has `IDTYPE_FLAGS_NO_ANIMDATA` and exposes no
+`animation_data`; test actual `driver_add`/`keyframe_insert` rejection before
+designing animation migration. Driver variables on other IDs can still read
+Brush paths. RNA transform getters used by those variables must read only the
+supplied ID's storage: main-thread-only authoring guards are inappropriate in
+dependency-graph evaluation or temporary Mains. Driver evaluation may differ by
+one float32 ULP, so compare its numeric result with an appropriate tolerance.
+
+`id_properties_update_atomic` rejects duplicate paths. When migration and a
+generic edit share one transaction, deduplicate exact paths with the explicit
+edit taking precedence; do not publish migration separately before a failing edit.
+Owned curve references include their revision and must be reacquired after
+changing a point before installing them into a stack.

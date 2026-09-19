@@ -37,6 +37,9 @@ AUTHORING = (
     ('curves-reload', 'test_custom_curve_storage.py', 'CUSTOM_STORAGE_OK', ('verify',)),
     ('frozen', 'test_frozen_authoring.py', 'FROZEN_AUTHORING_OK', ()),
     ('frozen-fresh', 'test_frozen_authoring_fresh.py', 'FROZEN_FRESH_OK', ()),
+    ('migration-assets', 'test_brush_migration_assets.py', 'BRUSH_MIGRATION_ASSETS_OK', ()),
+    ('migration-disabled', 'test_brush_migration_assets.py', 'BRUSH_MIGRATION_ASSETS_OK', ('disabled',)),
+    ('migration-fresh', 'test_brush_migration_assets.py', 'BRUSH_MIGRATION_ASSETS_OK', ('verify',)),
 )
 RUNTIME = (
     ('settings', 'test_brush_stroke_settings.py', 'PLAN6_STROKE_SETTINGS_PASS', ()),
@@ -56,6 +59,7 @@ SUITES = dict(unit=UNIT, authoring=AUTHORING, runtime=RUNTIME, gestures=GESTURES
               **{'known-falloff': (('frozen-footprint', 'test_brush_frozen_footprint.py',
                                     'PLAN6_GENERIC_BASELINE_PASS', ()),)})
 DEPENDENCIES = {'native-fresh': ('native',), 'frozen-fresh': ('frozen',)}
+DEPENDENCIES.update({'migration-disabled': ('migration-assets',), 'migration-fresh': ('migration-disabled',)})
 for _name in ('scalars', 'stacks', 'positions', 'curves'):
     DEPENDENCIES[_name + '-resave'] = (_name,)
     DEPENDENCIES[_name + '-reload'] = (_name + '-resave',)

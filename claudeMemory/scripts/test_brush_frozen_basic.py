@@ -9,7 +9,7 @@ from pathlib import Path
 import bpy
 import numpy as np
 from sculptcore_addon import convert, engine, handlers, mapping, stroke
-from sculptcore_addon.brush_properties import authoring
+from sculptcore_addon.brush_properties import authoring, migration
 from sculptcore_addon.brush_properties.adapters import SIZE, STRENGTH
 from sculptcore_addon.brush_properties.registry import DeviceLayer, ResponseCurve
 from sculptcore_addon.brush_properties.stroke_settings import capture_stroke
@@ -23,6 +23,8 @@ if handlers._on_depsgraph_update in bpy.app.handlers.depsgraph_update_post:
     bpy.app.handlers.depsgraph_update_post.remove(handlers._on_depsgraph_update)
 brush = bpy.data.brushes.new('DeterministicBaseline', mode='SCULPT')
 brush.strength = .5
+migration.migrate(authoring.store(brush))
+assert bpy.context.scene.sculptcore_generic_properties
 bpy.context.scene.tool_settings.sculpt.unified_paint_settings.use_unified_strength = False
 checks = []
 for tool in ('DRAW',):

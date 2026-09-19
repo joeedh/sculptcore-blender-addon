@@ -158,21 +158,20 @@ def _walk_manifests():
         brush.dispose()
         lib.SpatialTree_free(tree_ptr)
         lib.freeMesh(mesh_ptr)
-    required = ('SemanticScalars_create', 'SemanticScalars_evaluate',
-                'SemanticScalars_replaceDynamics', 'SemanticScalars_add')
+    from .brush_properties.capabilities import ENGINE_EXPORTS
+    required = ENGINE_EXPORTS
     authoring.refresh_manifest(contracts, execution_ready=all(hasattr(lib, name) for name in required))
     return manifests
 
 
 def register():
-    """Generate and register Brush.sculptcore. Best-effort: without the
-    engine the group is skipped and the mode falls back to defaults."""
+    """Keep frozen aliases available without a DLL; execution fails explicitly."""
     global _group_cls, _kernel_props
     try:
         manifests = _walk_manifests()
     except Exception as ex:
         print("SculptCore: engine prop generation unavailable ({!r})".format(ex))
-        return
+        manifests = {}
 
     annotations = {}
     # name -> True once a *ranged* declaration registered it: a shared name can
@@ -202,8 +201,15 @@ def register():
                 annotations[name] = factory(**kwargs)
         _kernel_props[kernel_name] = tuple(names)
 
-    if not annotations:
-        return
+    # Public v0 paths remain available even without the engine. Their declaration
+    # contract comes from the frozen inventory, never a replacement DLL default.
+    from .brush_properties import migration, compatibility
+    for name, definitions in migration.BY_NAME.items():
+        definition = definitions[0]
+        annotations[name] = bpy.props.FloatProperty(
+            name=name, default=definition.default, min=definition.minimum, max=definition.maximum,
+            soft_min=definition.soft_minimum, soft_max=definition.soft_maximum,
+            **compatibility.callbacks(name))
     _group_cls = type("SculptCoreBrushSettings", (bpy.types.PropertyGroup,),
                       {"__annotations__": annotations})
     bpy.utils.register_class(_group_cls)

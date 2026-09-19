@@ -1,8 +1,9 @@
 # Generic brush properties: implementation reference
 
 Updated 2026-09-19. This describes the implementation and its limits, not a
-release approval. The generic stroke path is opt-in. Plans 1–7 passed their
-gates. Migration/default rollout remains Plan 8.
+release approval. The generic stroke path is now the default; explicitly saved
+Scene opt-outs remain honored. Plans 1–7 passed their gates. Plan 8's final
+package regression results are tracked in the task list.
 See the [remaining work](../plans/generic-brush-properties-tasks.md),
 [contract](../design/generic-brush-contract-v1.md),
 [test guide](generic-brush-testing.md) and [history](generic-brush-history.md).
@@ -26,8 +27,8 @@ symmetry changes without selecting the drag-swept mesh.
 CPU geometry, bounded mesh selection, command growth, grab and undo have passed
 independent/native and Blender checks. Generated strength helpers also clip;
 WGSL/SPIR-V compiled, while CUDA/HIP/OpenCL device parity remains unverified.
-The change is tested with the rebuilt development DLL; default rollout remains
-pending. Frozen legacy results remain historical evidence, including accidental
+The change is tested with the rebuilt production DLL. Frozen legacy results
+remain historical evidence, including accidental
 leaf-dependent spill outside the boundary. Do not regenerate them to hide the
 user-authorized correction. See [verification](generic-brush-history.md#boundary-correction--september-18-2026).
 
@@ -263,7 +264,7 @@ Use that document for formulas rather than historical test output.
 Generic stroke startup installs the resolved snapshot directly; it does not first
 upload legacy local pressure/cavity/falloff settings. Paint color remains a native
 vector, outside the scalar catalogue. The legacy path remains available while the
-Scene opt-in is off.
+Scene compatibility opt-out is set.
 
 | Consumer | Policy |
 | --- | --- |
@@ -318,7 +319,7 @@ state after commands; execution order alone does not define inheritance.
 
 ## Remaining compatibility limits
 
-### Migration foundation
+### Migration and compatibility
 
 `migration.migrate(authoring.store(brush))` imports the seven frozen generated
 IDs from five legacy names without querying the DLL. It writes one atomic
@@ -336,13 +337,47 @@ schema versions and malformed known sources fail before publication. Linked and
 override owners reject writes. Use an existing `authoring_edit` scope for grouped
 undo or cancellation; background callers can use the atomic operation directly.
 
-This operation currently has **no automatic activation or edit hook**. Legacy
-public RNA aliases, resolver-time animation overlays and raw-write synchronization
-still need integration before automatic migration is enabled. Until then, manual
-callers must synchronize subsequent raw legacy changes explicitly; the current
-resolver does not refresh already-imported generic values from those changes.
-No external library is scanned or saved. External asset save/revert, save-reminder
-integration, packaged capability checks and default rollout remain Plan 8 gates.
+Active editable brushes migrate lazily from a main-thread timer, including assets
+activated after file load. Drawing/resolution never migrates. The timer defers
+while an authoring edit is open, and does not recreate a migration just undone
+on the same active Brush. Selecting that Brush again starts a new activation.
+No external library is scanned or saved. Explicit Save Asset persists migration;
+Essentials requires Save As, and linked/override data remains read-only.
+
+Legacy `Brush.sculptcore` RNA declarations now use frozen defaults even without
+a DLL. Reads select the active kernel's local generic value; writes, including
+setting the same raw value again, fan out to the old name's destinations. Raw
+IDProperty edits/unsets are visible immediately through non-mutating overlays and
+synchronize at activation or the next generic edit. A generic edit merges import
+and its own value into one atomic transaction. Inheritance still controls the
+generic row's owner; the old local RNA paths remain local.
+
+The fork marks Brush IDs non-animatable: keyframes and drivers owned by Brush
+are rejected, as before. The early contract's animation-overlay requirement was
+based on an incorrect assumption. Driver variables on other IDs can read the
+preserved paths and follow independent generic edits; actual evaluation is
+tested. No animation is copied or baked into authored brush values.
+
+The standalone save reminder detects generic edits through Blender's dirty flag
+and reports public custom-property groups as well as owned curve widgets. It
+imports no SculptCore modules. Save/revert and fresh reload preserve independent
+custom mappings, generated presets and placement, including resaving with the
+addon disabled.
+
+### Matching package requirements
+
+Use the SculptCore Blender 5.3 fork at `70ff11ce9b6` or a compatible descendant,
+and engine `277c14ea` or a compatible descendant with the matching generated
+Python bindings. Stock Blender is not compatible. Registration diagnoses missing
+owned-curve/atomic-authoring APIs. Missing engine declarations remain authorable
+but refuse execution with a capability diagnostic. ABI mismatch remains the
+engine loader's error; a missing DLL cannot change the frozen authoring defaults.
+
+`tools/verify_addon.py` and `tools/smoke_test_package.py` now exercise actual owned
+curve copying, frozen migration and native float/int/bool stacks, and verify
+startup manifest readiness. The existence of compatibility RNA alone no longer
+counts as proof that the engine loaded. Existing clean-runner package CI executes
+these checks and verifies vendored-library provenance on Windows/Linux/macOS.
 
 ### Retained execution behavior
 
@@ -367,4 +402,5 @@ size/strength and unified-flag cases. The later row, layout and multiple-window
 checks are recorded in the task list and test guide.
 The same staged Blender build (`1c93a65f4ed4`) passed the maintained headed Draw
 regression after sharing the cursor overlay; the unit suite also passed.
-Versioned migration and packaged default rollout remain unapproved by tests.
+The historical opt-in flag remains as a saved compatibility opt-out; removing it
+or its diagnostic execution path requires an explicit future compatibility change.

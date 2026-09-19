@@ -3,8 +3,7 @@
 """Explicit, atomic v0 import and raw legacy synchronization, independent of a DLL.
 
 This is an authoring operation, never a side effect of resolving or drawing.
-Activation and public RNA compatibility must use the same synchronization policy
-before this operation can be enabled automatically during rollout.
+Active editable assets migrate in memory; only explicit asset saves persist them.
 """
 
 from . import legacy
@@ -13,6 +12,7 @@ from .storage import ROOT, SCHEMA_VERSION, _group, _root, record_key, value_meta
 
 VERSION = 1
 FIELD = 'legacy_migration'
+_active = set()
 BY_NAME = {
     name: tuple(definition for definition in legacy.DEFINITIONS
                 if legacy.ASSOCIATIONS[definition.identifier][1] == name)
@@ -52,35 +52,40 @@ def _saved_source(group, name):
     return result
 
 
-def migrate(store):
+def state(root):
+    if root is None or FIELD not in root:
+        return None
+    value = root[FIELD]
+    if (not _group(value) or type(value.get('version')) is not int or value['version'] != VERSION):
+        raise PropertyError("Unsupported legacy migration version; data preserved")
+    if not _group(value.get('sources')):
+        raise PropertyError("Malformed legacy migration sources; data preserved")
+    return value
+
+
+def operations(store, *, force=()):
     """Import missing values, or fan out subsequent raw edits, in one transaction.
 
-Return the names imported/synchronized; unchanged repeated calls do not publish
-or dirty the owner. Unset is represented by absence of ``value``, retaining the
+Return changed names and their atomic operations. Unset is absence of ``value``, retaining the
 frozen definition default. Initial import preserves pre-existing generic values;
 a later changed legacy name explicitly replaces all its associated local values.
 Native settings, metadata, curves and the raw legacy group are never rewritten.
-Call within an authoring edit when an interactive operation needs undo grouping.
+The caller may append an independent generic edit to the same transaction.
 """
     store._guard.check()
     if store.kind != 'BRUSH':
         raise PropertyError("Legacy generated settings belong to Brush")
     root = _root(store.owner)
-    state = root.get(FIELD) if root is not None else None
-    if root is not None and FIELD in root:
-        if (not _group(state) or type(state.get('version')) is not int
-                or state['version'] != VERSION):
-            raise PropertyError("Unsupported legacy migration version; data preserved")
-        if not _group(state.get('sources')):
-            raise PropertyError("Malformed legacy migration sources; data preserved")
+    previous_state = state(root)
     records = {definition.identifier: store._checked_definition(definition)
                for definition in legacy.DEFINITIONS}
     sources = {name: _source(store.owner, name) for name in BY_NAME}
-    previous = ({name: _saved_source(state['sources'], name) for name in BY_NAME}
-                if state is not None else {})
-    changed = tuple(name for name, source in sources.items() if previous.get(name) != source)
+    previous = ({name: _saved_source(previous_state['sources'], name) for name in BY_NAME}
+                if previous_state is not None else {})
+    changed = tuple(name for name, source in sources.items()
+                    if name in force or previous.get(name) != source)
     if not changed:
-        return ()
+        return (), ()
     store._write_allowed()
     operations = [
         ('SET', ('schema_version',), SCHEMA_VERSION, None),
@@ -92,7 +97,7 @@ Call within an authoring edit when an interactive operation needs undo grouping.
             operations.append(('SET', (FIELD, 'sources', name, field), item, None))
         for definition in BY_NAME[name]:
             record = records[definition.identifier]
-            if state is None and record is not None and 'value' in record:
+            if previous_state is None and name not in force and record is not None and 'value' in record:
                 # A user may have authored independent v1 values while opt-in
                 # was under development; import must not overwrite those edits.
                 store.read_value(definition)
@@ -107,8 +112,83 @@ Call within an authoring edit when an interactive operation needs undo grouping.
                 ))
             elif record is not None and 'value' in record:
                 operations.append(('DELETE', (*prefix, 'value')))
+    return changed, tuple(operations)
+
+
+def migrate(store, *, force=()):
+    """Synchronize editable legacy data; repeated unchanged calls publish nothing."""
+    changed, updates = operations(store, force=force)
+    if not updates:
+        return ()
     try:
-        store.owner.id_properties_update_atomic(ROOT, tuple(operations))
+        store.owner.id_properties_update_atomic(ROOT, updates)
     except (ValueError, TypeError, OverflowError, PermissionError) as error:
         raise PropertyError(str(error)) from error
     return changed
+
+
+def activate(context):
+    """Check only active SculptCore brushes, including assets selected after load."""
+    from . import authoring
+    obj = context.active_object
+    sculpt = context.tool_settings.sculpt
+    if (obj is None or obj.mode != 'CUSTOM' or obj.custom_mode != 'sculptcore.sculpt'
+            or not context.scene.sculptcore_generic_properties or sculpt is None or sculpt.brush is None):
+        return None
+    brush = sculpt.brush
+    key = (context.scene.session_uid, brush.session_uid)
+    root = _root(brush)
+    if key not in _active or (root is not None and FIELD in root):
+        store = authoring.store(brush)
+        if store.editable:
+            from .edits import _active as edits
+            if store.identity in edits:
+                return key
+            migrate(store)
+        _active.add(key)
+    return key
+
+
+def _tick():
+    import bpy
+    visible = set()
+    for window in bpy.context.window_manager.windows:
+        with bpy.context.temp_override(window=window):
+            try:
+                key = activate(bpy.context)
+                if key is not None:
+                    visible.add(key)
+            except (PropertyError, ReferenceError) as error:
+                # Execution/rows retain their own diagnostics. Do not repeatedly
+                # mutate or log a malformed asset from a timer.
+                brush = bpy.context.tool_settings.sculpt.brush
+                if brush is not None:
+                    key = (window.scene.session_uid, brush.session_uid)
+                    visible.add(key)
+                    if key not in _active:
+                        print("SculptCore brush migration: " + str(error))
+                        _active.add(key)
+    _active.intersection_update(visible)
+    return .25
+
+
+def _loaded(*_args):
+    _active.clear()
+
+
+def register():
+    import bpy
+    bpy.app.handlers.persistent(_loaded)
+    if _loaded not in bpy.app.handlers.load_post:
+        bpy.app.handlers.load_post.append(_loaded)
+    if not bpy.app.timers.is_registered(_tick):
+        bpy.app.timers.register(_tick, first_interval=.25, persistent=True)
+
+
+def unregister():
+    import bpy
+    if bpy.app.timers.is_registered(_tick):
+        bpy.app.timers.unregister(_tick)
+    if _loaded in bpy.app.handlers.load_post:
+        bpy.app.handlers.load_post.remove(_loaded)
+    _active.clear()

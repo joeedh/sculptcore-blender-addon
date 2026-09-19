@@ -16,8 +16,8 @@ Historical review requirements were waived by the user for the remaining task li
 - [x] Plan 4: generic records, independent resolution, native adapters and authoring undo.
 - [x] Plan 5: generated/custom responses and bounded revision-aware caching.
 
-These passes do not certify the unfinished stroke/UI/migration integration.
-Do not enable the new path by default until the remaining gates pass.
+These historical foundation passes are supplemented by the integration gates
+below. Plan 8 records the default rollout and remaining compatibility policy.
 
 ## Plan 6: stroke and command integration — complete
 
@@ -212,47 +212,63 @@ with `--args migration` passed 26 checks; unit suite passed 42 tests. Outputs
 remain ignored (`brush-authoring-frozen*`, `brush-migration-undo`).
 No fork/engine edits or rebuild were needed for this Python-only slice.
 
-The operation is explicit (`migration.migrate(authoring.store(brush))`). It is
-not yet called on activation or ordinary edits. Integrate legacy RNA aliases,
-raw-write synchronization and evaluated-animation overlays before enabling lazy
-migration automatically. The full migration/release gates below remain open.
+The subsequent integration adds automatic active-asset migration, frozen public
+RNA aliases, raw-write overlays/synchronization and atomic migration with generic
+edits. Brush-owned animation proved unsupported by the fork (NO_ANIMDATA); the
+contract was corrected and actual driver-variable reads/updates were tested.
+Generic is now the default for an absent setting; saved explicit opt-outs remain.
 
 ### Tasks
 
-- [ ] Implement versioned, idempotent migration using the Plan 1 inventory and
+- [x] Implement versioned, idempotent migration using the Plan 1 inventory and
   fixtures. Preserve set-versus-unset distinctions, defaults, custom curves,
   shadow pressure flags, native unified flags, and generated engine settings.
   Apply the frozen legacy default table and explicit one-name-to-many-ID rules;
   test a changed/missing DLL so new defaults cannot rewrite historical intent.
-- [ ] Keep native-backed values in their native storage. Migrate add-on metadata
+- [x] Keep native-backed values in their native storage. Migrate add-on metadata
   and unmapped values only; do not overwrite dormant local state with resolved
   scene settings. Handle unknown/newer schema data without destructive downgrade.
-- [ ] Handle assets loaded or activated after startup, not just file-load or
+- [x] Handle assets loaded or activated after startup, not just file-load or
   mode-entry events. For editable legacy assets, define lazy in-memory migration
   and explicit persistence on asset save; never automatically rewrite an entire
   external library. Define read-only/essentials behavior and Save As requirements.
-- [ ] Maintain old public RNA paths where practical using adapters or aliases.
+- [x] Maintain old public RNA paths where practical using adapters or aliases.
   Specify behavior for scripts, keymaps, drivers/animation and old `.blend`
   data referencing renamed properties. Retain legacy serialized data until the
   migration and rollback policy is proven; do not delete it merely on access.
-- [ ] Verify brush asset dirty detection and the save-reminder add-on see generic
+- [x] Verify brush asset dirty detection and the save-reminder add-on see generic
   changes, including nested custom curves. Update change reporting where needed
   without silently coupling the standalone reminder to SculptCore internals.
-- [ ] Run the fresh-process matrix: old/new files, old/new external assets,
+- [x] Run the fresh-process matrix: old/new files, old/new external assets,
   custom presets/mappings, duplicate/copy, save/revert, disabled add-on then
   re-enable, missing kernel, and supported linked/read-only workflows. Include
   background checks and interactive global/custom-mode undo checks.
-- [ ] Add package capability checks for the owned-curve API and typed engine
+- [x] Add package capability checks for the owned-curve API and typed engine
   support. Update `tools/verify_addon.py` and `tools/smoke_test_package.py` so they
   instantiate and round-trip new settings and stop requiring retired interfaces
   only after a tested compatibility replacement exists.
-- [ ] Build the fork and engine using their documented tooling, re-vendor the
+- [x] Build the fork and engine using their documented tooling, re-vendor the
   matching DLL/Python runtime, and stage a test package. Include ABI/capability
   mismatch diagnostics, minimum version documentation, and clean-machine smoke
   coverage. Package verification must prove the new path was actually used.
 - [ ] Switch the default only after Plans 2–7 gates and migration fixtures pass.
   Retire old readers/UI/cache code in a separate cleanup change with parity
   checks; preserve promised compatibility aliases and serialized rollback data.
+
+**Release verification (September 19):** fork `70ff11ce9b6`, engine `277c14ea`,
+rebuilt through `node tools/build-blender-dist.mjs` and staged in the existing
+test installation. Blender SHA256 starts `4980bc0c4694`; the freshly rebuilt
+production engine DLL starts `1de78bcad14e`. The full maintained authoring suite
+(21 process cases), runtime suite (7 process cases), 42 unit tests, headed
+Draw/Grab/Program matrices and 27 migration/custom/global-undo checks passed.
+Both package tools passed, including actual owned storage, typed dynamics and
+vendored-library provenance. The source/asset fixtures were not rewritten.
+
+Existing Windows/Linux/macOS clean-runner CI now uses the strengthened package
+checks. This turn tested the local Windows package; it did not publish a release
+or claim a new clean-OS or cross-platform CI run. Logs remain ignored under
+`claudeMemory/tests/brush-*`. Separate removal of duplicate compatibility samplers
+and obsolete UI clones is the final cleanup item.
 
 **Gate:** old fixtures preserve their authored/effective settings and baseline
 stroke results for unchanged dab inputs; documented sampler corrections use the

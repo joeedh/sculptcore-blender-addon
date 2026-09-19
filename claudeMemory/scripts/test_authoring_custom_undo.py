@@ -1008,6 +1008,9 @@ def migration_step(phase):
 
     custom, stage = phase < 4, phase % 4
     if stage == 0:
+        if custom:
+            active = bpy.context.tool_settings.sculpt.brush
+            check('timer migrates a late active asset', ROOT in active and migration.FIELD in active[ROOT])
         if not custom:
             bpy.ops.object.custom_mode_toggle(mode_id='sculptcore.sculpt')
         owner = bpy.data.brushes.new('MigrationUndo' + str(custom), mode='SCULPT')
@@ -1128,6 +1131,8 @@ def step():
             check('new custom redo remains valid after old cleanup', (mask() == .5).all())
             bpy.ops.object.custom_mode_toggle(mode_id='sculptcore.sculpt')
         elif phase == 14:
+            if migration_test:
+                bpy.context.scene.sculptcore_generic_properties = True
             bpy.ops.object.custom_mode_toggle(mode_id='sculptcore.sculpt')
             bpy.ops.brush.asset_activate(asset_library_type='ESSENTIALS',
                 relative_asset_identifier='brushes/essentials_brushes-mesh_sculpt.blend/Brush/Draw')

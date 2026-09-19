@@ -51,6 +51,12 @@ if not hasattr(bpy.types, "SCULPTCORE_OT_brush_stroke"):
 if not hasattr(bpy.types, "BRUSHSAVE_OT_quit_dialog"):
     failures.append("brush_save_reminder.quit_dialog operator is not registered")
 
+try:
+    from sculptcore_addon.brush_properties.capabilities import verify_roundtrip
+    print("verify_addon: " + verify_roundtrip())
+except Exception as error:
+    failures.append("generic brush capabilities failed: " + str(error))
+
 if failures:
     for msg in failures:
         sys.stderr.write("verify_addon: FAILED: {:s}\n".format(msg))

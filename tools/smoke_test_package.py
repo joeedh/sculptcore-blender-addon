@@ -175,14 +175,13 @@ def check_draw_provider(capi):
 
 
 def check_startup_engine():
-    """The engine was reachable during the add-on's own registration.
+    """Require executable registered contracts, owned storage and native dynamics.
 
-    ``Brush.sculptcore`` is generated from the kernel uniform manifests, which
-    are read through the DLL — so its presence proves the native library loaded
-    at startup, in the ordinary launch path, with nothing forcing it."""
-    if not hasattr(bpy.types.Brush, "sculptcore"):
-        fail("Brush.sculptcore is missing — engine_props.register() could not reach the "
-             "engine at startup (it fails silently); see the console for its message")
+    Legacy RNA aliases exist even without a DLL, so their presence alone cannot
+    prove successful engine registration.
+    """
+    from sculptcore_addon.brush_properties.capabilities import verify_roundtrip
+    print("smoke: " + verify_roundtrip())
 
 
 def main():

@@ -108,10 +108,11 @@ _UNREADABLE = object()
 
 
 def _curve_text(mapping):
-    """A curve mapping as a comparable string: its points, per curve."""
-    parts = []
+    """Comparable evaluation settings and points; exclude runtime selection."""
+    settings = ('use_clip', 'clip_min_x', 'clip_min_y', 'clip_max_x', 'clip_max_y', 'extend', 'tone')
+    parts = [str(tuple((name, getattr(mapping, name, None)) for name in settings))]
     for curve in mapping.curves:
-        points = ", ".join("({:.3f}, {:.3f})".format(point.location[0], point.location[1])
+        points = ", ".join("({!r}, {!r}; {})".format(point.location[0], point.location[1], point.handle_type)
                            for point in curve.points)
         parts.append("[" + points + "]")
     return " ".join(parts)
@@ -211,9 +212,29 @@ def _asset_rows(old, new):
 def _diff(old, new):
     rows = []
     _walk(old, new, "", 0, rows)
+    # Addon-authored IDProperty groups are not necessarily RNA declarations.
+    # Compare their ordinary serializable data without depending on any addon.
+    for name in sorted(set(old.keys()) | set(new.keys())):
+        before, after = _custom_value(old.get(name)), _custom_value(new.get(name))
+        if before != after:
+            rows.append(("Custom property: " + name, str(before)[:256], str(after)[:256]))
     rows = _drop_inactive_size(new, rows)
     rows.extend(_asset_rows(old, new))
     return BrushDiff(rows=rows)
+
+
+def _custom_value(value):
+    if isinstance(value, bpy.types.ID):
+        return (value.bl_rna.identifier, value.name_full)
+    if hasattr(value, 'to_dict'):
+        value = value.to_dict()
+    elif hasattr(value, 'to_list'):
+        value = value.to_list()
+    if isinstance(value, dict):
+        return {key: _custom_value(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return tuple(_custom_value(item) for item in value)
+    return value
 
 
 def _diff_group(filepath, brushes):
