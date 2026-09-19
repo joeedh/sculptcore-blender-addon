@@ -953,7 +953,7 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         self._family_scale = (mapping.STRENGTH_SCALE.get(self.brush.sculpt_brush_type, 1.0)
                               if not kernel_toggle else 1.0)
         self._overlap = (self._generic.settings.overlap() if self._generic else
-                         mapping.overlap_attenuation(self.brush, cache=self.session.curve_cache)) * self._family_scale
+                         mapping.overlap_attenuation(self.brush)) * self._family_scale
         self._anchor = None
         self._anchor_normal = None
         self._drag_origin = None

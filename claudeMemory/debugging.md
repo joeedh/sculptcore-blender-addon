@@ -926,3 +926,9 @@ generic edit share one transaction, deduplicate exact paths with the explicit
 edit taking precedence; do not publish migration separately before a failing edit.
 Owned curve references include their revision and must be reacquired after
 changing a point before installing them into a stack.
+
+When consolidating samplers, retain an independent parity oracle: comparing two
+callers of the same implementation no longer checks the algorithm. Python's
+compensated `sum` can differ in the last bits from sequential float addition;
+the overlap oracle allows 1e-14 while the two production callers remain exactly
+equal. Count overlap builds at the shared cache, not a retired session memo.

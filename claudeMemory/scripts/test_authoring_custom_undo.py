@@ -814,6 +814,8 @@ def panel_step(phase):
     if phase == 0:
         scene.sculptcore_generic_properties = True
         check('limited duplicate automasking panel removed', not hasattr(bpy.types, 'SCULPTCORE_PT_automasking'))
+        check('unconsumed panels removed', all(not hasattr(bpy.types, 'SCULPTCORE_PT_tools_brush_' + name)
+                                              for name in ('stroke_smooth_stroke', 'falloff_normal')))
         check('all supported automasking settings occur once', tuple(item.identifier for item in
               placement.located(authoring.store(active), 'AUTOMASKING')) == automasking_ui.ORDER)
         check('disabled masks have inactive icon', not automasking_ui.active(bpy.context))

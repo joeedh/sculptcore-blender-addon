@@ -109,7 +109,7 @@ def counters():
     memo = engine.sessions[bpy.context.object.name].curve_cache
     uploads = memo.get('pressure_uploads')
     return (sampling.cache.bakes, uploads.uploads if uploads else 0,
-            memo.get('table_uploads', 0), memo.get('overlap_bakes', 0))
+            memo.get('table_uploads', 0), sampling.overlap_bakes)
 
 
 def tick():
@@ -213,7 +213,7 @@ def tick():
             if generic:
                 # Initially size and strength share a response. After the edit,
                 # clearing the cache must bake their now-distinct mappings.
-                expected = [(3, 0, 2, 0), (0, 0, 0, 0), (1, 0, 0, 0), (0, 0, 0, 0), (4, 0, 2, 0)][case]
+                expected = [(3, 0, 2, 1), (0, 0, 0, 0), (1, 0, 0, 0), (0, 0, 0, 0), (4, 0, 2, 1)][case]
             assert tuple(delta) == expected, (case, delta, expected)
             print('PLAN5_WARM_COUNTS', case, delta, flush=True)
             results.append(dict(grid=grid, batch=use_batch, queued=queued,

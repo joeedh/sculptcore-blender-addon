@@ -305,9 +305,9 @@ ctypes package and every engine shared library the *process actually mapped*
 (read from `/proc/self/maps`, `_dyld_get_image_name`, or `EnumProcessModules`)
 must resolve inside the add-on's vendored `lib/sculptcore/`. A system copy
 quietly satisfying the load fails the job instead of hiding in it. It also
-requires `Brush.sculptcore` to exist (proving the engine was live during the
-add-on's own registration — `engine_props.register()`'s failure path is a
-`print`, not an exception), every kernel in `mapping.KERNEL_BY_TYPE` to be in
+requires authoring readiness and actual owned-property/typed-dynamics round
+trips (public `Brush.sculptcore` compatibility aliases also register without an
+engine), every kernel in `mapping.KERNEL_BY_TYPE` to be in
 the engine enum (how libs built without `--kernels-extra ../brushes` show up),
 and a one-triangle mesh to round-trip through the c-api. Both scripts are
 launched with `--python-exit-code 1`: without it Blender prints an unhandled

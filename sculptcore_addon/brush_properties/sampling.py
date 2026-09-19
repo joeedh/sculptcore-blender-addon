@@ -107,6 +107,60 @@ class ResponseCache:
 
 cache = ResponseCache()
 epoch = 0
+_overlap_cache = OrderedDict()
+overlap_bakes = 0
+
+
+def falloff_response(brush, hardness):
+    """Sample native distance falloff once for either settings entry point."""
+    from ..mapping import _PRESET_FALLOFF
+    preset = brush.curve_distance_falloff_preset
+    function = _PRESET_FALLOFF.get(preset)
+    config = SampleConfig(reverse=function is None, clamp_output=True, hardness=hardness)
+    if function is None:
+        return native_response(brush, 'curve_distance_falloff', config)
+    key = ('FALLOFF', preset, config)
+    response = cache.get(key)
+    if response is None:
+        response = PreparedResponse('TABLE', sample(function, config))
+        cache.bakes += 1
+        response = cache.put(key, response, config)
+    return response
+
+
+def overlap_table(brush):
+    """Exact native compensation for integer spacing, independent of the LUT."""
+    global overlap_bakes
+    from ..mapping import _PRESET_FALLOFF
+    preset = brush.curve_distance_falloff_preset
+    source = brush.authoring_native_curve_key('curve_distance_falloff') if preset == 'CUSTOM' else preset
+    key = epoch, source
+    if key in _overlap_cache:
+        _overlap_cache.move_to_end(key)
+        return _overlap_cache[key]
+    function = _PRESET_FALLOFF.get(preset)
+    if function is None:
+        curve = brush.curve_distance_falloff
+        channel = curve.curves[0]
+        function = lambda t: curve.evaluate(channel, 1.0 - t)
+    values = [1.0]
+    for spacing in range(1, 100):
+        peak = 0.0
+        for phase in range(10):
+            origin = phase / 10.0 - 1.0
+            total = 0.0
+            for index in range(int(100 / spacing)):
+                distance = abs(origin + index * (spacing / 50.0))
+                if distance < 1.0:
+                    total += function(1.0 - distance)
+            peak = max(peak, abs(total))
+        values.append(1.0 / peak if peak > 0.0 else 1.0)
+    result = tuple(values)
+    overlap_bakes += 1
+    _overlap_cache[key] = result
+    while len(_overlap_cache) > 256:
+        _overlap_cache.popitem(last=False)
+    return result
 
 
 def resolved_response(store, definition, curve, config=SampleConfig()):
@@ -142,3 +196,4 @@ def clear():
     global epoch
     epoch += 1
     cache.clear()
+    _overlap_cache.clear()

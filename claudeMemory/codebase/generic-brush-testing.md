@@ -44,6 +44,11 @@ changes. Unit checks use checkout source; installed checks need a matching stage
 `gestures/cache` runs the existing cache driver in generic mode. Draw also checks
 a second stroke after independent owner changes; Program starts with zero base
 autosmooth and enables it through dynamics. These extend the existing fixtures.
+The cache driver's default (no script arguments) checks the saved opt-out path;
+both modes count actual shared overlap-table builds, including invalidation.
+The runtime settings case compares overlap against the pre-generic formula for
+all presets and representative integer spacings, independently of the shared
+production implementation.
 
 The standalone checked-binding drivers require probe kernels. Build them with
 `node make.mjs build native --kernels-extra ../brushes --kernels-extra tests/assets/typed_extras`

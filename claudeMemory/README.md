@@ -6,7 +6,7 @@ Current reference documentation takes precedence over archived plans and logs.
 ## Generic brush properties
 
 - [Implementation and known defects](codebase/generic-brush-properties.md)
-- [Remaining work](plans/generic-brush-properties-tasks.md)
+- [Completed implementation task list](plans/generic-brush-properties-tasks.md)
 - [Ownership, numeric and migration contract](design/generic-brush-contract-v1.md)
 - [Owned-curve saved format](design/owned-curve-storage-v1.md)
 - [Focused regression suites and artifact policy](codebase/generic-brush-testing.md)

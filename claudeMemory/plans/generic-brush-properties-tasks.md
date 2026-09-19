@@ -1,6 +1,7 @@
-# Generic brush properties: remaining work
+# Generic brush properties: completed implementation
 
-Updated 2026-09-19. This is the single active task list. The original eight-plan
+Completed 2026-09-19. All eight implementation plans have passed their gates.
+This is the single completion record. The original eight-plan
 history is condensed in [history](../codebase/generic-brush-history.md); current
 implementation details and known defects are in [the reference](../codebase/generic-brush-properties.md).
 Read the [contract](../design/generic-brush-contract-v1.md) for ownership/numeric
@@ -17,7 +18,7 @@ Historical review requirements were waived by the user for the remaining task li
 - [x] Plan 5: generated/custom responses and bounded revision-aware caching.
 
 These historical foundation passes are supplemented by the integration gates
-below. Plan 8 records the default rollout and remaining compatibility policy.
+below. Plan 8 records the default rollout and retained compatibility policy.
 
 ## Plan 6: stroke and command integration — complete
 
@@ -190,7 +191,7 @@ remain opt-in; Plan 8 owns migration and default rollout.
 **Touchpoints:** add-on `ui.py`, `tools.py`, `menus.py`, `vanilla_panels.py`,
 keymaps where operator/context targets change, and property storage/renderer.
 
-## Plan 8: Migration, compatibility, release
+## Plan 8: Migration, compatibility, release — complete
 
 **Goal:** preserve existing user data and behavior while retiring competing
 property paths and shipping matching fork, engine and add-on versions.
@@ -251,7 +252,7 @@ Generic is now the default for an absent setting; saved explicit opt-outs remain
   matching DLL/Python runtime, and stage a test package. Include ABI/capability
   mismatch diagnostics, minimum version documentation, and clean-machine smoke
   coverage. Package verification must prove the new path was actually used.
-- [ ] Switch the default only after Plans 2–7 gates and migration fixtures pass.
+- [x] Switch the default only after Plans 2–7 gates and migration fixtures pass.
   Retire old readers/UI/cache code in a separate cleanup change with parity
   checks; preserve promised compatibility aliases and serialized rollback data.
 
@@ -267,8 +268,18 @@ vendored-library provenance. The source/asset fixtures were not rewritten.
 Existing Windows/Linux/macOS clean-runner CI now uses the strengthened package
 checks. This turn tested the local Windows package; it did not publish a release
 or claim a new clean-OS or cross-platform CI run. Logs remain ignored under
-`claudeMemory/tests/brush-*`. Separate removal of duplicate compatibility samplers
-and obsolete UI clones is the final cleanup item.
+`claudeMemory/tests/brush-*`.
+
+**Separate cleanup:** removed the duplicate falloff reader/sampler and per-session
+overlap evaluator/cache; generic and opt-out paths share bounded response and
+overlap caches. Removed the unsupported Smooth Stroke/Normal Falloff panel clones.
+Retained explicit saved opt-outs, their execution adapter, public RNA aliases and
+raw serialized data as the compatibility policy requires. No history was rewritten.
+The closing checks passed: runtime settings (17 checks, independent overlap oracle
+and shared-response reuse), curve/cache lifecycle (30), both frozen basic strokes
+(maximum difference `7.46e-9`), 57 headed panel/undo checks, five repeated strokes
+in each of generic and opt-out modes, and package smoke. Warm strokes performed
+zero rebakes/uploads. Logs are ignored; durable semantics are in the reference.
 
 **Gate:** old fixtures preserve their authored/effective settings and baseline
 stroke results for unchanged dab inputs; documented sampler corrections use the

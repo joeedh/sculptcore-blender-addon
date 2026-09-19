@@ -17,10 +17,9 @@ package, loadable, and callable?
 Each check targets a way a package has broken (or could break) while every
 build step stayed green:
 
-* **Live at startup.**  ``Brush.sculptcore`` exists only if
-  ``engine_props.register()`` walked the kernel manifests through the DLL at
-  startup; its failure path is a ``print``, not an exception, so the add-on
-  reports itself enabled either way.
+* **Live at startup.**  Authoring readiness and typed owned-property round trips
+  prove both host and engine capabilities. The public ``Brush.sculptcore`` RNA
+  aliases also register without an engine, so their existence is insufficient.
 * **Vendored, not borrowed.**  The ``sculptcore`` ctypes package and every
   engine shared library the process actually mapped must live inside the
   add-on's ``lib/sculptcore/``.  A library satisfied from elsewhere on the test

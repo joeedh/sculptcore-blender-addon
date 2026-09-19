@@ -241,20 +241,7 @@ def _upload_lut(cache, key, values, sc_brush):
 
 def _bake_falloff(bl_brush, sc_brush, cache=None):
     from .brush_properties import sampling
-    from .brush_properties.responses import PreparedResponse, SampleConfig, sample
-    preset = bl_brush.curve_distance_falloff_preset
-    fn = _PRESET_FALLOFF.get(preset)
-    config = SampleConfig(reverse=fn is None, clamp_output=True,
-                          hardness=min(1.0, max(0.0, bl_brush.hardness)))
-    if fn is None:
-        response = sampling.native_response(bl_brush, 'curve_distance_falloff', config)
-    else:
-        key = ('LEGACY_FALLOFF', preset, config)
-        response = sampling.cache.get(key)
-        if response is None:
-            response = PreparedResponse('TABLE', sample(fn, config))
-            sampling.cache.bakes += 1
-            sampling.cache.put(key, response, config)
+    response = sampling.falloff_response(bl_brush, bl_brush.hardness)
     _upload_lut(cache, 'falloff', response.samples, sc_brush)
     sc_brush.falloff_kind = _FALLOFF_KIND_CURVE
     sc_brush.falloff_shape = _FALLOFF_SHAPE_SPHERICAL
@@ -417,7 +404,7 @@ def apply_brush_settings(bl_brush, unified, sc_brush, *, paint=None, cache=None)
     sc_brush.writeProps()
 
 
-def overlap_attenuation(bl_brush, cache=None):
+def overlap_attenuation(bl_brush):
     """Vanilla's "Adjust Strength for Spacing"
     (#paint_stroke_integrate_overlap): normalize the strength by the
     worst-case sum of overlapping falloff dabs along the stroke line,
@@ -437,38 +424,7 @@ def overlap_attenuation(bl_brush, cache=None):
     if is_grab_class(bl_brush) or is_snake_hook(bl_brush):
         return 1.0
     from .brush_properties import sampling
-    preset = bl_brush.curve_distance_falloff_preset
-    source = (bl_brush.authoring_native_curve_key('curve_distance_falloff') if preset == 'CUSTOM' else preset)
-    key = (sampling.epoch, source, bl_brush.spacing)
-    previous = cache.get('overlap') if cache is not None else None
-    if previous is not None and previous[0] == key:
-        return previous[1]
-    fn = _PRESET_FALLOFF.get(bl_brush.curve_distance_falloff_preset)
-    if fn is None:  # CUSTOM: strength(p) = curve(1 - p), matching BKE.
-        cumap = bl_brush.curve_distance_falloff
-        cumap.update()
-        curve = cumap.curves[0]
-
-        def fn(t, _c=cumap, _cv=curve):
-            return _c.evaluate(_cv, 1.0 - t)
-
-    spacing = max(bl_brush.spacing, 0.1)
-    count = int(100 / spacing)
-    h = spacing / 50.0
-    peak = 0.0
-    for i in range(10):
-        x0 = i / 10.0 - 1.0
-        total = 0.0
-        for j in range(count):
-            xx = abs(x0 + j * h)
-            if xx < 1.0:
-                total += fn(1.0 - xx)
-        peak = max(peak, abs(total))
-    result = 1.0 / peak if peak > 0.0 else 1.0
-    if cache is not None:
-        cache['overlap'] = (key, result)
-        cache['overlap_bakes'] = cache.get('overlap_bakes', 0) + 1
-    return result
+    return sampling.overlap_table(bl_brush)[bl_brush.spacing]
 
 
 def pixel_radius(sculpt, bl_brush):

@@ -3,6 +3,7 @@
 """Real owner and immutable-curve checks for the consumer synchronization boundary."""
 import importlib.util
 import json
+from math import isclose
 from pathlib import Path
 import sys
 from types import SimpleNamespace
@@ -105,6 +106,26 @@ local.write_mode(hardness.identifier, 'ALWAYS')
 settings = capture(brush, scene)
 check('effective scene hardness shapes falloff', settings.falloff.evaluate(.5) == 1)
 from sculptcore_addon import mapping
+from sculptcore_addon.brush_properties import sampling
+
+
+def frozen_overlap(brush):
+    """Pre-generic formula, retained as an independent compensation oracle."""
+    if brush.spacing >= 100:
+        return 1.0
+    fn = mapping._PRESET_FALLOFF.get(brush.curve_distance_falloff_preset)
+    if fn is None:
+        curve = brush.curve_distance_falloff
+        fn = lambda t: curve.evaluate(curve.curves[0], 1.0 - t)
+    step = brush.spacing / 50.0
+    totals = []
+    for phase in range(10):
+        distances = (abs(phase / 10.0 - 1.0 + index * step) for index in range(int(100 / brush.spacing)))
+        totals.append(abs(sum(fn(1.0 - distance) for distance in distances if distance < 1.0)))
+    peak = max(totals)
+    return 1.0 / peak if peak else 1.0
+
+
 local.write_stack(spacing, ())
 local.write_mode(spacing.identifier, 'NEVER')
 brush.use_space_attenuation = True
@@ -114,6 +135,10 @@ for preset in (*mapping._PRESET_FALLOFF, 'CUSTOM'):
         brush.spacing = amount
         captured = capture(brush, scene)
         assert captured.overlap() == mapping.overlap_attenuation(brush), (preset, amount)
+        assert isclose(captured.overlap(), frozen_overlap(brush), rel_tol=1e-14, abs_tol=1e-14), (preset, amount)
+    bakes = sampling.cache.bakes
+    assert sampling.falloff_response(brush, captured.value(hardness.identifier)) is captured.falloff
+    assert sampling.cache.bakes == bakes
 check('exact legacy overlap for all presets independent of hardness', True)
 cavity = scene.tool_settings.sculpt.mesh_automasking_settings
 cavity.use_automasking_cavity = True

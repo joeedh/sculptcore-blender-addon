@@ -170,6 +170,29 @@ that temporary context is freed. Final UI tests use Blender `4980bc0c4694` and t
 unchanged production engine DLL. Migration, external-asset rollout and enabling
 the generic path by default remain Plan 8.
 
+## Migration and default rollout — September 19, 2026
+
+Plan 8 completes the eight-plan implementation. Frozen legacy settings import
+atomically, active editable assets migrate lazily in memory, and external files
+change only on explicit save. Public RNA aliases and pending raw-edit overlays
+preserve scripts and driver-variable reads; the fork rejects Brush-owned
+animation. Native data, dormant values and serialized rollback data are retained.
+Generic properties now default on, honoring saved explicit opt-outs. Asset
+save/revert/copy/linked and addon-disabled reload checks cover independent curves
+and the standalone save reminder. Package checks exercise actual owned storage
+and native float/int/bool dynamics, with actionable capability diagnostics.
+
+The rebuilt fork `70ff11ce9b6` and engine `277c14ea` passed 21 authoring and seven
+runtime process cases, 42 unit tests, Draw/Grab/Program gesture matrices and 27
+migration undo checks. The separate cleanup unified duplicate falloff/overlap
+samplers and removed unconsumed panels; focused parity/cache/geometry, 57 UI/undo
+checks, both five-stroke cache modes and package smoke passed afterward. Blender
+SHA256 starts `4980bc0c4694`; production DLL SHA256 starts `1de78bcad14e`. This is
+local Windows package evidence, not a new clean-machine/cross-platform CI run or
+published release. Matching package CI now uses the stronger probes. Source and
+frozen fixtures are retained; generated logs/assets stay ignored. The completed
+task list and current reference hold the details without a new report archive.
+
 ## Recovery without keeping artifacts in the working tree
 
 The existing commits preserve the original material; cleanup does not rewrite

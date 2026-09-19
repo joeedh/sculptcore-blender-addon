@@ -2,9 +2,9 @@
 
 Updated 2026-09-19. This describes the implementation and its limits, not a
 release approval. The generic stroke path is now the default; explicitly saved
-Scene opt-outs remain honored. Plans 1–7 passed their gates. Plan 8's final
-package regression results are tracked in the task list.
-See the [remaining work](../plans/generic-brush-properties-tasks.md),
+Scene opt-outs remain honored. Plans 1–8 passed their implementation gates;
+package verification ran locally on Windows, with no new cross-platform release.
+See the [completed task list](../plans/generic-brush-properties-tasks.md),
 [contract](../design/generic-brush-contract-v1.md),
 [test guide](generic-brush-testing.md) and [history](generic-brush-history.md).
 
@@ -41,6 +41,7 @@ Sources live in `sculptcore_addon/brush_properties/`.
 | `registry.py`, `authoring.py` | Immutable definitions, unique device types, production catalogue and manifest readiness |
 | `storage.py`, `legacy.py`, `frozen_v0.py`, `native_v0.py` | Versioned saved records, frozen legacy reads and defaults |
 | `migration.py` | Explicit atomic v0 import and synchronization of changed raw legacy names |
+| `compatibility.py`, `capabilities.py` | Frozen public RNA aliases, pending raw-write overlays and package readiness checks |
 | `resolver.py`, `adapters.py`, `bindings.py` | Effective value/stack owners and authoritative native RNA |
 | `lifecycle.py`, `edits.py` | Operation-scoped owner validity and explicit grouped undo |
 | `curves.py`, `customize.py` | Owner-aware custom mappings and explicit preset customization |
@@ -245,6 +246,11 @@ Use that document for formulas rather than historical test output.
   Table LRU is bounded to 256 entries and retains no owners/RNA. Undo/load/session
   recreation invalidates owner/upload state. Upload identity is separate from
   shared sampled-table identity. A warm unchanged stroke should not rebake curves.
+  Generic and compatibility entry points share the falloff response and exact
+  spacing-overlap table in `sampling.py`; overlap keeps its analytic/native
+  evaluation independent of LUT interpolation. Both caches clear on lifecycle
+  invalidation. Unsupported Smooth Stroke and Normal Falloff panel clones are
+  removed; Blender's native sculpt panels are unaffected.
 - Stroke snapshots capture effective owners once and retain no RNA references.
   Semantic evaluation precedes spacing percent conversion, strength compensation
   and snake-pinch transforms. Size dynamics evaluate on projected radius once.

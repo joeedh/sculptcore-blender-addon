@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 """Immutable effective settings shared by stroke, cursor and host scalar consumers."""
 from dataclasses import dataclass
-from collections import OrderedDict
 from types import MappingProxyType
 
 from . import authoring, sampling
@@ -11,44 +10,10 @@ from .evaluation import ScalarEvaluator, SPACING
 from .legacy import ASSOCIATIONS
 from .registry import PropertyError, finite
 from .resolver import resolve
-from .responses import PreparedResponse, SampleConfig, sample
+from .responses import PreparedResponse, SampleConfig
 from .snapshots import capture
 
 PREFIX = 'sculptcore.brush.'
-_overlap_cache = OrderedDict()
-
-
-def _overlap_table(brush):
-    """Freeze exact legacy compensation for every supported integer spacing."""
-    from .. import mapping
-    preset = brush.curve_distance_falloff_preset
-    source = brush.authoring_native_curve_key('curve_distance_falloff') if preset == 'CUSTOM' else preset
-    key = sampling.epoch, source
-    if key in _overlap_cache:
-        _overlap_cache.move_to_end(key)
-        return _overlap_cache[key]
-    function = mapping._PRESET_FALLOFF.get(preset)
-    if function is None:
-        curve = brush.curve_distance_falloff
-        channel = curve.curves[0]
-        function = lambda t: curve.evaluate(channel, 1.0 - t)
-    values = [1.0]
-    for spacing in range(1, 100):
-        peak = 0.0
-        for phase in range(10):
-            origin = phase / 10.0 - 1.0
-            total = 0.0
-            for index in range(int(100 / spacing)):
-                distance = abs(origin + index * (spacing / 50.0))
-                if distance < 1.0:
-                    total += function(1.0 - distance)
-            peak = max(peak, abs(total))
-        values.append(1.0 / peak if peak > 0.0 else 1.0)
-    result = tuple(values)
-    _overlap_cache[key] = result
-    while len(_overlap_cache) > 256:
-        _overlap_cache.popitem(last=False)
-    return result
 
 
 def object_radius(context, size, position):
@@ -162,19 +127,7 @@ def capture_stroke(brush, scene, *, kernel_name=None):
                              or ASSOCIATIONS[definition.identifier][0] in (kernel_name, 'BSMOOTH')))
     properties = capture(authoring.registry, identifiers, local, parent)
     values = {item.definition.identifier: item.value for item in properties}
-    preset = brush.curve_distance_falloff_preset
-    function = mapping._PRESET_FALLOFF.get(preset)
-    config = SampleConfig(reverse=function is None, clamp_output=True,
-                          hardness=values[PREFIX + 'hardness'])
-    if function is None:
-        falloff = sampling.native_response(brush, 'curve_distance_falloff', config)
-    else:
-        key = ('STROKE_FALLOFF', preset, config)
-        falloff = sampling.cache.get(key)
-        if falloff is None:
-            falloff = PreparedResponse('TABLE', sample(function, config))
-            sampling.cache.bakes += 1
-            sampling.cache.put(key, falloff, config)
+    falloff = sampling.falloff_response(brush, values[PREFIX + 'hardness'])
     cavity = None
     if (values[CAVITY + '.use_automasking_custom_cavity_curve']
             and (values[CAVITY + '.use_automasking_cavity']
@@ -186,4 +139,4 @@ def capture_stroke(brush, scene, *, kernel_name=None):
         cavity = sampling.native_response(owner, path, SampleConfig(clamp_output=True))
     return StrokeSettings(properties, brush.sculpt_brush_type, kernel_name,
                           brush.direction == 'SUBTRACT', float(brush.strength), falloff, cavity,
-                          _overlap_table(brush))
+                          sampling.overlap_table(brush))

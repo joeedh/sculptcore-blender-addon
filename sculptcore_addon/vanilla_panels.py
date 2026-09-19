@@ -38,12 +38,8 @@ _SPECS = (
      "SCULPTCORE_PT_tools_brush_settings_advanced", "SCULPTCORE_PT_tools_brush_settings"),
     ("space_view3d_toolbar", "VIEW3D_PT_tools_brush_stroke",
      "SCULPTCORE_PT_tools_brush_stroke", "SCULPTCORE_PT_tools_brush_settings"),
-    ("space_view3d_toolbar", "VIEW3D_PT_tools_brush_stroke_smooth_stroke",
-     "SCULPTCORE_PT_tools_brush_stroke_smooth_stroke", "SCULPTCORE_PT_tools_brush_stroke"),
     ("space_view3d_toolbar", "VIEW3D_PT_tools_brush_falloff",
      "SCULPTCORE_PT_tools_brush_falloff", "SCULPTCORE_PT_tools_brush_settings"),
-    ("space_view3d_toolbar", "VIEW3D_PT_tools_brush_falloff_normal",
-     "SCULPTCORE_PT_tools_brush_falloff_normal", "SCULPTCORE_PT_tools_brush_falloff"),
     ("space_view3d_toolbar", "VIEW3D_PT_tools_brush_display",
      "SCULPTCORE_PT_tools_brush_display", "SCULPTCORE_PT_tools_brush_settings"),
     ("space_view3d_toolbar", "VIEW3D_PT_tools_brush_texture",
@@ -240,11 +236,6 @@ def _draw_falloff(self, context):
         row.operator('sculptcore.native_response', text="Edit Falloff Curve").target = 'FALLOFF'
 
 
-def _poll_legacy(cls, context):
-    from .brush_properties.ui import available
-    return _poll(cls, context) and not available(context)
-
-
 # Per-clone attribute overrides (applied after the vanilla dict copy and the
 # default poll, so an entry here wins).
 _OVERRIDES = {
@@ -252,8 +243,6 @@ _OVERRIDES = {
     "SCULPTCORE_PT_tools_brush_settings_advanced": {"draw": _draw_advanced, "bl_label": "Automasking"},
     "SCULPTCORE_PT_tools_brush_stroke": {"draw": _draw_stroke},
     "SCULPTCORE_PT_tools_brush_falloff": {"draw": _draw_falloff},
-    "SCULPTCORE_PT_tools_brush_stroke_smooth_stroke": {"poll": classmethod(_poll_legacy)},
-    "SCULPTCORE_PT_tools_brush_falloff_normal": {"poll": classmethod(_poll_legacy)},
     "SCULPTCORE_PT_tools_brush_texture": {"draw": _draw_texture},
     "SCULPTCORE_PT_tools_brush_color": {"poll": classmethod(_poll_color)},
     "SCULPTCORE_PT_tools_brush_swatches": {"poll": classmethod(_poll_color)},
