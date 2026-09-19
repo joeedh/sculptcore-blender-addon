@@ -27,20 +27,20 @@ preview/grab/dyntopo/attribute/cage/layer integration, and view-normal/backface
 settings. Actual generic gesture tests require native semantic and checked calls.
 Remaining acceptance work:
 
-- [ ] Correct ordinary brush spatial support. The user requires bounded reads
+- [x] Correct ordinary brush spatial support. The user requires bounded reads
   and a hard zero outside the falloff boundary, even with nonzero curve endpoints.
   Whole-mesh reads require an explicit declaration (for example Kelvinlet).
   Remove implicit all-node policies for falloff kinds/shapes and normal anchored
   grab. Preserve moved pinned grab regions; audit CPU and generated backends,
   mesh/grid/program/batch/preview/cage selection and clipping.
-- [ ] Replace the earlier all-node falloff test oracle with independent boundary
+- [x] Replace the earlier all-node falloff test oracle with independent boundary
   expectations and bounded-read assertions. Preserve frozen legacy fixtures as
   evidence; document the user-authorized correction to old leaf-dependent spill.
 - [ ] Finish auditing every consumer: stroke setup, spacing/dyntopo cadence,
   smooth decomposition, autosmooth including zero-base dynamic enable, accumulate,
   cursor/projection/offscreen fallback, texture projection and family adapters.
   No double dynamics or double attenuation; no raw fallback disguised as support.
-- [ ] Verify independent command radii/stacks, larger later commands, bounded
+- [x] Verify independent command radii/stacks, larger later commands, bounded
   union selection and explicitly unbounded commands on multileaf geometry.
   Preflight all property/topology/attribute requirements before mutation; retain
   per-command cavity/ENHANCE first-contact caches and correct override restoration.
@@ -58,6 +58,13 @@ regions include every permitted contribution and exclude unbounded reads for
 ordinary brushes. Actual generic execution, rollback and undo are demonstrated.
 Historical broad test counts and previously passed all-node references are not
 substitutes for this gate.
+
+September 18 boundary correction: native falloff/prepared execution/grab/unbounded
+and compiler suites passed; Blender passed 16 runtime cases (including independent
+constant-edge geometry), two unchanged basic fixtures and 24 headed Draw/Grab/
+preview gestures. See [verification and limits](../codebase/generic-brush-history.md#boundary-correction--september-18-2026).
+Generated WGSL/SPIR-V compiled; CUDA/HIP/OpenCL emitters were updated but were not
+validated on devices. The remaining consumer audit must retain this distinction.
 
 ## Plan 7: Generic UI and placement
 

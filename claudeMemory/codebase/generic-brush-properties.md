@@ -7,7 +7,7 @@ See the [remaining work](../plans/generic-brush-properties-tasks.md),
 [contract](../design/generic-brush-contract-v1.md),
 [test guide](generic-brush-testing.md) and [history](generic-brush-history.md).
 
-## Known incorrect behavior
+## Spatial support
 
 The user clarified the spatial contract after the implementation tests:
 ordinary brushes have bounded reads and hard-zero influence outside their
@@ -15,16 +15,21 @@ falloff boundary, even for a nonzero custom endpoint or Gaussian response.
 Whole-mesh reads require an explicit brush declaration, such as Kelvinlet's
 `@unbounded`. Falloff shape or endpoint alone never grants that capability.
 
-The current prepared executors violate this rule. They select all nodes for
-nonzero curve edges, Gaussian/nonspherical falloff and anchored grab. The old
-strength helper also clamps distance before evaluating the endpoint, allowing
-influence outside the boundary inside selected leaves. Both selection and
-per-vertex clipping need correction across CPU/generated backends, mesh/grid,
-programs, previews and cage smoothing. Preserve pinned grab regions when moving
-geometry leaves the original bounds. Tests must verify bounded selection as well
-as zero influence outside support. Earlier all-region parity passes do not
-validate this behavior. Frozen legacy results remain evidence, not permission
-to preserve accidental leaf-dependent spill outside the falloff boundary.
+Prepared executors now query finite regions for ordinary mesh/grid/program and
+cage paths. Sphere support uses the radius; cube and oriented-box support use
+enclosing spheres. Linear directional falloff is restricted to the radius sphere
+because its directional metric alone describes an infinite slab. Strength is
+zero outside the shape boundary; an authored nonzero endpoint is retained at the
+boundary itself. Ordinary grab retains reached leaves across radius growth and
+symmetry changes without selecting the drag-swept mesh.
+
+CPU geometry, bounded mesh selection, command growth, grab and undo have passed
+independent/native and Blender checks. Generated strength helpers also clip;
+WGSL/SPIR-V compiled, while CUDA/HIP/OpenCL device parity remains unverified.
+The change is tested with the rebuilt development DLL; default rollout remains
+pending. Frozen legacy results remain historical evidence, including accidental
+leaf-dependent spill outside the boundary. Do not regenerate them to hide the
+user-authorized correction. See [verification](generic-brush-history.md#boundary-correction--september-18-2026).
 
 ## Addon structure
 

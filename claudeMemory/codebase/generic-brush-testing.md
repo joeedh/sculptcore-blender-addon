@@ -26,7 +26,7 @@ $brushPython = 'C:/dev/blender/build_windows_x64_clang_RelWithDebInfo/bin/5.3/py
 | runtime | Snapshot, conversion, cache or native transfer | Native semantic parity, effective owners, mesh/grid execution, automasking and unchanged basic geometry |
 | gestures | Modal path, cancellation or undo | One parameterized mesh/grid × per-dab/batch × release/cancel matrix; route fixtures for preview, dyntopo, paint, cage and layers |
 | native | Native engine semantics | Existing dispatcher suites; outputs are local, not committed |
-| known-falloff | Spatial correction under development | Historical frozen-footprint diagnostic, expected to fail in the current implementation; never accepted as a passing release gate |
+| known-falloff | Investigating historical footprint differences | Frozen-footprint diagnostic includes old leaf-dependent spill; it is not the oracle for the corrected hard boundary |
 
 The default is `unit`, not the full matrix. `--case` narrows a suite.
 Fresh-process authoring cases automatically include their create and addon-disabled
@@ -67,7 +67,7 @@ parameterized gestures and native prepared-execution suite cover the same
 boundary. Standalone scalar/stack/placement Scene undo demos were superseded by
 the combined Brush collections/native/custom-mode undo tests. Early transient
 strength-owner demos were superseded by persistent native adapter tests.
-The known falloff diagnostic is retained even though it fails. No test was
+The historical falloff diagnostic is retained even though hard clipping can differ. No test was
 removed merely to turn a failing gate green. Keep native edge cases, including
 typed invalid input, program atomicity, radius union and multilevel undo.
 
@@ -78,7 +78,8 @@ files and frozen JSON inputs used by compatibility tests and catalogue generatio
 Old-reader compatibility `.blend` inputs are also retained. These are inputs,
 not fresh test results. Do not regenerate them with the new implementation to
 make parity pass. The richer nonzero-edge fixtures document the old spill;
-the user's hard-clip correction needs independently calculated expectations.
+the corrected boundary is tested with independent expectations in the native
+prepared-falloff cases and the Blender runtime suite's constant-edge Draw cases.
 
 The reviewed inventory and coverage JSON in `design/` are machine catalogues.
 Their formatting/hashes are preserved for reproducible frozen-data generation.

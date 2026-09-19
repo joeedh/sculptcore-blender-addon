@@ -89,6 +89,33 @@ were ignored, and staged whitespace checks passed. Native tests were not rerun
 for this cleanup. The known spatial-policy failure and unfinished UI/migration
 remain open; this verification does not close those implementation gates.
 
+## Boundary correction — September 18, 2026
+
+Removed ordinary-brush all-node selection and endpoint clamping outside support.
+Cube/box queries use finite enclosing spheres; directional Linear falloff is
+limited to the brush radius sphere. Grab keeps reached leaves across radius and
+symmetry changes. The existing prepared-falloff test now checks independently
+calculated geometry, including nonzero endpoints, rather than treating a whole-
+mesh reference as the expected footprint. Frozen input files remain unchanged.
+
+Both native and Python DLL builds passed. Five native suites passed:
+`test_brush_prepared_execution`, `test_brush_falloff`, `test_grab_region`,
+`test_unbounded_seam`, and `test_sbrush_textures`. Pinned grab stayed at nine leaves
+for 24 dabs versus 32 for the widened query. Blender passed 16 runtime cases,
+including constant-edge Draw geometry on mesh/grid and single/program routes;
+plain/pressure basic fixtures differed by at most `7.46e-9`; and 24 Draw/Grab/
+preview gestures passed with cancel and undo/redo. DLL SHA256:
+`839d1f5ad3e5a375f099ad32af005c8fb7a83de3d60429cc1376f44c5fb24c6e`.
+
+WGSL/SPIR-V compiled with the updated clipping helper. CUDA/HIP/OpenCL emitters
+were updated but device execution was not tested. Verification used the existing
+Blender install with explicit development-engine paths; this is not packaged
+default-rollout certification. Remaining consumer/UI/migration gates stay open.
+Whitespace checks and all 36 frozen-input hashes passed. The repository's lint
+dependency was absent; running its lint command with the installed local
+commentlint found 132 findings, all verified against unchanged HEAD text. No
+finding covered a newly changed comment; the global lint gate is still failing.
+
 ## Recovery without keeping artifacts in the working tree
 
 The existing commits preserve the original material; cleanup does not rewrite

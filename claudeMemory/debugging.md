@@ -1,5 +1,15 @@
 # Debugging notes
 
+## Brush spatial support (2026-09-18)
+
+* Test region selection separately from displacement. A nonzero custom endpoint
+  exposed both whole-mesh selection and clamped-distance spill; matching an
+  all-node reference would preserve both bugs. Use independent geometry and
+  queried-leaf counts. Keep previously reached grab leaves when radius grows or
+  symmetry changes, since their live bounds may have moved away from the anchor.
+* Native `dumpVertCo` returns four floats per mesh vertex; multires position
+  output returns three. Geometry assertions must account for the different strides.
+
 ## Owned-curve headed/API follow-up (2026-09-16)
 
 * Space synthetic mouse move, press and release across event-loop turns. Sending

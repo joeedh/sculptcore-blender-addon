@@ -58,7 +58,7 @@ for case in cases:
     native_brush.sculpt_brush_type = brush_type
     native_brush.strength = .125
     native_brush.use_space_attenuation = False
-    native_brush.curve_distance_falloff_preset = 'SMOOTH'
+    native_brush.curve_distance_falloff_preset = 'CONSTANT' if brush_type == 'DRAW' else 'SMOOTH'
     native_brush.plane_offset = .1
     local, parent = authoring.store(native_brush), authoring.store(bpy.context.scene)
     local.write_mode(STRENGTH, 'ALWAYS')
@@ -88,6 +88,8 @@ for case in cases:
             session.mesh().dumpVertCo(data)
             return data.numpy().copy()
     original = positions()
+    stride = 3 if grid else 4
+    expected = original.reshape(-1, stride)[:, :3].copy()
     first_call = len(calls)
     with manager.construct('sculptcore::brush::BrushProgram') as program:
         program.addCommand(kernel)
@@ -107,11 +109,18 @@ for case in cases:
                 assert stroke.apply_dab_program(session, program, (.2 * dab_index, 0, 0), (0, 0, 1), radius, kernel=kernel) >= 0
             else:
                 assert stroke.apply_dab(session, kernel, (.2 * dab_index, 0, 0), (0, 0, 1), radius) >= 0
+            if brush_type == 'DRAW':
+                stages = [(radius, .4 * pressure)] + ([(1.3, .1)] if program_mode else [])
+                for stage_radius, stage_strength in stages:
+                    distance = np.linalg.norm(expected - (.2 * dab_index, 0, 0), axis=1)
+                    expected[distance <= stage_radius, 2] += stage_strength * stage_radius * .5
     runtime.close()
     assert native_brush.strength == .125
     stroke.stroke_end(session)
     final = positions()
     assert not np.array_equal(final, original), case
+    if brush_type == 'DRAW':
+        assert np.allclose(final.reshape(-1, stride)[:, :3], expected, atol=2e-6, rtol=0), (case, 'hard boundary')
     if grid:
         assert lib.GridStroke_undo(session.grid_ptr)
     else:
