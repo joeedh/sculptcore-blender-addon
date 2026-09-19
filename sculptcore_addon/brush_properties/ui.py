@@ -113,7 +113,10 @@ class SCULPTCORE_OT_property_action(_PropertyOperator, bpy.types.Operator):
     identifier: bpy.props.StringProperty(options={'SKIP_SAVE'})
     action: bpy.props.EnumProperty(items=tuple((key, label, '') for key, label in (
         ('BOOLEAN', "Toggle Value"), ('PRESSURE', "Toggle Pressure"), ('UNIFIED', "Toggle Unified Value"),
-        ('MODE', "Value Inheritance"), ('STACK_INHERIT', "Toggle Stack Inheritance"))), options={'SKIP_SAVE'})
+        ('MODE', "Value Inheritance"), ('STACK_INHERIT', "Toggle Stack Inheritance"),
+        ('SIZE_MODE', "Size Units"))), options={'SKIP_SAVE'})
+    size_mode: bpy.props.EnumProperty(items=(('VIEW', "Pixels", ''), ('SCENE', "Blender Units", '')),
+                                      options={'SKIP_SAVE'})
     mode: bpy.props.EnumProperty(items=tuple((key, label, '') for key, label in (
         ('UNIFIED', "Use Unified Flag"), ('ALWAYS', "Always Inherit"), ('NEVER', "Never Inherit"),
         ('NATIVE_CAVITY', "Native Cavity Policy"))), options={'SKIP_SAVE'})
@@ -127,6 +130,11 @@ class SCULPTCORE_OT_property_action(_PropertyOperator, bpy.types.Operator):
                 if _kind(result) != 'BOOL':
                     raise PropertyError("This property is not boolean")
                 ValueEdit(context, self.identifier).set(context, not result.value)
+            elif self.action == 'SIZE_MODE':
+                if self.identifier != SIZE:
+                    raise PropertyError("Size units apply only to brush size")
+                with authoring_edit(result.value_owner, "Change Brush Size Units"):
+                    result.value_owner._native.write_size_mode(self.size_mode)
             else:
                 owner = (result.stack_owner if self.action == 'PRESSURE' else
                          parent if self.action == 'UNIFIED' else local)
@@ -240,6 +248,18 @@ class SCULPTCORE_OT_property_metadata(_PropertyOperator, bpy.types.Operator):
                         icon='CHECKBOX_HLT' if local.inherits_stack(self.identifier) else 'CHECKBOX_DEHLT',
                         enabled=local.editable and result.execution_available)
             layout.label(text={'FLOAT32': "Number", 'INT32': "Whole number", 'BOOL': "On / Off"}[_kind(result)])
+            if self.identifier == SIZE:
+                row = layout.row(align=True)
+                for mode, label in (('VIEW', "Pixels"), ('SCENE', "Blender Units")):
+                    op = _action(row, self.identifier, 'SIZE_MODE', text=label,
+                                 depressed=(_kind(result) == 'INT32') == (mode == 'VIEW'),
+                                 enabled=result.value_owner.editable and result.execution_available)
+                    op.size_mode = mode
+            row = layout.row()
+            row.enabled = local.editable
+            row.operator_context = 'INVOKE_DEFAULT'
+            op = row.operator('sculptcore.property_placement', text="Edit Locations", icon='PREFERENCES')
+            op.identifier = self.identifier
             for diagnostic in result.diagnostics:
                 layout.label(text=diagnostic, icon='INFO')
         except (PropertyError, ReferenceError) as error:
@@ -285,12 +305,14 @@ def register():
         set=lambda self, value: _search.__setitem__(self.as_pointer(), value))
     for cls in _classes:
         bpy.utils.register_class(cls)
-    from . import stack_ui
+    from . import placement_ui, stack_ui
     stack_ui.register()
+    placement_ui.register()
 
 
 def unregister():
-    from . import stack_ui
+    from . import placement_ui, stack_ui
+    placement_ui.unregister()
     stack_ui.unregister()
     for cls in reversed(_classes):
         bpy.utils.unregister_class(cls)

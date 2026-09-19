@@ -44,7 +44,11 @@ def positions(store, definition):
         return (Position('AUTOMASKING', 50),)
     if definition.identifier in ('sculptcore.brush.size', 'sculptcore.brush.strength'):
         return (*saved, Position('CONTEXT_MENU', 10 if definition.identifier.endswith('.size') else 20))
-    return saved or (Position('BRUSH_SETTINGS', 100),)
+    result = saved or (Position('BRUSH_SETTINGS', 100),)
+    if definition.identifier in ('sculptcore.brush.autosmooth', 'sculptcore.brush.snake_pinch',
+                                  'sculptcore.brush.plane_offset'):
+        result += (Position('CONTEXT_MENU', 30),)
+    return result
 
 
 def located(store, location):

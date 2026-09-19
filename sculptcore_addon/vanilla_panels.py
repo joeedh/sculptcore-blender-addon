@@ -9,9 +9,9 @@ The brush state is the shared ``tool_settings.sculpt``, so the vanilla brush
 panels' draw code is already correct for this mode — what hides them is
 bl_context gating and the mode dispatch in UnifiedPaintPanel.get_brush_mode
 (which maps CUSTOM to 'SCULPT' for modes declaring bl_use_sculpt_paint).
-Each clone below reuses draw() unchanged and overrides only the
-registration surface: idname, category/context, parent chain, and a poll
-gated on this mode.
+Clones preserve native specialized widgets and the generic-disabled layout.
+The generic path overrides basic settings and the context menu with shared,
+effective-owner rows. Registration is gated on this mode.
 
 Clone, not subclass: registering a subclass of a *registered* class makes
 `bpy.types.<BaseName>` return a bare RNA wrapper without the base's Python
@@ -100,6 +100,16 @@ _PRESSURE_ROWS = {
 
 
 def _draw_brush_settings(self, context):
+    from .brush_properties import ui as property_ui
+    if property_ui.available(context):
+        if self.is_popover:
+            self.layout.ui_units_x = 24
+        property_ui.draw_location(self.layout, context, 'BRUSH_SETTINGS')
+        brush = context.tool_settings.sculpt.brush
+        if brush.sculpt_capabilities.has_direction:
+            self.layout.row().prop(brush, "direction", expand=True)
+        _draw_color_settings(self.layout, context)
+        return
     # Vanilla VIEW3D_PT_tools_brush_settings.draw, with the pen-pressure toggles
     # and their response-curve expanders forced onto the Size and Strength rows
     # for every brush whose stroke actually consumes pressure — everything
@@ -162,6 +172,33 @@ def _poll_color(cls, context):
             and context.tool_settings.sculpt.brush.sculpt_capabilities.has_color)
 
 
+def _draw_color_settings(layout, context, *, picker=False):
+    from bl_ui.properties_paint_common import UnifiedPaintPanel
+    brush = context.tool_settings.sculpt.brush
+    if not brush.sculpt_capabilities.has_color:
+        return
+    if picker:
+        UnifiedPaintPanel.prop_unified_color_picker(layout, context, brush, "color", value_slider=True)
+    else:
+        row = layout.row(align=True)
+        UnifiedPaintPanel.prop_unified_color(row, context, brush, "color", text="")
+        UnifiedPaintPanel.prop_unified_color(row, context, brush, "secondary_color", text="")
+        row.operator("paint.brush_colors_flip", icon='FILE_REFRESH', text="")
+        row.prop(brush, "use_unified_color", text="", icon='BRUSHES_ALL')
+    layout.prop(brush, "blend", text="Blend Mode")
+
+
+def _draw_context_menu(self, context):
+    from .brush_properties import ui as property_ui
+    if property_ui.available(context):
+        self.layout.ui_units_x = 24
+        _draw_color_settings(self.layout, context, picker=True)
+        property_ui.draw_location(self.layout, context, 'CONTEXT_MENU')
+    else:
+        from bl_ui.space_view3d import VIEW3D_PT_sculpt_context_menu
+        VIEW3D_PT_sculpt_context_menu.draw(self, context)
+
+
 # Per-clone attribute overrides (applied after the vanilla dict copy and the
 # default poll, so an entry here wins).
 _OVERRIDES = {
@@ -169,6 +206,7 @@ _OVERRIDES = {
     "SCULPTCORE_PT_tools_brush_texture": {"draw": _draw_texture},
     "SCULPTCORE_PT_tools_brush_color": {"poll": classmethod(_poll_color)},
     "SCULPTCORE_PT_tools_brush_swatches": {"poll": classmethod(_poll_color)},
+    "SCULPTCORE_PT_sculpt_context_menu": {"draw": _draw_context_menu},
 }
 
 

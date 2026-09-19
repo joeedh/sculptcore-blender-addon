@@ -50,7 +50,8 @@ Sources live in `sculptcore_addon/brush_properties/`.
 `interaction.py` supplies pinned value edits to keyboard and numeric controls.
 `ui.py` draws shared rows in the tool header and the searchable All Brush
 Properties panel in Properties > Active Tool. `placement.py` filters applicable
-definitions and reads saved/default positions; placement editing remains pending.
+definitions and reads saved/default positions; `placement_ui.py` edits their
+Brush-local overrides.
 
 ## Property rows
 
@@ -71,8 +72,25 @@ disable their respective controls.
 Search state lives in Python UI state, separate from saved Brush/Scene settings.
 Drawing reads defaults and existing mappings; it does not create records or
 curves. Existing native specialized panels remain until their replacements pass.
-Placement editing, automasking consolidation and the multi-window/read-only
-interactive matrix remain pending.
+Automasking consolidation and the multi-window/read-only interactive matrix
+remain pending.
+
+The details popup's Edit Locations dialog stages Tool Header, Brush Settings and
+Context Menu selections and integer order values. Lower values sort first, with
+stable property ID breaking ties. Confirmation writes only the Brush's layout,
+even when values and input stacks belong to the Scene. Cancel writes nothing;
+changed Brush identity or placement rejects a stale draft. Deselecting all three
+saves an explicit empty layout; All Brush Properties still lists the property.
+Unknown/other locations are retained. Use Default Locations removes the override
+headers while preserving dormant location metadata. Automasking placement is
+preserved but awaits its canonical renderer before becoming editable here.
+
+Basic Brush Settings and the context menu now use the same rows as the header.
+Native color widgets, asset selection and specialized child panels remain.
+Kernel scalar controls no longer appear again in the legacy Engine child panel
+when generic properties are enabled. Size units are available in Size's details
+popup and edit the effective owner through the native adapter with grouped undo.
+The generic-disabled branch retains its previous rendering.
 
 `stack_ui.py` provides the input-stack popup beside each dynamic property.
 Only absent device types appear in Add; existing entries can be disabled,

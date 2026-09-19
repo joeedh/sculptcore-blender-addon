@@ -68,12 +68,14 @@ class SCULPTCORE_PT_brush_engine(bpy.types.Panel):
         if brush.sculpt_brush_type not in mapping.KERNEL_BY_TYPE:
             layout.label(text="Brush type not yet mapped", icon='ERROR')
 
-        names = engine_props.props_for_type(brush.sculpt_brush_type)
-        group = getattr(brush, "sculptcore", None)
-        if names and group is not None:
-            col = layout.column()
-            for name in names:
-                col.prop(group, name)
+        from .brush_properties import ui as property_ui
+        if not property_ui.available(context):
+            names = engine_props.props_for_type(brush.sculpt_brush_type)
+            group = getattr(brush, "sculptcore", None)
+            if names and group is not None:
+                col = layout.column()
+                for name in names:
+                    col.prop(group, name)
 
         if brush.texture is not None:
             from . import texture as texture_mod

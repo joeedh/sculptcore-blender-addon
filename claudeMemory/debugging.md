@@ -881,3 +881,11 @@ The next custom-mode exit callback read freed context data. Restore the previous
 Python context after the callback, matching the existing scoped string-execution
 helper. The same headed gate now edits a native curve, disables the addon with
 the dialog open, verifies rollback, and re-enables it without a crash.
+
+## Placement persistence - 2026-09-19
+
+An external active brush may still be unresolved immediately after a background
+file load. A `.blend` placement fixture must explicitly retain its edited Brush
+data (the headed driver saves a fake-user copy) and reacquire it by name. Do not
+interpret an absent active asset pointer as lost metadata or claim that this
+copy/reload check verifies external asset saving.

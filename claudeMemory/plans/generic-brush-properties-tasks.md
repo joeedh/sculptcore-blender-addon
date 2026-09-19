@@ -105,14 +105,22 @@ effective-owner editing and discoverable metadata.
   The 31-check widget gate uses rebuilt Blender `4980bc0c4694`, including fork
   fix `70ff11ce9b6` for a stale Python context after popup unregistration.
   Snapshot and fresh-process custom-curve persistence regressions also passed.
-- [ ] Implement `positions[]` with stable location identifiers, sorting and
+- [x] Implement `positions[]` with stable location identifiers, sorting and
   applicability. Render one setting in header, panel, and context menu without
   duplicating its data. Scope saved placement separately from transient UI state.
+  The existing fixture passed 36 headed checks for actual surfaces, placement
+  Apply/Cancel, undo/redo, sorting, reset/empty/unknown locations and stale drafts,
+  plus owner-aware size units. A fresh process passed two checks on a saved copy
+  of the edited Brush (September 19, Blender `4980bc0c4694`). Automasking placement
+  is preserved pending the canonical renderer; external asset persistence remains
+  in Plan 8.
+  The affected shared-row widget regression also passed its 24 checks.
 - [ ] Match current useful layouts by default and add a searchable All Properties
   panel in the Properties editor. Preserve native asset selection, texture and
   specialized widgets where the inventory explicitly retains them.
   The searchable All Brush Properties panel and shared tool-header rows are
-  implemented. Existing specialized panels await their generic replacements.
+  implemented. Basic Brush Settings and the context menu now use shared rows;
+  color widgets remain native. Specialized child panels await their replacements.
 - [ ] Consolidate automasking: remove `SCULPTCORE_PT_automasking` from `ui.py`
   and its registration list once the surviving full UI is ready. Replace the
   native automasking content reached through the cloned advanced brush settings

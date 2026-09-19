@@ -24,6 +24,7 @@ rows_test = variant == ['rows']
 rows_ui_test = variant == ['rows-ui']
 stacks_test = variant == ['stacks']
 stacks_ui_test = variant == ['stacks-ui']
+placements_test = variant == ['placements']
 stack_actions = (
     ('stack_action', dict(action='ADD', device='TILT_X')),
     ('stack_action', dict(action='ADD', device='SPEED')),
@@ -267,6 +268,152 @@ def stack_ui_step(phase):
     elif phase == 30:
         check('owned curve redo', stack_state() == state['owned_after'])
         key('ESC')
+
+
+def placement_step(phase):
+    from sculptcore_addon.brush_properties import placement, ui as property_ui
+    from sculptcore_addon.brush_properties.registry import Position, PropertyError
+    from sculptcore_addon.brush_properties.placement_ui import PlacementEdit
+    active, scene = bpy.context.tool_settings.sculpt.brush, bpy.context.scene
+    local = authoring.store(active)
+    definition = authoring.registry.get(STRENGTH)
+    window = bpy.context.window
+
+    def key(kind):
+        window.event_simulate(type=kind, value='PRESS', x=350, y=140)
+        window.event_simulate(type=kind, value='RELEASE', x=350, y=140)
+
+    def saved():
+        return placement.positions(authoring.store(bpy.context.tool_settings.sculpt.brush), definition)
+
+    def draw_begin(panel):
+        state['placement_tokens'] = tuple(owner.authoring_edit_begin(native_settings=True, undo=False)
+                                          for owner in (active, scene))
+        bpy.ops.wm.call_panel(name=panel)
+
+    def draw_end(location):
+        for owner, token in zip((active, scene), state.pop('placement_tokens')):
+            check('placement draw preserves ' + location + owner.bl_rna.identifier,
+                  not owner.authoring_edit_commit(token))
+        check('real surface draws strength ' + location, STRENGTH in state['placement_draws'][location])
+        key('ESC')
+
+    if phase == 0:
+        scene.sculptcore_generic_properties = True
+        local.write_mode(STRENGTH, 'ALWAYS')
+        local.write_stack_inheritance(STRENGTH, True)
+        local.write_positions(definition, (Position('FUTURE_SURFACE', -7),))
+        state['placement_before'], state['placement_values'] = saved(), stack_state()
+        # Observe the real renderer, retaining its actual drawing behavior.
+        state['placement_draws'] = {}
+        state['draw_location_original'], state['draw_row_original'] = property_ui.draw_location, property_ui.draw_row
+        def draw_location(layout, context, location):
+            state['placement_location'] = location
+            state['placement_draws'][location] = []
+            try:
+                state['draw_location_original'](layout, context, location)
+            finally:
+                state['placement_location'] = None
+        def draw_row(layout, context, item):
+            if state.get('placement_location'):
+                state['placement_draws'][state['placement_location']].append(item.identifier)
+            state['draw_row_original'](layout, context, item)
+        property_ui.draw_location, property_ui.draw_row = draw_location, draw_row
+        bpy.ops.ed.undo_push(message='Placement baseline')
+    elif phase == 1:
+        bpy.ops.sculptcore.property_placement('EXEC_DEFAULT', True, identifier=STRENGTH,
+            header=True, header_order=-5, settings=True, settings_order=-4, menu=True, menu_order=-3)
+        state['placement_after'] = saved()
+        check('placement edits local Brush with inherited value and stack', saved() == (
+            Position('FUTURE_SURFACE', -7), Position('VIEW3D_HEADER', -5),
+            Position('BRUSH_SETTINGS', -4), Position('CONTEXT_MENU', -3))
+            and stack_state() == state['placement_values'])
+        bpy.ops.ed.undo()
+    elif phase == 2:
+        check('placement one-step undo', saved() == state['placement_before'])
+        bpy.ops.ed.redo()
+    elif phase == 3:
+        check('placement redo', saved() == state['placement_after'])
+        check('header ordering takes effect', state['placement_draws']['VIEW3D_HEADER'][0] == STRENGTH)
+        draw_begin('SCULPTCORE_PT_tools_brush_settings')
+    elif phase == 4:
+        bpy.ops.screen.screenshot(filepath=str(Path(__file__).resolve().parents[1] / 'tests/brush-placement-settings.png'))
+        draw_end('BRUSH_SETTINGS')
+    elif phase == 5:
+        draw_begin('SCULPTCORE_PT_sculpt_context_menu')
+    elif phase == 6:
+        bpy.ops.screen.screenshot(filepath=str(Path(__file__).resolve().parents[1] / 'tests/brush-placement-menu.png'))
+        draw_end('CONTEXT_MENU')
+        window.event_simulate(type='MOUSEMOVE', value='NOTHING', x=350, y=140)
+    elif phase in (7, 10):
+        bpy.ops.sculptcore.property_placement('INVOKE_DEFAULT', True, identifier=STRENGTH)
+    elif phase == 8:
+        bpy.ops.screen.screenshot(filepath=str(Path(__file__).resolve().parents[1] / 'tests/brush-placement-ui.png'))
+        key('ESC')
+    elif phase == 9:
+        check('placement dialog cancel preserves saved layout', saved() == state['placement_after'])
+        window.event_simulate(type='MOUSEMOVE', value='NOTHING', x=350, y=140)
+    elif phase == 11:
+        # Tool Header checkbox in the fixed-size placement dialog.
+        window.event_simulate(type='MOUSEMOVE', value='NOTHING', x=160, y=184)
+        bpy.app.timers.register(lambda: window.event_simulate(
+            type='LEFTMOUSE', value='PRESS', x=160, y=184) and None, first_interval=.05)
+        bpy.app.timers.register(lambda: window.event_simulate(
+            type='LEFTMOUSE', value='RELEASE', x=160, y=184) and None, first_interval=.1)
+    elif phase == 12:
+        check('placement dialog stages edits', saved() == state['placement_after'])
+        key('RET')
+    elif phase == 13:
+        check('placement dialog confirms selected locations', saved() == tuple(
+            item for item in state['placement_after'] if item.location != 'VIEW3D_HEADER'))
+        state['placement_dialog_after'] = saved()
+        bpy.ops.ed.undo()
+    elif phase == 14:
+        check('placement dialog undo', saved() == state['placement_after'])
+        bpy.ops.ed.redo()
+    elif phase == 15:
+        check('placement dialog redo', saved() == state['placement_dialog_after'])
+        bpy.ops.sculptcore.property_placement('EXEC_DEFAULT', True, identifier=STRENGTH, reset=True)
+    elif phase == 16:
+        check('placement reset restores defaults', saved() == (
+            Position('VIEW3D_HEADER', 20), Position('BRUSH_SETTINGS', 20), Position('CONTEXT_MENU', 20)))
+        bpy.ops.ed.undo()
+    elif phase == 17:
+        check('placement reset undo restores unknown location', saved() == state['placement_dialog_after'])
+        edit = PlacementEdit(bpy.context, STRENGTH)
+        local.write_positions(definition, (Position('BRUSH_SETTINGS', 45),))
+        try:
+            edit.write(bpy.context, ())
+        except PropertyError:
+            check('stale placement draft rejected', True)
+        else:
+            raise AssertionError('Stale placement draft was accepted')
+        bpy.ops.sculptcore.property_placement('EXEC_DEFAULT', True, identifier=STRENGTH)
+        check('deselecting all supported locations saves explicit empty', saved() == ())
+    elif phase == 18:
+        local.write_positions(definition, state['placement_after'])
+        bpy.context.window_manager.sculptcore_property_search = 'temporary search'
+        # External active assets are resolved lazily after file load. Persist an
+        # explicit copy of the edited Brush to test its data without asset IO.
+        persisted = active.copy()
+        persisted.name = 'PlacementPersistenceBrush'
+        persisted.use_fake_user = True
+        bpy.ops.wm.save_as_mainfile(filepath=str(Path(__file__).resolve().parents[1] / 'tests/brush-placements.blend'))
+        property_ui.draw_location, property_ui.draw_row = state['draw_location_original'], state['draw_row_original']
+        local.write_mode(SIZE, 'ALWAYS')
+        scene.tool_settings.sculpt.unified_paint_settings.use_locked_size = 'VIEW'
+        state['units_before'] = size_state()
+        bpy.ops.ed.undo_push(message='Size units baseline')
+        bpy.ops.sculptcore.property_action('EXEC_DEFAULT', True, identifier=SIZE, action='SIZE_MODE', size_mode='SCENE')
+        state['units_after'] = size_state()
+        check('size units edit effective Scene only', state['units_after'][0] == state['units_before'][0]
+              and state['units_after'][1][2] == 'SCENE' and state['units_before'][1][2] == 'VIEW')
+        bpy.ops.ed.undo()
+    elif phase == 19:
+        check('size units undo restores coupled values', size_state() == state['units_before'])
+        bpy.ops.ed.redo()
+    else:
+        check('size units redo', size_state() == state['units_after'])
 
 
 def row_step(index, phase):
@@ -744,11 +891,11 @@ def step():
             region = next(region for region in area.regions if region.type == 'WINDOW')
             with bpy.context.temp_override(area=area, region=region):
                 stack_step((phase - 15) // 3, (phase - 15) % 3)
-        elif stacks_ui_test and phase < 46:
+        elif (stacks_ui_test and phase < 46) or (placements_test and phase < 36):
             area = next(area for area in bpy.context.screen.areas if area.type == 'VIEW_3D')
             region = next(region for region in area.regions if region.type == 'WINDOW')
             with bpy.context.temp_override(area=area, region=region):
-                stack_ui_step(phase - 15)
+                (placement_step if placements_test else stack_ui_step)(phase - 15)
         elif not variant and phase < 15 + 4 * len(shortcut_cases):
             shortcut_step((phase - 15) // 4, (phase - 15) % 4)
         else:
@@ -758,7 +905,7 @@ def step():
             bpy.ops.wm.quit_blender()
             return None
         state['phase'] += 1
-        return .8 if stacks_ui_test else .5
+        return .8 if stacks_ui_test or placements_test else .5
     except Exception:
         traceback.print_exc()
         print('CUSTOM_UNDO_FAILED_PHASE', state['phase'], flush=True)
@@ -767,4 +914,16 @@ def step():
         return None
 
 
-bpy.app.timers.register(step, first_interval=1)
+if variant == ['placements-reload']:
+    from sculptcore_addon.brush_properties import placement
+    from sculptcore_addon.brush_properties.registry import Position
+    bpy.ops.wm.open_mainfile(filepath=str(Path(__file__).resolve().parents[1] / 'tests/brush-placements.blend'))
+    actual = placement.positions(authoring.store(bpy.data.brushes['PlacementPersistenceBrush']),
+                                 authoring.registry.get(STRENGTH))
+    check('fresh process retains real edited placements', actual == (
+        Position('FUTURE_SURFACE', -7), Position('VIEW3D_HEADER', -5),
+        Position('BRUSH_SETTINGS', -4), Position('CONTEXT_MENU', -3)))
+    check('fresh process does not restore transient search', bpy.context.window_manager.sculptcore_property_search == '')
+    print('AUTHORING_CUSTOM_UNDO_OK', len(state['checks']), flush=True)
+else:
+    bpy.app.timers.register(step, first_interval=1)
