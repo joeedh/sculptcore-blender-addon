@@ -155,6 +155,27 @@ Use that document for formulas rather than historical test output.
   tilt is an input channel and is not reflected. Culling belongs to view-normal
   masking; unsupported native automasking controls must not appear functional.
 
+### Stroke consumer audit
+
+Generic stroke startup installs the resolved snapshot directly; it does not first
+upload legacy local pressure/cavity/falloff settings. Paint color remains a native
+vector, outside the scalar catalogue. The legacy path remains available while the
+Scene opt-in is off.
+
+| Consumer | Policy |
+| --- | --- |
+| Spacing and dyntopo | Evaluate integer spacing before percent conversion. Spacing uses the projected base diameter; size dynamics apply once to each dab radius. Relative/brush remesh edge lengths use that evaluated radius; remesh cadence retains the stroke-start pixel diameter. |
+| Smooth and autosmooth | Decompose evaluated strength once. An enabled autosmooth stack creates the chained command even when its base is zero; that command applies the captured strength stack to its own autosmooth base. |
+| Accumulate and attenuation | Both switches are static declarations. Preserve family exemptions and exact legacy spacing compensation; apply compensation once after semantic strength evaluation. |
+| Cursor and projection | Use the captured size owner during a stroke and freshly resolve it when idle. Project along object-space view-right, including nonuniform scale; failed VIEW projection uses the effective world diameter. |
+| Texture | Tiled repeat uses captured size at stroke start. Other texture/vector/enum settings keep their native adapters. |
+| Families and batches | Keep PINCH's local-strength exception, SHARP's zero pinch and SNAKEHOOK's post-dynamics remap. Group consecutive equal payloads without reordering; checked-call failure ends execution. |
+
+The headed Draw fixture edits Brush/Scene values and swaps independent value/stack
+owners between strokes in the same session after undo/redo. The cache fixture's
+`generic` mode rejects entry into legacy installation and checks warm strokes,
+native curve edits, cleared native stacks and lifecycle invalidation.
+
 ## Native execution invariants and fixes worth retaining
 
 `engine/source/brush/brush_preparation.*`, `brush_program_preparation.*` and

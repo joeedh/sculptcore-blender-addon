@@ -41,6 +41,17 @@ a staged install; the launcher records the actual executable hash. Stage changed
 addon Python with `stage_test_addon.py`; rebuild/vendor the DLL only for engine
 changes. Unit checks use checkout source; installed checks need a matching stage.
 
+`gestures/cache` runs the existing cache driver in generic mode. Draw also checks
+a second stroke after independent owner changes; Program starts with zero base
+autosmooth and enables it through dynamics. These extend the existing fixtures.
+
+The standalone checked-binding drivers require probe kernels. Build them with
+`node make.mjs build native --kernels-extra ../brushes --kernels-extra tests/assets/typed_extras`
+inside `engine/` before running `test_checked_brush_bindings.py` or
+`test_property_command_bindings.py`. The production DLL lacks those test kernels.
+Keep the production `build/python` DLL in staged packages; clear
+`SCULPTCORE_PYTHON_PATH` and `SCULPTCORE_CAPI_PATH` when verifying vendored provenance.
+
 ## Less frequent coverage
 
 For standalone fork GTests use `run_blender_native_tests.py` with explicit

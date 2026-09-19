@@ -821,3 +821,17 @@ slot therefore appeared current after undo; flush folded its old column over the
 restored store mask. Notify whenever a captured mask leaf is restored. Native
 revision assertions and all eight actual mesh/grid Mask gestures pass, including
 Blender undo/redo with a materialized slot.
+
+Generic startup previously installed legacy local tables/stacks before replacing
+them with effective-owner snapshots. Keep those installation paths separate;
+otherwise dormant settings can cause redundant uploads. The existing headed
+cache driver now rejects legacy installation in generic mode and checks zero
+rebakes/uploads on an unchanged next stroke. After editing strength, size and
+strength no longer share a native response, so a full cache reset bakes four
+distinct curves instead of the original three.
+
+Typed probe bindings require `tests/assets/typed_extras` in the native build's
+extra kernel directories; the production DLL intentionally omits these probes.
+The probe's candidate-count assertion also needed to exclude ENHANCE's two
+kernel-specific settings. Its complete execution matrix passes with that explicit
+exclusion; a compiler-only run without the probe is not equivalent coverage.

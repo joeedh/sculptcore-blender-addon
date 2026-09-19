@@ -5,8 +5,11 @@ import importlib.util
 import json
 from pathlib import Path
 import sys
+from types import SimpleNamespace
+from unittest.mock import patch
 
 import bpy
+from mathutils import Matrix, Quaternion
 from sculptcore_addon.brush_properties import authoring
 from sculptcore_addon.brush_properties.adapters import SIZE, STRENGTH, CAVITY
 from sculptcore_addon.brush_properties.registry import DeviceLayer, ResponseCurve
@@ -55,11 +58,24 @@ local.write_mode(SIZE, 'NEVER')
 brush.use_locked_size = 'SCENE'
 brush.unprojected_size = .8
 settings = capture(brush, scene)
-check('scene diameter avoids projection', abs(settings.base_radius(lambda _: 999, 2) - .2) < 1e-7)
+context = SimpleNamespace(active_object=SimpleNamespace(matrix_world=Matrix.Diagonal((2, 3, 4, 1))),
+                          region_data=SimpleNamespace(view_rotation=Quaternion((0, 0, 1), 1.5707963267948966)))
+with patch('sculptcore_addon.stroke._pixel_to_world_length', return_value=.01) as project:
+    check('scene diameter uses object-space view direction',
+          abs(module.object_radius(context, settings.size, (0, 0, 0)) - .8 / 6) < 1e-7)
+    project.assert_not_called()
+    check('scene cursor and spacer share projected diameter',
+          abs(module.pixel_radius(context, settings.size, (0, 0, 0)) - .8 / .06) < 1e-5)
 brush.use_locked_size = 'VIEW'
 brush.size = 120
+brush.unprojected_size = .8
 settings = capture(brush, scene)
-check('view diameter is halved before projection', settings.base_radius(lambda pixels: pixels / 100) == .6)
+with patch('sculptcore_addon.stroke._pixel_to_world_length', return_value=.6) as project:
+    check('view diameter is halved before projection', module.object_radius(context, settings.size, (0, 0, 0)) == .6)
+    project.assert_called_once_with(context, (0, 0, 0), 60)
+with patch('sculptcore_addon.stroke._pixel_to_world_length', return_value=None):
+    check('offscreen projection uses effective world diameter',
+          abs(module.object_radius(context, settings.size, (0, 0, 0)) - .8 / 6) < 1e-7)
 spacing = registry.get('sculptcore.brush.spacing')
 brush.spacing = 11
 local.write_stack(spacing, (DeviceLayer('TILT_X', operation='MULTIPLY',

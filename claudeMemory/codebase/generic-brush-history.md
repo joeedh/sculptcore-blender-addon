@@ -116,6 +116,37 @@ dependency was absent; running its lint command with the installed local
 commentlint found 132 findings, all verified against unchanged HEAD text. No
 finding covered a newly changed comment; the global lint gate is still failing.
 
+## Stroke consumer gate — September 18, 2026
+
+Generic startup now installs only effective-owner snapshots, avoiding legacy
+local pressure/cavity/falloff writes that were immediately overwritten. Paint
+color remains native. Existing fixtures now cover zero-base dynamic autosmooth,
+independent owner changes between strokes after undo/redo, actual projection
+helpers and offscreen fallback, and generic warm-cache reuse. No new test suite
+or tracked generated output was added.
+
+Verification: 42 unit tests and all seven runtime cases passed; the changed
+projection test, execution and frozen-basic cases also passed against the final
+stage. All 86 gesture cases and five repeated generic cache strokes passed using
+the vendored production DLL with development overrides removed. This includes
+mesh/grid, per-dab/batch where supported, symmetry, preview cancel, dyntopo,
+paint/mask, cage/layers and Blender undo/redo. Warm strokes performed zero curve
+rebakes/table uploads. Plain/pressure baselines remained within `7.46e-9`, and all
+36 frozen input checksums matched.
+
+The fixture-enabled native build passed checked-property and command binding
+drivers plus typed extras, configuration, semantic scalars and packed-uniform
+suites. The typed probe assertion now explicitly excludes undeclared ENHANCE
+settings; its earlier compiler-only run had not exercised that assertion.
+Reproduction commands and probe-build prerequisites are in the test guide.
+
+Staging and package provenance smoke passed. Production DLL SHA256 remains
+`839d1f5ad3e5a375f099ad32af005c8fb7a83de3d60429cc1376f44c5fb24c6e`;
+Blender SHA256 remains `1c93a65f4ed4f53ca3a18bf34c1808c5802341e9a26356b46bdc3ca74b28ba84`.
+The headless smoke did not map wgpu; no clean-machine or GPU-device parity claim
+is made. Plan 6 is complete for the addon CPU path. Generic UI, migration and
+default rollout remain Plans 7–8; the Scene opt-in still defaults off.
+
 ## Recovery without keeping artifacts in the working tree
 
 The existing commits preserve the original material; cleanup does not rewrite

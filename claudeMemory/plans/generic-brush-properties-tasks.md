@@ -19,13 +19,13 @@ Historical review requirements were waived by the user for the remaining task li
 These passes do not certify the unfinished stroke/UI/migration integration.
 Do not enable the new path by default until the remaining gates pass.
 
-## Plan 6: finish stroke and command integration
+## Plan 6: stroke and command integration — complete
 
 Implemented behind the Scene opt-in switch: immutable effective-owner snapshots,
 native typed semantic evaluation, per-dab/batch transfer, mesh/grid/program routes,
 preview/grab/dyntopo/attribute/cage/layer integration, and view-normal/backface
 settings. Actual generic gesture tests require native semantic and checked calls.
-Remaining acceptance work:
+Acceptance checks:
 
 - [x] Correct ordinary brush spatial support. The user requires bounded reads
   and a hard zero outside the falloff boundary, even with nonzero curve endpoints.
@@ -36,7 +36,7 @@ Remaining acceptance work:
 - [x] Replace the earlier all-node falloff test oracle with independent boundary
   expectations and bounded-read assertions. Preserve frozen legacy fixtures as
   evidence; document the user-authorized correction to old leaf-dependent spill.
-- [ ] Finish auditing every consumer: stroke setup, spacing/dyntopo cadence,
+- [x] Finish auditing every consumer: stroke setup, spacing/dyntopo cadence,
   smooth decomposition, autosmooth including zero-base dynamic enable, accumulate,
   cursor/projection/offscreen fallback, texture projection and family adapters.
   No double dynamics or double attenuation; no raw fallback disguised as support.
@@ -44,13 +44,13 @@ Remaining acceptance work:
   union selection and explicitly unbounded commands on multileaf geometry.
   Preflight all property/topology/attribute requirements before mutation; retain
   per-command cavity/ENHANCE first-contact caches and correct override restoration.
-- [ ] Verify actual draw, smooth, grab, snake hook, paint/mask, dyntopo, multires
+- [x] Verify actual draw, smooth, grab, snake hook, paint/mask, dyntopo, multires
   and main-plus-smooth strokes through per-dab and batch paths, including symmetry,
   preview cancel, Blender undo/redo, and Brush/Scene changes between strokes.
-- [ ] Compare unchanged basic/legacy-pressure geometry with frozen inputs; use
+- [x] Compare unchanged basic/legacy-pressure geometry with frozen inputs; use
   independent expectations for the already specified sampler/world-size fixes
   and the newly clarified hard clip. Exercise float/int/bool and missing inputs.
-- [ ] Finish cache/session rebuilding, capability diagnostics, binding/layout
+- [x] Finish cache/session rebuilding, capability diagnostics, binding/layout
   audit and matching staged package checks. Record one concise final result.
 
 **Gate:** all consumers use resolved ownership and typed semantics; command
@@ -64,7 +64,16 @@ and compiler suites passed; Blender passed 16 runtime cases (including independe
 constant-edge geometry), two unchanged basic fixtures and 24 headed Draw/Grab/
 preview gestures. See [verification and limits](../codebase/generic-brush-history.md#boundary-correction--september-18-2026).
 Generated WGSL/SPIR-V compiled; CUDA/HIP/OpenCL emitters were updated but were not
-validated on devices. The remaining consumer audit must retain this distinction.
+validated on devices.
+
+September 18 consumer gate: removed redundant legacy installation before generic
+snapshots. The matching staged package passed 86 gesture cases and five repeated
+cache strokes, including zero-base dynamic autosmooth, independent owner changes
+between strokes, cancel and undo/redo. Typed probe execution/bindings, packed
+layout, runtime/readiness/cache and unchanged basic baselines passed. Warm generic
+strokes rebake/upload no curves. See [final verification](../codebase/generic-brush-history.md#stroke-consumer-gate--september-18-2026).
+This closes the CPU addon integration gate; UI, migration, default rollout and
+device-backend execution certification remain separate work.
 
 ## Plan 7: Generic UI and placement
 

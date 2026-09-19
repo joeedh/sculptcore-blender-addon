@@ -29,6 +29,12 @@ def evaluated(self, samples, radii):
     result = original_evaluate(self, samples, radii)
     if active:
         semantic_rows.append(len(samples))
+        pressure = np.asarray(samples)[:, 0]
+        expected = .25 * pressure if second_stroke else .45 * pressure ** 2
+        np.testing.assert_allclose(result[:, self.identifiers.index(STRENGTH)], expected, atol=2e-6)
+        if requested_tool == 'PROGRAM':
+            np.testing.assert_allclose(result[:, self.identifiers.index('sculptcore.brush.autosmooth')], .15,
+                                       atol=1e-7)
     return result
 
 NativeEvaluation.evaluate = evaluated
@@ -39,6 +45,7 @@ region = next(item for item in area.regions if item.type == 'WINDOW')
 cases = list(product((False, True), (False, True), (False, True)))
 case = phase = 0
 active = False
+second_stroke = False
 calls, statuses, results = [], [], []
 draws = [0]
 started = time.monotonic()
@@ -104,7 +111,7 @@ def push(index, kind='MOUSEMOVE', value='NOTHING'):
 
 
 def tick():
-    global case, phase, active, baseline, final
+    global case, phase, active, baseline, final, second_stroke
     try:
         assert time.monotonic() - started < 170, (case, phase)
         grid, batched, cancel = cases[case]
@@ -157,7 +164,7 @@ def tick():
             brush.use_accumulate = True
             brush.sculpt_brush_type = tool
             brush.color = (.8, .1, .5)
-            brush.auto_smooth_factor = .15 if requested_tool == 'PROGRAM' else 0
+            brush.auto_smooth_factor = 0
             brush.stroke_method = 'SPACE'
             local, parent = authoring.store(brush), authoring.store(bpy.context.scene)
             if requested_tool == 'VIEW':
@@ -176,6 +183,10 @@ def tick():
             brush.unprojected_size = .7
             local.write_stack(authoring.registry.get(SIZE), (
                 DeviceLayer('TILT_X', operation='ADD', curve=ResponseCurve('CONSTANT', (.03,))),))
+            autosmooth = authoring.registry.get('sculptcore.brush.autosmooth')
+            local.write_mode(autosmooth.identifier, 'NEVER')
+            local.write_stack(autosmooth, (DeviceLayer('PRESSURE', operation='ADD',
+                curve=ResponseCurve('CONSTANT', (.15,))),) if requested_tool == 'PROGRAM' else ())
 
             brush.mesh_automasking_settings.use_automasking_cavity = False
             brush.mesh_automasking_settings.cavity_factor = 0
@@ -208,6 +219,8 @@ def tick():
                     assert min(row[0] for row in view_rows) < 0 < max(row[0] for row in view_rows)
             assert calls and all(item['count'] >= 0 for item in calls), calls
             assert any(item['count'] > 0 for item in calls), calls
+            if requested_tool == 'PROGRAM':
+                assert all('Program' in item['api'] for item in calls), calls
             final = state()
             assert not equal(final, baseline)
             if cancel:
@@ -227,9 +240,23 @@ def tick():
                 bpy.ops.ed.redo()
         elif phase == 9:
             assert equal(state(), final), (case, 'redo')
-            results.append(dict(tool=tool, grid=grid, batched=batched, cancel=cancel, calls=list(calls), semantic_rows=list(semantic_rows)))
+            results.append(dict(tool=tool, grid=grid, batched=batched, cancel=cancel,
+                                second_stroke=second_stroke, calls=list(calls), semantic_rows=list(semantic_rows)))
             print('PLAN6_GENERIC_MODAL_CASE_PASS', tool, cancel, flush=True)
             active = False
+            if requested_tool == 'DRAW' and not second_stroke:
+                # Reuse the live session after undo/redo, changing both independent owners.
+                brush = bpy.context.tool_settings.sculpt.brush
+                local, parent = authoring.store(brush), authoring.store(bpy.context.scene)
+                brush.strength = .25
+                parent.write_value(authoring.registry.get(STRENGTH), .8)
+                local.write_mode(STRENGTH, 'NEVER')
+                local.write_stack_inheritance(STRENGTH, True)
+                parent.write_stack(authoring.registry.get(STRENGTH), (DeviceLayer('PRESSURE'),))
+                second_stroke = True
+                phase = 2
+                return .25
+            second_stroke = False
             case += 1
             if case == len(cases):
                 dll = Path(manager.capi.lib._name).resolve()

@@ -1,8 +1,9 @@
 # SPDX-FileCopyrightText: 2026 Blender Authors
 # SPDX-License-Identifier: GPL-2.0-or-later
-"""Real headed strokes: mesh/grid, Python/batch, queued/delayed input delivery."""
+"""Repeated real strokes: warm caches, curve edits, stack clearing and invalidation."""
 import bpy
 import json
+import sys
 from mathutils import Quaternion, Vector
 from pathlib import Path
 import time
@@ -10,6 +11,16 @@ import traceback
 
 from sculptcore_addon import engine, stroke
 from sculptcore_addon.brush_properties import sampling
+
+generic = '--' in sys.argv and sys.argv[sys.argv.index('--') + 1:] == ['generic']
+bpy.context.scene.sculptcore_generic_properties = generic
+if generic:
+    from sculptcore_addon import mapping
+
+    def reject_legacy(*args, **kwargs):
+        raise AssertionError('Generic stroke entered legacy settings installation')
+
+    mapping.apply_brush_settings = mapping.apply_pressure_dynamics = mapping.overlap_attenuation = reject_legacy
 
 bpy.context.preferences.view.show_splash = False
 window = bpy.context.window
@@ -199,6 +210,10 @@ def tick():
             assert height() > 1e-4, height()
             delta = [a - b for a, b in zip(counters(), before)]
             expected = [(3, 2, 2, 1), (0, 0, 0, 0), (1, 2, 0, 0), (0, 2, 0, 0), (3, 2, 2, 1)][case]
+            if generic:
+                # Initially size and strength share a response. After the edit,
+                # clearing the cache must bake their now-distinct mappings.
+                expected = [(3, 0, 2, 0), (0, 0, 0, 0), (1, 0, 0, 0), (0, 0, 0, 0), (4, 0, 2, 0)][case]
             assert tuple(delta) == expected, (case, delta, expected)
             print('PLAN5_WARM_COUNTS', case, delta, flush=True)
             results.append(dict(grid=grid, batch=use_batch, queued=queued,

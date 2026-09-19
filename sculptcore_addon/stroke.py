@@ -900,40 +900,11 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         self._stroke_method = self.brush.stroke_method
         self._preview_method = (not self._grab_class
                                 and self._stroke_method in {'ANCHORED', 'DRAG_DOT'})
-        # Tablet pressure (M4): Blender maps pressure to strength/size through
-        # the Brush.curve_strength / curve_size response curves, baked once here
-        # (never per dab) into Python-side LUTs. The smooth brush folds pressure
-        # in through them (it re-runs the kernel per relaxation pass, whose
-        # per-node loadProps would re-consume an engine device sample); the
-        # normal path additionally drives the engine device dynamics (each dab
-        # refills the sample; mouse reports 1.0, a no-op). The cursor overlay
-        # scales its radius by the size LUT. Grab-class strokes get no pressure.
+        # Generic strokes install only resolved settings. Legacy strokes retain
+        # their pressure LUTs and native stacks, including smooth decomposition.
         sc_brush = _ensure_brush(self.session)
-        # Which toggle each row owns is per-brush: vanilla's own where it drives
-        # anything, ours where vanilla's is inert (mapping.pressure_prop_names).
-        strength_prop, size_prop = mapping.pressure_prop_names(self.brush)
-        use_strength = not self._grab_class and getattr(self.brush, strength_prop)
-        use_size = not self._grab_class and getattr(self.brush, size_prop)
-        self._use_pressure = use_strength or use_size
-        self._pressure_strength_lut = (
-            mapping.sample_pressure_curve(self.brush, 'curve_strength') if use_strength else None)
-        self._pressure_size_lut = (
-            mapping.sample_pressure_curve(self.brush, 'curve_size') if use_size else None)
-        curve_cache = self.session.curve_cache
-        # Stroke-constant brush settings, including the falloff/cavity curve
-        # tables (bulk uploads skipped when the session already holds them).
-        # The dab paths write only the
-        # radius/invert state on top (mapping.apply_dab_state).
-        paint = context.tool_settings.sculpt
-        mapping.apply_brush_settings(
-            self.brush, paint.unified_paint_settings, sc_brush, paint=paint, cache=curve_cache)
-        from . import engine_props
-        engine_props.sync_authored(self.session, _ensure_executor(self.session), self.kernel)
-        # Record the installed stack generation after all checked scalar writes.
-        mapping.apply_pressure_dynamics(
-            self.brush, sc_brush, cache=curve_cache,
-            use_strength=use_strength and not self._smooth_stroke,
-            use_size=use_size and not self._smooth_stroke)
+        self._pressure_strength_lut = None
+        self._pressure_size_lut = None
         if settings is not None:
             from .brush_properties.stroke_runtime import StrokeRuntime
             try:
@@ -943,8 +914,28 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
                 self.report({'ERROR'}, "SculptCore: " + str(error))
                 return {'CANCELLED'}
             self.session.generic_runtime = self._generic
-            self._pressure_strength_lut = None
-            self._pressure_size_lut = None
+            # Color is a native vector outside the generic scalar catalogue.
+            if self.brush.sculpt_brush_type == 'PAINT':
+                color = sc_brush.brushColor.vec
+                color[0], color[1], color[2], color[3] = *self.brush.color, 1.0
+        else:
+            strength_prop, size_prop = mapping.pressure_prop_names(self.brush)
+            use_strength = not self._grab_class and getattr(self.brush, strength_prop)
+            use_size = not self._grab_class and getattr(self.brush, size_prop)
+            self._pressure_strength_lut = (
+                mapping.sample_pressure_curve(self.brush, 'curve_strength') if use_strength else None)
+            self._pressure_size_lut = (
+                mapping.sample_pressure_curve(self.brush, 'curve_size') if use_size else None)
+            curve_cache = self.session.curve_cache
+            paint = context.tool_settings.sculpt
+            mapping.apply_brush_settings(
+                self.brush, paint.unified_paint_settings, sc_brush, paint=paint, cache=curve_cache)
+            from . import engine_props
+            engine_props.sync_authored(self.session, _ensure_executor(self.session), self.kernel)
+            mapping.apply_pressure_dynamics(
+                self.brush, sc_brush, cache=curve_cache,
+                use_strength=use_strength and not self._smooth_stroke,
+                use_size=use_size and not self._smooth_stroke)
         # Tiled texture scale uses the same captured size owner as the stroke.
         texture.apply_texture(self.brush, sc_brush, context, session=self.session)
         if texture.needs_render_matrix(self.brush):
@@ -959,14 +950,10 @@ class SCULPTCORE_OT_brush_stroke(bpy.types.Operator):
         # "Adjust Strength for Spacing": constant for the stroke, folded into
         # every dab's strength write — together with any per-type strength
         # compensation (kernel-scale parity, see mapping.STRENGTH_SCALE).
-        self._overlap = mapping.overlap_attenuation(self.brush, cache=self.session.curve_cache)
-        if not kernel_toggle:
-            self._overlap *= mapping.STRENGTH_SCALE.get(
-                self.brush.sculpt_brush_type, 1.0)
         self._family_scale = (mapping.STRENGTH_SCALE.get(self.brush.sculpt_brush_type, 1.0)
                               if not kernel_toggle else 1.0)
-        if self._generic:
-            self._overlap = self._generic.settings.overlap() * self._family_scale
+        self._overlap = (self._generic.settings.overlap() if self._generic else
+                         mapping.overlap_attenuation(self.brush, cache=self.session.curve_cache)) * self._family_scale
         self._anchor = None
         self._anchor_normal = None
         self._drag_origin = None
