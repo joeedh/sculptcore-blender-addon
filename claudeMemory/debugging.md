@@ -866,3 +866,18 @@ For actual widget fixtures, separate hover, mouse press and release with short
 timer callbacks. Sending all three in one timer turn reopened a just-cancelled
 popup inconsistently; tracing showed no second operator invocation. The split
 events exercise actual numeric cancel/confirm and inheritance buttons reliably.
+
+## Curve popup lifetime - 2026-09-19
+
+Native CurveMapping dialogs reopen with the selected point's X field focused.
+Leave that field before a test's graph insertion; otherwise the first click can
+finish text entry without changing the curve. Assert the mapping changed before
+testing Cancel or shutdown, so an inert click cannot produce a false pass.
+
+The stack-widget shutdown gate exposed a fork crash in `bpy_class_call`.
+`refresh_for_srna_unregister` closes popups with a temporary context; a Python
+cancel callback installed it as `bpy.context`, then unregistration freed it.
+The next custom-mode exit callback read freed context data. Restore the previous
+Python context after the callback, matching the existing scoped string-execution
+helper. The same headed gate now edits a native curve, disables the addon with
+the dialog open, verifies rollback, and re-enables it without a crash.

@@ -22,6 +22,23 @@ radial_test = variant == ['radial']
 legacy_test = variant == ['radial-legacy']
 rows_test = variant == ['rows']
 rows_ui_test = variant == ['rows-ui']
+stacks_test = variant == ['stacks']
+stacks_ui_test = variant == ['stacks-ui']
+stack_actions = (
+    ('stack_action', dict(action='ADD', device='TILT_X')),
+    ('stack_action', dict(action='ADD', device='SPEED')),
+    ('stack_action', dict(action='ADD', device='TILT_Y')),
+    ('stack_layer', dict(device='SPEED', operation='ADD', factor=.25, preset='TWO_STEP', threshold=.3, low=.2, high=.9)),
+    ('stack_action', dict(action='UP', device='SPEED')),
+    ('stack_action', dict(action='TOGGLE', device='TILT_X')),
+    ('stack_action', dict(action='REMOVE', device='TILT_Y')),
+    ('stack_action', dict(action='CUSTOM', device='SPEED')),
+    ('stack_layer', dict(device='SPEED', operation='ADD', factor=.25, preset='SQUARE')),
+    ('stack_action', dict(action='RESEED', device='SPEED')),
+    ('stack_layer', dict(device='SPEED', operation='ADD', factor=.25, preset='LINEAR')),
+    ('stack_action', dict(action='CUSTOM', device='SPEED')),
+    ('stack_action', dict(action='CUSTOM', device='PRESSURE')),
+)
 row_cases = tuple(product((STRENGTH, 'sculptcore.brush.spacing', 'sculptcore.brush.accumulate'),
                           ('UNIFIED', 'ALWAYS', 'NEVER'), (False, True)))
 policy_cases = (('MODE', 'ALWAYS'), ('MODE', 'NEVER'), ('MODE', 'UNIFIED'),
@@ -41,6 +58,215 @@ def row_state(identifier):
     definition = authoring.registry.get(identifier)
     stores = (authoring.store(bpy.context.tool_settings.sculpt.brush), authoring.store(bpy.context.scene))
     return tuple((store.read_value(definition).value, store._stack_descriptions(definition)) for store in stores)
+
+
+def stack_state():
+    from sculptcore_addon.brush_properties.curves import declaration_name
+    from sculptcore_addon.brush_properties.registry import DEVICE_TYPES
+    result = []
+    for owner in (bpy.context.tool_settings.sculpt.brush, bpy.context.scene):
+        curves = []
+        for device in DEVICE_TYPES:
+            name = declaration_name(STRENGTH, device)
+            mapping = getattr(owner, name, None)
+            curves.append(None if mapping is None else tuple(
+                (tuple(point.location), point.handle_type) for point in mapping.curves[0].points))
+        native = owner.authoring_native_curve_key('curve_strength') if isinstance(owner, bpy.types.Brush) else None
+        store = authoring.store(owner)
+        result.append((store.read_value(authoring.registry.get(STRENGTH)).value,
+                       store._stack_descriptions(authoring.registry.get(STRENGTH)), tuple(curves), native))
+    return tuple(result)
+
+
+def stack_step(index, phase):
+    inherited, operation_index = divmod(index, len(stack_actions))
+    target = inherited
+    if phase == 0:
+        if operation_index == 0:
+            bpy.context.scene.sculptcore_generic_properties = True
+            local = authoring.store(bpy.context.tool_settings.sculpt.brush)
+            parent = authoring.store(bpy.context.scene)
+            local.write_mode(STRENGTH, 'NEVER' if inherited else 'ALWAYS')
+            local.write_stack_inheritance(STRENGTH, bool(inherited))
+            for store in (local, parent):
+                store.write_stack(authoring.registry.get(STRENGTH), (DeviceLayer('PRESSURE', curve=ResponseCurve('SQUARE')),))
+            before = stack_state()
+            try:
+                bpy.ops.sculptcore.stack_action('EXEC_DEFAULT', True, identifier=STRENGTH,
+                                                device='PRESSURE', action='ADD')
+            except RuntimeError as error:
+                check('duplicate input rejected {}'.format(inherited), 'already has an entry' in str(error))
+            else:
+                raise AssertionError('Duplicate input was accepted')
+            check('duplicate input leaves both owners unchanged {}'.format(inherited), stack_state() == before)
+            from sculptcore_addon.brush_properties.stack_ui import StackEdit
+            from sculptcore_addon.brush_properties.registry import PropertyError
+            try:
+                StackEdit(bpy.context, 'sculptcore.brush.accumulate')
+            except PropertyError:
+                check('static property rejects a stack editor {}'.format(inherited), True)
+            else:
+                raise AssertionError('Static property exposed a stack editor')
+            edit = StackEdit(bpy.context, STRENGTH)
+            local.write_stack_inheritance(STRENGTH, not bool(inherited))
+            try:
+                edit.check(bpy.context)
+            except PropertyError:
+                check('stack draft rejects changed owner {}'.format(inherited), True)
+            else:
+                raise AssertionError('Stack draft accepted a changed owner')
+            local.write_stack_inheritance(STRENGTH, bool(inherited))
+            bpy.ops.ed.undo_push(message='Input stack baseline')
+        state['stack_before'] = stack_state()
+        op, arguments = stack_actions[operation_index]
+        result = getattr(bpy.ops.sculptcore, op)('EXEC_DEFAULT', True, identifier=STRENGTH, **arguments)
+        check('stack action commits {}'.format(index), result == {'FINISHED'})
+        after, before = stack_state(), state['stack_before']
+        check('stack action preserves other owner and both values {}'.format(index),
+              after[1 - target] == before[1 - target] and after[target][0] == before[target][0])
+        if operation_index == 6:
+            layers = after[target][1]
+            check('stack order, disable and mix semantics {}'.format(inherited),
+                  tuple(layer[0] for layer in layers) == ('PRESSURE', 'SPEED', 'TILT_X')
+                  and layers[1][2:4] == ('ADD', .25) and layers[1][4] == 'TWO_STEP' and not layers[2][1])
+        if operation_index == 11:
+            check('custom reselect preserves dormant mapping {}'.format(inherited), after[target][2] == before[target][2])
+        state['stack_after'] = after
+        bpy.ops.ed.undo()
+    elif phase == 1:
+        check('stack action undo {}'.format(index), stack_state() == state['stack_before'])
+        bpy.ops.ed.redo()
+    else:
+        check('stack action redo {}'.format(index), stack_state() == state['stack_after'])
+
+
+def stack_ui_step(phase):
+    from sculptcore_addon.brush_properties import stack_ui
+    active, scene = bpy.context.tool_settings.sculpt.brush, bpy.context.scene
+    window = bpy.context.window
+
+    def key(kind):
+        window.event_simulate(type=kind, value='PRESS', x=350, y=140)
+        window.event_simulate(type=kind, value='RELEASE', x=350, y=140)
+
+    def click(x, y, *, ctrl=False):
+        window.event_simulate(type='MOUSEMOVE', value='NOTHING', x=x, y=y)
+        bpy.app.timers.register(lambda: window.event_simulate(
+            type='LEFTMOUSE', value='PRESS', ctrl=ctrl, x=x, y=y) and None, first_interval=.05)
+        bpy.app.timers.register(lambda: window.event_simulate(
+            type='LEFTMOUSE', value='RELEASE', ctrl=ctrl, x=x, y=y) and None, first_interval=.1)
+
+    def open_native():
+        assert bpy.ops.sculptcore.native_response('INVOKE_DEFAULT', True, identifier=STRENGTH) == {'RUNNING_MODAL'}
+
+    if phase == 0:
+        scene.sculptcore_generic_properties = True
+        local = authoring.store(active)
+        local.write_mode(STRENGTH, 'NEVER')
+        local.write_stack_inheritance(STRENGTH, False)
+        local.write_stack(authoring.registry.get(STRENGTH), (
+            DeviceLayer('PRESSURE', curve=local._native.curve_reference(STRENGTH)), DeviceLayer('SPEED')))
+        state['native_before'] = active.authoring_native_curve_key('curve_strength')
+        bpy.ops.ed.undo_push(message='Native response widget baseline')
+        try:
+            bpy.ops.sculptcore.native_response('EXEC_DEFAULT', True, identifier=STRENGTH)
+        except RuntimeError as error:
+            check('native curve rejects execution without an active dialog', 'cancelled' in str(error))
+        else:
+            raise AssertionError('Native editor executed without a dialog')
+        open_native()
+    elif phase in (1, 4):
+        click(350, 140, ctrl=True)
+    elif phase == 13:
+        # Reopening a mapping with a selected point focuses its X field. Leave
+        # text entry before sending the separate graph insertion event.
+        click(200, 325)
+    elif phase == 14:
+        click(450, 180, ctrl=True)
+    elif phase == 2:
+        check('native graph widget edits authoritative mapping', active.authoring_native_curve_key(
+            'curve_strength') != state['native_before'])
+        key('ESC')
+    elif phase == 3:
+        check('native graph cancel restores exact definition', active.authoring_native_curve_key(
+            'curve_strength') == state['native_before'] and not stack_ui._native_editors)
+        open_native()
+    elif phase == 5:
+        key('RET')
+    elif phase == 6:
+        state['native_after'] = active.authoring_native_curve_key('curve_strength')
+        check('native graph Apply retires scope', not stack_ui._native_editors
+              and state['native_after'] != state['native_before'])
+        bpy.ops.ed.undo()
+    elif phase == 7:
+        check('native graph one-step undo', active.authoring_native_curve_key('curve_strength') == state['native_before'])
+        bpy.ops.ed.redo()
+    elif phase == 8:
+        check('native graph redo', active.authoring_native_curve_key('curve_strength') == state['native_after'])
+        bpy.ops.sculptcore.stack_action('EXEC_DEFAULT', True, identifier=STRENGTH, device='SPEED', action='CUSTOM')
+    elif phase == 9:
+        state['stack_draw_tokens'] = tuple(owner.authoring_edit_begin(native_settings=True, undo=False)
+                                           for owner in (active, scene))
+        bpy.ops.sculptcore.property_stack('INVOKE_DEFAULT', True, identifier=STRENGTH)
+    elif phase == 10:
+        for owner, token in zip((active, scene), state.pop('stack_draw_tokens')):
+            check('input-stack drawing preserves ' + owner.bl_rna.identifier, not owner.authoring_edit_commit(token))
+        bpy.ops.screen.screenshot(filepath=str(Path(__file__).resolve().parents[1] / 'tests/brush-stack-ui.png'))
+        key('ESC')
+    elif phase == 11:
+        state['native_teardown'] = active.authoring_native_curve_key('curve_strength')
+    elif phase == 12:
+        open_native()
+    elif phase == 15:
+        check('native teardown case actually edited curve', active.authoring_native_curve_key(
+            'curve_strength') != state['native_teardown'])
+        addon_utils.disable('sculptcore_addon', default_set=False)
+        check('native curve addon disable rolls back scope', not stack_ui._native_editors
+              and active.authoring_native_curve_key('curve_strength') == state['native_teardown'])
+        addon_utils.enable('sculptcore_addon', default_set=False)
+        key('ESC')
+    elif phase == 16:
+        check('native curve re-enable has no active editors', not stack_ui._native_editors)
+        window.event_simulate(type='MOUSEMOVE', value='NOTHING', x=350, y=140)
+    elif phase == 17:
+        bpy.ops.object.custom_mode_toggle(mode_id='sculptcore.sculpt')
+        local, parent = authoring.store(active), authoring.store(scene)
+        local.write_mode(STRENGTH, 'NEVER')
+        local.write_stack_inheritance(STRENGTH, True)
+        parent.write_stack(authoring.registry.get(STRENGTH), (DeviceLayer('PRESSURE'), DeviceLayer('SPEED')))
+        bpy.ops.sculptcore.stack_action('EXEC_DEFAULT', True, identifier=STRENGTH, device='SPEED', action='CUSTOM')
+        state['owned_before'] = stack_state()
+        bpy.ops.ed.undo_push(message='Inherited curve widget baseline')
+        bpy.ops.sculptcore.property_stack('INVOKE_DEFAULT', True, identifier=STRENGTH)
+    elif phase in (18, 24):
+        click(740, 63)
+    elif phase in (19, 25):
+        click(600, 490)  # Leave the coordinate field before selecting a preset.
+    elif phase in (20, 26):
+        click(730, 447)  # Owned editor's Smooth preset.
+    elif phase in (21, 27):
+        check('owned curve widget stages edits {}'.format(phase), stack_state() == state['owned_before'])
+        if phase == 21:
+            key('ESC')
+        else:
+            click(650, 31)  # Apply.
+    elif phase == 22:
+        check('owned curve Cancel preserves both owners', stack_state() == state['owned_before'])
+        key('ESC')  # Close the parent stack popup too.
+        window.event_simulate(type='MOUSEMOVE', value='NOTHING', x=350, y=140)
+    elif phase == 23:
+        bpy.ops.sculptcore.property_stack('INVOKE_DEFAULT', True, identifier=STRENGTH)
+    elif phase == 28:
+        state['owned_after'] = stack_state()
+        check('owned curve Apply edits inherited Scene only', state['owned_after'][0] == state['owned_before'][0]
+              and state['owned_after'][1] != state['owned_before'][1])
+        bpy.ops.ed.undo()
+    elif phase == 29:
+        check('owned curve one-step undo', stack_state() == state['owned_before'])
+        bpy.ops.ed.redo()
+    elif phase == 30:
+        check('owned curve redo', stack_state() == state['owned_after'])
+        key('ESC')
 
 
 def row_step(index, phase):
@@ -513,6 +739,16 @@ def step():
                     row_policy_step(offset // 4, offset % 4)
         elif rows_ui_test and phase < 30:
             row_ui_step(phase - 15)
+        elif stacks_test and phase < 15 + 6 * len(stack_actions):
+            area = next(area for area in bpy.context.screen.areas if area.type == 'VIEW_3D')
+            region = next(region for region in area.regions if region.type == 'WINDOW')
+            with bpy.context.temp_override(area=area, region=region):
+                stack_step((phase - 15) // 3, (phase - 15) % 3)
+        elif stacks_ui_test and phase < 46:
+            area = next(area for area in bpy.context.screen.areas if area.type == 'VIEW_3D')
+            region = next(region for region in area.regions if region.type == 'WINDOW')
+            with bpy.context.temp_override(area=area, region=region):
+                stack_ui_step(phase - 15)
         elif not variant and phase < 15 + 4 * len(shortcut_cases):
             shortcut_step((phase - 15) // 4, (phase - 15) % 4)
         else:
@@ -522,10 +758,11 @@ def step():
             bpy.ops.wm.quit_blender()
             return None
         state['phase'] += 1
-        return .5
+        return .8 if stacks_ui_test else .5
     except Exception:
         traceback.print_exc()
         print('CUSTOM_UNDO_FAILED_PHASE', state['phase'], flush=True)
+        bpy.ops.screen.screenshot(filepath=str(Path(__file__).resolve().parents[1] / 'tests/brush-authoring-failed.png'))
         bpy.ops.wm.quit_blender()
         return None
 

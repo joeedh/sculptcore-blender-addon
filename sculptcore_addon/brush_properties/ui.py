@@ -186,6 +186,9 @@ def draw_row(layout, context, definition):
                     and result.stack_available and result.execution_available)
             if result.stack_owner.identity != result.value_owner.identity:
                 row.label(text="Stack: " + _name(result.stack_owner))
+            row.operator_context = 'INVOKE_DEFAULT'
+            op = row.operator('sculptcore.property_stack', text='', icon='PREFERENCES')
+            op.identifier = definition.identifier
         if local.value_mode(definition.identifier) == 'UNIFIED':
             _action(row, definition.identifier, 'UNIFIED', icon='WORLD', depressed=parent.unified(definition.identifier),
                     enabled=parent.editable and result.execution_available)
@@ -282,9 +285,13 @@ def register():
         set=lambda self, value: _search.__setitem__(self.as_pointer(), value))
     for cls in _classes:
         bpy.utils.register_class(cls)
+    from . import stack_ui
+    stack_ui.register()
 
 
 def unregister():
+    from . import stack_ui
+    stack_ui.unregister()
     for cls in reversed(_classes):
         bpy.utils.unregister_class(cls)
     del bpy.types.WindowManager.sculptcore_property_search

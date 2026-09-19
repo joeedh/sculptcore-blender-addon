@@ -80,6 +80,10 @@ owner/domain, numeric, precision, cancel, undo and teardown checks; use
 checks typed row operators, independent pressure owners, inheritance and undo;
 `--args rows-ui` drives the actual searchable panel/numeric widgets and checks
 non-mutating draws. The widget case uses the launcher's fixed 1280×800 window.
+`--args stacks` checks ordered stack operations, presets, dormant custom mappings
+and undo/redo with opposite value/stack owners. `--args stacks-ui` exercises
+native curve graph edits, Apply/Cancel, undo/redo and addon shutdown, plus the
+inherited owned-curve widget. These extend the same fixture, not separate suites.
 For example:
 
 ```powershell

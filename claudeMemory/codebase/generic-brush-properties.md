@@ -71,8 +71,24 @@ disable their respective controls.
 Search state lives in Python UI state, separate from saved Brush/Scene settings.
 Drawing reads defaults and existing mappings; it does not create records or
 curves. Existing native specialized panels remain until their replacements pass.
-Full stack/curve editing, placement editing, automasking consolidation and the
-multi-window/read-only interactive matrix remain pending.
+Placement editing, automasking consolidation and the multi-window/read-only
+interactive matrix remain pending.
+
+`stack_ui.py` provides the input-stack popup beside each dynamic property.
+Only absent device types appear in Add; existing entries can be disabled,
+reordered or removed. Response settings edit mix operation/factor and generated
+presets, including constant and two-step parameters. Missing device inputs are
+skipped; the popup explains integer rounding and boolean threshold behavior.
+Static or unsupported dynamics have no editable stack.
+
+Custom selects a saved mapping without replacing it. Replace Custom From Preset
+explicitly reseeds that mapping; generated presets leave it dormant. Owned
+curves use the fork's transactional editor on the resolved stack owner. Brush
+size/strength pressure uses its authoritative native mapping inside a scoped
+dialog: Apply commits one authoring step, Cancel restores the exact mapping.
+The native editor closes its scope before load, undo/redo or addon shutdown.
+Layer dialogs pin their owner and stack; a stale draft cannot overwrite a
+changed stack.
 
 September 19 verification: the existing custom-mode authoring fixture passed
 172 checks across typed value/pressure ownership combinations and policy changes,
@@ -80,6 +96,14 @@ then 24 checks using actual rendered numeric and inheritance widgets. It verifie
 cancel/confirm, one-step undo/redo and unchanged owner data during full-panel
 draws. Both runs used staged addon Python and Blender `1c93a65f4ed4`; no engine or
 fork source changed for these rows. This closes the shared-row step, not Plan 7.
+
+The stack extension passed 130 operator/ownership/undo checks and 31 actual
+curve-widget checks on Blender `4980bc0c4694` with staged addon Python. Snapshot
+authoring and custom-curve create, addon-disabled resave and fresh reload also
+passed. Fork commit `70ff11ce9b6` restores Python context after RNA callbacks;
+without it, unregistering an open Python curve popup from a timer could leave
+`bpy.context` pointing to freed memory. The headed fixture retains that shutdown
+regression. The production engine DLL was unchanged (`839d1f5ad3e5`).
 
 ## Ownership, storage and compatibility
 

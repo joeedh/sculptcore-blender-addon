@@ -89,13 +89,22 @@ effective-owner editing and discoverable metadata.
   actual-widget checks. Numeric cancel/confirm, independent pressure ownership,
   dormant values, curve/order preservation, one-step undo/redo and non-mutating
   full-panel drawing passed on the staged addon (September 19).
-- [ ] Implement stack controls: one row per unique device type, enable/disable,
+- [x] Implement stack controls: one row per unique device type, enable/disable,
   ordering, mix operation/factor, preset selection and owned/native curve editor.
   Show float/int/bool behavior and restrict unavailable inputs/static uniforms.
-- [ ] Implement value and stack inheritance controls, honoring Always/Never
+  The existing headed fixture passed 130 stack-action checks across Brush and
+  Scene owners, including preset/custom preservation, undo/redo, duplicate and
+  static-input rejection, and stale-owner drafts (September 19).
+- [x] Implement value and stack inheritance controls, honoring Always/Never
   modes without a misleading unified toggle. Edit the resolved owner through
   Plan 4 setters, including custom CurveMapping widgets.
-  Scalar policy controls are implemented; stack/curve widgets remain pending.
+  Actual native and inherited owned-curve widgets passed Apply/Cancel and
+  one-step undo/redo checks; native edits roll back during addon disable.
+  Drawing the stack popup leaves Brush and Scene unchanged. The wider
+  multi-window/read-only interaction matrix remains a separate gate below.
+  The 31-check widget gate uses rebuilt Blender `4980bc0c4694`, including fork
+  fix `70ff11ce9b6` for a stale Python context after popup unregistration.
+  Snapshot and fresh-process custom-curve persistence regressions also passed.
 - [ ] Implement `positions[]` with stable location identifiers, sorting and
   applicability. Render one setting in header, panel, and context menu without
   duplicating its data. Scope saved placement separately from transient UI state.
