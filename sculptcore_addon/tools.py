@@ -35,9 +35,8 @@ class SculptCoreBrushTool(bpy.types.WorkSpaceTool):
     bl_options = {'USE_BRUSHES'}
 
     def draw_settings(context, layout, _tool):
-        # Mirrors _draw_tool_settings_context_mode.SCULPT: brush popup
-        # selector, then unified-aware size/strength with their unified and
-        # pen-pressure toggles. The same draw runs in the 3D viewport's
+        # Retain the native brush selector, then use generic effective-owner
+        # rows when enabled or native unified controls otherwise. This runs in the viewport's
         # horizontal tool header and in the Properties editor's Active Tool tab;
         # the pressure-response-curve expander only makes sense in the vertical
         # Properties layout (it is too cramped in the header, which is why
@@ -54,6 +53,13 @@ class SculptCoreBrushTool(bpy.types.WorkSpaceTool):
         capabilities = brush.sculpt_capabilities
         ups = paint.unified_paint_settings
         in_properties = context.area is not None and context.area.type == 'PROPERTIES'
+
+        if context.scene.sculptcore_generic_properties:
+            from .brush_properties.ui import draw_location
+            draw_location(layout, context, 'VIEW3D_HEADER')
+            if capabilities.has_direction:
+                layout.row().prop(brush, "direction", expand=True, text="")
+            return
 
         # Which brushes get pen-pressure toggles at all: exactly the ones whose
         # strokes consume pressure, i.e. everything mapping.is_grab_class rejects

@@ -848,3 +848,21 @@ press; otherwise strength starts unexpectedly at one tenth of the drag speed.
 Keep a fractional drag accumulator separate from the rounded integer size.
 Rounding each individual precision movement loses small events; the fixture
 uses ten consecutive one-pixel moves to retain this coverage.
+
+## Generic property rows - 2026-09-19
+
+Blender Python operator calls suppress undo unless explicitly enabled. Tests of
+operators that use authoring scopes must call, for example,
+`bpy.ops.sculptcore.property_value('EXEC_DEFAULT', True, ...)`. Otherwise the
+native scope correctly rejects the pending/nested undo context. Real UI events
+do not need this Python-call override.
+
+The Properties Active Tool tab uses `ED_view3d_buttons_region_layout_ex`: it
+draws View3D Tool-category panels, not ordinary Properties panels with context
+`tool`. Register an appropriate View3D panel and restrict its poll to Properties
+when it should appear only there. Transient Python-backed search properties need
+an explicit redraw update callback, including for scripted changes.
+For actual widget fixtures, separate hover, mouse press and release with short
+timer callbacks. Sending all three in one timer turn reopened a just-cancelled
+popup inconsistently; tracing showed no second operator invocation. The split
+events exercise actual numeric cancel/confirm and inheritance buttons reliably.

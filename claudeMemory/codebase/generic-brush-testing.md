@@ -76,7 +76,11 @@ tests are independent infrastructure tests.
 The existing `test_authoring_custom_undo.py` driver covers real bracket events by
 default. Pass `--args radial` to its dialog-safe headed launcher for F/Shift-F
 owner/domain, numeric, precision, cancel, undo and teardown checks; use
-`--args radial-legacy` for the generic-disabled native fallback. For example:
+`--args radial-legacy` for the generic-disabled native fallback. `--args rows`
+checks typed row operators, independent pressure owners, inheritance and undo;
+`--args rows-ui` drives the actual searchable panel/numeric widgets and checks
+non-mutating draws. The widget case uses the launcher's fixed 1280×800 window.
+For example:
 
 ```powershell
 & $brushPython claudeMemory/scripts/run_blender_test.py --script claudeMemory/scripts/test_authoring_custom_undo.py --headed --prefix brush-radial --marker AUTHORING_CUSTOM_UNDO_OK --timeout 180 --args radial

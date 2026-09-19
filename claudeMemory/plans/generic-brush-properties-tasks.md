@@ -1,6 +1,6 @@
 # Generic brush properties: remaining work
 
-Updated 2026-09-18. This is the single active task list. The original eight-plan
+Updated 2026-09-19. This is the single active task list. The original eight-plan
 history is condensed in [history](../codebase/generic-brush-history.md); current
 implementation details and known defects are in [the reference](../codebase/generic-brush-properties.md).
 Read the [contract](../design/generic-brush-contract-v1.md) for ownership/numeric
@@ -82,21 +82,28 @@ effective-owner editing and discoverable metadata.
 
 ### Tasks
 
-- [ ] Implement a common renderer for value, pressure shortcut, unified control,
+- [x] Implement a common renderer for value, pressure shortcut, unified control,
   effective-owner indicator, and metadata expander. Show the separate stack
   owner when it differs from the value owner.
+  The existing headed fixture passed 172 typed/operator/policy checks and 24
+  actual-widget checks. Numeric cancel/confirm, independent pressure ownership,
+  dormant values, curve/order preservation, one-step undo/redo and non-mutating
+  full-panel drawing passed on the staged addon (September 19).
 - [ ] Implement stack controls: one row per unique device type, enable/disable,
   ordering, mix operation/factor, preset selection and owned/native curve editor.
   Show float/int/bool behavior and restrict unavailable inputs/static uniforms.
 - [ ] Implement value and stack inheritance controls, honoring Always/Never
   modes without a misleading unified toggle. Edit the resolved owner through
   Plan 4 setters, including custom CurveMapping widgets.
+  Scalar policy controls are implemented; stack/curve widgets remain pending.
 - [ ] Implement `positions[]` with stable location identifiers, sorting and
   applicability. Render one setting in header, panel, and context menu without
   duplicating its data. Scope saved placement separately from transient UI state.
 - [ ] Match current useful layouts by default and add a searchable All Properties
   panel in the Properties editor. Preserve native asset selection, texture and
   specialized widgets where the inventory explicitly retains them.
+  The searchable All Brush Properties panel and shared tool-header rows are
+  implemented. Existing specialized panels await their generic replacements.
 - [ ] Consolidate automasking: remove `SCULPTCORE_PT_automasking` from `ui.py`
   and its registration list once the surviving full UI is ready. Replace the
   native automasking content reached through the cloned advanced brush settings

@@ -1,8 +1,8 @@
 # Generic brush properties: implementation reference
 
-Updated 2026-09-18. This describes the implementation and its limits, not a
-release approval. The generic stroke path is opt-in. Plans 1–5 passed their
-historical gates; stroke integration, UI and migration remain unfinished.
+Updated 2026-09-19. This describes the implementation and its limits, not a
+release approval. The generic stroke path is opt-in. Plans 1–6 passed their
+gates; UI and migration remain unfinished.
 See the [remaining work](../plans/generic-brush-properties-tasks.md),
 [contract](../design/generic-brush-contract-v1.md),
 [test guide](generic-brush-testing.md) and [history](generic-brush-history.md).
@@ -47,8 +47,39 @@ Sources live in `sculptcore_addon/brush_properties/`.
 | `evaluation.py`, `native_evaluation.py` | Typed semantic evaluation before unit conversion |
 | `stroke_settings.py`, `stroke_runtime.py` | Stroke synchronization, projection and checked native transfer |
 
-`interaction.py` and `placement.py` are unfinished, unintegrated UI groundwork.
-Their existence does not mean the generic UI is available.
+`interaction.py` supplies pinned value edits to keyboard and numeric controls.
+`ui.py` draws shared rows in the tool header and the searchable All Brush
+Properties panel in Properties > Active Tool. `placement.py` filters applicable
+definitions and reads saved/default positions; placement editing remains pending.
+
+## Property rows
+
+With the generic path enabled, numeric rows open a typed editor. Confirmation
+validates the current owner/domain and commits one explicit authoring undo step;
+editing the dialog or cancelling it does not write to the brush. Boolean rows
+toggle immediately through the same value adapter. The row shows the value-owner
+icon and names the input-stack owner when different.
+
+The pressure shortcut edits the effective stack's unique pressure entry,
+preserving its curve, mix settings, order and other entries. Static settings have
+no pressure shortcut. The unified button appears only in Unified inheritance
+mode. The details popup changes value inheritance and independent stack
+inheritance without copying dormant values. Native cavity policy remains an
+explicit compatibility choice. Unavailable execution and read-only targets
+disable their respective controls.
+
+Search state lives in Python UI state, separate from saved Brush/Scene settings.
+Drawing reads defaults and existing mappings; it does not create records or
+curves. Existing native specialized panels remain until their replacements pass.
+Full stack/curve editing, placement editing, automasking consolidation and the
+multi-window/read-only interactive matrix remain pending.
+
+September 19 verification: the existing custom-mode authoring fixture passed
+172 checks across typed value/pressure ownership combinations and policy changes,
+then 24 checks using actual rendered numeric and inheritance widgets. It verifies
+cancel/confirm, one-step undo/redo and unchanged owner data during full-panel
+draws. Both runs used staged addon Python and Blender `1c93a65f4ed4`; no engine or
+fork source changed for these rows. This closes the shared-row step, not Plan 7.
 
 ## Ownership, storage and compatibility
 
@@ -236,5 +267,5 @@ size/strength and unified-flag cases. This verifies these shortcuts, not the
 remaining row, layout or multi-window gate.
 The same staged Blender build (`1c93a65f4ed4`) passed the maintained headed Draw
 regression after sharing the cursor overlay; the unit suite also passed.
-Generic rows, automasking panel consolidation, versioned
+The remaining generic UI, automasking panel consolidation, versioned
 migration and packaged default rollout remain unapproved by tests.

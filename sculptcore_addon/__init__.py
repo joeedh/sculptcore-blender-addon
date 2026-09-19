@@ -27,6 +27,7 @@ from . import debug_server
 from .brush_properties import lifecycle as brush_property_lifecycle
 from .brush_properties import authoring as brush_property_authoring
 from .brush_properties import radial as brush_property_radial
+from .brush_properties import ui as brush_property_ui
 from . import convert, cursor, engine, engine_props, gestures, handlers, keymap, layers, menus, ops, props, stroke, texture, tools, ui, undo, vanilla_panels
 
 
@@ -110,6 +111,7 @@ def _register_modules():
     stroke.register()
     ops.register()
     brush_property_radial.register()
+    brush_property_ui.register()
     layers.register()
     gestures.register()
     # Hand the mode the native external draw provider so custom-mode objects
@@ -151,6 +153,7 @@ def _register_modules():
 
 
 def unregister():
+    brush_property_ui.unregister()
     brush_property_radial.unregister()
     brush_property_authoring.unregister()
     brush_property_lifecycle.unregister()

@@ -20,6 +20,12 @@ shortcut_cases = tuple(product(('UNIFIED', 'ALWAYS', 'NEVER'), (False, True), ('
 variant = sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else []
 radial_test = variant == ['radial']
 legacy_test = variant == ['radial-legacy']
+rows_test = variant == ['rows']
+rows_ui_test = variant == ['rows-ui']
+row_cases = tuple(product((STRENGTH, 'sculptcore.brush.spacing', 'sculptcore.brush.accumulate'),
+                          ('UNIFIED', 'ALWAYS', 'NEVER'), (False, True)))
+policy_cases = (('MODE', 'ALWAYS'), ('MODE', 'NEVER'), ('MODE', 'UNIFIED'),
+                ('UNIFIED', 'UNIFIED'), ('STACK_INHERIT', 'NEVER'))
 radial_cases = tuple((SIZE, *case) for case in shortcut_cases) + tuple(
     (STRENGTH, mode, flag, 'VIEW') for mode, flag in product(('UNIFIED', 'ALWAYS', 'NEVER'), (False, True)))
 
@@ -31,12 +37,201 @@ def size_state():
                  for owner in (active, unified))
 
 
+def row_state(identifier):
+    definition = authoring.registry.get(identifier)
+    stores = (authoring.store(bpy.context.tool_settings.sculpt.brush), authoring.store(bpy.context.scene))
+    return tuple((store.read_value(definition).value, store._stack_descriptions(definition)) for store in stores)
+
+
+def row_step(index, phase):
+    identifier, mode, flag = row_cases[index]
+    target = int(mode == 'ALWAYS' or (mode == 'UNIFIED' and flag))
+    stack_target = int(not flag)
+    definition = authoring.registry.get(identifier)
+    if phase == 0:
+        bpy.context.scene.sculptcore_generic_properties = True
+        local, parent = authoring.store(bpy.context.tool_settings.sculpt.brush), authoring.store(bpy.context.scene)
+        values = {'FLOAT32': (.25, .5, .75), 'INT32': (10, 20, 30), 'BOOL': (False, True, None)}[definition.scalar_type]
+        for store, value, preset in ((local, values[0], 'SQUARE'), (parent, values[1], 'LINEAR')):
+            store.write_value(definition, value)
+            if definition.dynamic:
+                store.write_stack(definition, (DeviceLayer('PRESSURE', False, curve=ResponseCurve(preset)),
+                                               DeviceLayer('TILT_X', curve=ResponseCurve('ROOT'))))
+        local.write_mode(identifier, mode)
+        local.write_stack_inheritance(identifier, not flag)
+        parent.write_unified(identifier, flag)
+        state['row_before'] = row_state(identifier)
+        bpy.ops.ed.undo_push(message='Property row baseline')
+        if definition.scalar_type == 'BOOL':
+            state['row_expected'] = not values[target]
+            result = bpy.ops.sculptcore.property_action('EXEC_DEFAULT', True, identifier=identifier, action='BOOLEAN')
+        else:
+            state['row_expected'] = values[2]
+            field = 'float_value' if definition.scalar_type == 'FLOAT32' else 'int_value'
+            result = bpy.ops.sculptcore.property_value('EXEC_DEFAULT', True, identifier=identifier, **{field: values[2]})
+        check('row value operator commits {}'.format(index), result == {'FINISHED'})
+    elif phase == 1:
+        current, before = row_state(identifier), state['row_before']
+        check('row edits effective value and preserves dormant state {}'.format(index),
+              current[target][0] == state['row_expected'] and current[1 - target] == before[1 - target]
+              and current[target][1] == before[target][1])
+        state['row_value'] = current
+        if definition.dynamic:
+            check('row pressure commits {}'.format(index), bpy.ops.sculptcore.property_action(
+                'EXEC_DEFAULT', True, identifier=identifier, action='PRESSURE') == {'FINISHED'})
+    elif phase == 2:
+        current, before = row_state(identifier), state['row_value']
+        if definition.dynamic:
+            expected_layers = list(before[stack_target][1])
+            expected_layers[0] = (expected_layers[0][0], True, *expected_layers[0][2:])
+            check('row pressure edits independent owner preserving curves/order {}'.format(index),
+                  current[stack_target] == (before[stack_target][0], tuple(expected_layers))
+                  and current[1 - stack_target] == before[1 - stack_target])
+        state['row_after'] = current
+        bpy.ops.ed.undo()
+    elif phase == 3:
+        check('first row undo {}'.format(index), row_state(identifier) == state[
+            'row_value' if definition.dynamic else 'row_before'])
+        if definition.dynamic:
+            bpy.ops.ed.undo()
+    elif phase == 4:
+        check('second undo restores value {}'.format(index), row_state(identifier) == state['row_before'])
+        bpy.ops.ed.redo()
+    else:
+        check('row value redo {}'.format(index), row_state(identifier) == state['row_value'])
+        if definition.dynamic:
+            bpy.ops.ed.redo()
+            check('row pressure redo {}'.format(index), row_state(identifier) == state['row_after'])
+            bpy.ops.sculptcore.property_action('EXEC_DEFAULT', True, identifier=identifier, action='PRESSURE')
+            check('pressure disable retains curve and order {}'.format(index), row_state(identifier) == state['row_value'])
+
+
 def radial_event(kind, value='PRESS', *, shift=False, offset=0):
     window = bpy.context.window
     area = next(item for item in window.screen.areas if item.type == 'VIEW_3D')
     region = next(item for item in area.regions if item.type == 'WINDOW')
     window.event_simulate(type=kind, value=value, shift=shift,
                          x=region.x + region.width // 2 + offset, y=region.y + region.height // 2)
+
+
+def row_policy_step(index, phase):
+    action, mode = policy_cases[index]
+    local, parent = authoring.store(bpy.context.tool_settings.sculpt.brush), authoring.store(bpy.context.scene)
+
+    def policy():
+        return local.value_mode(STRENGTH), parent.unified(STRENGTH), local.inherits_stack(STRENGTH)
+
+    if phase == 0:
+        local.write_mode(STRENGTH, 'UNIFIED' if action == 'UNIFIED' else 'ALWAYS' if mode == 'NEVER' else 'NEVER')
+        parent.write_unified(STRENGTH, False)
+        local.write_stack_inheritance(STRENGTH, False)
+        state['policy_before'], state['policy_data'] = policy(), row_state(STRENGTH)
+        bpy.ops.ed.undo_push(message='Property policy baseline')
+        result = bpy.ops.sculptcore.property_action('EXEC_DEFAULT', True, identifier=STRENGTH, action=action, mode=mode)
+        check('policy operator commits {}'.format(index), result == {'FINISHED'})
+    elif phase == 1:
+        expected = list(state['policy_before'])
+        expected[{'MODE': 0, 'UNIFIED': 1, 'STACK_INHERIT': 2}[action]] = mode if action == 'MODE' else True
+        check('policy changes preserve dormant values and stacks {}'.format(index),
+              policy() == tuple(expected) and row_state(STRENGTH) == state['policy_data'])
+        state['policy_after'] = policy()
+        bpy.ops.ed.undo()
+    elif phase == 2:
+        check('policy undo {}'.format(index), policy() == state['policy_before']
+              and row_state(STRENGTH) == state['policy_data'])
+        bpy.ops.ed.redo()
+    else:
+        check('policy redo {}'.format(index), policy() == state['policy_after']
+              and row_state(STRENGTH) == state['policy_data'])
+
+
+def row_ui_step(phase):
+    active, scene = bpy.context.tool_settings.sculpt.brush, bpy.context.scene
+    window = bpy.context.window
+
+    def click(x, y):
+        window.event_simulate(type='MOUSEMOVE', value='NOTHING', x=x, y=y)
+        def press():
+            window.event_simulate(type='LEFTMOUSE', value='PRESS', x=x, y=y)
+            return None
+        def release():
+            window.event_simulate(type='LEFTMOUSE', value='RELEASE', x=x, y=y)
+            return None
+        bpy.app.timers.register(press, first_interval=.05)
+        bpy.app.timers.register(release, first_interval=.1)
+
+    def number():
+        click(420, 263)
+        def type_value():
+            window.event_simulate(type='A', value='PRESS', ctrl=True, x=420, y=263)
+            for kind, char in (('ZERO', '0'), ('PERIOD', '.'), ('SEVEN', '7'), ('FIVE', '5')):
+                window.event_simulate(type=kind, value='PRESS', unicode=char, x=420, y=263)
+            window.event_simulate(type='RET', value='PRESS', x=420, y=263)
+            window.event_simulate(type='RET', value='RELEASE', x=420, y=263)
+            return None
+        bpy.app.timers.register(type_value, first_interval=.2)
+
+    if phase == 0:
+        scene.sculptcore_generic_properties = True
+        active.strength, scene.tool_settings.sculpt.unified_paint_settings.strength = .5, .25
+        local = authoring.store(active)
+        local.write_mode(STRENGTH, 'NEVER')
+        local.write_stack_inheritance(STRENGTH, True)
+        bpy.ops.ed.undo_push(message='Row widget baseline')
+        area = next(area for area in window.screen.areas if area.type == 'VIEW_3D')
+        area.type = 'PROPERTIES'
+        area.spaces.active.context = 'TOOL'
+        state['draw_tokens'] = tuple(owner.authoring_edit_begin(native_settings=True, undo=False)
+                                     for owner in (active, scene))
+    elif phase == 1:
+        for owner, token in zip((active, scene), state.pop('draw_tokens')):
+            check('all-properties drawing preserves ' + owner.bl_rna.identifier, not owner.authoring_edit_commit(token))
+        window_manager = bpy.context.window_manager
+        window_manager.sculptcore_property_search = 'strength'
+    elif phase == 2:
+        bpy.ops.screen.screenshot(filepath=str(Path(__file__).resolve().parents[1] / 'tests/brush-row-ui.png'))
+        click(250, 303)
+    elif phase in (3, 6):
+        number()
+    elif phase == 4:
+        bpy.ops.screen.screenshot(filepath=str(Path(__file__).resolve().parents[1] / 'tests/brush-row-numeric.png'))
+        check('numeric dialog does not write before confirmation', active.strength == .5)
+        window.event_simulate(type='ESC', value='PRESS', x=390, y=195)
+        window.event_simulate(type='ESC', value='RELEASE', x=390, y=195)
+    elif phase == 5:
+        bpy.ops.screen.screenshot(filepath=str(Path(__file__).resolve().parents[1] / 'tests/brush-row-cancelled.png'))
+        check('numeric widget cancel preserves both owners', active.strength == .5
+              and scene.tool_settings.sculpt.unified_paint_settings.strength == .25)
+        click(250, 303)
+    elif phase == 7:
+        window.event_simulate(type='RET', value='PRESS', x=187, y=195)
+        window.event_simulate(type='RET', value='RELEASE', x=187, y=195)
+    elif phase == 8:
+        bpy.ops.screen.screenshot(filepath=str(Path(__file__).resolve().parents[1] / 'tests/brush-row-confirmed.png'))
+        check('actual numeric widget writes authoritative native owner', active.strength == .75
+              and scene.tool_settings.sculpt.unified_paint_settings.strength == .25)
+        bpy.ops.ed.undo()
+    elif phase == 9:
+        check('numeric widget creates one undo step', active.strength == .5)
+        bpy.ops.ed.redo()
+    elif phase == 10:
+        check('numeric widget redo', active.strength == .75)
+        click(1017, 303)
+    elif phase == 11:
+        bpy.ops.screen.screenshot(filepath=str(Path(__file__).resolve().parents[1] / 'tests/brush-row-metadata.png'))
+        click(1037, 167)
+    elif phase == 12:
+        check('metadata widget changes inheritance without copying values',
+              authoring.store(active).value_mode(STRENGTH) == 'ALWAYS' and active.strength == .75
+              and scene.tool_settings.sculpt.unified_paint_settings.strength == .25)
+        bpy.ops.ed.undo()
+    elif phase == 13:
+        check('metadata widget undo', authoring.store(active).value_mode(STRENGTH) == 'NEVER'
+              and active.strength == .75)
+        bpy.ops.ed.redo()
+    else:
+        check('metadata widget redo', authoring.store(active).value_mode(STRENGTH) == 'ALWAYS'
+              and active.strength == .75)
 
 
 def radial_step(index, phase):
@@ -306,7 +501,19 @@ def step():
             radial_lifetime_step(phase - 15 - 8 * len(radial_cases))
         elif legacy_test and phase < 31:
             radial_legacy_step((phase - 15) // 4, (phase - 15) % 4)
-        elif not radial_test and not legacy_test and phase < 15 + 4 * len(shortcut_cases):
+        elif rows_test and phase < 15 + 6 * len(row_cases) + 4 * len(policy_cases):
+            area = next(area for area in bpy.context.screen.areas if area.type == 'VIEW_3D')
+            region = next(region for region in area.regions if region.type == 'WINDOW')
+            with bpy.context.temp_override(area=area, region=region):
+                offset = phase - 15
+                if offset < 6 * len(row_cases):
+                    row_step(offset // 6, offset % 6)
+                else:
+                    offset -= 6 * len(row_cases)
+                    row_policy_step(offset // 4, offset % 4)
+        elif rows_ui_test and phase < 30:
+            row_ui_step(phase - 15)
+        elif not variant and phase < 15 + 4 * len(shortcut_cases):
             shortcut_step((phase - 15) // 4, (phase - 15) % 4)
         else:
             path = Path(__file__).resolve().parents[1] / 'tests/plan4-authoring-custom-undo.checks.json'
