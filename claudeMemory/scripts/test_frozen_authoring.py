@@ -10,7 +10,7 @@ import time
 from unittest.mock import patch
 import bpy
 import sculptcore_addon as addon
-from sculptcore_addon.brush_properties import authoring, legacy
+from sculptcore_addon.brush_properties import authoring, legacy, migration
 from sculptcore_addon.brush_properties.curves import declaration_name
 from sculptcore_addon.brush_properties.registry import DeviceLayer, PropertyError, Registry, scalar
 from sculptcore_addon.brush_properties.storage import ROOT, PersistentOwnerStore
@@ -57,6 +57,119 @@ for definition in legacy.DEFINITIONS:
 check('repeated reads leave raw values unchanged', before == {
     name: brush.system_property_scalar(('sculptcore', name)) for name in expected})
 check('legacy read creates no generic root', ROOT not in brush)
+
+# Migration extends this frozen fixture, rather than creating another plan suite.
+migrated = brush.copy()
+migrated.name = 'FrozenMigratedV1'
+migrated.use_fake_user = True
+migrated_store = authoring.store(migrated)
+native_before = tuple(migrated_store.read_value(item) for item in authoring.NATIVE_DEFINITIONS)
+native_flags = ('use_pressure_strength', 'use_pressure_size', 'sculptcore_use_pressure_strength',
+                'sculptcore_use_pressure_size', 'use_unified_strength', 'use_unified_size')
+flags_before = tuple(getattr(migrated, name) for name in native_flags)
+curve_paths = ('curve_strength', 'curve_size', 'curve_distance_falloff', 'mesh_automasking_settings.cavity_curve')
+curves_before = tuple(migrated.authoring_native_curve_key(path) for path in curve_paths)
+scene_before = tuple(authoring.store(bpy.context.scene).read_value(item) for item in authoring.NATIVE_DEFINITIONS)
+unified = bpy.context.scene.tool_settings.sculpt.unified_paint_settings
+unified_before = (unified.use_unified_strength, unified.use_unified_size)
+with patch.object(addon.engine, 'capi', side_effect=AssertionError('Migration cannot consult a DLL')), \
+        patch.object(addon.engine_props, '_walk_manifests', side_effect=AssertionError('No live defaults')):
+    check('migration imports frozen names', migration.migrate(migrated_store) == tuple(migration.BY_NAME))
+for definition in legacy.DEFINITIONS:
+    name = legacy.ASSOCIATIONS[definition.identifier][1]
+    source = migrated_store.read_value(definition)
+    check('migration authored presence ' + definition.identifier, source.present == expected[name]['set'])
+    check('migration frozen value ' + definition.identifier,
+          resolve(authoring.registry, definition.identifier, migrated_store).value == expected[name]['value'])
+    if source.present:
+        check('migration uses generic storage ' + definition.identifier, source.source == 'GENERIC')
+check('migration retains native values', native_before == tuple(
+    migrated_store.read_value(item) for item in authoring.NATIVE_DEFINITIONS))
+check('migration retains pressure and native unified flags', flags_before == tuple(
+    getattr(migrated, name) for name in native_flags))
+check('migration retains native curves', curves_before == tuple(
+    migrated.authoring_native_curve_key(path) for path in curve_paths))
+check('migration leaves Scene values and policy unchanged', scene_before == tuple(
+    authoring.store(bpy.context.scene).read_value(item) for item in authoring.NATIVE_DEFINITIONS)
+    and unified_before == (unified.use_unified_strength, unified.use_unified_size))
+check('migration preserves rollback raw data', before == {
+    name: migrated.system_property_scalar(('sculptcore', name)) for name in expected})
+token = migrated.authoring_edit_begin(undo=False)
+check('migration repeat has no pending names', migration.migrate(migrated_store) == ())
+check('migration repeat makes no authoring change', not migrated.authoring_edit_commit(token))
+
+fanout = tuple(item for item in legacy.DEFINITIONS if item.identifier.endswith('.planeSide'))
+migrated_store.write_value(fanout[0], -.25)
+migrated.sculptcore['planeSide'] = .5
+check('legacy changed name synchronized once', migration.migrate(migrated_store) == ('planeSide',))
+check('legacy raw write fans out even after divergence', all(
+    migrated_store.read_value(item).value == .5 for item in fanout))
+del migrated.sculptcore['planeSide']
+check('legacy unset synchronized', migration.migrate(migrated_store) == ('planeSide',))
+check('legacy unset restores frozen defaults and presence', all(
+    not migrated_store.read_value(item).present
+    and resolve(authoring.registry, item.identifier, migrated_store).value == item.default for item in fanout))
+
+mixed = brush.copy()
+mixed.name = 'FrozenMixedMigration'
+mixed.use_fake_user = True
+mixed_store = authoring.store(mixed)
+mixed_store.write_value(fanout[0], -.75)
+mixed_store.write_positions(fanout[0], ())
+mixed[ROOT]['opaque'] = {'future': b'keep'}
+mixed.sculptcore['unknown_legacy'] = {'future': [1, 2]}
+check('mixed initial migration runs', bool(migration.migrate(mixed_store)))
+check('mixed migration preserves independent value and placement', mixed_store.read_value(fanout[0]).value == -.75
+      and mixed_store.read_positions(fanout[0]) == ())
+check('migration preserves unknown generic and legacy data', mixed[ROOT]['opaque']['future'] == b'keep'
+      and list(mixed.sculptcore['unknown_legacy']['future']) == [1, 2])
+
+# Validate the entire candidate before publication, including a bad last source.
+mixed.sculptcore['mu'] = 2.0
+del mixed.sculptcore['projection']
+mixed.sculptcore['projection'] = 'invalid'
+saved = mixed[ROOT].to_dict()
+reject('malformed late legacy source rejects migration', lambda: migration.migrate(mixed_store))
+check('migration failure publishes nothing', mixed[ROOT].to_dict() == saved)
+del mixed.sculptcore['projection']
+mixed.sculptcore['projection'] = 0.0
+migration.migrate(mixed_store)
+for field, version in (('schema_version', 99), (migration.FIELD, 99)):
+    if field == migration.FIELD:
+        mixed[ROOT][field]['version'] = version
+    else:
+        mixed[ROOT][field] = version
+    saved = mixed[ROOT].to_dict()
+    reject('newer migration data rejected ' + field, lambda: migration.migrate(mixed_store))
+    check('newer migration data unchanged ' + field, mixed[ROOT].to_dict() == saved)
+    if field == migration.FIELD:
+        mixed[ROOT][field]['version'] = migration.VERSION
+    else:
+        mixed[ROOT][field] = 1
+reject('migration never writes Scene', lambda: migration.migrate(authoring.store(bpy.context.scene)))
+
+# Simulate a replacement DLL registering different RNA defaults. Reading those
+# defaults creates ghost properties; they must not become authored legacy data.
+addon.engine_props.unregister()
+try:
+    changed_rows = [(name, .25, False, 0.0, 1.0, -1, 0) for name in migration.BY_NAME]
+    with patch.object(addon.engine_props, '_walk_manifests', return_value={'KELVINLET': changed_rows}):
+        addon.engine_props.register()
+    changed_defaults = bpy.data.brushes.new('FrozenChangedDefaults', mode='SCULPT')
+    changed_defaults.use_fake_user = True
+    check('replacement RNA actually has different defaults', changed_defaults.sculptcore.mu == .25
+          and changed_defaults.sculptcore.planeSide == .25)
+    changed_store = authoring.store(changed_defaults)
+    migration.migrate(changed_store)
+    check('changed DLL defaults do not become authored', all(
+        not changed_store.read_value(item).present for item in legacy.DEFINITIONS))
+    check('changed DLL cannot rewrite frozen defaults', all(
+        resolve(authoring.registry, item.identifier, changed_store).value == item.default
+        for item in legacy.DEFINITIONS))
+finally:
+    addon.engine_props.unregister()
+    addon.engine_props.register()
+
 nu = authoring.registry.get('sculptcore.kernel.kelvinlet.nu')
 for changes in (dict(default=.1), dict(maximum=10), dict(dynamic=False), dict(owners=frozenset(('BRUSH',))),
                 dict(scalar_type='INT32', default=0, minimum=0, maximum=1, soft_minimum=0, soft_maximum=1)):
@@ -131,6 +244,14 @@ with patch.object(addon.engine, 'capi', side_effect=RuntimeError('Engine deliber
     check('production registration without engine', len(authoring.registry.definitions()) == 27)
     value = authoring.store(brush).read_value(plane[1])
     check('unregistered legacy RNA still readable', value.value == .5 and value.source == 'LEGACY')
+    missing_engine = brush.copy()
+    missing_engine.name = 'FrozenMissingEngineMigration'
+    missing_engine.use_fake_user = True
+    missing_store = authoring.store(missing_engine)
+    check('migration runs with engine and legacy RNA absent', bool(migration.migrate(missing_store)))
+    check('missing engine preserves independent generic edits', missing_store.read_value(nu).value == scalar('FLOAT32', .3))
+    check('missing engine still fans out raw legacy data', missing_store.read_value(plane[1]).value == .5
+          and missing_store.read_value(plane[1]).source == 'GENERIC')
     ref = authoring.curve_bank.initialize(authoring.store(brush), nu, 'SPEED')
     check('missing engine custom curve authoring', ref.mapping_key[0] > 0)
 elapsed = time.perf_counter() - started

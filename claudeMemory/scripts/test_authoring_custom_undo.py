@@ -26,6 +26,7 @@ stacks_test = variant == ['stacks']
 stacks_ui_test = variant == ['stacks-ui']
 placements_test = variant == ['placements']
 panels_test = variant == ['panels']
+migration_test = variant == ['migration']
 stack_actions = (
     ('stack_action', dict(action='ADD', device='TILT_X')),
     ('stack_action', dict(action='ADD', device='SPEED')),
@@ -1000,6 +1001,54 @@ def panel_step(phase):
         key('ESC')
 
 
+def migration_step(phase):
+    from sculptcore_addon.brush_properties import legacy, migration
+    from sculptcore_addon.brush_properties.edits import authoring_edit
+    from sculptcore_addon.brush_properties.storage import ROOT
+
+    custom, stage = phase < 4, phase % 4
+    if stage == 0:
+        if not custom:
+            bpy.ops.object.custom_mode_toggle(mode_id='sculptcore.sculpt')
+        owner = bpy.data.brushes.new('MigrationUndo' + str(custom), mode='SCULPT')
+        owner.use_fake_user = True
+        owner.sculptcore.planeSide = .625
+        owner.strength = .375
+        state['migration_name'] = owner.name
+        bpy.ops.ed.undo_push(message='Migration baseline')
+        store = authoring.store(owner)
+        try:
+            with authoring_edit(store, undo=False):
+                migration.migrate(store)
+                raise RuntimeError('Cancel migration')
+        except RuntimeError as error:
+            assert str(error) == 'Cancel migration'
+        check('migration cancellation restores missing root ' + str(custom), ROOT not in owner)
+        store = authoring.store(owner)
+        with authoring_edit(store, 'Migrate Brush Settings'):
+            migration.migrate(store)
+        check('migration publishes fanout in one edit ' + str(custom), all(
+            store.read_value(item).value == .625 for item in legacy.DEFINITIONS
+            if item.identifier.endswith('.planeSide')))
+        state['migration_after'] = owner[ROOT].to_dict()
+        bpy.ops.ed.undo()
+    else:
+        owner = bpy.data.brushes[state['migration_name']]
+        if stage == 1:
+            check('migration undo restores absence and native values ' + str(custom), ROOT not in owner
+                  and owner.strength == .375 and owner.sculptcore.planeSide == .625)
+            bpy.ops.ed.redo()
+        elif stage == 2:
+            check('migration redo restores exact metadata ' + str(custom),
+                  owner[ROOT].to_dict() == state['migration_after'])
+            with authoring_edit(authoring.store(owner), 'Repeat Migration'):
+                check('migration repeat is empty ' + str(custom), migration.migrate(authoring.store(owner)) == ())
+            bpy.ops.ed.undo()
+        else:
+            check('migration repeat adds no undo step ' + str(custom), ROOT not in owner)
+            bpy.ops.ed.redo()
+
+
 def brush():
     return bpy.data.brushes['Custom Undo Authoring']
 
@@ -1110,6 +1159,8 @@ def step():
             region = next(region for region in area.regions if region.type == 'WINDOW')
             with bpy.context.temp_override(area=area, region=region):
                 panel_step(phase - 15)
+        elif migration_test and phase < 23:
+            migration_step(phase - 15)
         elif (stacks_ui_test and phase < 46) or (placements_test and phase < 38):
             area = next(area for area in bpy.context.screen.areas if area.type == 'VIEW_3D')
             region = next(region for region in area.regions if region.type == 'WINDOW')

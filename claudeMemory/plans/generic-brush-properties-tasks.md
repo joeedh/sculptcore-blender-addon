@@ -195,6 +195,28 @@ keymaps where operator/context targets change, and property storage/renderer.
 **Goal:** preserve existing user data and behavior while retiring competing
 property paths and shipping matching fork, engine and add-on versions.
 
+### Implemented foundation (September 19)
+
+- [x] Add explicit atomic v0 migration using frozen declarations, retaining raw
+  rollback data and distinguishing unset from explicit defaults. Initial import
+  preserves existing independent generic values; subsequent raw legacy changes
+  fan out to every frozen destination, including unset. Native values, curves,
+  ownership metadata and unknown data stay in their existing storage.
+- [x] Verify this operation against the maintained frozen fixture, replacement
+  RNA defaults and missing engine/RNA, fresh reload, linked write refusal, and
+  cancellation/undo/redo in both custom and global undo.
+
+Evidence: staged Blender `4980bc0c4694`; `authoring/frozen-fresh` passed its
+122-check producer and 12-check fresh process; the headed custom-undo fixture
+with `--args migration` passed 26 checks; unit suite passed 42 tests. Outputs
+remain ignored (`brush-authoring-frozen*`, `brush-migration-undo`).
+No fork/engine edits or rebuild were needed for this Python-only slice.
+
+The operation is explicit (`migration.migrate(authoring.store(brush))`). It is
+not yet called on activation or ordinary edits. Integrate legacy RNA aliases,
+raw-write synchronization and evaluated-animation overlays before enabling lazy
+migration automatically. The full migration/release gates below remain open.
+
 ### Tasks
 
 - [ ] Implement versioned, idempotent migration using the Plan 1 inventory and

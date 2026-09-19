@@ -39,6 +39,7 @@ Sources live in `sculptcore_addon/brush_properties/`.
 | --- | --- |
 | `registry.py`, `authoring.py` | Immutable definitions, unique device types, production catalogue and manifest readiness |
 | `storage.py`, `legacy.py`, `frozen_v0.py`, `native_v0.py` | Versioned saved records, frozen legacy reads and defaults |
+| `migration.py` | Explicit atomic v0 import and synchronization of changed raw legacy names |
 | `resolver.py`, `adapters.py`, `bindings.py` | Effective value/stack owners and authoritative native RNA |
 | `lifecycle.py`, `edits.py` | Operation-scoped owner validity and explicit grouped undo |
 | `curves.py`, `customize.py` | Owner-aware custom mappings and explicit preset customization |
@@ -316,6 +317,34 @@ state after commands; execution order alone does not define inheritance.
   GPU denormal behavior is not promised bitwise equal to native CPU.
 
 ## Remaining compatibility limits
+
+### Migration foundation
+
+`migration.migrate(authoring.store(brush))` imports the seven frozen generated
+IDs from five legacy names without querying the DLL. It writes one atomic
+transaction under `sculptcore_properties`, with a versioned `legacy_migration`
+source snapshot. Unset values remain absent and use the frozen defaults; an
+explicit set-to-default remains authored. Initial import preserves pre-existing
+generic values. A later call compares exact raw presence/type/value with that
+snapshot and fans each changed name out to all its frozen local destinations.
+Unsetting a name clears those authored values. Unchanged calls publish nothing.
+
+Native settings/pressure/unified flags and custom curves remain authoritative
+where they were stored; migration never copies effective Scene settings into a
+Brush. Unknown fields and raw legacy data remain intact for rollback. Unsupported
+schema versions and malformed known sources fail before publication. Linked and
+override owners reject writes. Use an existing `authoring_edit` scope for grouped
+undo or cancellation; background callers can use the atomic operation directly.
+
+This operation currently has **no automatic activation or edit hook**. Legacy
+public RNA aliases, resolver-time animation overlays and raw-write synchronization
+still need integration before automatic migration is enabled. Until then, manual
+callers must synchronize subsequent raw legacy changes explicitly; the current
+resolver does not refresh already-imported generic values from those changes.
+No external library is scanned or saved. External asset save/revert, save-reminder
+integration, packaged capability checks and default rollout remain Plan 8 gates.
+
+### Retained execution behavior
 
 Retain the PINCH local-strength extra-field exception, existing AIRBRUSH/LINE/
 CURVE spacing behavior and documented texture limitations until separately

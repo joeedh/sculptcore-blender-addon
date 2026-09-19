@@ -98,6 +98,13 @@ view-normal/backface and cavity/custom/inverted settings. Launch its same script
 headed with `--args ui` to author those settings through the actual property
 operators before executing the strokes. The background variant writes through
 the same resolved stores without UI undo.
+The authoring `frozen-fresh` case also checks explicit migration: authored/unset
+values, shared-name fan-out, preservation of native and unknown data, atomic
+rejection, changed/missing DLL defaults, idempotence and fresh linked reads.
+The custom-undo fixture's `--args migration` variant checks migration rollback,
+single-step undo/redo and no undo entry for repetition in SculptCore and Object
+mode. These exercise the migration primitive; automatic asset activation and
+legacy animation compatibility are not covered until their integration lands.
 For example:
 
 ```powershell

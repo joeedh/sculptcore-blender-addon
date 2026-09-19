@@ -901,3 +901,14 @@ fixture from a timer with a View3D override for the UI-to-engine boundary.
 Placement-dialog widget coordinates changed when the fourth location was added;
 inspect the screenshot and target the labelled checkbox, retaining the assertion
 of the exact resulting positions rather than weakening it.
+
+## Frozen migration fixtures - 2026-09-19
+
+Reading an unset generated RNA property can create a ghost IDProperty with the
+current registration default. Use `system_property_scalar` for legacy authored
+presence; migration must not import that ghost or the replacement DLL's default.
+The existing frozen fixture now re-registers deliberately changed defaults and
+verifies both migration and fresh reload against the frozen declarations.
+To test a malformed raw legacy type, delete its existing scalar first: assigning
+a string over an existing Float IDProperty is rejected by Blender before the
+migrator can inspect it.
