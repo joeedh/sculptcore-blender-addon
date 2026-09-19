@@ -5,13 +5,11 @@
 """
 Vanilla brush-panel reuse (P10 Phase B).
 
-The brush state is the shared ``tool_settings.sculpt``, so the vanilla brush
-panels' draw code is already correct for this mode — what hides them is
-bl_context gating and the mode dispatch in UnifiedPaintPanel.get_brush_mode
-(which maps CUSTOM to 'SCULPT' for modes declaring bl_use_sculpt_paint).
-Clones preserve native specialized widgets and the generic-disabled layout.
-The generic path overrides basic settings and the context menu with shared,
-effective-owner rows. Registration is gated on this mode.
+Brush state is shared through ``tool_settings.sculpt``. Clones retain native
+asset, texture, color and display widgets, with custom-mode polling. Shared
+effective-owner rows replace scalar settings; automasking uses SculptCore's
+supported fields. Other overrides omit unconsumed controls and explain existing
+stroke/falloff limitations. Native sculpt panels keep their original behavior.
 
 Clone, not subclass: registering a subclass of a *registered* class makes
 `bpy.types.<BaseName>` return a bare RNA wrapper without the base's Python
@@ -101,6 +99,7 @@ _PRESSURE_ROWS = {
 
 def _draw_brush_settings(self, context):
     from .brush_properties import ui as property_ui
+    self.layout.prop(context.tool_settings.sculpt.brush, 'sculpt_brush_type', text="Brush Type")
     if property_ui.available(context):
         if self.is_popover:
             self.layout.ui_units_x = 24
@@ -199,10 +198,62 @@ def _draw_context_menu(self, context):
         VIEW3D_PT_sculpt_context_menu.draw(self, context)
 
 
+def _draw_advanced(self, context):
+    from .brush_properties.automasking_ui import draw
+    if self.is_popover:
+        self.layout.ui_units_x = 24
+    draw(self.layout, context)
+
+
+def _draw_stroke(self, context):
+    from .brush_properties.ui import available
+    if not available(context):
+        from bl_ui.properties_paint_common import StrokePanel
+        StrokePanel.draw(self, context)
+        return
+    brush = context.tool_settings.sculpt.brush
+    if self.is_popover:
+        self.layout.ui_units_x = 20
+    self.layout.prop(brush, 'stroke_method', text="Method")
+    if brush.stroke_method not in ('SPACE', 'ANCHORED', 'DRAG_DOT'):
+        self.layout.label(text="Uses spaced strokes in SculptCore", icon='INFO')
+    self.layout.label(text="Spacing and attenuation are in Brush Settings")
+
+
+def _draw_falloff(self, context):
+    from .brush_properties.ui import available
+    if not available(context):
+        from bl_ui.properties_paint_common import FalloffPanel
+        FalloffPanel.draw(self, context)
+        return
+    brush = context.tool_settings.sculpt.brush
+    if self.is_popover:
+        self.layout.ui_units_x = 20
+    self.layout.prop(brush, 'curve_distance_falloff_preset', text="Preset")
+    self.layout.prop(brush, 'falloff_shape', text="Shape")
+    if brush.falloff_shape == 'PROJECTED':
+        self.layout.label(text="Uses spherical falloff in SculptCore", icon='INFO')
+    if brush.curve_distance_falloff_preset == 'CUSTOM':
+        row = self.layout.row()
+        row.enabled = brush.is_editable
+        row.operator_context = 'INVOKE_DEFAULT'
+        row.operator('sculptcore.native_response', text="Edit Falloff Curve").target = 'FALLOFF'
+
+
+def _poll_legacy(cls, context):
+    from .brush_properties.ui import available
+    return _poll(cls, context) and not available(context)
+
+
 # Per-clone attribute overrides (applied after the vanilla dict copy and the
 # default poll, so an entry here wins).
 _OVERRIDES = {
     "SCULPTCORE_PT_tools_brush_settings": {"draw": _draw_brush_settings},
+    "SCULPTCORE_PT_tools_brush_settings_advanced": {"draw": _draw_advanced, "bl_label": "Automasking"},
+    "SCULPTCORE_PT_tools_brush_stroke": {"draw": _draw_stroke},
+    "SCULPTCORE_PT_tools_brush_falloff": {"draw": _draw_falloff},
+    "SCULPTCORE_PT_tools_brush_stroke_smooth_stroke": {"poll": classmethod(_poll_legacy)},
+    "SCULPTCORE_PT_tools_brush_falloff_normal": {"poll": classmethod(_poll_legacy)},
     "SCULPTCORE_PT_tools_brush_texture": {"draw": _draw_texture},
     "SCULPTCORE_PT_tools_brush_color": {"poll": classmethod(_poll_color)},
     "SCULPTCORE_PT_tools_brush_swatches": {"poll": classmethod(_poll_color)},

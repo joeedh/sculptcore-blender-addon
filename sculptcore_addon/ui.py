@@ -58,7 +58,15 @@ class SCULPTCORE_PT_brush_engine(bpy.types.Panel):
 
     @classmethod
     def poll(cls, context):
-        return _in_mode(context) and context.tool_settings.sculpt.brush is not None
+        if not _in_mode(context) or context.tool_settings.sculpt.brush is None:
+            return False
+        from .brush_properties.ui import available
+        if not available(context):
+            return True
+        from . import texture
+        brush = context.tool_settings.sculpt.brush
+        return (brush.sculpt_brush_type not in mapping.KERNEL_BY_TYPE or
+                (brush.texture is not None and texture.mapping_note(brush) is not None))
 
     def draw(self, context):
         layout = self.layout
@@ -82,45 +90,6 @@ class SCULPTCORE_PT_brush_engine(bpy.types.Panel):
             note = texture_mod.mapping_note(brush)
             if note is not None:
                 layout.label(text=note, icon='INFO')
-
-
-class SCULPTCORE_PT_automasking(bpy.types.Panel):
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
-    bl_category = _CATEGORY
-    bl_context = _MODE_CONTEXT
-    bl_label = "Automasking"
-    bl_options = {'DEFAULT_CLOSED'}
-
-    @classmethod
-    def poll(cls, context):
-        return _in_mode(context) and context.tool_settings.sculpt.brush is not None
-
-    def draw(self, context):
-        layout = self.layout
-        layout.use_property_split = True
-        paint = context.tool_settings.sculpt
-        brush = paint.brush
-        settings = brush.mesh_automasking_settings
-
-        # Only cavity is mapped; the brush's own settings take precedence over
-        # the Paint-level ones (Blender's rule), so edit them here.
-        col = layout.column(align=True)
-        col.prop(settings, "use_automasking_cavity", text="Cavity")
-        col.prop(settings, "use_automasking_cavity_inverted", text="Cavity (Inverted)")
-
-        active = mapping.cavity_settings(brush, paint)
-        col = layout.column(align=True)
-        col.active = active is not None
-        col.prop(settings, "cavity_factor", text="Factor")
-        col.prop(settings, "cavity_blur_steps", text="Blur")
-        col.prop(settings, "use_automasking_custom_cavity_curve", text="Custom Curve")
-        if settings.use_automasking_custom_cavity_curve:
-            layout.template_curve_mapping(settings, "cavity_curve", brush=True)
-
-        if active is not None and active != settings:
-            layout.label(text="Driven by the tool settings", icon='INFO')
-        layout.label(text="Other automasking modes are not mapped", icon='INFO')
 
 
 class SCULPTCORE_PT_symmetry(bpy.types.Panel):
@@ -368,7 +337,7 @@ def _tool_header_mode_settings(self, context):
         return
     layout = self.layout
     if context.tool_settings.sculpt.brush is not None:
-        layout.popover("SCULPTCORE_PT_tools_brush_settings_advanced", text="Brush")
+        layout.popover("SCULPTCORE_PT_tools_brush_settings_advanced", text="Automasking")
         layout.popover("SCULPTCORE_PT_tools_brush_texture")
         layout.popover("SCULPTCORE_PT_tools_brush_stroke")
         layout.popover("SCULPTCORE_PT_tools_brush_falloff")
@@ -384,7 +353,6 @@ def _tool_header_mode_settings(self, context):
 
 _classes = (
     SCULPTCORE_PT_brush_engine,
-    SCULPTCORE_PT_automasking,
     SCULPTCORE_PT_symmetry,
     SCULPTCORE_PT_dyntopo,
     SCULPTCORE_PT_boundary_uv,

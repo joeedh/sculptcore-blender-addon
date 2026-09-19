@@ -41,7 +41,8 @@ def positions(store, definition):
     if record is not None and 'positions_version' in record:
         return saved
     if automasking(definition.identifier):
-        return (Position('AUTOMASKING', 50),)
+        from .automasking_ui import ORDER
+        return (Position('AUTOMASKING', ORDER.index(definition.identifier) * 10),)
     if definition.identifier in ('sculptcore.brush.size', 'sculptcore.brush.strength'):
         return (*saved, Position('CONTEXT_MENU', 10 if definition.identifier.endswith('.size') else 20))
     result = saved or (Position('BRUSH_SETTINGS', 100),)

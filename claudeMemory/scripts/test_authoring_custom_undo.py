@@ -25,6 +25,7 @@ rows_ui_test = variant == ['rows-ui']
 stacks_test = variant == ['stacks']
 stacks_ui_test = variant == ['stacks-ui']
 placements_test = variant == ['placements']
+panels_test = variant == ['panels']
 stack_actions = (
     ('stack_action', dict(action='ADD', device='TILT_X')),
     ('stack_action', dict(action='ADD', device='SPEED')),
@@ -322,11 +323,12 @@ def placement_step(phase):
         bpy.ops.ed.undo_push(message='Placement baseline')
     elif phase == 1:
         bpy.ops.sculptcore.property_placement('EXEC_DEFAULT', True, identifier=STRENGTH,
-            header=True, header_order=-5, settings=True, settings_order=-4, menu=True, menu_order=-3)
+            header=True, header_order=-5, settings=True, settings_order=-4, menu=True, menu_order=-3,
+            automasking=True, automasking_order=-2)
         state['placement_after'] = saved()
         check('placement edits local Brush with inherited value and stack', saved() == (
             Position('FUTURE_SURFACE', -7), Position('VIEW3D_HEADER', -5),
-            Position('BRUSH_SETTINGS', -4), Position('CONTEXT_MENU', -3))
+            Position('BRUSH_SETTINGS', -4), Position('CONTEXT_MENU', -3), Position('AUTOMASKING', -2))
             and stack_state() == state['placement_values'])
         bpy.ops.ed.undo()
     elif phase == 2:
@@ -355,11 +357,11 @@ def placement_step(phase):
         window.event_simulate(type='MOUSEMOVE', value='NOTHING', x=350, y=140)
     elif phase == 11:
         # Tool Header checkbox in the fixed-size placement dialog.
-        window.event_simulate(type='MOUSEMOVE', value='NOTHING', x=160, y=184)
+        window.event_simulate(type='MOUSEMOVE', value='NOTHING', x=160, y=211)
         bpy.app.timers.register(lambda: window.event_simulate(
-            type='LEFTMOUSE', value='PRESS', x=160, y=184) and None, first_interval=.05)
+            type='LEFTMOUSE', value='PRESS', x=160, y=211) and None, first_interval=.05)
         bpy.app.timers.register(lambda: window.event_simulate(
-            type='LEFTMOUSE', value='RELEASE', x=160, y=184) and None, first_interval=.1)
+            type='LEFTMOUSE', value='RELEASE', x=160, y=211) and None, first_interval=.1)
     elif phase == 12:
         check('placement dialog stages edits', saved() == state['placement_after'])
         key('RET')
@@ -399,7 +401,6 @@ def placement_step(phase):
         persisted.name = 'PlacementPersistenceBrush'
         persisted.use_fake_user = True
         bpy.ops.wm.save_as_mainfile(filepath=str(Path(__file__).resolve().parents[1] / 'tests/brush-placements.blend'))
-        property_ui.draw_location, property_ui.draw_row = state['draw_location_original'], state['draw_row_original']
         local.write_mode(SIZE, 'ALWAYS')
         scene.tool_settings.sculpt.unified_paint_settings.use_locked_size = 'VIEW'
         state['units_before'] = size_state()
@@ -412,8 +413,13 @@ def placement_step(phase):
     elif phase == 19:
         check('size units undo restores coupled values', size_state() == state['units_before'])
         bpy.ops.ed.redo()
-    else:
+    elif phase == 20:
         check('size units redo', size_state() == state['units_after'])
+    elif phase == 21:
+        draw_begin('SCULPTCORE_PT_tools_brush_settings_advanced')
+    else:
+        draw_end('AUTOMASKING')
+        property_ui.draw_location, property_ui.draw_row = state['draw_location_original'], state['draw_row_original']
 
 
 def row_step(index, phase):
@@ -786,6 +792,214 @@ def shortcut_step(index, phase):
         check('bracket redo restores coupled sizes {}'.format(index), size_state() == state['size_after'])
 
 
+def panel_step(phase):
+    from sculptcore_addon.brush_properties import automasking_ui, placement, stack_ui, ui as property_ui
+    from sculptcore_addon.brush_properties.adapters import CAVITY
+    from sculptcore_addon.brush_properties.interaction import ValueEdit
+    from sculptcore_addon.brush_properties.registry import PropertyError
+    from bl_ui.space_view3d import VIEW3D_PT_mesh_paint_automasking
+    active, scene = bpy.context.tool_settings.sculpt.brush, bpy.context.scene
+    window = bpy.context.window
+
+    def key(kind):
+        window.event_simulate(type=kind, value='PRESS', x=350, y=140)
+        window.event_simulate(type=kind, value='RELEASE', x=350, y=140)
+
+    def curve_state():
+        return (active.authoring_native_curve_key('mesh_automasking_settings.cavity_curve'),
+                scene.authoring_native_curve_key('tool_settings.sculpt.mesh_automasking_settings.cavity_curve'),
+                active.authoring_native_curve_key('curve_distance_falloff'))
+
+    if phase == 0:
+        scene.sculptcore_generic_properties = True
+        check('limited duplicate automasking panel removed', not hasattr(bpy.types, 'SCULPTCORE_PT_automasking'))
+        check('all supported automasking settings occur once', tuple(item.identifier for item in
+              placement.located(authoring.store(active), 'AUTOMASKING')) == automasking_ui.ORDER)
+        check('disabled masks have inactive icon', not automasking_ui.active(bpy.context))
+        state['panel_draw_original'] = property_ui.draw_row
+        state['panel_draws'] = set()
+        def observe(layout, context, definition):
+            state['panel_draws'].add(definition.identifier)
+            state['panel_draw_original'](layout, context, definition)
+        property_ui.draw_row = observe
+        state['panel_tokens'] = tuple(owner.authoring_edit_begin(native_settings=True, undo=False)
+                                      for owner in (active, scene))
+        bpy.ops.wm.call_panel(name='SCULPTCORE_PT_tools_brush_settings_advanced')
+    elif phase == 1:
+        check('actual canonical panel draws all supported settings', set(automasking_ui.ORDER) <= state['panel_draws'])
+        for owner, token in zip((active, scene), state.pop('panel_tokens')):
+            check('canonical draw preserves ' + owner.bl_rna.identifier, not owner.authoring_edit_commit(token))
+        bpy.ops.screen.screenshot(filepath=str(Path(__file__).resolve().parents[1] / 'tests/brush-automasking-ui.png'))
+        key('ESC')
+        property_ui.draw_row = state.pop('panel_draw_original')
+    elif phase == 2:
+        # The native header target delegates only in SculptCore mode.
+        state['canonical_draw'] = automasking_ui.draw
+        state['native_draw'] = automasking_ui._original_draw
+        state['dispatch'] = []
+        automasking_ui.draw = lambda layout, context: state['dispatch'].append('custom')
+        automasking_ui._original_draw = lambda self, context: state['dispatch'].append('native')
+        from types import SimpleNamespace
+        panel = SimpleNamespace(layout=None)
+        VIEW3D_PT_mesh_paint_automasking.draw(panel, bpy.context)
+        VIEW3D_PT_mesh_paint_automasking.draw(panel, SimpleNamespace(active_object=SimpleNamespace(mode='SCULPT')))
+        check('native header target preserves native mode dispatch', state['dispatch'] == ['custom', 'native'])
+        automasking_ui.draw = state.pop('canonical_draw')
+        automasking_ui._original_draw = state.pop('native_draw')
+        automasking_ui.unregister()
+        check('native draw callback restored exactly', VIEW3D_PT_mesh_paint_automasking.draw is not automasking_ui._native_draw)
+        automasking_ui.register()
+        window.event_simulate(type='MOUSEMOVE', value='NOTHING', x=350, y=140)
+    elif 3 <= phase < 30:
+        case, part = divmod(phase - 3, 9)
+        target = 'CAVITY' if case < 2 else 'FALLOFF'
+        if part == 0:
+            local = authoring.store(active)
+            local.write_mode(CAVITY + '.cavity_factor', 'NEVER' if case == 0 else 'ALWAYS')
+            if case < 2:
+                cavity = (active if case == 0 else scene.tool_settings.sculpt).mesh_automasking_settings
+                cavity.use_automasking_cavity = True
+                cavity.use_automasking_custom_cavity_curve = True
+                check('enabled effective cavity changes icon {}'.format(case), automasking_ui.active(bpy.context))
+            state['curve_before'] = curve_state()
+            bpy.ops.ed.undo_push(message='Native curve owner baseline')
+            bpy.ops.sculptcore.native_response('INVOKE_DEFAULT', True, target=target)
+        elif part in (1, 4):
+            # Real curve widget: insert a point, then Apply or Cancel through keyboard.
+            window.event_simulate(type='MOUSEMOVE', value='NOTHING', x=350, y=140)
+            bpy.app.timers.register(lambda: window.event_simulate(
+                type='LEFTMOUSE', value='PRESS', ctrl=True, x=350, y=140) and None, first_interval=.05)
+            bpy.app.timers.register(lambda: window.event_simulate(
+                type='LEFTMOUSE', value='RELEASE', ctrl=True, x=350, y=140) and None, first_interval=.1)
+        elif part == 2:
+            now = curve_state()
+            check('native widget edits only effective curve {}'.format(case), now[case] != state['curve_before'][case]
+                  and all(now[i] == state['curve_before'][i] for i in range(3) if i != case))
+            key('ESC')
+        elif part == 3:
+            check('native widget cancel restores owners {}'.format(case), curve_state() == state['curve_before'])
+            bpy.ops.sculptcore.native_response('INVOKE_DEFAULT', True, target=target)
+        elif part == 5:
+            key('RET')
+        elif part == 6:
+            state['curve_after'] = curve_state()
+            check('native widget Apply commits {}'.format(case), not stack_ui._native_editors
+                  and state['curve_after'][case] != state['curve_before'][case])
+            if case != 1:
+                check('native curve edit dirties Brush asset {}'.format(case), active.has_unsaved_changes)
+            bpy.ops.ed.undo()
+        elif part == 7:
+            check('native widget undo {}'.format(case), curve_state() == state['curve_before'])
+            bpy.ops.ed.redo()
+        else:
+            check('native widget redo {}'.format(case), curve_state() == state['curve_after'])
+            window.event_simulate(type='MOUSEMOVE', value='NOTHING', x=350, y=140)
+    elif phase == 30:
+        local = authoring.store(active)
+        local.write_mode(STRENGTH, 'ALWAYS')
+        state['first_window'] = window
+        state['first_scene'] = scene
+        state['pinned_edit'] = ValueEdit(bpy.context, STRENGTH)
+        bpy.ops.wm.window_new_main()
+    elif phase == 31:
+        other = next(item for item in bpy.context.window_manager.windows if item != state['first_window'])
+        state['second_window'] = other
+        other.scene = scene.copy()
+        check('windows retain independent scenes', state['first_window'].scene == state['first_scene']
+              and other.scene != state['first_scene'])
+        with bpy.context.temp_override(window=other):
+            check('second window resolves its own Scene', ValueEdit(bpy.context, STRENGTH).owner.owner == other.scene)
+            try:
+                state['pinned_edit'].check(bpy.context)
+            except PropertyError:
+                check('open edit rejects a different window Scene', True)
+            else:
+                raise AssertionError('Edit accepted a different Scene')
+            bpy.ops.sculptcore.property_value('EXEC_DEFAULT', True, identifier=STRENGTH, float_value=.37)
+            check('second window edits only its Scene', abs(other.scene.tool_settings.sculpt.unified_paint_settings.strength
+                  - .37) < 1e-6 and scene.tool_settings.sculpt.unified_paint_settings.strength != .37)
+            bpy.ops.wm.window_close()
+    elif phase == 32:
+        path = str(Path(__file__).resolve().parents[1] / 'tests/brush-readonly.blend')
+        saved = active.copy()
+        saved.name = 'ReadOnly UI Brush'
+        authoring.store(saved).write_mode(STRENGTH, 'ALWAYS')
+        bpy.data.libraries.write(path, {saved})
+        bpy.data.brushes.remove(saved)
+        with bpy.data.libraries.load(path, link=True) as (source, destination):
+            destination.brushes = ['ReadOnly UI Brush']
+        linked = destination.brushes[0]
+        # Use real linked RNA and a context whose sculpt brush is the linked ID.
+        from types import SimpleNamespace
+        context = SimpleNamespace(scene=scene, tool_settings=SimpleNamespace(sculpt=SimpleNamespace(brush=linked)))
+        check('linked Brush inherits editable Scene', ValueEdit(context, STRENGTH).owner.owner == scene)
+        try:
+            stack_ui.NativeCurveEdit(context, 'FALLOFF')
+        except PropertyError:
+            check('linked native falloff fails closed', True)
+        else:
+            raise AssertionError('Linked Brush was editable')
+        from sculptcore_addon.brush_properties.placement_ui import PlacementEdit
+        try:
+            PlacementEdit(context, STRENGTH)
+        except PropertyError:
+            check('linked Brush placement fails closed', True)
+        else:
+            raise AssertionError('Linked placement was editable')
+        area = next(item for item in window.screen.areas if item.type == 'PROPERTIES')
+        area.spaces.active.context = 'TOOL'
+        state['panel_tokens'] = tuple(owner.authoring_edit_begin(native_settings=True, undo=False)
+                                      for owner in (active, scene))
+        state['narrow_regions'] = []
+        state['panel_draw_original'] = property_ui.draw_row
+        def observe(layout, context, definition):
+            if context.area.type == 'PROPERTIES':
+                state['narrow_regions'].append(context.region.width)
+            state['panel_draw_original'](layout, context, definition)
+        property_ui.draw_row = observe
+        area.tag_redraw()
+    elif phase == 33:
+        check('real narrow Properties editor uses shared rows', state['narrow_regions'] and min(state['narrow_regions']) < 340)
+        for owner, token in zip((active, scene), state.pop('panel_tokens')):
+            check('narrow drawing preserves ' + owner.bl_rna.identifier, not owner.authoring_edit_commit(token))
+        bpy.ops.screen.screenshot(filepath=str(Path(__file__).resolve().parents[1] / 'tests/brush-narrow-ui.png'))
+        property_ui.draw_row = state.pop('panel_draw_original')
+    elif phase == 34:
+        bpy.ops.object.custom_mode_toggle(mode_id='sculptcore.sculpt')
+        bpy.ops.object.mode_set(mode='SCULPT')
+        state['native_draw'] = automasking_ui._original_draw
+        state['native_draw_count'] = 0
+        def observe_native(self, context):
+            state['native_draw_count'] += 1
+            state['native_draw'](self, context)
+        automasking_ui._original_draw = observe_native
+        bpy.ops.wm.call_panel(name='VIEW3D_PT_mesh_paint_automasking')
+    elif phase == 35:
+        check('switching to native sculpt draws original automasking', bpy.context.object.mode == 'SCULPT'
+              and state['native_draw_count'] > 0)
+        automasking_ui._original_draw = state.pop('native_draw')
+        key('ESC')
+    elif phase in (36, 38):
+        if phase == 36:
+            bpy.ops.object.mode_set(mode='OBJECT')
+            bpy.ops.object.custom_mode_toggle(mode_id='sculptcore.sculpt')
+            scene.sculptcore_generic_properties = True
+            active = bpy.context.tool_settings.sculpt.brush
+            active.curve_distance_falloff_preset = 'CUSTOM'
+            active.falloff_shape = 'PROJECTED'
+            active.stroke_method = 'AIRBRUSH'
+        state['panel_tokens'] = tuple(owner.authoring_edit_begin(native_settings=True, undo=False)
+                                      for owner in (active, scene))
+        bpy.ops.wm.call_panel(name='SCULPTCORE_PT_tools_brush_' + ('falloff' if phase == 36 else 'stroke'))
+    elif phase in (37, 39):
+        for owner, token in zip((active, scene), state.pop('panel_tokens')):
+            check('specialized drawing preserves {} {}'.format(phase, owner.bl_rna.identifier),
+                  not owner.authoring_edit_commit(token))
+        bpy.ops.screen.screenshot(filepath=str(Path(__file__).resolve().parents[1] /
+            ('tests/brush-falloff-ui.png' if phase == 37 else 'tests/brush-stroke-ui.png')))
+        key('ESC')
+
+
 def brush():
     return bpy.data.brushes['Custom Undo Authoring']
 
@@ -891,7 +1105,12 @@ def step():
             region = next(region for region in area.regions if region.type == 'WINDOW')
             with bpy.context.temp_override(area=area, region=region):
                 stack_step((phase - 15) // 3, (phase - 15) % 3)
-        elif (stacks_ui_test and phase < 46) or (placements_test and phase < 36):
+        elif panels_test and phase < 55:
+            area = next(area for area in bpy.context.screen.areas if area.type == 'VIEW_3D')
+            region = next(region for region in area.regions if region.type == 'WINDOW')
+            with bpy.context.temp_override(area=area, region=region):
+                panel_step(phase - 15)
+        elif (stacks_ui_test and phase < 46) or (placements_test and phase < 38):
             area = next(area for area in bpy.context.screen.areas if area.type == 'VIEW_3D')
             region = next(region for region in area.regions if region.type == 'WINDOW')
             with bpy.context.temp_override(area=area, region=region):
@@ -905,7 +1124,7 @@ def step():
             bpy.ops.wm.quit_blender()
             return None
         state['phase'] += 1
-        return .8 if stacks_ui_test or placements_test else .5
+        return .8 if stacks_ui_test or placements_test or panels_test else .5
     except Exception:
         traceback.print_exc()
         print('CUSTOM_UNDO_FAILED_PHASE', state['phase'], flush=True)
@@ -922,7 +1141,7 @@ if variant == ['placements-reload']:
                                  authoring.registry.get(STRENGTH))
     check('fresh process retains real edited placements', actual == (
         Position('FUTURE_SURFACE', -7), Position('VIEW3D_HEADER', -5),
-        Position('BRUSH_SETTINGS', -4), Position('CONTEXT_MENU', -3)))
+        Position('BRUSH_SETTINGS', -4), Position('CONTEXT_MENU', -3), Position('AUTOMASKING', -2)))
     check('fresh process does not restore transient search', bpy.context.window_manager.sculptcore_property_search == '')
     print('AUTHORING_CUSTOM_UNDO_OK', len(state['checks']), flush=True)
 else:

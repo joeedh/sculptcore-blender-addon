@@ -84,12 +84,20 @@ non-mutating draws. The widget case uses the launcher's fixed 1280×800 window.
 and undo/redo with opposite value/stack owners. `--args stacks-ui` exercises
 native curve graph edits, Apply/Cancel, undo/redo and addon shutdown, plus the
 inherited owned-curve widget. These extend the same fixture, not separate suites.
-`--args placements` checks actual header/settings/context-menu draws, staged
+`--args placements` checks actual header/settings/context-menu/automasking draws, staged
 placement widgets, sorting, unknown locations, reset/empty layouts, stale drafts,
 undo/redo and owner-aware size units. Follow it with a background
 `--args placements-reload` run to check a saved copy of the edited Brush and
 unsaved transient search. External active assets are resolved lazily after file
 load; that lifecycle belongs to the asset/migration gate.
+`--args panels` checks the canonical automasking panel, native cavity/falloff
+curve widgets on both owners, native sculpt dispatch, independent main-window
+scenes, linked-owner guards and non-mutating narrow Properties drawing.
+The runtime `automask` case covers 40 mesh/grid × single/program strokes with
+view-normal/backface and cavity/custom/inverted settings. Launch its same script
+headed with `--args ui` to author those settings through the actual property
+operators before executing the strokes. The background variant writes through
+the same resolved stores without UI undo.
 For example:
 
 ```powershell

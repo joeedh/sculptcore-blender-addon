@@ -118,6 +118,13 @@ def _editor_menus(self, context):
         self.layout.menu(SCULPTCORE_MT_face_sets.bl_idname)
 
 
+def _automasking_popover(self, context):
+    if _in_mode(context) and context.tool_settings.sculpt.brush is not None:
+        from .brush_properties.automasking_ui import active
+        self.layout.popover(panel="SCULPTCORE_PT_tools_brush_settings_advanced", text="",
+                            icon='CLIPUV_DEHLT' if active(context) else 'CLIPUV_HLT')
+
+
 _classes = (
     SCULPTCORE_MT_sculpt,
     SCULPTCORE_MT_mask,
@@ -130,9 +137,11 @@ def register():
     for cls in _classes:
         bpy.utils.register_class(cls)
     bpy.types.VIEW3D_MT_editor_menus.append(_editor_menus)
+    bpy.types.VIEW3D_HT_header.append(_automasking_popover)
 
 
 def unregister():
+    bpy.types.VIEW3D_HT_header.remove(_automasking_popover)
     bpy.types.VIEW3D_MT_editor_menus.remove(_editor_menus)
     for cls in reversed(_classes):
         bpy.utils.unregister_class(cls)

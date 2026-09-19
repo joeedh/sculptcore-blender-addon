@@ -75,7 +75,7 @@ strokes rebake/upload no curves. See [final verification](../codebase/generic-br
 This closes the CPU addon integration gate; UI, migration, default rollout and
 device-backend execution certification remain separate work.
 
-## Plan 7: Generic UI and placement
+## Plan 7: Generic UI and placement — complete
 
 **Goal:** one reusable property row across supported locations with correct
 effective-owner editing and discoverable metadata.
@@ -108,35 +108,36 @@ effective-owner editing and discoverable metadata.
 - [x] Implement `positions[]` with stable location identifiers, sorting and
   applicability. Render one setting in header, panel, and context menu without
   duplicating its data. Scope saved placement separately from transient UI state.
-  The existing fixture passed 36 headed checks for actual surfaces, placement
+  The existing fixture passed 39 headed checks for actual surfaces, placement
   Apply/Cancel, undo/redo, sorting, reset/empty/unknown locations and stale drafts,
   plus owner-aware size units. A fresh process passed two checks on a saved copy
-  of the edited Brush (September 19, Blender `4980bc0c4694`). Automasking placement
-  is preserved pending the canonical renderer; external asset persistence remains
-  in Plan 8.
+  of the edited Brush (September 19, Blender `4980bc0c4694`), including the fourth
+  Automasking location. External asset persistence remains in Plan 8.
   The affected shared-row widget regression also passed its 24 checks.
-- [ ] Match current useful layouts by default and add a searchable All Properties
+- [x] Match current useful layouts by default and add a searchable All Properties
   panel in the Properties editor. Preserve native asset selection, texture and
   specialized widgets where the inventory explicitly retains them.
   The searchable All Brush Properties panel and shared tool-header rows are
   implemented. Basic Brush Settings and the context menu now use shared rows;
-  color widgets remain native. Specialized child panels await their replacements.
-- [ ] Consolidate automasking: remove `SCULPTCORE_PT_automasking` from `ui.py`
+  native asset/type/color/texture/display controls remain. Stroke and falloff
+  retain their native selectors with explicit existing-behavior limitations;
+  unused stabilization and normal-falloff controls are hidden in generic mode.
+- [x] Consolidate automasking: remove `SCULPTCORE_PT_automasking` from `ui.py`
   and its registration list once the surviving full UI is ready. Replace the
   native automasking content reached through the cloned advanced brush settings
   with SculptCore's controls. Audit `draw_mesh_automasking_settings` reuse and
   the `VIEW3D_PT_mesh_paint_automasking` header popover so all SculptCore entry
   points use the same definitions, owner resolution and supported settings.
   Scope these changes to SculptCore mode; do not alter native sculpt behavior.
-- [ ] Apply the automasking compatibility table to labels, defaults, ranges,
+- [x] Apply the automasking compatibility table to labels, defaults, ranges,
   enable logic, inheritance and active-state icons. Omit unsupported native
   controls, expose supported engine settings with their actual semantics, and
   verify that each exposed control reaches the engine. The retained panel must
   replace the limited duplicate, not leave both registered under new names.
-- [ ] Replace relevant vanilla panel clones and hardcoded header/menu rows only
+- [x] Replace relevant vanilla panel clones and hardcoded header/menu rows only
   when their generic equivalent passes; prevent duplicate controls and stale
   polling callbacks on register/unregister.
-- [ ] Verify keyboard/numeric entry, context menus, undo grouping, multiple
+- [x] Verify keyboard/numeric entry, context menus, undo grouping, multiple
   windows/scenes, read-only assets and insufficient-width layouts. Drawing must
   neither allocate persistent curves nor mark assets dirty.
 - [x] Rebind bracket-size keys to the generic owner-aware adapter. The effective
@@ -161,6 +162,30 @@ reused as needed across intended UI locations. Verify no duplicate limited
 panel, no unsupported working-looking controls, and correct cavity/view-normal/
 backface effects and owner selection in real strokes. Native sculpt UI remains
 unchanged when switching modes.
+
+**Completion evidence (September 19):** Blender `4980bc0c4694`, unchanged production
+engine DLL `839d1f5ad3e5a`. Maintained fixtures passed:
+
+- `test_authoring_custom_undo.py --args panels`: 56 checks of canonical
+  automasking, Brush/Scene cavity and Brush falloff widgets, Apply/Cancel/undo,
+  dirty flags, independent main-window scenes, linked-owner guards, narrow
+  non-mutating layouts, specialized popovers and switching to native sculpt.
+- `--args rows-ui`: 24 actual numeric/search/widget checks; `--args stacks-ui`:
+  31 native/owned curve and teardown checks. The earlier typed/operator and
+  shortcut gates above remain applicable.
+- `--args placements`: 39 checks across all four surfaces; fresh-process
+  `--args placements-reload`: two persistence checks.
+- `test_brush_automasking.py`: 40 mesh/grid × single/program cases passed both
+  background and headed `--args ui`. UI-authored cavity factor/blur/custom flags
+  and view-normal/cull/angle values reached the engine; custom zero/one curves
+  proved suppression and inversion order, with geometry undo/redo.
+- Unit suite: 42 tests. Screenshot review confirmed the consolidated panel,
+  narrow owner controls, and readable stroke/falloff popovers. `git diff --check`
+  passed. Logs/screenshots remain ignored under `claudeMemory/tests/` with
+  `brush-plan7-*` and `brush-runtime-automask` prefixes.
+
+No engine or fork edits were needed for this closing slice. Generic properties
+remain opt-in; Plan 8 owns migration and default rollout.
 
 **Touchpoints:** add-on `ui.py`, `tools.py`, `menus.py`, `vanilla_panels.py`,
 keymaps where operator/context targets change, and property storage/renderer.

@@ -889,3 +889,15 @@ file load. A `.blend` placement fixture must explicitly retain its edited Brush
 data (the headed driver saves a fake-user copy) and reacquire it by name. Do not
 interpret an absent active asset pointer as lost metadata or claim that this
 copy/reload check verifies external asset saving.
+
+## Window and UI-authoring fixtures - 2026-09-19
+
+Use `wm.window_new_main()` when testing independent window scenes. Ordinary
+`wm.window_new()` makes a child that follows its parent's scene; assert the
+windows' Scene identities before testing owner routing. Undo-enabled authoring
+operators require a headed event-loop context, not a background startup call.
+Keep direct-store background execution coverage and use the same geometry
+fixture from a timer with a View3D override for the UI-to-engine boundary.
+Placement-dialog widget coordinates changed when the fourth location was added;
+inspect the screenshot and target the labelled checkbox, retaining the assertion
+of the exact resulting positions rather than weakening it.

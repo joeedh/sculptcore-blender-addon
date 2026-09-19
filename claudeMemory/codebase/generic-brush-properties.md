@@ -1,8 +1,8 @@
 # Generic brush properties: implementation reference
 
 Updated 2026-09-19. This describes the implementation and its limits, not a
-release approval. The generic stroke path is opt-in. Plans 1–6 passed their
-gates; UI and migration remain unfinished.
+release approval. The generic stroke path is opt-in. Plans 1–7 passed their
+gates. Migration/default rollout remains Plan 8.
 See the [remaining work](../plans/generic-brush-properties-tasks.md),
 [contract](../design/generic-brush-contract-v1.md),
 [test guide](generic-brush-testing.md) and [history](generic-brush-history.md).
@@ -71,26 +71,31 @@ disable their respective controls.
 
 Search state lives in Python UI state, separate from saved Brush/Scene settings.
 Drawing reads defaults and existing mappings; it does not create records or
-curves. Existing native specialized panels remain until their replacements pass.
-Automasking consolidation and the multi-window/read-only interactive matrix
-remain pending.
+curves. Narrow sidebars and Properties editors put the value and controls on
+separate lines; a different input owner gets its own label. Main windows resolve
+their own scenes, and open editors reject a changed Brush/Scene. A linked Brush
+can inherit an editable Scene value but cannot edit its own layout or mappings.
 
-The details popup's Edit Locations dialog stages Tool Header, Brush Settings and
-Context Menu selections and integer order values. Lower values sort first, with
+The details popup's Edit Locations dialog stages Tool Header, Brush Settings,
+Context Menu and Automasking selections and integer order values. Lower values sort first, with
 stable property ID breaking ties. Confirmation writes only the Brush's layout,
 even when values and input stacks belong to the Scene. Cancel writes nothing;
-changed Brush identity or placement rejects a stale draft. Deselecting all three
+changed Brush identity or placement rejects a stale draft. Deselecting all four
 saves an explicit empty layout; All Brush Properties still lists the property.
 Unknown/other locations are retained. Use Default Locations removes the override
-headers while preserving dormant location metadata. Automasking placement is
-preserved but awaits its canonical renderer before becoming editable here.
+headers while preserving dormant location metadata.
 
 Basic Brush Settings and the context menu now use the same rows as the header.
-Native color widgets, asset selection and specialized child panels remain.
+Native brush type, color, texture, asset selection and display widgets remain. Stroke settings
+retain the native method enum, explain the existing spaced-stroke fallback for
+AIRBRUSH/LINE/CURVE, and omit unconsumed jitter/dash/rate/stabilization settings
+in generic mode. Falloff retains native presets, shape and a scoped custom-curve
+editor with descending presets. PROJECTED explicitly reports its existing spherical
+fallback. The unconsumed normal-falloff child is hidden in generic mode.
 Kernel scalar controls no longer appear again in the legacy Engine child panel
 when generic properties are enabled. Size units are available in Size's details
 popup and edit the effective owner through the native adapter with grouped undo.
-The generic-disabled branch retains its previous rendering.
+The generic-disabled branch retains native scalar/stroke/falloff rendering.
 
 `stack_ui.py` provides the input-stack popup beside each dynamic property.
 Only absent device types appear in Add; existing entries can be disabled,
@@ -107,6 +112,30 @@ dialog: Apply commits one authoring step, Cancel restores the exact mapping.
 The native editor closes its scope before load, undo/redo or addon shutdown.
 Layer dialogs pin their owner and stack; a stale draft cannot overwrite a
 changed stack.
+
+### Automasking
+
+`automasking_ui.py` is the canonical renderer in the surviving advanced settings
+panel (labelled Automasking), tool-header popover and main-header shortcut. The
+limited `SCULPTCORE_PT_automasking` panel is removed. The native header panel
+delegates to this renderer only in SculptCore; its original native sculpt draw
+callback is restored on unregister.
+
+Cavity enable/invert/factor/blur/custom-curve fields share the compound cavity
+owner. Value rows and the curve button edit that effective native block, preserving
+the other block. Under Native policy, disabling Scene cavity can expose the Brush
+fallback; use explicit Always/Never when that fallback is unwanted. Custom cavity
+curves apply before inversion. The same transactional native editor handles cavity
+and Brush falloff, with Apply/Cancel, one-step undo and teardown rollback.
+
+View-normal masking uses SculptCore's four engine settings. Limit and falloff are
+shown in radians: the mask reaches zero at the limit, with the transition before
+it. Cull Backfaces belongs to view-normal masking. Dependent value controls are
+disabled when their mask is off; inheritance metadata remains accessible. The
+active icon reads effective cavity/view-normal state. Native topology, face-set,
+boundary, start-normal and occlusion controls are omitted because the engine does
+not consume them. With generic properties off, the same panel offers native cavity
+only; unsupported engine settings are not exposed.
 
 September 19 verification: the existing custom-mode authoring fixture passed
 172 checks across typed value/pressure ownership combinations and policy changes,
@@ -305,9 +334,8 @@ Escape/right-click, owner/domain changes and addon shutdown restore coupled
 native values and release the overlay/timer. Generic-disabled controls delegate
 to Blender's native radial operator. The headed fixture passed 176 checks over
 18 combinations plus owner-change/shutdown cases; native fallback passed all four
-size/strength and unified-flag cases. This verifies these shortcuts, not the
-remaining row, layout or multi-window gate.
+size/strength and unified-flag cases. The later row, layout and multiple-window
+checks are recorded in the task list and test guide.
 The same staged Blender build (`1c93a65f4ed4`) passed the maintained headed Draw
 regression after sharing the cursor overlay; the unit suite also passed.
-The remaining generic UI, automasking panel consolidation, versioned
-migration and packaged default rollout remain unapproved by tests.
+Versioned migration and packaged default rollout remain unapproved by tests.

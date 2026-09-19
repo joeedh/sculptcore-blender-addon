@@ -8,7 +8,7 @@ from . import authoring, resolver
 from .curves import declaration_name
 from .customize import customize
 from .edits import authoring_edit
-from .interaction import owners
+from .interaction import ValueEdit, owners
 from .registry import CURVE_PRESET_ARITY, DeviceLayer, NativeCurveReference, PropertyError, ResponseCurve
 from .ui import _PropertyOperator, _name, _redraw, _resolve
 
@@ -153,22 +153,54 @@ class SCULPTCORE_OT_stack_layer(_PropertyOperator, bpy.types.Operator):
 _native_editors = []
 
 
+class NativeCurveEdit:
+    """Pin native cavity/falloff owners without creating a generic mapping."""
+    def __init__(self, context, target):
+        self.local, self.parent = owners(context)
+        self.value_edit = None
+        if target == 'CAVITY':
+            from .adapters import CAVITY
+            self.value_edit = ValueEdit(context, CAVITY + '.cavity_factor')
+            self.owner = self.value_edit.owner
+            self.path = ('mesh_automasking_settings.cavity_curve' if self.owner.kind == 'BRUSH' else
+                         'tool_settings.sculpt.mesh_automasking_settings.cavity_curve')
+        else:
+            self.owner = self.local
+            self.path = 'curve_distance_falloff'
+        self.owner._guard.check(write=True)
+
+    def check(self, context):
+        if self.value_edit is not None:
+            self.value_edit.check(context)
+        else:
+            local, parent = owners(context)
+            if (local.identity, parent.identity) != (self.local.identity, self.parent.identity):
+                raise PropertyError("Brush or scene changed during the edit")
+            self.owner._guard.check(write=True)
+
+
 class SCULPTCORE_OT_native_response(_PropertyOperator, bpy.types.Operator):
     bl_idname = "sculptcore.native_response"
-    bl_label = "Edit Pressure Curve"
+    bl_label = "Edit Brush Curve"
     identifier: bpy.props.StringProperty(options={'SKIP_SAVE'})
+    target: bpy.props.EnumProperty(items=(('PRESSURE', "Pressure", ''), ('CAVITY', "Cavity", ''),
+                                         ('FALLOFF', "Falloff", '')), options={'SKIP_SAVE'})
     _scope = None
 
     def invoke(self, context, event):
         self._scope = None
         try:
-            self._edit = StackEdit(context, self.identifier)
-            layer = next(layer for layer in self._edit.result.stack if layer.device == 'PRESSURE')
-            if not isinstance(layer.curve, NativeCurveReference):
-                raise PropertyError("This input does not use a native pressure curve")
-            self._path = layer.curve.path
-            self._selection = self._edit.owner._stack_descriptions(self._edit.result.definition)
-            self._scope = authoring_edit(self._edit.owner, "Edit Pressure Curve")
+            if self.target == 'PRESSURE':
+                self._edit = StackEdit(context, self.identifier)
+                layer = next(layer for layer in self._edit.result.stack if layer.device == 'PRESSURE')
+                if not isinstance(layer.curve, NativeCurveReference):
+                    raise PropertyError("This input does not use a native pressure curve")
+                self._path = layer.curve.path
+                self._selection = self._edit.owner._stack_descriptions(self._edit.result.definition)
+            else:
+                self._edit = NativeCurveEdit(context, self.target)
+                self._path = self._edit.path
+            self._scope = authoring_edit(self._edit.owner, "Edit " + self.target.title() + " Curve")
             self._scope.__enter__()
             _native_editors.append(self)
             return context.window_manager.invoke_props_dialog(self, width=460)
@@ -180,14 +212,23 @@ class SCULPTCORE_OT_native_response(_PropertyOperator, bpy.types.Operator):
     def _check(self, context):
         if self._scope is None:
             raise PropertyError("The curve edit was cancelled")
-        self._edit.check(context, contents=False)
-        if self._edit.owner._stack_descriptions(self._edit.result.definition) != self._selection:
-            raise PropertyError("Pressure settings changed during the edit")
+        if self.target == 'PRESSURE':
+            self._edit.check(context, contents=False)
+            if self._edit.owner._stack_descriptions(self._edit.result.definition) != self._selection:
+                raise PropertyError("Pressure settings changed during the edit")
+        else:
+            self._edit.check(context)
 
     def draw(self, context):
         try:
             self._check(context)
-            self.layout.template_curve_mapping(self._edit.owner.owner, self._path, brush=True)
+            owner = self._edit.owner.owner
+            if self.target != 'PRESSURE':
+                self.layout.label(text=self.target.title() + " — " + self._edit.owner.kind.title())
+            parent, separator, name = self._path.rpartition('.')
+            self.layout.template_curve_mapping(owner.path_resolve(parent) if separator else owner,
+                                               name, brush=True, use_negative_slope=self.target == 'FALLOFF',
+                                               show_presets=self.target == 'FALLOFF')
         except (PropertyError, ReferenceError) as error:
             self.layout.label(text=str(error), icon='ERROR')
 

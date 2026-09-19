@@ -147,6 +147,29 @@ The headless smoke did not map wgpu; no clean-machine or GPU-device parity claim
 is made. Plan 6 is complete for the addon CPU path. Generic UI, migration and
 default rollout remain Plans 7–8; the Scene opt-in still defaults off.
 
+## Generic UI — September 19, 2026
+
+Plan 7 connects the shared effective-owner rows, independent input stacks,
+transactional curve editors and saved placement to the header, settings, context
+menu and searchable Properties panel. The surviving advanced panel is now the
+canonical SculptCore automasking UI; the limited duplicate is removed. Cavity
+uses its effective native block, while view-normal/culling use engine-owned
+settings. Native sculpt draws remain intact. Retained native widgets include
+assets, brush type, color, textures, stroke method, falloff and display.
+
+The existing authoring fixture covers numeric and stack widgets, native and
+owned curves, placement reload, read-only owners, independent main-window scenes
+and non-mutating narrow layouts. The existing automasking geometry fixture now
+also authors through UI operators and checks cavity curves/inversion alongside
+view-normal/culling on mesh and grids. Raw outputs remain ignored; no additional
+test suite or historical report archive was introduced.
+
+UI work required the earlier fork context-restoration fix `70ff11ce9b6`: Python
+RNA callbacks on temporary UI contexts must restore the preceding context before
+that temporary context is freed. Final UI tests use Blender `4980bc0c4694` and the
+unchanged production engine DLL. Migration, external-asset rollout and enabling
+the generic path by default remain Plan 8.
+
 ## Recovery without keeping artifacts in the working tree
 
 The existing commits preserve the original material; cleanup does not rewrite

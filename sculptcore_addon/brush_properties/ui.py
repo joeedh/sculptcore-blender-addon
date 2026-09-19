@@ -40,11 +40,19 @@ def _kind(result):
     return getattr(result.value_domain, 'kind', result.definition.scalar_type)
 
 
+def _description(definition):
+    from .engine_catalogue import VIEW_NORMAL_LIMIT
+    if definition.identifier == VIEW_NORMAL_LIMIT:
+        return "Angle in radians at which the view-normal mask reaches zero"
+    return definition.description
+
+
 def _label(result):
+    from .automasking_ui import LABELS
     value = str(result.value) if _kind(result) in ('BOOL', 'INT32') else '{:.5g}'.format(result.value)
     if result.definition.identifier == SIZE:
         value += " px" if _kind(result) == 'INT32' else " BU"
-    return "{}: {}".format(result.definition.label, value)
+    return "{}: {}".format(LABELS.get(result.definition.identifier, result.definition.label), value)
 
 
 class _PropertyOperator:
@@ -57,7 +65,7 @@ class _PropertyOperator:
         try:
             _, _, result = _resolve(context, properties.identifier)
             return "{}\nValue: {}. Input stack: {}".format(
-                result.definition.description, _name(result.value_owner), _name(result.stack_owner))
+                _description(result.definition), _name(result.value_owner), _name(result.stack_owner))
         except (PropertyError, ReferenceError):
             return "Edit the effective brush property owner"
 
@@ -176,23 +184,36 @@ def draw_row(layout, context, definition):
     """Resolve for this draw only. No default records, curves or shadow RNA values."""
     try:
         local, parent, result = _resolve(context, definition.identifier)
-        row = layout.row(align=True)
+        from .automasking_ui import LABELS, value_enabled
+        region = context.region
+        narrow = (region is not None and region.width < 340 and
+                  (region.type == 'UI' or (context.area.type == 'PROPERTIES' and region.type == 'WINDOW')))
+        container = layout.column(align=True) if narrow else layout
+        row = container.row(align=True)
         value = row.row(align=True)
-        value.enabled = result.value_owner.editable and result.execution_available
+        value.enabled = (result.value_owner.editable and result.execution_available
+                         and value_enabled(context, definition.identifier))
         if _kind(result) == 'BOOL':
-            _action(value, definition.identifier, 'BOOLEAN', text=definition.label,
+            _action(value, definition.identifier, 'BOOLEAN', text=LABELS.get(definition.identifier, definition.label),
                     icon='CHECKBOX_HLT' if result.value else 'CHECKBOX_DEHLT')
         else:
             value.operator_context = 'INVOKE_DEFAULT'
             op = value.operator('sculptcore.property_value', text=_label(result))
             op.identifier = definition.identifier
+        if narrow:
+            row = container.row(align=True)
+        if definition.identifier == CAVITY + '.use_automasking_custom_cavity_curve' and result.value:
+            curve = row.row(align=True)
+            curve.enabled = value.enabled
+            curve.operator_context = 'INVOKE_DEFAULT'
+            curve.operator('sculptcore.native_response', text='', icon='FCURVE').target = 'CAVITY'
         row.label(text='', icon='SCENE_DATA' if result.value_owner.kind == 'SCENE' else 'BRUSH_DATA')
         if definition.dynamic:
             layer = next((layer for layer in result.stack or () if layer.device == 'PRESSURE'), None)
             _action(row, definition.identifier, 'PRESSURE', icon='STYLUS_PRESSURE',
                     depressed=bool(layer and layer.enabled), enabled=result.stack_owner.editable
                     and result.stack_available and result.execution_available)
-            if result.stack_owner.identity != result.value_owner.identity:
+            if result.stack_owner.identity != result.value_owner.identity and not narrow:
                 row.label(text="Stack: " + _name(result.stack_owner))
             row.operator_context = 'INVOKE_DEFAULT'
             op = row.operator('sculptcore.property_stack', text='', icon='PREFERENCES')
@@ -203,6 +224,8 @@ def draw_row(layout, context, definition):
         row.operator_context = 'INVOKE_DEFAULT'
         op = row.operator('sculptcore.property_metadata', text='', icon='DOWNARROW_HLT')
         op.identifier = definition.identifier
+        if narrow and definition.dynamic and result.stack_owner.identity != result.value_owner.identity:
+            container.label(text="Inputs: " + _name(result.stack_owner))
         if not result.execution_available:
             layout.label(text="Unavailable in this build", icon='ERROR')
     except (PropertyError, ReferenceError) as error:
@@ -232,7 +255,7 @@ class SCULPTCORE_OT_property_metadata(_PropertyOperator, bpy.types.Operator):
             local, parent, result = _resolve(context, self.identifier)
             layout.label(text=result.definition.label)
             layout.label(text="Value: {} • Input stack: {}".format(_name(result.value_owner), _name(result.stack_owner)))
-            layout.label(text=result.definition.description)
+            layout.label(text=_description(result.definition))
             layout.label(text="Value inheritance")
             choices = [('UNIFIED', "Unified"), ('ALWAYS', "Always"), ('NEVER', "Never")]
             if self.identifier.startswith(CAVITY + '.'):
@@ -305,13 +328,15 @@ def register():
         set=lambda self, value: _search.__setitem__(self.as_pointer(), value))
     for cls in _classes:
         bpy.utils.register_class(cls)
-    from . import placement_ui, stack_ui
+    from . import automasking_ui, placement_ui, stack_ui
     stack_ui.register()
     placement_ui.register()
+    automasking_ui.register()
 
 
 def unregister():
-    from . import placement_ui, stack_ui
+    from . import automasking_ui, placement_ui, stack_ui
+    automasking_ui.unregister()
     placement_ui.unregister()
     stack_ui.unregister()
     for cls in reversed(_classes):

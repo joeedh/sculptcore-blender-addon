@@ -9,8 +9,8 @@ from .interaction import owners
 from .registry import Position, PropertyError
 from .ui import _PropertyOperator, _redraw
 
-# Automasking placement remains preserved until its canonical panel is wired.
-_locations = placement.LOCATIONS[:3]
+_locations = placement.LOCATIONS
+_fields = ('header', 'settings', 'menu', 'automasking')
 
 
 class PlacementEdit:
@@ -47,16 +47,18 @@ class SCULPTCORE_OT_property_placement(_PropertyOperator, bpy.types.Operator):
     header: bpy.props.BoolProperty(name="Tool Header", options={'SKIP_SAVE'})
     settings: bpy.props.BoolProperty(name="Brush Settings", options={'SKIP_SAVE'})
     menu: bpy.props.BoolProperty(name="Context Menu", options={'SKIP_SAVE'})
+    automasking: bpy.props.BoolProperty(name="Automasking", options={'SKIP_SAVE'})
     header_order: bpy.props.IntProperty(name="Order", options={'SKIP_SAVE'})
     settings_order: bpy.props.IntProperty(name="Order", options={'SKIP_SAVE'})
     menu_order: bpy.props.IntProperty(name="Order", options={'SKIP_SAVE'})
+    automasking_order: bpy.props.IntProperty(name="Order", options={'SKIP_SAVE'})
 
     def invoke(self, context, event):
         try:
             self._edit = PlacementEdit(context, self.identifier)
             self.reset = False
             current = {item.location: item.sort_index for item in self._edit.initial[0]}
-            for field, (location, _) in zip(('header', 'settings', 'menu'), _locations):
+            for field, (location, _) in zip(_fields, _locations):
                 setattr(self, field, location in current)
                 setattr(self, field + '_order', current.get(location, 100))
             return context.window_manager.invoke_props_dialog(self, width=400)
@@ -70,7 +72,7 @@ class SCULPTCORE_OT_property_placement(_PropertyOperator, bpy.types.Operator):
         layout.prop(self, 'reset')
         content = layout.column()
         content.enabled = not self.reset
-        for field, (_, label) in zip(('header', 'settings', 'menu'), _locations):
+        for field, (_, label) in zip(_fields, _locations):
             row = content.row(align=True)
             row.prop(self, field, text=label)
             order = row.row()
@@ -87,7 +89,7 @@ class SCULPTCORE_OT_property_placement(_PropertyOperator, bpy.types.Operator):
             # currently editable locations is selected.
             positions = tuple(item for item in edit.initial[0] if item.location not in known) + tuple(
                 Position(location, getattr(self, field + '_order'))
-                for field, (location, _) in zip(('header', 'settings', 'menu'), _locations)
+                for field, (location, _) in zip(_fields, _locations)
                 if getattr(self, field))
             edit.write(context, positions, reset=self.reset)
             _redraw()
