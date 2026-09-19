@@ -20,7 +20,7 @@ def load(name):
 
 
 stroke_math, stroke_input = load('stroke_math'), load('stroke_input')
-tree = ast.parse((ROOT / 'sculptcore_addon/stroke.py').read_text())
+tree = ast.parse((ROOT / 'sculptcore_addon/stroke/spacer.py').read_text())
 spacer_class = next(node for node in tree.body if isinstance(node, ast.ClassDef) and node.name == 'StrokeSpacer')
 namespace = dict(stroke_math=stroke_math, stroke_input=stroke_input)
 exec(compile(ast.Module(body=[spacer_class], type_ignores=[]), 'stroke.py', 'exec'), namespace)
