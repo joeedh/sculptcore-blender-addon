@@ -115,10 +115,15 @@ effective-owner editing and discoverable metadata.
 - [ ] Verify keyboard/numeric entry, context menus, undo grouping, multiple
   windows/scenes, read-only assets and insufficient-width layouts. Drawing must
   neither allocate persistent curves nor mark assets dirty.
-- [ ] Rebind F/Shift-F radial controls and bracket-size operators to the generic
-  owner-aware adapters. Their current native-unified flag/`brush.scale_size`
-  routing cannot represent Always/Never inherit. Resolve the right owner at
-  invocation and preserve cancel/undo behavior without editing dormant values.
+- [x] Rebind bracket-size keys to the generic owner-aware adapter. The effective
+  size owner/mode is resolved at invocation; one authoring undo entry preserves
+  paired native sizes, dormant values and independent stacks. The existing
+  custom-mode authoring fixture exercises real bracket keys across all 12
+  inheritance/unified/size-mode combinations and undo/redo.
+- [ ] Rebind F/Shift-F radial controls to the generic owner-aware adapter. Their
+  current native-unified flag routing cannot represent Always/Never inherit.
+  Resolve the right owner at invocation and preserve cancel/undo behavior without
+  editing dormant values.
 
 **Gate:** interactive checklists demonstrate that each visible row changes the
 right owner and affects real sculpt behavior; saved layout survives reload.

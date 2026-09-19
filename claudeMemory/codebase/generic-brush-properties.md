@@ -219,5 +219,10 @@ Retain the PINCH local-strength extra-field exception, existing AIRBRUSH/LINE/
 CURVE spacing behavior and documented texture limitations until separately
 changed. Correct SCENE-size projection and varying-input interpolation have
 independent expectations; they are not reasons to rewrite unrelated baselines.
-The generic UI, radial/bracket ownership, automasking panel consolidation,
-versioned migration and packaged default rollout remain unapproved by tests.
+Bracket keys now resolve the effective size owner and active VIEW/SCENE domain,
+using a grouped authoring edit to preserve coupled native values through undo.
+With generic properties disabled they delegate to the existing native operator.
+The existing custom-mode authoring fixture covers bracket events across all 12
+inheritance/unified/size-mode combinations, independent stacks and undo/redo.
+Generic rows, radial ownership, automasking panel consolidation, versioned
+migration and packaged default rollout remain unapproved by tests.

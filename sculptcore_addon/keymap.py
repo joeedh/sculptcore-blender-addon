@@ -75,9 +75,9 @@ def register():
         kmi.properties.relative_asset_identifier = _ESSENTIALS + brush_name
         if use_toggle:
             kmi.properties.use_toggle = True
-    kmi = km.keymap_items.new("brush.scale_size", 'LEFT_BRACKET', 'PRESS')
+    kmi = km.keymap_items.new("sculptcore.brush_scale_size", 'LEFT_BRACKET', 'PRESS')
     kmi.properties.scalar = 0.9
-    kmi = km.keymap_items.new("brush.scale_size", 'RIGHT_BRACKET', 'PRESS')
+    kmi = km.keymap_items.new("sculptcore.brush_scale_size", 'RIGHT_BRACKET', 'PRESS')
     kmi.properties.scalar = 1.0 / 0.9
     kmi = km.keymap_items.new("wm.context_toggle", 'S', 'PRESS', shift=True)
     kmi.properties.data_path = "{:s}.use_smooth_stroke".format(_BRUSH_PATH)

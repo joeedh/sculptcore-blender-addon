@@ -511,7 +511,38 @@ class SCULPTCORE_OT_subdivision_set(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class SCULPTCORE_OT_brush_scale_size(bpy.types.Operator):
+    bl_idname = "sculptcore.brush_scale_size"
+    bl_label = "Scale Brush Size"
+    bl_description = "Scale the effective brush size, preserving the other owner's settings"
+
+    scalar: bpy.props.FloatProperty(name="Scale", default=1.0, min=0.001, max=1000.0)
+
+    @classmethod
+    def poll(cls, context):
+        return (_session(context, allow_multires=True) is not None
+                and context.tool_settings.sculpt.brush is not None)
+
+    def execute(self, context):
+        if not context.scene.sculptcore_generic_properties:
+            return bpy.ops.brush.scale_size(scalar=self.scalar)
+        from .brush_properties.adapters import SIZE
+        from .brush_properties.interaction import ValueEdit
+        from .brush_properties.registry import PropertyError
+        try:
+            edit = ValueEdit(context, SIZE)
+            edit.set(context, edit.scaled(self.scalar))
+        except PropertyError as error:
+            self.report({'ERROR'}, str(error))
+            return {'CANCELLED'}
+        for window in context.window_manager.windows:
+            for area in window.screen.areas:
+                area.tag_redraw()
+        return {'FINISHED'}
+
+
 _classes = (
+    SCULPTCORE_OT_brush_scale_size,
     SCULPTCORE_OT_mask_flood_fill,
     SCULPTCORE_OT_mask_filter,
     SCULPTCORE_OT_face_sets_create,
