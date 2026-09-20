@@ -270,6 +270,14 @@ class Session:
         if self._freed:
             return
         self._freed = True
+        lib = engine.capi().lib
+        if self.draw_key:
+            # Before the tree goes: the external-draw registry holds a raw
+            # pointer to it, and a session freed by the undo handlers (not
+            # only exit_) would otherwise leave the viewport reading a freed
+            # tree the next time the object is drawn in the mode.
+            lib.sc_external_draw_unregister(self.draw_key)
+            self.draw_key = 0
         if self.generic_runtime is not None:
             self.generic_runtime.close()
             self.generic_runtime = None
@@ -287,7 +295,6 @@ class Session:
         self.brush_obj = None
         self.curve_cache = {}
         self.mesh_obj = None
-        lib = engine.capi().lib
         if self.grid_ptr:
             # Before the Multires it references.
             lib.GridStroke_free(self.grid_ptr)

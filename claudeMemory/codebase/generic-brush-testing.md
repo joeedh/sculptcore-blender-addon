@@ -83,9 +83,12 @@ default. Pass `--args radial` to its dialog-safe headed launcher for F/Shift-F
 owner/domain, numeric, precision, cancel, undo and teardown checks; use
 `--args radial-legacy` for the generic-disabled native fallback. `--args rows`
 checks typed row operators, independent pressure owners, inheritance and undo;
-`--args rows-ui` drives the actual searchable panel and its inline strength
-slider (text entry, Escape, a multi-move drag, an Escape-cancelled drag, an edit
-with global undo disabled, the details popup) and checks non-mutating draws.
+`--args rows-ui` drives the inline strength slider the Brush panel places at
+the top of the Tool tab (text entry, Escape, a multi-move drag, an
+Escape-cancelled drag, an edit with global undo disabled, the details popup) and
+checks the searchable panel's non-mutating draws. It clicks fixed window
+coordinates in a 1280x800 window, so a layout change above that row moves the
+target; the `brush-row-*.png` screenshots show where the clicks landed.
 Every addon edit in the fixture is followed by `no_undo_step()`: it undoes onto
 a marker memfile step pushed *before* the edit (proving the edit added none),
 checks that Brush data and Scene ToolSettings survived the undo and the redo,
@@ -134,6 +137,12 @@ strength-owner demos were superseded by persistent native adapter tests.
 The historical falloff diagnostic is retained even though hard clipping can differ. No test was
 removed merely to turn a failing gate green. Keep native edge cases, including
 typed invalid input, program atomicity, radius union and multilevel undo.
+
+`claudeMemory/scripts/test_undo_mode_reentry.py` (headed, marker
+`UNDO_MODE_OK`) undoes across an edit-mode round trip back into an in-mode
+memfile step and draws: the object must come back with a rebuilt session
+instead of crashing the viewport on a freed tree. Run it after touching
+`handlers._on_undo_redo`, `Session.free` or the external-draw registration.
 
 ## Retained inputs versus disposable output
 

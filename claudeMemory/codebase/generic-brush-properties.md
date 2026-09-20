@@ -111,7 +111,8 @@ Context Menu and Automasking selections and integer order values. Lower values s
 stable property ID breaking ties. Confirmation writes only the Brush's layout,
 even when values and input stacks belong to the Scene. Cancel writes nothing;
 changed Brush identity or placement rejects a stale draft. Deselecting all four
-saves an explicit empty layout; All Brush Properties still lists the property.
+saves an explicit empty layout; All Brush Properties (last in the Tool tab,
+`bl_order = 100`) still lists the property.
 Unknown/other locations are retained. Use Default Locations removes the override
 headers while preserving dormant location metadata.
 

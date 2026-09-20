@@ -516,7 +516,9 @@ def row_ui_step(phase):
     from sculptcore_addon.brush_properties import interaction
     active, scene = bpy.context.tool_settings.sculpt.brush, bpy.context.scene
     window = bpy.context.window
-    field = (380, 304)  # The All Brush Properties strength slider (window coordinates).
+    # The strength row the Brush panel places at the top of the Tool tab (window coordinates); the
+    # All Brush Properties panel itself sits last in the tab, below the fold.
+    field = (470, 498)
 
     def unified():
         # Fresh each time: a memfile undo reloads the Scene under an older reference.
@@ -621,7 +623,7 @@ def row_ui_step(phase):
             check('edits work with global undo disabled', result == {'FINISHED'} and abs(active.strength - .6) < 1e-6)
         finally:
             bpy.context.preferences.edit.use_global_undo = True
-        click(1017, 304)
+        click(1027, 498)
 
     def inheritance_changed():
         check('metadata widget changes inheritance without copying values',
@@ -642,7 +644,7 @@ def row_ui_step(phase):
         screenshot('brush-row-confirmed.png'), text_confirmed, text_kept, None,
         screenshot('brush-row-dragged.png'), dragged, drag_kept, None,
         drag_cancelled, None,
-        screenshot('brush-row-metadata.png'), lambda: click(1037, 167), None,
+        screenshot('brush-row-metadata.png'), lambda: click(1037, 361), None,
         inheritance_changed, inheritance_kept,
     )
     if phase < len(steps) and steps[phase] is not None:

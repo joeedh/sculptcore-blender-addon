@@ -880,6 +880,13 @@ events exercise actual numeric cancel/confirm and inheritance buttons reliably.
   edits stopped pushing undo at all (below); don't rebuild it without reading
   that decision first.
 - Setters have no `report()`; print to the console and write nothing.
+- Never `area.tag_redraw()` the 3D viewport from a property setter: that
+  re-renders the sculpt mesh on every slider move, which is what made the
+  inline sliders drag on large meshes. Blender's own brush edits only redraw
+  the paint cursor (`NC_BRUSH`/`NA_EDITED` → `ED_region_tag_redraw_cursor`).
+  Tag the sidebar/header regions (`region.type != 'WINDOW'`) and the
+  Properties areas instead. The Python side is cheap by comparison: setter
+  ~0.7 ms, getter ~0.26 ms, the All Brush Properties draw ~10 ms per redraw.
 - Escape during a drag re-applies the original value through the setter.
 - Simulated events land asynchronously: a check phase .5 s after a drag whose
   last event fires at .5 s races it. Give event-driven phases a settle phase.
@@ -908,9 +915,28 @@ events exercise actual numeric cancel/confirm and inheritance buttons reliably.
 - `sculptcore_addon/convert/*.py` imported the top-level `undo` module as
   `from . import undo` after the package split; every multires enter raised
   `ImportError`. Fixed to `from .. import undo`.
-- Setters have no `report()`; print to the console and write nothing.
-- A negative control is cheap here: the rows-ui drag check fails on a binary
-  without the merge (each move undoes separately), which proves the check bites.
+
+## Undo back into the mode crashed the viewport - 2026-09-19
+
+- Crash: `EXCEPTION_ACCESS_VIOLATION` in `extdraw_nodes_get`
+  (`engine/source/spatial/c-api/external_draw.cc`) from `eevee sync_sculpt`,
+  after enter SC → Tab (edit) → Tab → enter SC → undo ×3. Read the report at
+  `%TEMP%lender.crash.txt`; the operator log at its top gives the sequence.
+- Mechanism, two halves. (1) `Session.free()` freed the tree but only
+  `convert.exit_` unregistered the external-draw entry, so a session freed by
+  `handlers._reconcile` (an undo took the object out of the mode) left the
+  registry pointing at a freed tree. (2) Memfile undo keeps `OB_MODE_CUSTOM`
+  on the restored object (object.cc only clears it on file load) and the fork
+  runs no enter callback and no `refresh` for a custom-undo mode, so an undo
+  landing on an in-mode step gave an object that is in the mode by DNA with
+  no session — and the next draw asked the provider for the stale tree.
+- Fix: `Session.free()` unregisters `draw_key` first; `handlers._on_undo_redo`
+  runs `_reenter_restored()` (rebuild the session of any in-mode object
+  without one, adopting `custom_mode_state`). Regression:
+  `claudeMemory/scripts/test_undo_mode_reentry.py` (headed).
+- Scripted operators push no undo step unless called with `undo=True`
+  (`bpy.ops.x('EXEC_DEFAULT', True, ...)`); without it `ed.undo` polls false
+  ("context is incorrect") and the sequence cannot be reproduced.
 
 ## Curve popup lifetime - 2026-09-19
 

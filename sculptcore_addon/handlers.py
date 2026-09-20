@@ -10,8 +10,10 @@ the mode without going through the exit callback — e.g. undoing across the
 mode-enter boundary drops the object back to Object mode. The engine session
 then dangles (its C++ mesh/tree leak, and a later re-enter would overwrite
 it). ``undo_post``/``redo_post`` reconcile the session registry against the
-objects' actual modes; ``load_post`` drops every session (the engine meshes
-were built from the previous file's data, now replaced).
+objects' actual modes — both ways: a step can also put an object *back* into
+the mode with no enter callback, and its session is rebuilt from the restored
+Mesh; ``load_post`` drops every session (the engine meshes were built from
+the previous file's data, now replaced).
 
 The full custom undo type (undo-integration plan) makes stroke undo exact;
 this keeps Tier-1 leak-free and consistent in the meantime.
@@ -138,9 +140,31 @@ def _resync_foreign_states():
             _tag_view3d_redraw()
 
 
+def _reenter_restored():
+    """Rebuild the session of any object an undo step put back into the mode.
+
+    Memfile undo keeps ``OB_MODE_CUSTOM`` on the restored Object (object.cc
+    clears it on file load only), and the fork runs no enter callback for it:
+    a step written in-mode restores an object that is in the mode by its DNA
+    but has no engine session, because the earlier undo that took it out ran
+    ``_reconcile`` and freed the session. Its Mesh is exactly what the step
+    holds (the mode flushes on encode), so building from it is the right
+    state; the session adopts the object's data vintage rather than minting
+    one, like the undo-handler rebuilds in ``_resync_foreign_states``."""
+    from . import convert
+
+    for ob in bpy.data.objects:
+        if (ob.mode == 'CUSTOM' and ob.custom_mode == "sculptcore.sculpt"
+                and ob.name not in engine.sessions):
+            session = convert.enter(ob)
+            session.data_state = ob.custom_mode_state
+            _tag_view3d_redraw()
+
+
 @persistent
 def _on_undo_redo(scene, depsgraph=None):
     _reconcile()
+    _reenter_restored()
     _resync_foreign_states()
 
 

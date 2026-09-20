@@ -453,8 +453,6 @@ def exit_(ob):
     try:
         flush(ob)
     finally:
-        if session.draw_key:
-            engine.capi().lib.sc_external_draw_unregister(session.draw_key)
         if session.multires_ptr:
             md = multires.modifier(ob)
             if md is not None:

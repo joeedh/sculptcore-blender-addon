@@ -26,10 +26,21 @@ def available(context):
 
 
 def _redraw(_self=None, _context=None):
+    """Refresh every region that draws property rows.
+
+    The 3D viewport's main region is left alone: no property edit changes what
+    it renders, and Blender's own brush edits only redraw its paint cursor
+    (`NC_BRUSH`/`NA_EDITED`). A slider drag applies on every mouse move, so a
+    full viewport redraw per move is what made the sliders drag on a big mesh.
+    """
     for window in bpy.context.window_manager.windows:
         for area in window.screen.areas:
-            if area.type in ('PROPERTIES', 'VIEW_3D'):
+            if area.type == 'PROPERTIES':
                 area.tag_redraw()
+            elif area.type == 'VIEW_3D':
+                for region in area.regions:
+                    if region.type != 'WINDOW':
+                        region.tag_redraw()
 
 
 def _resolve(context, identifier):
@@ -368,7 +379,7 @@ class SCULPTCORE_PT_all_properties(bpy.types.Panel):
     bl_region_type = 'UI'
     bl_category = 'Tool'
     bl_context = 'sculptcore.sculpt'
-    bl_order = -10
+    bl_order = 100  # Last in the tab, after the vanilla brush panels.
 
     @classmethod
     def poll(cls, context):
