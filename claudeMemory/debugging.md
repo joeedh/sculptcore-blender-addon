@@ -867,6 +867,51 @@ timer callbacks. Sending all three in one timer turn reopened a just-cancelled
 popup inconsistently; tracing showed no second operator invocation. The split
 events exercise actual numeric cancel/confirm and inheritance buttons reliably.
 
+## Inline property widgets - 2026-09-19
+
+- A Python `get`/`set` property on the WindowManager is the way to draw an
+  engine/store-backed value with a real slider: the getter resolves the
+  effective owner per draw, so nothing is cached that could go stale.
+- Blender calls the setter on every mouse move of a drag (`data->interactive`),
+  and pushes its own undo once per activation only for owners that pass
+  `ID_CHECK_UNDO` — never for the WindowManager. A setter that pushes its own
+  step therefore pushes one per move. A fork merge keyed on a per-activation
+  gesture id (`apply_but`) worked, but was reverted the same day when brush
+  edits stopped pushing undo at all (below); don't rebuild it without reading
+  that decision first.
+- Setters have no `report()`; print to the console and write nothing.
+- Escape during a drag re-applies the original value through the setter.
+- Simulated events land asynchronously: a check phase .5 s after a drag whose
+  last event fires at .5 s races it. Give event-driven phases a settle phase.
+
+## No undo for brush property edits - 2026-09-19
+
+- Decision: vanilla sculpt-mode parity (#71434). Every `authoring_edit` in the
+  addon is `undo=False`; the scope only snapshots for cancel/disable rollback.
+- Why memfile undo could never cover it: the active brush is a linked asset and
+  memfile undo keeps linked IDs as-is (`read_libblock_undo_restore_linked`).
+- Why the authoring step was worse than nothing: it rode on a memfile push
+  (`use_memfile_step`) whose encode runs the mode's full mesh flush, so a slider
+  drag flushed per move; `interactive()` refused the edit whenever global undo
+  was off or an undo group/operator was open (edits silently did nothing); and
+  Ctrl+Z after a tweak undid the tweak instead of the stroke.
+- Blender preserves the whole `ToolSettings` across memfile undo
+  (`scene_undo_preserve` swaps it back), so unified strength/size, size mode and
+  cavity settings/curves on the Scene are never undone either. Only Scene
+  ID-property records (generic values, stacks, placement stored on the Scene)
+  revert when the user undoes something else. A first test draft assumed all
+  Scene data reverts and failed on unified strength.
+- Testing "no step": push a marker memfile step, change a Scene field, push the
+  baseline, edit, undo. Landing on the marker proves the edit pushed nothing.
+  Memfile undo reloads the Scene, so Python references to it (and to
+  `unified_paint_settings`) taken before the undo are stale — look them up again.
+- `sculptcore_addon/convert/*.py` imported the top-level `undo` module as
+  `from . import undo` after the package split; every multires enter raised
+  `ImportError`. Fixed to `from .. import undo`.
+- Setters have no `report()`; print to the console and write nothing.
+- A negative control is cheap here: the rows-ui drag check fails on a binary
+  without the merge (each move undoes separately), which proves the check bites.
+
 ## Curve popup lifetime - 2026-09-19
 
 Native CurveMapping dialogs reopen with the selected point's X field focused.

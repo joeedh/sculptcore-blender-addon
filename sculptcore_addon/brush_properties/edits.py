@@ -1,6 +1,16 @@
 # SPDX-FileCopyrightText: 2026 Blender Authors
 # SPDX-License-Identifier: GPL-2.0-or-later
-"""Explicit grouped authoring edits; consuming operators must omit UNDO flags."""
+"""Explicit grouped authoring edits: one owner, one rollback scope, no undo step.
+
+Brush property edits in the mode create no undo history, as in Blender's own
+sculpt mode (#71434): the active brush is usually a linked asset that memfile
+undo keeps as-is, so undoing anything would never touch it, and a step per edit
+would either interleave with strokes or ride on a memfile push whose encode
+flushes the whole mesh. The scope still snapshots the owner so a cancelled
+gesture, dialog or addon disable restores it exactly. Consuming operators must
+omit UNDO flags. `undo=True` remains available for callers that want the fork's
+authoring step, e.g. tests of that plumbing.
+"""
 from contextlib import contextmanager
 
 from .registry import PropertyError
@@ -9,7 +19,7 @@ _active = {}
 
 
 @contextmanager
-def authoring_edit(store, name="Edit Brush Property", *, native_settings=True, undo=True):
+def authoring_edit(store, name="Edit Brush Property", *, native_settings=True, undo=False):
     """Pin the resolved owner for the entire gesture, including cancellation."""
     store._guard.check(write=True)
     owner = store.owner

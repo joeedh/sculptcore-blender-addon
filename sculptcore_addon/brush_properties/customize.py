@@ -24,7 +24,7 @@ def _seed(mapping, values):
     mapping.update()
 
 
-def customize(store, definition, device, *, reseed=False, preset=None, undo=True):
+def customize(store, definition, device, *, reseed=False, preset=None, undo=False):
     """Select CUSTOM, returning a diagnostic when a step must become editable samples.
 
     `store` is the already-resolved effective stack owner. Native pressure mappings

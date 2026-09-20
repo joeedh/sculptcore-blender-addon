@@ -83,8 +83,14 @@ default. Pass `--args radial` to its dialog-safe headed launcher for F/Shift-F
 owner/domain, numeric, precision, cancel, undo and teardown checks; use
 `--args radial-legacy` for the generic-disabled native fallback. `--args rows`
 checks typed row operators, independent pressure owners, inheritance and undo;
-`--args rows-ui` drives the actual searchable panel/numeric widgets and checks
-non-mutating draws. The widget case uses the launcher's fixed 1280×800 window.
+`--args rows-ui` drives the actual searchable panel and its inline strength
+slider (text entry, Escape, a multi-move drag, an Escape-cancelled drag, an edit
+with global undo disabled, the details popup) and checks non-mutating draws.
+Every addon edit in the fixture is followed by `no_undo_step()`: it undoes onto
+a marker memfile step pushed *before* the edit (proving the edit added none),
+checks that Brush data and Scene ToolSettings survived the undo and the redo,
+and that Scene ID-property records reverted to the memfile. `--args migration`
+passes `undo=True` explicitly because it covers the fork's own authoring step. The widget case uses the launcher's fixed 1280×800 window.
 `--args stacks` checks ordered stack operations, presets, dormant custom mappings
 and undo/redo with opposite value/stack owners. `--args stacks-ui` exercises
 native curve graph edits, Apply/Cancel, undo/redo and addon shutdown, plus the

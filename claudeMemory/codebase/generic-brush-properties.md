@@ -43,7 +43,7 @@ Sources live in `sculptcore_addon/brush_properties/`.
 | `migration.py` | Explicit atomic v0 import and synchronization of changed raw legacy names |
 | `compatibility.py`, `capabilities.py` | Frozen public RNA aliases, pending raw-write overlays and package readiness checks |
 | `resolver.py`, `adapters.py`, `bindings.py` | Effective value/stack owners and authoritative native RNA |
-| `lifecycle.py`, `edits.py` | Operation-scoped owner validity and explicit grouped undo |
+| `lifecycle.py`, `edits.py` | Operation-scoped owner validity and grouped rollback scopes |
 | `curves.py`, `customize.py` | Owner-aware custom mappings and explicit preset customization |
 | `responses.py`, `sampling.py`, `uploads.py` | Analytic responses, bounded immutable tables and upload identity |
 | `snapshots.py`, `commands.py` | Owner-free immutable inputs and command ancestry resolution |
@@ -58,11 +58,38 @@ Brush-local overrides.
 
 ## Property rows
 
-With the generic path enabled, numeric rows open a typed editor. Confirmation
-validates the current owner/domain and commits one explicit authoring undo step;
-editing the dialog or cancelling it does not write to the brush. Boolean rows
-toggle immediately through the same value adapter. The row shows the value-owner
-icon and names the input-stack owner when different.
+With the generic path enabled, rows edit their value inline (2026-09-19; the
+earlier typed-editor dialog is gone). Each definition owns a WindowManager
+property per scalar kind (`ui.value_property(identifier, kind)`; Size has both a
+pixel INT32 and a world FLOAT32 widget) whose getter resolves the effective
+owner and whose setter validates the current owner/domain and commits one
+authoring edit through `ValueEdit`. Nothing is stored on the WindowManager. A
+slider drag applies on every mouse move; each apply is a rollback scope and
+nothing more, so it costs one owner snapshot. Escape re-applies the original
+value through the setter. A setter failure prints to the console (setters have
+no operator to report through) and writes nothing. `sculptcore.property_value`
+remains as the scripted entry point. The row shows the value-owner icon and
+names the input-stack owner when different.
+
+**No undo history for brush property edits** (decided 2026-09-19, vanilla
+sculpt-mode parity, #71434). Every addon-driven edit — values, pressure and
+inheritance toggles, stacks, placement, size units, radial controls, bracket
+keys, the native curve dialogs — runs in `authoring_edit(undo=False)`: the
+owner is snapshotted for cancellation and addon-disable rollback, and no step
+is pushed. Why: the active brush is normally a linked asset, which memfile undo
+keeps as-is (`read_libblock_undo_restore_linked`), so vanilla never undoes
+brush edits either; a step per edit either interleaved with strokes (Ctrl+Z
+after a slider tweak undid the tweak, not the stroke) or rode on a memfile push
+whose encode flushes the whole mesh (a drag paid that per move); and the fork's
+`interactive()` gate refused the edit outright whenever global undo was off or
+an undo group/operator was open. What undo does now: nothing to Brush data;
+nothing to Scene ToolSettings either (unified strength/size, size mode, cavity
+settings and curves — Blender's `scene_undo_preserve` swaps ToolSettings back
+over an undone Scene); Scene ID-property records (generic values, stacks,
+placement, modes stored on the Scene) do revert to the memfile when the user
+undoes something else. Edits also no longer truncate redo. The fork's
+`authoring_edit_begin(undo=True)` step and the owned-curve widget's push are
+untouched, so a widget Apply on an owned curve is still one step.
 
 The pressure shortcut edits the effective stack's unique pressure entry,
 preserving its curve, mix settings, order and other entries. Static settings have
@@ -97,7 +124,7 @@ editor with descending presets. PROJECTED explicitly reports its existing spheri
 fallback. The unconsumed normal-falloff child is hidden in generic mode.
 Kernel scalar controls no longer appear again in the legacy Engine child panel
 when generic properties are enabled. Size units are available in Size's details
-popup and edit the effective owner through the native adapter with grouped undo.
+popup and edit the effective owner through the native adapter in one rollback scope.
 The generic-disabled branch retains native scalar/stroke/falloff rendering.
 
 `stack_ui.py` provides the input-stack popup beside each dynamic property.
@@ -111,7 +138,7 @@ Custom selects a saved mapping without replacing it. Replace Custom From Preset
 explicitly reseeds that mapping; generated presets leave it dormant. Owned
 curves use the fork's transactional editor on the resolved stack owner. Brush
 size/strength pressure uses its authoritative native mapping inside a scoped
-dialog: Apply commits one authoring step, Cancel restores the exact mapping.
+dialog: Apply commits one rollback scope (no undo step), Cancel restores the exact mapping.
 The native editor closes its scope before load, undo/redo or addon shutdown.
 Layer dialogs pin their owner and stack; a stale draft cannot overwrite a
 changed stack.
@@ -129,7 +156,7 @@ owner. Value rows and the curve button edit that effective native block, preserv
 the other block. Under Native policy, disabling Scene cavity can expose the Brush
 fallback; use explicit Always/Never when that fallback is unwanted. Custom cavity
 curves apply before inversion. The same transactional native editor handles cavity
-and Brush falloff, with Apply/Cancel, one-step undo and teardown rollback.
+and Brush falloff, with Apply/Cancel and teardown rollback (no undo step).
 
 View-normal masking uses SculptCore's four engine settings. Limit and falloff are
 shown in radians: the mask reaches zero at the limit, with the transition before
@@ -143,8 +170,8 @@ only; unsupported engine settings are not exposed.
 September 19 verification: the existing custom-mode authoring fixture passed
 172 checks across typed value/pressure ownership combinations and policy changes,
 then 24 checks using actual rendered numeric and inheritance widgets. It verifies
-cancel/confirm, one-step undo/redo and unchanged owner data during full-panel
-draws. Both runs used staged addon Python and Blender `1c93a65f4ed4`; no engine or
+cancel/confirm, one-step undo/redo (since replaced by no-step checks) and
+unchanged owner data during full-panel draws. Both runs used staged addon Python and Blender `1c93a65f4ed4`; no engine or
 fork source changed for these rows. This closes the shared-row step, not Plan 7.
 
 The stack extension passed 130 operator/ownership/undo checks and 31 actual
@@ -211,11 +238,12 @@ custom root. Duplicate/ancestor-overlapping operations reject; semantic no-ops
 do not allocate or notify. Bounds, exact types, UI enum metadata and unknown
 siblings survive. This API does not edit system storage.
 
-`ID.authoring_edit_begin/commit/cancel` supplies explicit Brush/Scene undo.
-Brush edits cannot rely on ordinary memfile undo alone. Tokens are main-thread,
-single-use, owner/lifecycle-bound and reject nesting on one ID. Operators using
-this API omit UNDO/UNDO_GROUPED to avoid duplicate history. `undo=False` provides
-background rollback without creating history. No-op/cancel preserves redo.
+`ID.authoring_edit_begin/commit/cancel` supplies explicit Brush/Scene undo
+(`undo=True`) or a rollback-only scope (`undo=False`, which the addon uses
+everywhere — see the property-rows section). Brush edits cannot rely on
+ordinary memfile undo: linked assets are kept as-is by it. Tokens are
+main-thread, single-use, owner/lifecycle-bound and reject nesting on one ID.
+Operators using this API omit UNDO/UNDO_GROUPED. No-op/cancel preserves redo.
 
 Snapshots cover custom/system IDProperty trees and a finite native settings
 scope, not arbitrary Brush state. Native scope includes paired size, supported
@@ -341,7 +369,7 @@ where they were stored; migration never copies effective Scene settings into a
 Brush. Unknown fields and raw legacy data remain intact for rollback. Unsupported
 schema versions and malformed known sources fail before publication. Linked and
 override owners reject writes. Use an existing `authoring_edit` scope for grouped
-undo or cancellation; background callers can use the atomic operation directly.
+cancellation; background callers can use the atomic operation directly.
 
 Active editable brushes migrate lazily from a main-thread timer, including assets
 activated after file load. Drawing/resolution never migrates. The timer defers
@@ -392,12 +420,12 @@ CURVE spacing behavior and documented texture limitations until separately
 changed. Correct SCENE-size projection and varying-input interpolation have
 independent expectations; they are not reasons to rewrite unrelated baselines.
 Bracket keys now resolve the effective size owner and active VIEW/SCENE domain,
-using a grouped authoring edit to preserve coupled native values through undo.
+using a grouped authoring edit to restore coupled native values on cancel.
 With generic properties disabled they delegate to the existing native operator.
 The existing custom-mode authoring fixture covers bracket events across all 12
-inheritance/unified/size-mode combinations, independent stacks and undo/redo.
+inheritance/unified/size-mode combinations, independent stacks and no-step undo.
 F/Shift-F also pin the effective size/strength owner. Horizontal movement and
-numeric entry share the same adapter and one explicit authoring undo scope.
+numeric entry share the same adapter and one explicit rollback scope.
 Pressing Shift during a gesture enables precision; the Shift-F invocation itself
 does not. Size numbers are pixel diameters in VIEW and Blender units in SCENE.
 Escape/right-click, owner/domain changes and addon shutdown restore coupled

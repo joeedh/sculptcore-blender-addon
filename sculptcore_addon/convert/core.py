@@ -486,7 +486,7 @@ def refresh(ob, claim_state=True):
     # unreachable. Serialize them now, while the log can still be seeked, or
     # every stroke below this point becomes an undo that reports "history
     # unrecoverable" and does nothing.
-    from . import undo
+    from .. import undo
     undo.materialize_grid_blobs(session)
     session.free()
     if claim_state:

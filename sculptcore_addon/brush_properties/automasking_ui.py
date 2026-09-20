@@ -12,7 +12,7 @@ _CAVITY_LABELS = {
     'use_automasking_custom_cavity_curve': "Custom Cavity Curve",
 }
 LABELS = {CAVITY + '.' + key: label for key, label in _CAVITY_LABELS.items()}
-LABELS.update({VIEW_NORMAL_LIMIT: "View Normal Limit (rad)", VIEW_NORMAL_FALLOFF: "View Normal Falloff (rad)"})
+LABELS.update({VIEW_NORMAL_LIMIT: "View Normal Limit", VIEW_NORMAL_FALLOFF: "View Normal Falloff"})
 ORDER = (*tuple(CAVITY + '.' + key for key in _CAVITY_LABELS), AUTOMASK_VIEW_NORMAL,
          VIEW_NORMAL_LIMIT, VIEW_NORMAL_FALLOFF, CULL_BACKFACES)
 

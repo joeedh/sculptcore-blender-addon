@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2026 Blender Authors
 # SPDX-License-Identifier: GPL-2.0-or-later
-"""Modal size/strength editing with one pinned owner and one authoring undo scope."""
+"""Modal size/strength editing with one pinned owner and one rollback scope."""
 import bpy
 
 from .adapters import SIZE, STRENGTH

@@ -1,6 +1,10 @@
 # SPDX-FileCopyrightText: 2026 Blender Authors
 # SPDX-License-Identifier: GPL-2.0-or-later
-"""Owner-pinned edits shared by numeric rows, radial controls and size shortcuts."""
+"""Owner-pinned edits shared by numeric rows, radial controls and size shortcuts.
+
+An edit pins its owner for one gesture and restores it on cancellation; it
+pushes no undo step (see `edits.authoring_edit`).
+"""
 from . import authoring
 from .edits import authoring_edit
 from .registry import PropertyError, finite
@@ -16,7 +20,7 @@ def owners(context):
 
 
 class ValueEdit:
-    """One gesture, one owner and one undo entry; cancellation restores coupled values."""
+    """One gesture and one owner; cancellation restores coupled values."""
 
     def __init__(self, context, identifier):
         self.local, self.parent = owners(context)

@@ -413,7 +413,7 @@ def multires_store_blob(session, skip_writeback=False):
         # snapshots yet — attach them while the history is still seekable.
         # (materialize itself serializes with skip_writeback=True, so this
         # cannot recurse.)
-        from . import undo
+        from .. import undo
         undo.materialize_grid_blobs(session)
         lib.Multires_writeback(session.multires_ptr, session.multires_active_level)
     size = ctypes.c_int(0)
@@ -514,7 +514,7 @@ def sync_multires_total_levels(ob):
 
     # addLevel/removeTopLevel write back and restack — a boundary for any
     # live grid history (blob demotion): snapshot its steps first.
-    from . import undo
+    from .. import undo
     undo.materialize_grid_blobs(session)
     while have < want:
         stepped = lib.Multires_addLevel(session.multires_ptr)
@@ -574,7 +574,7 @@ def set_multires_level(ob, level):
         # The switch writes back and re-derives levels — a boundary for the
         # outgoing level's grid history (blob demotion): snapshot its steps
         # while the log can still seek them.
-        from . import undo
+        from .. import undo
         undo.materialize_grid_blobs(session)
         # Mesh-path mask edits live only in the slot column until folded;
         # the switch drops the slot, so fold before it goes.
@@ -614,7 +614,7 @@ def _flush_multires(ob, session):
         # its steps may hold no snapshots yet; attach them first (top-level
         # sessions skip the dance, so this stays off the common flush path
         # — decode calls flush on every seek).
-        from . import undo
+        from .. import undo
         undo.materialize_grid_blobs(session)
     # Face sets ride the cage, and a mesh-path stroke edited the slot's derived
     # copy — push it home before the readback, or what reaches `.sculpt_face_set`

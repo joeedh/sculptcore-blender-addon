@@ -1,11 +1,19 @@
 # SPDX-FileCopyrightText: 2026 Blender Authors
 # SPDX-License-Identifier: GPL-2.0-or-later
-"""Reusable, non-allocating property rows and explicit owner-aware UI edits."""
+"""Reusable, non-allocating property rows and explicit owner-aware UI edits.
+
+Rows edit their value inline. Each definition gets a WindowManager property
+whose getter resolves the effective owner for the draw and whose setter
+commits one authoring edit; nothing is stored on the WindowManager, so the
+widget can never go stale against the Brush or Scene it edits. Edits push no
+undo step (see `edits.authoring_edit`), so a slider drag, which applies on
+every mouse move, costs one owner snapshot per move and nothing else.
+"""
 from dataclasses import replace
 import bpy
 
 from . import authoring, placement, resolver
-from .adapters import CAVITY, SIZE
+from .adapters import BY_ID, CAVITY, PIXELS, SIZE, WORLD
 from .edits import authoring_edit
 from .interaction import ValueEdit, owners
 from .registry import DeviceLayer, PropertyError
@@ -43,16 +51,98 @@ def _kind(result):
 def _description(definition):
     from .engine_catalogue import VIEW_NORMAL_LIMIT
     if definition.identifier == VIEW_NORMAL_LIMIT:
-        return "Angle in radians at which the view-normal mask reaches zero"
+        return "Angle at which the view-normal mask reaches zero"
     return definition.description
 
 
-def _label(result):
-    from .automasking_ui import LABELS
-    value = str(result.value) if _kind(result) in ('BOOL', 'INT32') else '{:.5g}'.format(result.value)
-    if result.definition.identifier == SIZE:
-        value += " px" if _kind(result) == 'INT32' else " BU"
-    return "{}: {}".format(LABELS.get(result.definition.identifier, result.definition.label), value)
+# Inline value widgets: one WindowManager property per (definition, scalar kind).
+# Size is the one definition whose resolved kind depends on the owner's size
+# mode, so it gets a pixel INT32 widget and a world-unit FLOAT32 widget.
+_PROPERTY_PREFIX = 'scgp_'
+_SUFFIX = {'FLOAT32': '_f', 'INT32': '_i', 'BOOL': '_b'}
+_value_properties = {}
+
+
+def value_property(identifier, kind):
+    """The WindowManager property name drawing this definition at this kind, or None."""
+    return _value_properties.get((identifier, kind))
+
+
+def _value_kind(definition, kind):
+    if definition.identifier == SIZE:
+        return BY_ID[PIXELS if kind == 'INT32' else WORLD]
+    return definition
+
+
+def _widget_value(kind, value):
+    if kind == 'BOOL':
+        return bool(value)
+    if kind == 'INT32':
+        return int(value + .5) if type(value) is float else int(value)
+    return float(value)
+
+
+def _value_getter(identifier, kind, default):
+    def get(_self):
+        try:
+            _, _, result = _resolve(bpy.context, identifier)
+            return _widget_value(kind, result.value)
+        except (PropertyError, ReferenceError, RuntimeError):
+            return default
+    return get
+
+
+def _value_setter(identifier, kind):
+    def set(_self, value):
+        context = bpy.context
+        try:
+            edit = ValueEdit(context, identifier)
+            if edit.kind != kind:
+                raise PropertyError("The property's size mode changed under the widget")
+            if not _resolve(context, identifier)[2].execution_available:
+                raise PropertyError("Property execution is unavailable in this build")
+            edit.set(context, bool(value) if kind == 'BOOL' else edit.bounded(value))
+        except (PropertyError, ReferenceError, RuntimeError) as error:
+            # A property setter has no operator to report through.
+            print("SculptCore: cannot edit {}: {}".format(identifier, error))
+        _redraw()
+    return set
+
+
+def _value_property_definition(definition, kind):
+    from .storage import record_key, value_metadata
+    domain = _value_kind(definition, kind)
+    metadata = value_metadata(domain)
+    common = dict(name=definition.label, description=_description(definition), options={'SKIP_SAVE'},
+                  get=_value_getter(definition.identifier, kind, _widget_value(kind, domain.default)),
+                  set=_value_setter(definition.identifier, kind))
+    if kind == 'BOOL':
+        prop = bpy.props.BoolProperty(**common)
+    elif kind == 'INT32':
+        prop = bpy.props.IntProperty(min=metadata['min'], max=metadata['max'], soft_min=metadata['soft_min'],
+                                     soft_max=metadata['soft_max'],
+                                     subtype='PIXEL' if definition.identifier == SIZE else 'NONE', **common)
+    else:
+        unit = 'LENGTH' if definition.identifier == SIZE else domain.unit
+        prop = bpy.props.FloatProperty(min=metadata['min'], max=metadata['max'], soft_min=metadata['soft_min'],
+                                       soft_max=metadata['soft_max'], precision=3, unit=unit, **common)
+    return _PROPERTY_PREFIX + record_key(definition.identifier)[2:] + _SUFFIX[kind], prop
+
+
+def _register_value_properties():
+    for definition in authoring.registry.definitions():
+        kinds = ('INT32', 'FLOAT32') if definition.identifier == SIZE else (definition.scalar_type,)
+        for kind in kinds:
+            name, prop = _value_property_definition(definition, kind)
+            setattr(bpy.types.WindowManager, name, prop)
+            _value_properties[(definition.identifier, kind)] = name
+
+
+def _unregister_value_properties():
+    for name in _value_properties.values():
+        if hasattr(bpy.types.WindowManager, name):
+            delattr(bpy.types.WindowManager, name)
+    _value_properties.clear()
 
 
 class _PropertyOperator:
@@ -71,6 +161,7 @@ class _PropertyOperator:
 
 
 class SCULPTCORE_OT_property_value(_PropertyOperator, bpy.types.Operator):
+    """Scripted entry point for a typed value edit; the rows themselves edit inline."""
     bl_idname = "sculptcore.property_value"
     bl_label = "Edit Brush Property"
     identifier: bpy.props.StringProperty(options={'SKIP_SAVE'})
@@ -78,36 +169,14 @@ class SCULPTCORE_OT_property_value(_PropertyOperator, bpy.types.Operator):
     int_value: bpy.props.IntProperty(name="Value", options={'SKIP_SAVE'})
     bool_value: bpy.props.BoolProperty(name="Value", options={'SKIP_SAVE'})
 
-    def invoke(self, context, event):
-        try:
-            self._edit = ValueEdit(context, self.identifier)
-            setattr(self, self._field(), self._edit.initial)
-            return context.window_manager.invoke_props_dialog(self, width=320)
-        except (PropertyError, ReferenceError, RuntimeError) as error:
-            self.report({'ERROR'}, str(error))
-            return {'CANCELLED'}
-
-    def _field(self):
-        return {'FLOAT32': 'float_value', 'INT32': 'int_value', 'BOOL': 'bool_value'}[self._edit.kind]
-
-    def draw(self, context):
-        result = self._edit.resolved
-        self.layout.label(text="{} — {}".format(result.definition.label, _name(result.value_owner)))
-        self.layout.prop(self, self._field(), text="Value")
-        if self._edit.kind != 'BOOL':
-            self.layout.label(text="Range: {:g} to {:g}".format(self._edit.domain.minimum, self._edit.domain.maximum))
-        if self.identifier == SIZE:
-            self.layout.label(text="Pixel diameter" if self._edit.kind == 'INT32' else "Diameter in Blender units")
-
     def execute(self, context):
         try:
             _, _, result = _resolve(context, self.identifier)
             if not result.execution_available:
                 raise PropertyError("Property execution is unavailable in this build")
-            if not hasattr(self, '_edit'):
-                self._edit = ValueEdit(context, self.identifier)
-            self._edit.check(context)
-            self._edit.set(context, getattr(self, self._field()))
+            edit = ValueEdit(context, self.identifier)
+            field = {'FLOAT32': 'float_value', 'INT32': 'int_value', 'BOOL': 'bool_value'}[edit.kind]
+            edit.set(context, getattr(self, field))
             _redraw()
             return {'FINISHED'}
         except (PropertyError, ReferenceError, RuntimeError) as error:
@@ -193,13 +262,13 @@ def draw_row(layout, context, definition):
         value = row.row(align=True)
         value.enabled = (result.value_owner.editable and result.execution_available
                          and value_enabled(context, definition.identifier))
-        if _kind(result) == 'BOOL':
-            _action(value, definition.identifier, 'BOOLEAN', text=LABELS.get(definition.identifier, definition.label),
-                    icon='CHECKBOX_HLT' if result.value else 'CHECKBOX_DEHLT')
-        else:
-            value.operator_context = 'INVOKE_DEFAULT'
-            op = value.operator('sculptcore.property_value', text=_label(result))
-            op.identifier = definition.identifier
+        kind = _kind(result)
+        name = value_property(definition.identifier, kind)
+        if name is None:
+            raise PropertyError("No inline widget for a {} value".format(kind))
+        domain = _value_kind(definition, kind)
+        value.prop(context.window_manager, name, text=LABELS.get(definition.identifier, definition.label),
+                   slider=kind == 'FLOAT32' and (domain.soft_minimum, domain.soft_maximum) == (0.0, 1.0))
         if narrow:
             row = container.row(align=True)
         if definition.identifier == CAVITY + '.use_automasking_custom_cavity_curve' and result.value:
@@ -326,6 +395,7 @@ def register():
         update=_redraw,
         get=lambda self: _search.get(self.as_pointer(), ''),
         set=lambda self, value: _search.__setitem__(self.as_pointer(), value))
+    _register_value_properties()
     for cls in _classes:
         bpy.utils.register_class(cls)
     from . import automasking_ui, placement_ui, stack_ui
@@ -341,5 +411,6 @@ def unregister():
     stack_ui.unregister()
     for cls in reversed(_classes):
         bpy.utils.unregister_class(cls)
+    _unregister_value_properties()
     del bpy.types.WindowManager.sculptcore_property_search
     _search.clear()
