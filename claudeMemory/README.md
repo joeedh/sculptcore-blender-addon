@@ -28,6 +28,7 @@ is ignored apart from explicitly retained frozen compatibility inputs.
 - [design/off-thread-stroke.md](design/off-thread-stroke.md)
 - [research/non-operator-wall-attribution.md](research/non-operator-wall-attribution.md)
 - [plans/vertex-group-weights-attribute.md](plans/vertex-group-weights-attribute.md)
+- [plans/plane-brush-frame-parity.md](plans/plane-brush-frame-parity.md) — sculpt_plane / area normal+center / original toggles / stabilise for the plane-brush family (pressure-tested, not started)
 - [plans/blender-attribute-coverage-tasklist.md](plans/blender-attribute-coverage-tasklist.md)
 - [research/collapse-blend-gate.md](research/collapse-blend-gate.md)
 - [plans/grids-native-completion.md](plans/grids-native-completion.md)
