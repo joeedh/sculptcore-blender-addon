@@ -69,7 +69,14 @@ nothing more, so it costs one owner snapshot. Escape re-applies the original
 value through the setter. A setter failure prints to the console (setters have
 no operator to report through) and writes nothing. `sculptcore.property_value`
 remains as the scripted entry point. The row shows the value-owner icon and
-names the input-stack owner when different.
+names the input-stack owner when different. Under a host layout with
+`use_property_split` (Brush Settings, Advanced, All Brush Properties, the
+Properties editor's Active Tool block) the row rebuilds vanilla's split by
+hand (`split(0.4)`, right-aligned label, checkbox text kept in the widget
+column) so labels and widgets align with the native panels around it; a
+`prop()` under the native split only claims the row's trailing buttons
+when it is the row's direct child, and the value widget needs its own
+enabled state. The tool header (no split) stays inline.
 
 **No undo history for brush property edits** (decided 2026-09-19, vanilla
 sculpt-mode parity, #71434). Every addon-driven edit — values, pressure and

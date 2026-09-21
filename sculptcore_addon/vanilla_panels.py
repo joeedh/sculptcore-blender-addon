@@ -95,6 +95,10 @@ _PRESSURE_ROWS = {
 
 def _draw_brush_settings(self, context):
     from .brush_properties import ui as property_ui
+    # The same label/widget split vanilla's brush_settings() uses, so the
+    # generic rows line up with the native panels around them.
+    self.layout.use_property_split = True
+    self.layout.use_property_decorate = False  # No animation.
     self.layout.prop(context.tool_settings.sculpt.brush, 'sculpt_brush_type', text="Brush Type")
     if property_ui.available(context):
         if self.is_popover:
@@ -201,6 +205,9 @@ def _draw_context_menu(self, context):
 
 def _draw_advanced(self, context):
     from .brush_properties.automasking_ui import draw
+    # Vanilla's Advanced panel splits; the automasking header popover does not.
+    self.layout.use_property_split = True
+    self.layout.use_property_decorate = False
     if self.is_popover:
         self.layout.ui_units_x = 24
     draw(self.layout, context)

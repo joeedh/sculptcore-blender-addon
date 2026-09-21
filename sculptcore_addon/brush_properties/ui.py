@@ -270,15 +270,32 @@ def draw_row(layout, context, definition):
                   (region.type == 'UI' or (context.area.type == 'PROPERTIES' and region.type == 'WINDOW')))
         container = layout.column(align=True) if narrow else layout
         row = container.row(align=True)
-        value = row.row(align=True)
-        value.enabled = (result.value_owner.editable and result.execution_available
-                         and value_enabled(context, definition.identifier))
         kind = _kind(result)
         name = value_property(definition.identifier, kind)
         if name is None:
             raise PropertyError("No inline widget for a {} value".format(kind))
         domain = _value_kind(definition, kind)
-        value.prop(context.window_manager, name, text=LABELS.get(definition.identifier, definition.label),
+        label = LABELS.get(definition.identifier, definition.label)
+        text = label
+        if layout.use_property_split and not narrow:
+            # Vanilla's property split, rebuilt by hand (UI_ITEM_PROP_SEP_DIVIDE
+            # 0.4, label right-aligned, a checkbox keeps its text beside it):
+            # prop() under use_property_split only claims a row's trailing
+            # items for its widget column when it is that row's direct child,
+            # and the value widget here needs an enabled state the trailing
+            # buttons do not share.
+            row.use_property_split = False
+            parts = row.split(factor=0.4, align=True)
+            heading = parts.column(align=True)
+            heading.alignment = 'RIGHT'
+            heading.label(text='' if kind == 'BOOL' else label)
+            row = parts.row(align=True)
+            if kind != 'BOOL':
+                text = ''
+        value = row.row(align=True)
+        value.enabled = (result.value_owner.editable and result.execution_available
+                         and value_enabled(context, definition.identifier))
+        value.prop(context.window_manager, name, text=text,
                    slider=kind == 'FLOAT32' and (domain.soft_minimum, domain.soft_maximum) == (0.0, 1.0))
         if narrow:
             row = container.row(align=True)
@@ -294,7 +311,12 @@ def draw_row(layout, context, definition):
                     depressed=bool(layer and layer.enabled), enabled=result.stack_owner.editable
                     and result.stack_available and result.execution_available)
             if result.stack_owner.identity != result.value_owner.identity and not narrow:
-                row.label(text="Stack: " + _name(result.stack_owner))
+                # A non-expanding alignment sizes the label to its text and
+                # marks the sub-row fixed; a free label would share the row's
+                # slack with the value widget and squeeze the slider.
+                tag = row.row()
+                tag.alignment = 'LEFT'
+                tag.label(text="Stack: " + _name(result.stack_owner))
             row.operator_context = 'INVOKE_DEFAULT'
             op = row.operator('sculptcore.property_stack', text='', icon='PREFERENCES')
             op.identifier = definition.identifier
@@ -388,6 +410,9 @@ class SCULPTCORE_PT_all_properties(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         layout.prop(context.window_manager, 'sculptcore_property_search', text='', icon='VIEWZOOM')
+        # Same label/widget split as the Brush Settings panel above it.
+        layout.use_property_split = True
+        layout.use_property_decorate = False
         query = context.window_manager.sculptcore_property_search.casefold().strip()
         brush = context.tool_settings.sculpt.brush
         for definition in authoring.registry.definitions():
