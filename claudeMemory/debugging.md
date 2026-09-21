@@ -1003,3 +1003,66 @@ callers of the same implementation no longer checks the algorithm. Python's
 compensated `sum` can differ in the last bits from sequential float addition;
 the overlap oracle allows 1e-14 while the two production callers remain exactly
 equal. Count overlap builds at the shared cache, not a retired session memo.
+
+## Plane-brush frame parity (2026-09-20)
+
+- **A Bash heredoc that writes source containing backslash-n string escapes
+  is unreliable**: the tool mangles the escape into a real newline inside the
+  literal (a `write("...")` or `fprintf` whose string ends in the escape),
+  which breaks the C++ string and reads as "unexpected EOF" or "expected
+  expression". Write the patch script to the scratchpad with the Write tool
+  and run `python <path>`, or use the Edit tool for the line itself. (This
+  very bullet was mangled the same way when first written through a heredoc.)
+- `ctest` is not on PATH in the engine; `node make.mjs test [name]` is the
+  runner (no name = the whole suite; the summary is at the tail).
+- clang-format reorders includes, so a patch script anchored on an include
+  block written before formatting misses; anchor on a line that formatting
+  does not move.
+- `litestl::alloc::Delete` is the deleter for `createCube` cages (not
+  `litestl::util::alloc`).
+- A grids non-accumulate stroke recovers the base as `pos - disp`, which is
+  one ulp off after several dabs — compare with a 1e-6 tolerance, not
+  bit-exact; the mesh path's stamp reads the base directly and stays exact.
+- The plan's non-accumulate rule ("plane family only") contradicted the fork:
+  `sculpt_update_cache_invariants` clears `cache->accum` for *every*
+  `supports_accumulate` brush with the toggle off. Check the actual brush
+  source before changing a derivation a plan asserts.
+- The Blender-side plane tests fail on the vendored DLL as soon as
+  `engine.py` declares a new export (`function 'GridStroke_setPlaneFrame' not
+  found` at engine init, reported as "engine prop generation unavailable"):
+  run the addon suites with `--dev-engine` until the submodule bump restages
+  the DLL. `run_brush_tests.py` gained the flag for this.
+- `test_property_snapshots.py` (not in any suite) fails at "engine defaults
+  remain unset with frozen generic domain" before and after this change —
+  pre-existing, not a plane-frame regression.
+- **Never benchmark `engine/build/native/`.** Its toolchain
+  (`build_files/native-clang.cmake`) sets `-ffp-contract=off` so geometric
+  predicates stay arch-stable under ctest; the shipped DLL is the
+  `build/python` one, built with clang's default contraction. An A/B whose
+  B side pointed `SCULPTCORE_CAPI_PATH` at the native DLL measured no-FMA
+  against FMA and reported the plane-frame change as +21 % before any of it
+  was attributed. `run_blender_test.py --dev-engine` uses the native DLL,
+  which is right for correctness gates and wrong for timing; for a
+  benchmark set `SCULPTCORE_CAPI_PATH` to `engine/build/python/` by hand.
+- A per-dab normal refresh before an accumulating AREA gather is not parity:
+  Blender's `calc_area_normal` reads whatever the draw update left
+  (`sculpt.cc` refreshes normals per step only for external render
+  engines), so the gather lags one frame there too. The refresh was removed
+  and (d') in `test_plane_frame.cc` models the frame cadence with an explicit
+  `updateNormals()` between dabs instead.
+- The plane-frame gather is one more full pass over the dab's verts per dab
+  (Blender pays the same). Serial it cost measurably; it now runs one
+  partial per node/leaf under `task::parallel_for` and reduces in node order,
+  which keeps the sums run-deterministic (a threaded `float3` reduction in
+  arrival order would not be).
+- `patch_inventory.py`-style edits of `generic-brush-inventory-v1.json` must
+  write bytes (`newline=''` or `'wb'`): a text-mode write on Windows makes
+  the file CRLF, the generators pin the sha of *those* bytes, and the next
+  `git stash`/checkout normalises the file back to LF — after which
+  `authoring/inventory` fails on the sha with nothing visibly changed.
+  Regenerate (`generate_native_authoring.py`, `generate_native_coverage.py`)
+  from the LF file and convert their own CRLF output to LF.
+- A memory-pressure kill of a background bench leaves its Blender and node
+  children running and the build tree staged on whichever addon side it was
+  mid-pair; kill the orphans and `stage_test_addon.py` before trusting any
+  later Blender run.

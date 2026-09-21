@@ -46,7 +46,7 @@ class Policy:
     dab dispatch actually asks."""
 
     __slots__ = ("grab_mode_capable", "incremental", "unbounded", "relaxes_base",
-                 "accumulable", "writes_mask", "writes_color", "face_mode")
+                 "accumulable", "writes_mask", "writes_color", "face_mode", "uses_plane_frame")
 
     def __init__(self, flags=None):
         get = (lambda name: bool(getattr(flags, name))) if flags is not None else (
@@ -59,6 +59,7 @@ class Policy:
         self.writes_mask = get("writesMask")
         self.writes_color = get("writesColor")
         self.face_mode = get("faceMode")
+        self.uses_plane_frame = get("usesPlaneFrame")
 
     @property
     def is_grab(self):

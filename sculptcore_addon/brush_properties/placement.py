@@ -29,8 +29,29 @@ def applicable(definition, brush):
     if identifier == 'sculptcore.brush.snake_pinch':
         return brush.sculpt_brush_type == 'SNAKE_HOOK'
     if identifier == 'sculptcore.brush.plane_offset':
-        return brush.sculpt_brush_type in ('CLAY', 'CLAY_STRIPS', 'CLAY_THUMB', 'FLATTEN', 'FILL', 'SCRAPE')
+        return brush.sculpt_brush_type in PLANE_OFFSET_TYPES
+    gate = PLANE_FRAME_ROWS.get(identifier)
+    if gate is not None:
+        return brush.sculpt_brush_type in gate
     return True
+
+
+# Vanilla's `supports_plane_offset` (the FLATTEN/FILL/SCRAPE types folded into
+# PLANE in 5.x).
+PLANE_OFFSET_TYPES = ('CLAY', 'CLAY_STRIPS', 'CLAY_THUMB', 'PLANE')
+# The plane-frame rows show where the engine policy reads them
+# (mapping.plane_frame): vanilla's own gates, minus the types whose policy
+# fixes the value (MULTIPLANE_SCRAPE's forced AREA normal, PLANE's ignored
+# Original toggles).
+PLANE_FRAME_ROWS = {
+    'sculptcore.brush.original_normal': ('CLAY', 'CLAY_STRIPS'),
+    'sculptcore.brush.original_plane': ('CLAY', 'CLAY_STRIPS'),
+    'sculptcore.brush.normal_radius_factor': ('CLAY', 'CLAY_STRIPS', 'PLANE', 'MULTIPLANE_SCRAPE'),
+    'sculptcore.brush.area_radius_factor': ('PLANE',),
+    'sculptcore.brush.stabilize_normal': ('PLANE',),
+    'sculptcore.brush.stabilize_plane': ('PLANE',),
+}
+SCULPT_PLANE_TYPES = ('CLAY', 'CLAY_STRIPS', 'PLANE')
 
 
 def positions(store, definition):

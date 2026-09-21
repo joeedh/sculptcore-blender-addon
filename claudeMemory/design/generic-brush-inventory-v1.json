@@ -1419,7 +1419,7 @@
     },
     {
       "classification": "generic_brush",
-      "kernels": "not a kernel uniform",
+      "kernels": "CLAY/CLAY_STRIPS/PLANE",
       "metadata": {
         "default": "AREA",
         "description": "",
@@ -1435,17 +1435,19 @@
         "type": "ENUM",
         "unit": "NONE"
       },
-      "migration": "retain native data; omit unsupported SculptCore controls",
+      "migration": "native adapter; no second authoritative value",
       "owner": "Brush",
       "path": "Brush.sculpt_plane",
       "pressure": "none",
       "references": [
         "properties_paint_common.py:1461"
       ],
-      "stable_ids": [],
-      "supported": false,
+      "stable_ids": [
+        "sculptcore.brush.sculpt_plane"
+      ],
+      "supported": true,
       "unified": "none",
-      "units": "NONE"
+      "units": "native enum"
     },
     {
       "classification": "generic_brush",
@@ -3623,7 +3625,7 @@
     },
     {
       "classification": "generic_brush",
-      "kernels": "not a kernel uniform",
+      "kernels": "PLANE",
       "metadata": {
         "default": 0.0,
         "description": "How stable the plane normal is over the course of the stroke. A value of 0 corresponds to using the current normal, and a value of 1 corresponds to using the initial normal.",
@@ -3636,21 +3638,23 @@
         "type": "FLOAT",
         "unit": "NONE"
       },
-      "migration": "retain native data; omit unsupported SculptCore controls",
+      "migration": "native adapter; no second authoritative value",
       "owner": "Brush",
       "path": "Brush.stabilize_normal",
       "pressure": "none",
       "references": [
         "properties_paint_common.py:1102"
       ],
-      "stable_ids": [],
-      "supported": false,
+      "stable_ids": [
+        "sculptcore.brush.stabilize_normal"
+      ],
+      "supported": true,
       "unified": "none",
-      "units": "NONE"
+      "units": "dimensionless"
     },
     {
       "classification": "generic_brush",
-      "kernels": "not a kernel uniform",
+      "kernels": "PLANE",
       "metadata": {
         "default": 0.0,
         "description": "How stable the plane center is over the course of the stroke. A value of 0 corresponds to using the current center, and a value of 1 corresponds to using the initial center.",
@@ -3663,17 +3667,19 @@
         "type": "FLOAT",
         "unit": "NONE"
       },
-      "migration": "retain native data; omit unsupported SculptCore controls",
+      "migration": "native adapter; no second authoritative value",
       "owner": "Brush",
       "path": "Brush.stabilize_plane",
       "pressure": "none",
       "references": [
         "properties_paint_common.py:1103"
       ],
-      "stable_ids": [],
-      "supported": false,
+      "stable_ids": [
+        "sculptcore.brush.stabilize_plane"
+      ],
+      "supported": true,
       "unified": "none",
-      "units": "NONE"
+      "units": "dimensionless"
     },
     {
       "classification": "generic_brush",
@@ -4363,7 +4369,7 @@
     },
     {
       "classification": "generic_brush",
-      "kernels": "not a kernel uniform",
+      "kernels": "CLAY/CLAY_STRIPS/PLANE",
       "metadata": {
         "default": 0.5,
         "description": "Ratio between the brush radius and the radius that is going to be used to sample the normal",
@@ -4376,21 +4382,23 @@
         "type": "FLOAT",
         "unit": "NONE"
       },
-      "migration": "retain native data; omit unsupported SculptCore controls",
+      "migration": "native adapter; no second authoritative value",
       "owner": "Brush",
       "path": "Brush.normal_radius_factor",
       "pressure": "none",
       "references": [
         "properties_paint_common.py:941"
       ],
-      "stable_ids": [],
-      "supported": false,
+      "stable_ids": [
+        "sculptcore.brush.normal_radius_factor"
+      ],
+      "supported": true,
       "unified": "none",
-      "units": "NONE"
+      "units": "fraction radius"
     },
     {
       "classification": "generic_brush",
-      "kernels": "not a kernel uniform",
+      "kernels": "PLANE",
       "metadata": {
         "default": 0.5,
         "description": "Ratio between the brush radius and the radius that is going to be used to sample the area center",
@@ -4403,17 +4411,19 @@
         "type": "FLOAT",
         "unit": "NONE"
       },
-      "migration": "retain native data; omit unsupported SculptCore controls",
+      "migration": "native adapter; no second authoritative value",
       "owner": "Brush",
       "path": "Brush.area_radius_factor",
       "pressure": "none",
       "references": [
         "properties_paint_common.py:1097"
       ],
-      "stable_ids": [],
-      "supported": false,
+      "stable_ids": [
+        "sculptcore.brush.area_radius_factor"
+      ],
+      "supported": true,
       "unified": "none",
-      "units": "NONE"
+      "units": "fraction radius"
     },
     {
       "classification": "generic_brush",
@@ -4690,7 +4700,7 @@
     },
     {
       "classification": "generic_brush",
-      "kernels": "not a kernel uniform",
+      "kernels": "CLAY/CLAY_STRIPS",
       "metadata": {
         "default": false,
         "description": "When locked keep using normal of surface where stroke was initiated",
@@ -4699,21 +4709,23 @@
         "type": "BOOLEAN",
         "unit": "NONE"
       },
-      "migration": "retain native data; omit unsupported SculptCore controls",
+      "migration": "native adapter; no second authoritative value",
       "owner": "Brush",
       "path": "Brush.use_original_normal",
       "pressure": "none",
       "references": [
         "properties_paint_common.py:1464"
       ],
-      "stable_ids": [],
-      "supported": false,
+      "stable_ids": [
+        "sculptcore.brush.original_normal"
+      ],
+      "supported": true,
       "unified": "none",
-      "units": "NONE"
+      "units": "boolean"
     },
     {
       "classification": "generic_brush",
-      "kernels": "not a kernel uniform",
+      "kernels": "CLAY_STRIPS",
       "metadata": {
         "default": false,
         "description": "When locked keep using the plane origin of surface where stroke was initiated",
@@ -4722,17 +4734,19 @@
         "type": "BOOLEAN",
         "unit": "NONE"
       },
-      "migration": "retain native data; omit unsupported SculptCore controls",
+      "migration": "native adapter; no second authoritative value",
       "owner": "Brush",
       "path": "Brush.use_original_plane",
       "pressure": "none",
       "references": [
         "properties_paint_common.py:1465"
       ],
-      "stable_ids": [],
-      "supported": false,
+      "stable_ids": [
+        "sculptcore.brush.original_plane"
+      ],
+      "supported": true,
       "unified": "none",
-      "units": "NONE"
+      "units": "boolean"
     },
     {
       "classification": "generic_brush",

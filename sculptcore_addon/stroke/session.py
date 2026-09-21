@@ -122,15 +122,23 @@ def _grid_session(session):
 
 
 def stroke_begin(session, *, has_dyntopo=False, accumulate=True, anchored_grab=True,
-                 grids_kernel=None, cage_kernel=None):
+                 grids_kernel=None, cage_kernel=None, plane_frame=None):
+    """``plane_frame`` is the plane-family frame policy for this stroke
+    (``mapping.plane_frame``'s tuple); None leaves the executor default (the
+    raycast frame). Pushed to whichever executor runs the stroke — a grids
+    begin that fails falls through to the mesh push below."""
     session.last_stroke_grids = False
     session.last_stroke_cage = False
+    if plane_frame is None:
+        from .. import mapping
+        plane_frame = mapping.PLANE_FRAME_DEFAULT
     if grids_kernel is not None and grids_capable(session, grids_kernel):
         grid = _grid_session(session)
         if grid is not None:
             lib = engine.capi().lib
             lib.GridStroke_setNonAccum(grid, 0 if accumulate else 1)
             lib.GridStroke_setAnchoredGrab(grid, 1 if anchored_grab else 0)
+            lib.GridStroke_setPlaneFrame(grid, *_plane_frame_args(plane_frame))
             # A fold point (mesh-path stroke, level op) may have rebuilt the
             # domain, which cleared the grid undo history.
             if lib.GridStroke_sync(grid) == 2:
@@ -190,6 +198,31 @@ def stroke_begin(session, *, has_dyntopo=False, accumulate=True, anchored_grab=T
     # accumulable command from a stroke-start snapshot (nonAccum mode) so
     # repeated passes within one stroke don't build up.
     executor.setNonAccum(not accumulate)
+    executor.setPlaneFrame(*_plane_frame_args(plane_frame))
+
+
+def _plane_frame_args(plane_frame):
+    """The setter's argument list from the policy tuple: two enum ints, two
+    bools (a C int argtype takes a bool too), then the seven floats."""
+    normal, center, orig_normal, orig_plane, *rest = plane_frame
+    return (int(normal), int(center), bool(orig_normal), bool(orig_plane),
+            *(float(v) for v in rest))
+
+
+def set_image_sign(session, sign=(1, 1, 1)):
+    """Tell the stroke's executor which symmetry image the next dab is, so a
+    plane-frame kernel's mirror takes the reflected primary frame instead of a
+    gather of its own. The primary (sign (1, 1, 1)) must be set before each
+    logical dab, before its mirrors; the batch paths scope this per row on the
+    engine side, so only the per-dab paths call it."""
+    is_mirror = tuple(sign) != (1, 1, 1)
+    if session.last_stroke_grids:
+        engine.capi().lib.GridStroke_setImageSign(
+            session.grid_ptr, float(sign[0]), float(sign[1]), float(sign[2]), int(is_mirror))
+        return
+    if session.last_stroke_cage:
+        return
+    _ensure_executor(session).setImageSign(float(sign[0]), float(sign[1]), float(sign[2]), is_mirror)
 
 
 def stroke_end(session):

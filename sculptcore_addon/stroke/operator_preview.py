@@ -10,7 +10,7 @@ from . import _draw
 from .dab import apply_dab, apply_dab_program, preflight_preview, set_snake_hook_state
 from .dyntopo import _refresh_queries
 from .raycast import _cursor_on_anchor_plane, _pixel_to_world_length, _ray_origin_dir, raycast
-from .session import _ensure_executor, stroke_end
+from .session import _ensure_executor, set_image_sign, stroke_end
 from ._util import _float3
 
 
@@ -29,6 +29,7 @@ class _PreviewMixin:
             self._generic.view_image(view_sign)
         if self._engine_dead:
             return
+        set_image_sign(self.session, view_sign)
         if snake_delta is not None:
             set_snake_hook_state(self.session, center, snake_delta)
         mgr = engine.manager()

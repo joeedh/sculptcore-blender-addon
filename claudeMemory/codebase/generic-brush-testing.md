@@ -107,6 +107,18 @@ load; that lifecycle belongs to the asset/migration gate.
 `--args panels` checks the canonical automasking panel, native cavity/falloff
 curve widgets on both owners, native sculpt dispatch, independent main-window
 scenes, linked-owner guards and non-mutating narrow Properties drawing.
+The plane-frame gate is `claudeMemory/scripts/test_plane_frame.py` (background,
+marker `test_plane_frame: all checks passed`): the per-type policy table raw and
+through the generic capture, a VIEW-axis Clay dab on mesh and grids (both
+`stroke_begin` push sites), the Original Normal hold across dabs, and per-dab vs
+batch X-mirror parity. The `clay` gestures case drives the same policy through
+the real modal path with X mirror. Both need the engine that exports
+`GridStroke_setPlaneFrame`; until the vendored DLL is restaged pass
+`--dev-engine` (`run_brush_tests.py` forwards it to the launcher). `--dev-engine`
+is the `build/native` DLL, built with `-ffp-contract=off` for ctest — right for
+correctness, never for timing; a benchmark points `SCULPTCORE_CAPI_PATH` at
+`engine/build/python/`, the shipped config. `profile_plane_frame.py` attributes
+the policy's in-process cost between configurations but drifts too much to gate.
 The runtime `automask` case covers 40 mesh/grid × single/program strokes with
 view-normal/backface and cavity/custom/inverted settings. Launch its same script
 headed with `--args ui` to author those settings through the actual property

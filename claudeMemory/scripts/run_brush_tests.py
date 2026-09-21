@@ -51,7 +51,7 @@ RUNTIME = (
     ('basic-baseline', 'test_brush_frozen_basic.py', 'PLAN6_GENERIC_FROZEN_BASIC_PASS', ()),
 )
 GESTURES = tuple((name.lower(), 'test_brush_strokes.py', 'PLAN6_GENERIC_MODAL_PASS', (name,))
-                 for name in ('DRAW', 'SMOOTH', 'GRAB', 'SNAKE_HOOK', 'MASK', 'PROGRAM', 'VIEW')) + tuple(
+                 for name in ('DRAW', 'SMOOTH', 'GRAB', 'SNAKE_HOOK', 'MASK', 'PROGRAM', 'VIEW', 'CLAY')) + tuple(
     (name, 'test_brush_routes.py', 'PLAN6_' + name.upper() + '_MODAL_PASS', (name,))
     for name in ('preview', 'dyntopo', 'cage', 'layer', 'attributes')) + (
         ('cache', 'test_brush_curve_cache.py', 'PLAN5_MODAL_CACHE_PASS', ('generic',)),)
@@ -71,6 +71,8 @@ def main():
     parser.add_argument('--case', action='append', help='Run selected cases, including required fixture preparation')
     parser.add_argument('--list', action='store_true')
     parser.add_argument('--blender', type=Path)
+    parser.add_argument('--dev-engine', action='store_true',
+                        help='Run Blender cases on the engine checkout build (run_blender_test.py --dev-engine)')
     args = parser.parse_args()
     if args.list:
         for suite, cases in SUITES.items():
@@ -107,6 +109,8 @@ def main():
                        '--marker', marker, '--timeout', '180']
             if args.blender:
                 command += ['--blender', str(args.blender)]
+            if args.dev_engine:
+                command.append('--dev-engine')
             if args.suite == 'gestures':
                 command.append('--headed')
             if extra:

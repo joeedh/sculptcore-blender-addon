@@ -188,6 +188,12 @@ def tick():
             local.write_stack(autosmooth, (DeviceLayer('PRESSURE', operation='ADD',
                 curve=ResponseCurve('CONSTANT', (.15,))),) if requested_tool == 'PROGRAM' else ())
 
+            if requested_tool == 'CLAY':
+                # The plane family's frame policy through the real modal path:
+                # an AREA gather held from the first dab, on the mirror too.
+                brush.sculpt_plane = 'AREA'
+                brush.normal_radius_factor = .5
+                brush.use_original_normal = True
             brush.mesh_automasking_settings.use_automasking_cavity = False
             brush.mesh_automasking_settings.cavity_factor = 0
             for kind, value in (('MOUSEMOVE', 'NOTHING'), ('LEFTMOUSE', 'PRESS'), ('LEFTMOUSE', 'RELEASE')):

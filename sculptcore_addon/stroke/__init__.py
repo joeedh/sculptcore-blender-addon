@@ -40,7 +40,7 @@ working exactly as it did when this was a single flat module.
 from .spacer import StrokeSpacer
 from .session import (
     _ensure_brush, _ensure_executor, _grid_session, grids_capable, program_grids_capable,
-    stroke_begin, stroke_end, toggle_kernel_name
+    set_image_sign, stroke_begin, stroke_end, toggle_kernel_name
 )
 from .dyntopo import (
     DYNTOPO_EDGE_MIN_FACTOR, _DYNTOPO_RELATIVE_SCALE, _DYNTOPO_REFINE_MODES, _refresh_queries,
@@ -60,7 +60,7 @@ from .operator import SCULPTCORE_OT_brush_stroke, register, unregister
 __all__ = (
     "StrokeSpacer",
     "_ensure_brush", "_ensure_executor", "_grid_session", "grids_capable",
-    "program_grids_capable", "stroke_begin", "stroke_end", "toggle_kernel_name",
+    "program_grids_capable", "set_image_sign", "stroke_begin", "stroke_end", "toggle_kernel_name",
     "DYNTOPO_EDGE_MIN_FACTOR", "_DYNTOPO_RELATIVE_SCALE", "_DYNTOPO_REFINE_MODES",
     "_refresh_queries", "apply_dyntopo_dab", "build_dyntopo_params", "configure_dyntopo_params",
     "dyntopo_due", "dyntopo_max_edge", "smooth_iteration_strengths",

@@ -2,7 +2,23 @@
 
 Status: pressure-tested 2026-09-20 (three adversarial lenses: engine
 buildability, Blender semantics, host seams/gates); every surviving finding is
-folded in below. Not started.
+folded in below. Landed 2026-09-20 (engine `ee76ee7f` mesh, `13aefaf7` grids,
+`ea1b1196` parallel gather; addon phases 3–4 in one commit with the submodule
+bump). Perf gate passed: +2.6 % `stroke_ms` median on the Clay 1M/L4 bench
+(budget 5 %), after the serial gather and a per-dab normal refresh Blender
+does not do were removed. Reference:
+[codebase/generic-brush-properties.md § Plane frame](../codebase/generic-brush-properties.md).
+
+Corrections found while building:
+
+- Item 10's non-accumulate rule was wrong: the fork's
+  `sculpt_update_cache_invariants` clears `cache->accum` for *every*
+  `supports_accumulate` brush with the toggle off, not only the plane family,
+  so the operator's existing derivation already matched and was left alone.
+- The `use_original_normal` / `normal_radius_factor` UI gates follow the
+  engine policy (`placement.PLANE_FRAME_ROWS`), not vanilla's wider
+  `has_sculpt_plane` / `has_normal_radius`, because DRAW and the rest still
+  take the raycast frame — `@planeFrame` is on plane.sbrush only.
 
 ## Problem
 

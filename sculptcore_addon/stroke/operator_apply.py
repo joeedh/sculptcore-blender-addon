@@ -12,7 +12,7 @@ from .dyntopo import (DYNTOPO_EDGE_MIN_FACTOR, apply_dyntopo_dab, build_dyntopo_
                       dyntopo_due, smooth_iteration_strengths)
 from .raycast import (_coord_on_plane, _cursor_on_anchor_plane, _ray_from_event,
                       _ray_origin_dir, _world_radius, raycast)
-from .session import _ensure_brush, _ensure_executor
+from .session import _ensure_brush, _ensure_executor, set_image_sign
 
 
 class _GenericApplyMixin:
@@ -184,6 +184,7 @@ class _GenericApplyMixin:
             self._generic.view_image(view_sign)
         if self._engine_dead:
             return
+        set_image_sign(self.session, view_sign)
         self._dab_count += 1
         seed = self._dab_count
         if self.session.multires_ptr and not self.session.last_stroke_cage:

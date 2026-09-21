@@ -50,6 +50,21 @@ def view_direction(context, position):
     return tuple(direction.normalized())
 
 
+def view_axis(context, ob=None):
+    """Object-space surface-to-eye axis of the viewport, per stroke: vanilla's
+    ``view_normal`` is the view matrix's z axis whatever the projection, not
+    the per-dab eye ray ``view_direction`` gives. (0, 0, 1) without a 3D view
+    (background scripts drive strokes with no region)."""
+    from mathutils import Vector
+    view = getattr(context, 'region_data', None)
+    ob = ob or context.active_object
+    if view is None or ob is None:
+        return (0.0, 0.0, 1.0)
+    inverse = ob.matrix_world.inverted().to_3x3()
+    axis = inverse @ (view.view_rotation @ Vector((0, 0, 1)))
+    return tuple(axis.normalized())
+
+
 @dataclass(frozen=True)
 class StrokeSettings:
     """Capture once; projection and device channels are explicit evaluation inputs."""

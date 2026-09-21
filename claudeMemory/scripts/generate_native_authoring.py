@@ -12,7 +12,9 @@ ROOT = Path(__file__).resolve().parents[2]
 source = ROOT / 'claudeMemory/design/generic-brush-inventory-v1.json'
 rows = json.loads(source.read_text(encoding='utf-8'))['rows']
 paths = ('size', 'unprojected_size', 'spacing', 'plane_offset', 'crease_pinch_factor', 'hardness',
-         'auto_smooth_factor', 'use_accumulate', 'use_space_attenuation')
+         'auto_smooth_factor', 'use_accumulate', 'use_space_attenuation', 'use_original_normal',
+         'use_original_plane', 'normal_radius_factor', 'area_radius_factor', 'stabilize_normal',
+         'stabilize_plane')
 dynamic = {'spacing', 'plane_offset', 'crease_pinch_factor', 'auto_smooth_factor'}
 selected = [r for r in rows if r['path'] in ('Brush.' + p for p in paths)
             or (r['path'].startswith('Brush.mesh_automasking_settings.')

@@ -370,6 +370,15 @@ class SCULPTCORE_OT_brush_stroke(_GenericApplyMixin, _PreviewMixin, bpy.types.Op
                           if self._generic else self.brush.use_accumulate)
                       or (not kernel_toggle and
                           self.brush.sculpt_brush_type in mapping.FORCE_ACCUMULATE))
+        # The plane family's frame policy (sculpt_plane, the Original toggles,
+        # the gather radii); a kernel toggle runs a kernel that reads none of
+        # it. The view axis is per stroke, like vanilla's `view_normal`.
+        plane_frame = None
+        if not kernel_toggle:
+            from ..brush_properties.stroke_settings import view_axis
+            plane_frame = mapping.plane_frame(
+                self.brush, self._generic.settings if self._generic else None,
+                view_axis(context, ob))
         # Grids-native dispatch (multires W1): plain dab/grab strokes of
         # kernels the engine reports as grids-capable skip the materialized-mesh
         # hot path entirely, and so do autosmooth programs when every entry is
@@ -388,7 +397,8 @@ class SCULPTCORE_OT_brush_stroke(_GenericApplyMixin, _PreviewMixin, bpy.types.Op
         stroke_begin(self.session, has_dyntopo=self._dyntopo is not None,
                      accumulate=accumulate, anchored_grab=self._grab_class,
                      grids_kernel=grids_kernel,
-                     cage_kernel=self.kernel if self._cage_smooth else None)
+                     cage_kernel=self.kernel if self._cage_smooth else None,
+                     plane_frame=plane_frame)
         # The grids session is created inside stroke_begin, so its own copy of
         # the view matrix can only be pushed here — the mesh-path push above
         # rides the long-lived executor.

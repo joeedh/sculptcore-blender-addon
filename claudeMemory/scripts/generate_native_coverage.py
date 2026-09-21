@@ -38,7 +38,9 @@ for entry in inventory['rows']:
         adapter = 'NativeOwner:coupled_size_strength'
         gate = 'native_adapters'
     elif path.rsplit('.', 1)[-1] in ('spacing', 'plane_offset', 'crease_pinch_factor', 'hardness',
-                                    'auto_smooth_factor', 'use_accumulate', 'use_space_attenuation'):
+                                    'auto_smooth_factor', 'use_accumulate', 'use_space_attenuation',
+                                    'use_original_normal', 'use_original_plane', 'normal_radius_factor',
+                                    'area_radius_factor', 'stabilize_normal', 'stabilize_plane'):
         adapter = 'NativeOwner:scalar'
         gate = 'native_adapters'
     else:

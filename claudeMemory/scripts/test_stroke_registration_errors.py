@@ -44,7 +44,7 @@ class StrokeRegistrationErrors(unittest.TestCase):
         self.namespace = {
             "engine": Mock(), "_ensure_executor": Mock(return_value=self.executor),
             "_float3": Mock(return_value=self.vector), "_refresh_queries": self.refresh,
-            "brush_policy": Mock(), "set_snake_hook_state": Mock(),
+            "brush_policy": Mock(), "set_snake_hook_state": Mock(), "set_image_sign": Mock(),
         }
         self.session = SimpleNamespace(last_stroke_grids=False, multires_ptr=0, brush_obj=Mock())
 

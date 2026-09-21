@@ -125,6 +125,63 @@ def drag_offset(bl_brush, delta, normal, strength):
 # forces per-dab accumulation for these.
 FORCE_ACCUMULATE = {'DRAW_SHARP'}
 
+# Engine `PlaneNormalMode` / `PlaneCenterMode` (brush/plane_frame.h); the
+# Blender `sculpt_plane` enum names the normal modes from AREA up.
+PLANE_NORMAL_SURFACE = 0
+PLANE_NORMAL_MODES = {'AREA': 1, 'VIEW': 2, 'X': 3, 'Y': 4, 'Z': 5}
+PLANE_CENTER_CURSOR = 0
+PLANE_CENTER_AREA = 1
+# The executor's default: the raycast frame, no gather, nothing held.
+PLANE_FRAME_DEFAULT = (PLANE_NORMAL_SURFACE, PLANE_CENTER_CURSOR, False, False,
+                       1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0)
+
+
+def plane_frame(bl_brush, settings=None, view_axis=(0.0, 0.0, 1.0)):
+    """The per-stroke plane-frame policy for a Blender brush, as the argument
+    tuple of the executors' ``setPlaneFrame`` (normal mode, centre mode, hold
+    normal, hold plane, normal radius factor, area radius factor, stabilise
+    normal, stabilise plane, view axis). The port of ``calc_brush_plane``'s
+    per-type dispatch:
+
+    - CLAY: ``sculpt_plane`` normal about the cursor, both Original toggles
+      honoured (the plane hold is moot with a cursor centre), the normal
+      radius factor sizing the gather.
+    - CLAY_STRIPS: as CLAY with the AREA centre.
+    - PLANE: ``sculpt_plane`` normal and AREA centre; the toggles are ignored
+      and the stabilise factors ride instead (``calc_stabilized_plane``); the
+      centre gather takes ``area_radius_factor`` when it is set.
+    - MULTIPLANE_SCRAPE: the AREA normal about the cursor, nothing held.
+    - Anything else: the executor default (the raycast frame).
+
+    ``settings`` is the generic stroke capture when the brush runs generic,
+    else the raw Brush is read. ``view_axis`` is the object-space surface-to-eye
+    axis for the VIEW mode (``stroke_settings.view_axis``)."""
+    brush_type = bl_brush.sculpt_brush_type
+    if brush_type not in {'CLAY', 'CLAY_STRIPS', 'PLANE', 'MULTIPLANE_SCRAPE'}:
+        return PLANE_FRAME_DEFAULT
+
+    def value(identifier, attr):
+        if settings is not None:
+            return settings.value('sculptcore.brush.' + identifier)
+        return getattr(bl_brush, attr)
+
+    nrf = float(value('normal_radius_factor', 'normal_radius_factor'))
+    if brush_type == 'MULTIPLANE_SCRAPE':
+        return (PLANE_NORMAL_MODES['AREA'], PLANE_CENTER_CURSOR, False, False,
+                nrf, nrf, 0.0, 0.0, *view_axis)
+    normal = PLANE_NORMAL_MODES[bl_brush.sculpt_plane]
+    if brush_type == 'PLANE':
+        arf = float(value('area_radius_factor', 'area_radius_factor'))
+        return (normal, PLANE_CENTER_AREA, False, False,
+                nrf, arf if arf > 0.0 else nrf,
+                float(value('stabilize_normal', 'stabilize_normal')),
+                float(value('stabilize_plane', 'stabilize_plane')), *view_axis)
+    center = PLANE_CENTER_AREA if brush_type == 'CLAY_STRIPS' else PLANE_CENTER_CURSOR
+    return (normal, center,
+            bool(value('original_normal', 'use_original_normal')),
+            bool(value('original_plane', 'use_original_plane')),
+            nrf, nrf, 0.0, 0.0, *view_axis)
+
 # Per-type strength compensation folded into every dab. The engine SHARP
 # kernel displaces by strength * radius * 0.5; vanilla's draw-sharp offset is
 # normal * radius * strength (no 0.5), so double the strength to match.

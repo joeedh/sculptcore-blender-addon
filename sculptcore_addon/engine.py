@@ -294,6 +294,14 @@ class _CApi:
         lib.GridStroke_setNonAccum.restype = None
         lib.GridStroke_setAnchoredGrab.argtypes = [ctypes.c_void_p, ctypes.c_int]
         lib.GridStroke_setAnchoredGrab.restype = None
+        # Plane-family frame policy (brush/plane_frame.h) and the symmetry
+        # image the next per-dab call is; see stroke.session.stroke_begin.
+        lib.GridStroke_setPlaneFrame.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int,
+                                                 ctypes.c_int, ctypes.c_int] + [ctypes.c_float] * 7
+        lib.GridStroke_setPlaneFrame.restype = None
+        lib.GridStroke_setImageSign.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float,
+                                                ctypes.c_float, ctypes.c_int]
+        lib.GridStroke_setImageSign.restype = None
         lib.GridStroke_sync.argtypes = [ctypes.c_void_p]
         lib.GridStroke_sync.restype = ctypes.c_int
         # Object -> clip matrix for the view-mapped texture UV modes (16 flat

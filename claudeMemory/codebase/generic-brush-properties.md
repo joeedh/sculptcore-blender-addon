@@ -183,6 +183,59 @@ without it, unregistering an open Python curve popup from a timer could leave
 `bpy.context` pointing to freed memory. The headed fixture retains that shutdown
 regression. The production engine DLL was unchanged (`839d1f5ad3e5`).
 
+### Plane frame
+
+The plane family (Clay, Clay Strips, Plane, Multiplane Scrape) resolves the
+frame its kernel flattens against per dab in the engine, the way vanilla's
+`calc_brush_plane` does, instead of taking the raycast hit as-is. The addon's
+side is `mapping.plane_frame(bl_brush, settings, view_axis)`: one tuple per
+stroke, pushed by `stroke.session.stroke_begin(plane_frame=...)` to whichever
+executor runs the stroke (`GridStroke_setPlaneFrame` before `GridStroke_begin`,
+`CommandExecutor.setPlaneFrame` after `beginStep`). The rows are native
+registry rows (`native_v0.py`, `dynamic=False`): `original_normal`,
+`original_plane`, `normal_radius_factor`, `area_radius_factor`,
+`stabilize_normal`, `stabilize_plane`; `sculpt_plane` is a retained native enum
+(`bindings.RETAINED`), drawn after Direction in Brush Settings.
+
+| Type | Normal | Centre | Original toggles | Gather radii | Stabilise |
+| --- | --- | --- | --- | --- | --- |
+| CLAY | `sculpt_plane` | cursor | honoured (plane hold moot) | `normal_radius_factor` | no |
+| CLAY_STRIPS | `sculpt_plane` | AREA | honoured | `normal_radius_factor` | no |
+| PLANE | `sculpt_plane` | AREA | ignored | normal: `normal_radius_factor`; centre: `area_radius_factor` if > 0 else the normal factor | `stabilize_normal` / `stabilize_plane` |
+| MULTIPLANE_SCRAPE | AREA (forced) | cursor | ignored | `normal_radius_factor` | no |
+| others | raycast hit | cursor | — | — | — |
+
+`placement.PLANE_FRAME_ROWS` gates each row to the types whose policy reads it,
+so a forced or ignored value is never offered. The VIEW axis is the viewport's
+object-space z axis taken once per stroke (`stroke_settings.view_axis`), like
+vanilla's `view_normal`; `Brush.viewDir` stays the per-dab automasking eye ray.
+The non-accumulate rule is unchanged: vanilla sets `cache->accum = false` for
+every `supports_accumulate` brush with the toggle off (`sculpt.cc`
+`sculpt_update_cache_invariants`), which is what the operator already derives.
+Symmetry: a mirror image takes the reflected primary frame, never a gather of
+its own — the batch drivers scope the image sign per row in C++; the per-dab
+paths call `stroke.set_image_sign` before each image.
+
+Accepted divergences: the engine has no hidden verts, so a gather sees
+everything; the grids executor keeps no original-normal stamp, so a
+non-accumulating grids stroke gathers base positions with current normals;
+Multiplane Scrape's own two-plane fit is not ported (the SCRAPE kernel is a
+single plane). Gates: engine `test_plane_frame` (ctest), addon
+`claudeMemory/scripts/test_plane_frame.py` (policy table, both push sites,
+original-normal hold, per-dab vs batch mirror parity) and the `clay` gestures
+case.
+
+Cost: the AREA gather is one more pass over the dab's verts per dab (Blender
+pays the same in `calc_area_normal`), run one partial per node/leaf under
+`task::parallel_for` and merged in node order (deterministic); normals are read
+at the frame cadence, not refreshed per dab (Blender's gather reads the draw
+update's normals too). Perf gate 2026-09-20, Clay essentials on 1M/L4 grids,
+`run_stroke_bench.mjs --strokes 8`, 8 interleaved pairs, A = pre-change addon +
+vendored DLL, B = plane frame + `build/python` DLL: `stroke_ms` median A 405 →
+B 416 (+2.6 %; per-pair median +0.8 %; budget 5 %). The B side must be the
+`build/python` DLL — `build/native` is `-ffp-contract=off` and measured +21 %
+before that was noticed.
+
 ## Ownership, storage and compatibility
 
 - Saved custom root: `sculptcore_properties`, schema 1. Records use a digest key

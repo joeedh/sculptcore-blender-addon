@@ -14,8 +14,8 @@ SOURCE_HASHES = (('claudeMemory/tests/generic-brush-v0/baseline.json',
   '3095023778b92bd32ee3664cbe8b4b47a75976ac981f8ad269a369f30c0df19e'),
  ('brushes/nudge.sbrush', 'eb8bfd3de6d35c47a2b7546cf19b00fd87c7c8b94dedc9629a61d049604132c4'),
  ('engine/source/brush/kernels/bsmooth.sbrush', '95ffa22470e68564cf4a0bc21e28dff8457b89b83ed1fb079a673d34122aa089'),
- ('engine/source/brush/kernels/kelvinlet.sbrush', '335a67dc5acb4329907b7858bbb2d4d7f19573690dec0d2fe53f09a941decb43'),
- ('engine/source/brush/kernels/plane.sbrush', 'cc92ffcf011928ffa35cef81d319c9be5c1d07d8ffadd63c9d995c7203a7819f'))
+ ('engine/source/brush/kernels/kelvinlet.sbrush', 'bb81209b178f18b7c07adf83c692f2afbe8cd285aaf74abeb5f95244592c39f9'),
+ ('engine/source/brush/kernels/plane.sbrush', '1535b8882aaeccfd8b24670c4cb41f322ab64cd49a937a6ae91663ea8ef65d03'))
 
 LEGACY_ROWS = (('sculptcore.kernel.bsmooth.projection',
   'BSMOOTH',
