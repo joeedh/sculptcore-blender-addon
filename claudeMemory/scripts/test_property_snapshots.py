@@ -210,7 +210,7 @@ for definition in ENGINE_DEFINITIONS:
           and not result.execution_available)
     check('dormant generic local value ' + definition.identifier,
           local.read_value(definition).value == (True if definition.scalar_type == 'BOOL' else .25))
-check('catalogue and declarations', len(registry.definitions()) == 33 and len(authoring.curve_bank._entries) == 62)
+check('catalogue and declarations', len(registry.definitions()) == 39 and len(authoring.curve_bank._entries) == 70)
 bpy.ops.wm.save_as_mainfile(filepath=str(OUT / 'plan6-snapshots.blend'))
 bpy.ops.wm.open_mainfile(filepath=str(OUT / 'plan6-snapshots.blend'))
 reject('file restoration invalidates previous stores', lambda: snap(nu.identifier))

@@ -6,6 +6,8 @@
 grab and batched dab paths of ``SCULPTCORE_OT_brush_stroke``."""
 
 from .. import convert, engine, mapping, symmetry, undo
+from ..brush_properties import shift_smooth
+from ..brush_properties.adapters import STRENGTH
 from . import _draw
 from .dab import apply_dab, apply_dab_program, apply_grab_dab, set_snake_hook_state
 from .dyntopo import (DYNTOPO_EDGE_MIN_FACTOR, apply_dyntopo_dab, build_dyntopo_params,
@@ -270,8 +272,10 @@ class _GenericApplyMixin:
 
     def _prepare_generic(self, sample, base_radius):
         row = self._generic.evaluate([sample], [base_radius])[0]
-        payload = self._generic.prepare(row, sample, family_scale=self._family_scale,
-                                         allow_invert=not self._smooth_stroke)
+        payload = self._generic.prepare(
+            row, sample, family_scale=self._family_scale, allow_invert=not self._smooth_stroke,
+            strength_identifier=shift_smooth.STRENGTH if self._shift_smooth else STRENGTH,
+            extras=self._toggle_extras)
         if base_radius > 0:
             self._generic.cursor_scale = payload[0][1] / base_radius
         return payload
@@ -344,7 +348,7 @@ class _GenericApplyMixin:
                 if self._pressure_size_lut is not None and pressure is not None:
                     world_radius *= mapping.eval_pressure_lut(self._pressure_size_lut, pressure)
                 strength *= self._overlap
-            for pass_strength in smooth_iteration_strengths(strength):
+            for pass_strength in smooth_iteration_strengths(strength, self._smooth_strength_max):
                 # Smoothing has no inverse (see apply_dab_state): ignore Ctrl
                 # and the brush direction for the smooth passes.
                 if generic_payload is not None:

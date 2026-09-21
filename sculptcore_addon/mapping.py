@@ -56,6 +56,15 @@ _MAP = {
     # under smoothing (verified: a sharp-marked crest erodes 0% vs 66% of its
     # height unmarked — claudeMemory/tests/bsmooth_boundary_test.py).
     'SMOOTH': ("BSMOOTH", {}),
+    # Feature-align smooth (topology rake): a Laplacian relaxation whose edge
+    # weights follow a per-vertex cross field, so the topology drifts to
+    # follow features and curvature. Rides vanilla's Slide Relax type — a
+    # topology-relaxing brush is the closest thing Blender's fixed brush-type
+    # enum offers, and its own slide/relax kernel is not ported. Its `rake`
+    # uniform is an engine-only brush field (a generated Engine prop on the
+    # legacy path, `sculptcore.brush.rake` on the generic one); `projection`
+    # is the shared smooth-projection field bsmooth reads too.
+    'TOPOLOGY': ("FEATURE_ALIGN", {}),
     'PINCH': ("PINCH", {"pinch": lambda b: b.strength}),
     # Nudge runs an addon-carried extra kernel (brushes/nudge.sbrush), compiled
     # into the DLL at build time; a stale vendored DLL without it makes
@@ -219,6 +228,14 @@ def is_grab_class(bl_brush):
     anchor and the deform follows the cumulative cursor delta, rather than
     dabbing along the stroke at the moving cursor."""
     return _policy(bl_brush).grab_mode_capable
+
+
+def is_relaxation(bl_brush):
+    """Relaxation kernel (`@relaxation`: the smooth family): the stroke
+    iterates per dab by strength (smooth_iteration_strengths), folds pressure in
+    Python-side, has no inverse and never chains autosmooth. The SMOOTH type is
+    named explicitly so a stale DLL that reports no flags still iterates it."""
+    return bl_brush.sculpt_brush_type == 'SMOOTH' or _policy(bl_brush).relaxes_base
 
 
 def is_snake_hook(bl_brush):

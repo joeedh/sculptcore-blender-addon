@@ -285,7 +285,7 @@ with patch.object(addon.engine, 'capi', side_effect=RuntimeError('Engine deliber
         patch.object(addon.engine_props, '_walk_manifests', side_effect=RuntimeError('No manifest')):
     addon.register()
     authoring.register()
-    check('production registration without engine', len(authoring.registry.definitions()) == 33)
+    check('production registration without engine', len(authoring.registry.definitions()) == 39)
     value = authoring.store(brush).read_value(plane[1])
     check('missing engine retains migrated reads and public RNA', value.value == .5 and hasattr(brush, 'sculptcore'))
     missing_engine = brush.copy()
@@ -300,7 +300,7 @@ with patch.object(addon.engine, 'capi', side_effect=RuntimeError('Engine deliber
     ref = authoring.curve_bank.initialize(authoring.store(brush), nu, 'SPEED')
     check('missing engine custom curve authoring', ref.mapping_key[0] > 0)
 elapsed = time.perf_counter() - started
-check('bank registration bounded', len(authoring.curve_bank._entries) == 62)
+check('bank registration bounded', len(authoring.curve_bank._entries) == 70)
 copy = brush.copy()
 copy.name = 'FrozenIndependentCopy'
 copy.use_fake_user = True

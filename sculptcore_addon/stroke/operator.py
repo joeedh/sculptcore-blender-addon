@@ -11,6 +11,7 @@ in ``operator_apply``/``operator_preview``."""
 import bpy
 
 from .. import convert, cursor, engine, mapping, stroke_input, symmetry, texture, undo
+from ..brush_properties import shift_smooth
 from . import _draw
 from .dab import build_program
 from .dyntopo import DYNTOPO_EDGE_MIN_FACTOR, build_dyntopo_params, configure_dyntopo_params, dyntopo_max_edge
@@ -72,9 +73,11 @@ class SCULPTCORE_OT_brush_stroke(_GenericApplyMixin, _PreviewMixin, bpy.types.Op
         mgr = engine.manager()
         if self.mode in {'SMOOTH', 'MASK'}:
             # Shift-stroke smooths (colour blur over a paint brush), Alt-stroke
-            # masks — both with the active brush's radius/strength (vanilla
-            # brush_toggle semantics). The pick lives in toggle_kernel_name.
-            kernel_name = toggle_kernel_name(self.mode, self.brush, self.session)
+            # masks — both with the active brush's radius (vanilla brush_toggle
+            # semantics); a generic Shift-smooth takes its strength, kernel and
+            # scalars from the Shift-smooth settings instead of the brush. The
+            # pick lives in toggle_kernel_name.
+            kernel_name = toggle_kernel_name(self.mode, self.brush, self.session, context.scene)
             self.kernel = (int(mgr.get("sculptcore::brush::SculptBrushes").items[kernel_name])
                            if self.brush else None)
         else:
@@ -130,11 +133,28 @@ class SCULPTCORE_OT_brush_stroke(_GenericApplyMixin, _PreviewMixin, bpy.types.Op
         self._sh_plane = None
         self._sh_delta = (0.0, 0.0, 0.0)
         self._preview_origin = None
-        # Smoothing strokes (Shift-toggle or the Smooth brush itself) iterate
-        # per dab by strength, vanilla-style (see smooth_iteration_strengths).
+        # Smoothing strokes (Shift-toggle or a relaxation brush — Smooth, the
+        # feature-align Slide Relax) iterate per dab by strength, vanilla-style
+        # (see smooth_iteration_strengths).
         self._smooth_stroke = (
             self.mode == 'SMOOTH'
-            or (not kernel_toggle and self.brush.sculpt_brush_type == 'SMOOTH'))
+            or (not kernel_toggle and mapping.is_relaxation(self.brush)))
+        # A generic Shift-smooth over a sculpt brush: strength, passes ceiling
+        # and kernel scalars come from the Shift-smooth settings
+        # (brush_properties.shift_smooth), not the active brush.
+        self._shift_smooth = (kernel_toggle and self.mode == 'SMOOTH' and settings is not None)
+        self._smooth_strength_max = 1.0
+        self._toggle_extras = None
+        if self._shift_smooth:
+            self._smooth_strength_max = shift_smooth.STRENGTH_MAX
+            projection = settings.value(shift_smooth.PROJECTION)
+            if kernel_name == 'FEATURE_ALIGN':
+                self._toggle_extras = (('rake', settings.value(shift_smooth.RAKE_SHIFT)),
+                                       ('projection', projection))
+            elif kernel_name == 'BSMOOTH':
+                self._toggle_extras = (('projection', projection),)
+            else:
+                self._toggle_extras = ()
         # Anchored / Drag-Dot stroke methods drive the engine preview-dab API
         # (one live, non-compounding dab per input) instead of the spacer. DOTS/
         # SPACE (and, for now, AIRBRUSH/LINE/CURVE) use the spacer path; grab
@@ -260,7 +280,7 @@ class SCULPTCORE_OT_brush_stroke(_GenericApplyMixin, _PreviewMixin, bpy.types.Op
         scene = context.scene
         smooth_factor = 0.0
         if (not self._grab_class and not kernel_toggle
-                and self.brush.sculpt_brush_type != 'SMOOTH'
+                and not mapping.is_relaxation(self.brush)
                 and self.brush.auto_smooth_factor > 0.0):
             smooth_factor = self.brush.auto_smooth_factor
 
@@ -277,7 +297,11 @@ class SCULPTCORE_OT_brush_stroke(_GenericApplyMixin, _PreviewMixin, bpy.types.Op
         # strands every level's displacement and the grid map; the engine
         # refuses the dab (Mesh::topoLocked) and this keeps the stroke from
         # opening a topology-logging undo step for changes that never come.
-        if (not self._grab_class and not kernel_toggle
+        # A Shift-smooth remeshes only when its own Dyntopo setting asks
+        # (colour blur never does: it moves no geometry).
+        shift_dyntopo = (self._shift_smooth and kernel_name in {'BSMOOTH', 'FEATURE_ALIGN'}
+                         and settings.value(shift_smooth.DYNTOPO))
+        if (not self._grab_class and (not kernel_toggle or shift_dyntopo)
                 and self.session.multires_ptr is None
                 and getattr(scene, "sculptcore_dyntopo", False)):
             self._program = build_program(self.session, self.kernel, smooth_factor)
@@ -450,8 +474,11 @@ class SCULPTCORE_OT_brush_stroke(_GenericApplyMixin, _PreviewMixin, bpy.types.Op
         # push its delta-undo step regardless of finish vs cancel.
         undo.push(context, ob, self.session)
         self._publish_pivot(context, ob)
-        if context.area:  # absent on cancel() teardown (window close)
-            context.area.tag_redraw()
+        # Every 3D viewport, not just the one the stroke ran in: the mid-stroke
+        # cadence refreshes only the stroked region (like native sculpt), so
+        # the others still show the pre-stroke surface until told otherwise
+        # (vanilla's flush_update_done tags them all).
+        _draw._tag_redraw_all_views(context)
         return {status}
 
     def _read_input(self, event):

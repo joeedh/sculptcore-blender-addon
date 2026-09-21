@@ -10,9 +10,10 @@ from .lifecycle import _main_thread
 from .adapters import DEFINITIONS as NATIVE_DEFINITIONS
 from .engine_catalogue import DEFINITIONS as ENGINE_DEFINITIONS
 from .registry import PropertyError, Registry
+from .shift_smooth import DEFINITIONS as SHIFT_SMOOTH_DEFINITIONS
 
 registry = Registry()
-for _definition in (*DEFINITIONS, *NATIVE_DEFINITIONS, *ENGINE_DEFINITIONS):
+for _definition in (*DEFINITIONS, *NATIVE_DEFINITIONS, *ENGINE_DEFINITIONS, *SHIFT_SMOOTH_DEFINITIONS):
     registry.register(_definition)
 curve_bank = CurveBank(registry)
 _manifest_status = MappingProxyType({})

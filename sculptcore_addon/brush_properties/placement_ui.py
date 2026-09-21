@@ -10,7 +10,7 @@ from .registry import Position, PropertyError
 from .ui import _PropertyOperator, _redraw
 
 _locations = placement.LOCATIONS
-_fields = ('header', 'settings', 'menu', 'automasking')
+_fields = ('header', 'settings', 'menu', 'automasking', 'shift_smooth')
 
 
 class PlacementEdit:
@@ -48,10 +48,12 @@ class SCULPTCORE_OT_property_placement(_PropertyOperator, bpy.types.Operator):
     settings: bpy.props.BoolProperty(name="Brush Settings", options={'SKIP_SAVE'})
     menu: bpy.props.BoolProperty(name="Context Menu", options={'SKIP_SAVE'})
     automasking: bpy.props.BoolProperty(name="Automasking", options={'SKIP_SAVE'})
+    shift_smooth: bpy.props.BoolProperty(name="Shift Smooth", options={'SKIP_SAVE'})
     header_order: bpy.props.IntProperty(name="Order", options={'SKIP_SAVE'})
     settings_order: bpy.props.IntProperty(name="Order", options={'SKIP_SAVE'})
     menu_order: bpy.props.IntProperty(name="Order", options={'SKIP_SAVE'})
     automasking_order: bpy.props.IntProperty(name="Order", options={'SKIP_SAVE'})
+    shift_smooth_order: bpy.props.IntProperty(name="Order", options={'SKIP_SAVE'})
 
     def invoke(self, context, event):
         try:

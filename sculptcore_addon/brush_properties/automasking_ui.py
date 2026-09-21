@@ -18,9 +18,15 @@ ORDER = (*tuple(CAVITY + '.' + key for key in _CAVITY_LABELS), AUTOMASK_VIEW_NOR
 
 
 def value_enabled(context, identifier):
+    """Whether a row's value widget is live: a dependent setting greys out
+    while the setting it depends on is off (the view-normal scalars, the
+    Shift-smooth rake behind its Feature Align toggle)."""
     from .ui import _resolve
     if identifier in (VIEW_NORMAL_LIMIT, VIEW_NORMAL_FALLOFF, CULL_BACKFACES):
         return bool(_resolve(context, AUTOMASK_VIEW_NORMAL)[2].value)
+    from . import shift_smooth
+    if identifier == shift_smooth.RAKE_SHIFT:
+        return bool(_resolve(context, shift_smooth.FEATURE_ALIGN)[2].value)
     if identifier.startswith(CAVITY + '.') and identifier.rsplit('.', 1)[1] not in (
             'use_automasking_cavity', 'use_automasking_cavity_inverted'):
         settings = _resolve(context, CAVITY + '.cavity_factor')[2].value_owner._native.cavity()

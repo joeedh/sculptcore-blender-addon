@@ -1066,3 +1066,38 @@ equal. Count overlap builds at the shared cache, not a retired session memo.
   children running and the build tree staged on whichever addon side it was
   mid-pair; kill the orphans and `stage_test_addon.py` before trusting any
   later Blender run.
+
+## Shift smooth, right-click crash, redraw (2026-09-21)
+
+- **Right-clicking a brush-asset shelf icon in the custom mode crashed
+  Blender** (`%TEMP%lender.crash.txt`: `strncmp` <- `WM_keymap_find_all` <-
+  `popup_context_menu_for_button`). `WM_keymap_guess_from_context` had no
+  `CTX_MODE_CUSTOM` case, left `km_id` null and passed it to `find_all`. The
+  fork now asks the registered `ObjectModeType` for its `keymap` and returns
+  null when there is none. Any context menu over a button in a custom mode
+  (not just the shelf) took the same path.
+- **Two "Automasking" popovers** were the same panel
+  (`SCULPTCORE_PT_tools_brush_settings_advanced`) drawn twice: the main header's
+  icon popover (`menus._automasking_popover`, vanilla's placement, shows the
+  active state) and a text popover the tool header added. The tool-header one
+  is gone.
+- **The mode pie showed both "Custom" and "SculptCore"**: `object_mode_set_itemf`
+  emitted the bare `OB_MODE_CUSTOM` item whenever the object's previous custom
+  mode polled, and then that mode's own item. The generic item is skipped now;
+  `bpy.ops.object.mode_set(mode='CUSTOM')` is no longer accepted (no callers;
+  `object.custom_mode_toggle` and the per-mode identifiers remain).
+- `window.event_simulate` needs `--enable-event-simulate` on the Blender
+  command line; the debug server launch has to carry it.
+- Reloading the addon (`addon_utils.disable/enable`) stops the debug server —
+  documented in blender-debug-server.md but easy to forget: restage with
+  robocopy and relaunch instead.
+- A Python heredoc through Bash turned `'\0'` in a C++ patch into a literal
+  NUL byte (git then saw the fork file as binary). Byte-patch back to
+  backslash-zero and restore CRLF (`unix2dos`-style) before diffing; the fork
+  is CRLF throughout.
+- Fixture counts moved with the six shift-smooth definitions: registry 33 -> 39,
+  curve bank 62 -> 70 (one dynamic definition x 2 owners x 4 devices), in
+  `test_frozen_authoring.py` and `test_property_snapshots{,_fresh}.py`.
+- Comparing `_toggle_extras` to Python floats fails on float32 rounding
+  (0.35 -> 0.3499999940395355); compare with a tolerance.
+

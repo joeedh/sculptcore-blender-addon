@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Blender Authors
 # SPDX-License-Identifier: GPL-2.0-or-later
 """Non-allocating placement and applicability for every generic UI location."""
+from . import shift_smooth
 from .adapters import CAVITY, SIZE_ALIASES
 from .legacy import ASSOCIATIONS
 from .registry import Position
@@ -10,6 +11,7 @@ LOCATIONS = (
     ('BRUSH_SETTINGS', "Brush Settings"),
     ('CONTEXT_MENU', "Context Menu"),
     ('AUTOMASKING', "Automasking"),
+    ('SHIFT_SMOOTH', "Shift Smooth"),
 )
 
 
@@ -28,6 +30,8 @@ def applicable(definition, brush):
         return association[0] in (KERNEL_BY_TYPE.get(brush.sculpt_brush_type), 'BSMOOTH')
     if identifier == 'sculptcore.brush.snake_pinch':
         return brush.sculpt_brush_type == 'SNAKE_HOOK'
+    if identifier == shift_smooth.RAKE:
+        return KERNEL_BY_TYPE.get(brush.sculpt_brush_type) == 'FEATURE_ALIGN'
     if identifier == 'sculptcore.brush.plane_offset':
         return brush.sculpt_brush_type in PLANE_OFFSET_TYPES
     gate = PLANE_FRAME_ROWS.get(identifier)
@@ -64,6 +68,8 @@ def positions(store, definition):
     if automasking(definition.identifier):
         from .automasking_ui import ORDER
         return (Position('AUTOMASKING', ORDER.index(definition.identifier) * 10),)
+    if definition.identifier in shift_smooth.ORDER:
+        return (Position('SHIFT_SMOOTH', shift_smooth.ORDER.index(definition.identifier) * 10),)
     if definition.identifier in ('sculptcore.brush.size', 'sculptcore.brush.strength'):
         return (*saved, Position('CONTEXT_MENU', 10 if definition.identifier.endswith('.size') else 20))
     result = saved or (Position('BRUSH_SETTINGS', 100),)

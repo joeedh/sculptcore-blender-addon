@@ -292,7 +292,13 @@ class PersistentOwnerStore:
         record = self._record(identifier)
         if identifier in (STRENGTH, SIZE):
             return self._native.unified(identifier)
-        return record.get('unified', False) if self.kind == 'SCENE' and record is not None else False
+        if self.kind != 'SCENE':
+            return False
+        # The Shift-smooth settings are shared across brushes until a Scene
+        # record says otherwise (shift_smooth.UNIFIED_BY_DEFAULT).
+        from .shift_smooth import UNIFIED_BY_DEFAULT
+        default = identifier in UNIFIED_BY_DEFAULT
+        return record.get('unified', default) if record is not None else default
 
     def inherits_stack(self, identifier):
         if identifier in SIZE_ALIASES:

@@ -92,6 +92,44 @@ class SCULPTCORE_PT_brush_engine(bpy.types.Panel):
                 layout.label(text=note, icon='INFO')
 
 
+class SCULPTCORE_PT_shift_smooth(bpy.types.Panel):
+    """The Shift-smooth stroke's settings (brush_properties.shift_smooth):
+    strength, dyntopo, the boundary-aware vs feature-align kernel choice and
+    the feature-align scalars. Generic rows, drawn at their SHIFT_SMOOTH
+    location; Scene-unified by default, so one setting serves every brush.
+    Sidebar Tool tab and the Properties editor's Active Tool tab (which draws
+    the same Tool-category panels), plus a tool-header popover."""
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = _CATEGORY
+    bl_context = _MODE_CONTEXT
+    bl_label = "Shift Smooth"
+    bl_options = {'DEFAULT_CLOSED'}
+    bl_ui_units_x = 14
+
+    @classmethod
+    def poll(cls, context):
+        return _in_mode(context) and context.tool_settings.sculpt.brush is not None
+
+    def draw(self, context):
+        layout = self.layout
+        layout.use_property_split = True
+        layout.use_property_decorate = False
+        from .brush_properties import ui as property_ui
+        if not property_ui.available(context):
+            # The legacy stroke path smooths with the brush's own strength and
+            # the boundary-aware kernel; these settings only reach the generic
+            # path.
+            layout.label(text="Needs Generic Brush Properties", icon='INFO')
+            layout.prop(context.scene, "sculptcore_generic_properties")
+            return
+        if self.is_popover:
+            layout.ui_units_x = 24
+        property_ui.draw_location(layout, context, 'SHIFT_SMOOTH')
+        if context.tool_settings.sculpt.brush.sculpt_brush_type in mapping.COLOR_TYPES:
+            layout.label(text="A paint brush Shift-blurs colour; only Strength applies", icon='INFO')
+
+
 class SCULPTCORE_PT_symmetry(bpy.types.Panel):
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
@@ -337,7 +375,10 @@ def _tool_header_mode_settings(self, context):
         return
     layout = self.layout
     if context.tool_settings.sculpt.brush is not None:
-        layout.popover("SCULPTCORE_PT_tools_brush_settings_advanced", text="Automasking")
+        # No Automasking popover here: vanilla's "Brush" popover of the Advanced
+        # panel is the automasking panel in this mode, and the main header
+        # already carries it as the state-showing icon popover vanilla sculpt
+        # has (menus._automasking_popover).
         layout.popover("SCULPTCORE_PT_tools_brush_texture")
         layout.popover("SCULPTCORE_PT_tools_brush_stroke")
         layout.popover("SCULPTCORE_PT_tools_brush_falloff")
@@ -353,6 +394,7 @@ def _tool_header_mode_settings(self, context):
 
 _classes = (
     SCULPTCORE_PT_brush_engine,
+    SCULPTCORE_PT_shift_smooth,
     SCULPTCORE_PT_symmetry,
     SCULPTCORE_PT_dyntopo,
     SCULPTCORE_PT_boundary_uv,

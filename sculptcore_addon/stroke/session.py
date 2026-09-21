@@ -72,7 +72,7 @@ def program_grids_capable(session, main_kernel):
     return grids_capable(session, _bsmooth_kernel_id)
 
 
-def toggle_kernel_name(mode, brush, session):
+def toggle_kernel_name(mode, brush, session, scene=None):
     """Kernel for a Shift/Alt stroke toggle (vanilla brush_toggle semantics).
 
     Shift over a paint brush blurs colour, as vanilla sculpt does. On multires
@@ -81,6 +81,11 @@ def toggle_kernel_name(mode, brush, session):
     neighbour-reading smooth needs — and the touched grids re-derive per dab
     (grids-native-completion CS2/CS3).
 
+    Over any other brush the Shift-smooth settings pick the smooth: the
+    boundary-aware BSMOOTH, or FEATURE_ALIGN when ``scene`` is given, generic
+    properties are on, and the effective ``shift_smooth_feature_align`` is set
+    (see brush_properties.shift_smooth).
+
     A plain function rather than inline invoke code: the verify harness drives
     ``stroke_begin``/``apply_dab`` directly and never runs the modal operator.
     """
@@ -88,6 +93,10 @@ def toggle_kernel_name(mode, brush, session):
         return "MASK"
     if brush is not None and brush.sculpt_brush_type in mapping.COLOR_TYPES:
         return "COLORSMOOTH"
+    if scene is not None and brush is not None and scene.sculptcore_generic_properties:
+        from ..brush_properties import shift_smooth
+        if shift_smooth.resolve_value(brush, scene, shift_smooth.FEATURE_ALIGN):
+            return "FEATURE_ALIGN"
     return "BSMOOTH"
 
 

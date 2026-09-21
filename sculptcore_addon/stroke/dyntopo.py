@@ -9,12 +9,13 @@ from ._util import _float3
 from .session import _ensure_executor
 
 
-def smooth_iteration_strengths(strength):
+def smooth_iteration_strengths(strength, maximum=1.0):
     """Vanilla smooth-brush semantics (#iteration_strengths): the strength
-    (clamped to 1) maps to `int(strength * 4)` full-strength relaxation
-    passes per dab plus one remainder pass, so higher strength iterates more
-    instead of overshooting a single pass."""
-    clamped = min(max(strength, 0.0), 1.0)
+    (clamped to ``maximum``, vanilla's 1) maps to `int(strength * 4)`
+    full-strength relaxation passes per dab plus one remainder pass, so higher
+    strength iterates more instead of overshooting a single pass. The
+    Shift-smooth strength raises the ceiling to 4 (16 passes)."""
+    clamped = min(max(strength, 0.0), maximum)
     count = int(clamped * 4)
     last = 4.0 * (clamped - count / 4.0)
     passes = [1.0] * count

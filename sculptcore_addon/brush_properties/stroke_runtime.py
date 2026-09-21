@@ -76,30 +76,51 @@ class StrokeRuntime:
             values[identifier] = {'FLOAT32': float, 'INT32': int, 'BOOL': bool}[kind](value)
         return values
 
-    def prepare(self, row, sample, *, family_scale=1.0, allow_invert=True):
-        """Build a complete immutable payload before changing any native setting."""
+    def prepare(self, row, sample, *, family_scale=1.0, allow_invert=True, strength_identifier=STRENGTH,
+                extras=None):
+        """Build a complete immutable payload before changing any native setting.
+
+        ``strength_identifier`` names the evaluated scalar that becomes the dab
+        strength -- the brush strength, or the Shift-smooth strength on a
+        smooth-toggle stroke. ``extras`` replaces the kernel scalars derived
+        from the brush's own settings with an explicit ``(uniform, value)``
+        sequence; a toggle stroke runs a kernel the active brush does not own,
+        so its scalars come from the toggle's settings instead."""
         values = self.values(row)
         spacing = values[PREFIX + 'spacing']
         if spacing not in self._overlaps:
             self._overlaps[spacing] = self.settings.overlap(sample.channels)
         scale = self._overlaps[spacing] * family_scale
-        strength = to_engine(STRENGTH, values[STRENGTH], strength_scale=scale)
+        strength = to_engine(STRENGTH, values[strength_identifier], strength_scale=scale)
         common = (strength, values[SIZE], values[PREFIX + 'autosmooth'],
                   values[PREFIX + 'plane_offset'], to_engine(PREFIX + 'spacing', spacing),
                   bool(sample.invert ^ self.settings.subtract) if allow_invert else False)
+        if extras is None:
+            extras = self._brush_extras(values)
+        # The chained command inherits the strength stack and overrides its base.
+        factor = values[PREFIX + 'autosmooth']
+        return common, tuple(extras), factor
+
+    def _brush_extras(self, values):
+        """The kernel scalars the active brush's own settings drive."""
+        from .shift_smooth import RAKE
         extras = []
         for identifier, (kernel, name) in ASSOCIATIONS.items():
             if kernel == self.settings.kernel_name and identifier in values:
                 extras.append((name, values[identifier]))
+        if self.settings.kernel_name == 'FEATURE_ALIGN':
+            # The feature-align brush: its rake, and the smooth projection the
+            # bsmooth row already exposes for every brush (both kernels read the
+            # same engine field).
+            extras.append(('rake', values[RAKE]))
+            extras.append(('projection', values['sculptcore.kernel.bsmooth.projection']))
         if self.settings.brush_type == 'DRAW_SHARP':
             extras.append(('pinch', 0.0))
         elif self.settings.brush_type == 'PINCH':
             extras.append(('pinch', self.settings.local_strength))
         elif self.settings.brush_type == 'SNAKE_HOOK':
             extras.append(('pinch', to_engine(PREFIX + 'snake_pinch', values[PREFIX + 'snake_pinch'])))
-        # The chained command inherits the strength stack and overrides its base.
-        factor = values[PREFIX + 'autosmooth']
-        return common, tuple(extras), factor
+        return extras
 
     def publish(self, payload, *, program=None, smooth_command=None, strength_override=None):
         from sculptcore.brush_properties import set_command_scalar, replace_command_stack

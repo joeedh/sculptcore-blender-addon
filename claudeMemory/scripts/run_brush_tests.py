@@ -54,7 +54,8 @@ GESTURES = tuple((name.lower(), 'test_brush_strokes.py', 'PLAN6_GENERIC_MODAL_PA
                  for name in ('DRAW', 'SMOOTH', 'GRAB', 'SNAKE_HOOK', 'MASK', 'PROGRAM', 'VIEW', 'CLAY')) + tuple(
     (name, 'test_brush_routes.py', 'PLAN6_' + name.upper() + '_MODAL_PASS', (name,))
     for name in ('preview', 'dyntopo', 'cage', 'layer', 'attributes')) + (
-        ('cache', 'test_brush_curve_cache.py', 'PLAN5_MODAL_CACHE_PASS', ('generic',)),)
+        ('cache', 'test_brush_curve_cache.py', 'PLAN5_MODAL_CACHE_PASS', ('generic',)),
+        ('shift-smooth', 'test_shift_smooth_gestures.py', 'SHIFT_SMOOTH_MODAL_PASS', ()),)
 SUITES = dict(unit=UNIT, authoring=AUTHORING, runtime=RUNTIME, gestures=GESTURES,
               **{'known-falloff': (('frozen-footprint', 'test_brush_frozen_footprint.py',
                                     'PLAN6_GENERIC_BASELINE_PASS', ()),)})

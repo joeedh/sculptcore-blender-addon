@@ -49,3 +49,20 @@ def _draw_counter_pop():
     if _draw_counter_strokes == 0 and _draw_counter_handle is not None:
         bpy.types.SpaceView3D.draw_handler_remove(_draw_counter_handle, 'WINDOW')
         _draw_counter_handle = None
+
+
+def _tag_redraw_all_views(context):
+    """Redraw the drawing region of every 3D viewport in every window (the
+    stroke's own area included). Region, not area, for the same reason
+    ``_mid_redraw`` gives: an area redraw also re-uploads the asset shelf's
+    preview icons."""
+    wm = context.window_manager
+    if wm is None:  # cancel() teardown on window close
+        return
+    for window in wm.windows:
+        for area in window.screen.areas:
+            if area.type != 'VIEW_3D':
+                continue
+            for region in area.regions:
+                if region.type == 'WINDOW':
+                    region.tag_redraw()

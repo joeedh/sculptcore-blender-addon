@@ -243,6 +243,42 @@ B 416 (+2.6 %; per-pair median +0.8 %; budget 5 %). The B side must be the
 `build/python` DLL — `build/native` is `-ffp-contract=off` and measured +21 %
 before that was noticed.
 
+### Shift smooth
+
+A Shift-stroke (`sculptcore.brush_stroke` with `mode='SMOOTH'`) smooths with a
+kernel of its own, so its knobs are its own generic rows
+(`brush_properties/shift_smooth.py`), not the active brush's strength or
+kernel scalars:
+
+| Row | Identifier | Read by |
+| --- | --- | --- |
+| Strength (0..4, soft 0..1, dynamic) | `sculptcore.brush.shift_smooth_strength` | `_prepare_generic(strength_identifier=...)`; passes per dab via `smooth_iteration_strengths(strength, STRENGTH_MAX)` |
+| Dyntopo | `sculptcore.brush.shift_smooth_dyntopo` | the operator's dyntopo gate: a Shift-smooth remeshes only when this is on (and the scene toggle is) |
+| Feature Align | `sculptcore.brush.shift_smooth_feature_align` | `stroke.session.toggle_kernel_name(..., scene)`: FEATURE_ALIGN instead of BSMOOTH |
+| Rake | `sculptcore.brush.shift_smooth_rake` | FEATURE_ALIGN's `rake` uniform (greyed while Feature Align is off) |
+| Projection | `sculptcore.brush.shift_smooth_projection` | `projection` on BSMOOTH and FEATURE_ALIGN |
+
+- They default to **unified**: `storage.unified()` answers True for
+  `shift_smooth.UNIFIED_BY_DEFAULT` until a Scene record says otherwise, so an
+  artist tunes "how hard Shift smooths" once; a brush can still opt out through
+  the usual inheritance controls.
+- Location `SHIFT_SMOOTH` (`placement.LOCATIONS`), drawn by
+  `ui.SCULPTCORE_PT_shift_smooth` — a Tool-tab panel and a tool-header popover.
+  The legacy (non-generic) path shows the generic-properties toggle instead.
+- The operator carries the choice as `_shift_smooth`, `_smooth_strength_max`
+  and `_toggle_extras` (the (uniform, value) pairs handed to
+  `StrokeRuntime.prepare(extras=...)` in place of the brush-derived scalars).
+  A Shift-smooth over a paint brush still runs COLORSMOOTH and never remeshes.
+- `mapping.is_relaxation(brush)` (SMOOTH type, or a kernel whose metadata
+  reports `relaxesBase`) is what makes a *brush* stroke iterate per dab and skip
+  autosmooth; Slide Relax (`TOPOLOGY`) maps to FEATURE_ALIGN, whose own `rake`
+  row is `sculptcore.brush.rake` (gated to that kernel by
+  `placement.applicable`).
+- Gate: `run_brush_tests.py --suite gestures --case shift-smooth`
+  (`test_shift_smooth_gestures.py`: BSMOOTH/FEATURE_ALIGN x dyntopo off/on
+  through the real modal path with Shift held, the published extras and pass
+  strengths, plus a Slide Relax stroke publishing its own rake; undo/redo).
+
 ## Ownership, storage and compatibility
 
 - Saved custom root: `sculptcore_properties`, schema 1. Records use a digest key
