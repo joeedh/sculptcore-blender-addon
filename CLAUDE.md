@@ -2,6 +2,10 @@
 
 Guidance for working in this repository.
 
+## Todo
+
+- There is a todo list in todos.md check items off when accomplished.
+
 ## Debugging
 
 - **Maintain a running debugging guide/lessons-learned in claudeMemory/debugging.md**
