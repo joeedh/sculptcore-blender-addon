@@ -1102,4 +1102,21 @@ equal. Count overlap builds at the shared cache, not a retired session memo.
   `test_frozen_authoring.py` and `test_property_snapshots{,_fresh}.py`.
 - Comparing `_toggle_extras` to Python floats fails on float32 rounding
   (0.35 -> 0.3499999940395355); compare with a tolerance.
-
+- **Face-set borders stopped constraining Shift-smooth after Tab in/out of edit
+  mode or an undo.** The engine's boundary overlay is lazy: `.boundary.vert.class`
+  is only recomputed for elements marked dirty, and the addon's face-set write
+  (`Mesh_writeFaceIntAttr`, run at every enter — the Tab round trip and the undo
+  `refresh()` both re-enter) marked nothing. Face sets only ever worked because
+  the UV write at enter calls `markAllDirty`; a mesh without a UV layer never
+  classified them, and with UVs painted-in-mode groups were lost on undo. Fixed
+  in the engine (group writes and meshlog face-row undo now dirty the faces).
+  Gate: `run_brush_tests.py --suite gestures --case fset-boundary`
+  (`test_fset_boundary_smooth.py`, a UV-less grid with a cliff on the border).
+  Two probe traps: read the class attr only after a stroke or
+  `Mesh_recomputeBoundary` (it is lazy, a raw read after enter is always 0), and
+  fix the measured vert set by index before the first stroke — re-filtering on
+  `x == 0` afterwards silently drops the verts that moved, which is exactly the
+  failure being measured. bsmooth deliberately lets a smooth-type border vert
+  keep `(1 - projection)` of the normal motion, so a border on a cliff drifts a
+  little (0.04–0.07 here vs 0.095 unconstrained); assert against the
+  unconstrained figure, not zero.
