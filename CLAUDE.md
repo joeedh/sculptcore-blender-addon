@@ -6,6 +6,10 @@ Guidance for working in this repository.
 
 - There is a todo list in todos.md check items off when accomplished.
 
+## Plans 
+
+- Do not try to match the style of pre-existing plans 
+
 ## Debugging
 
 - **Maintain a running debugging guide/lessons-learned in claudeMemory/debugging.md**

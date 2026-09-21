@@ -17,10 +17,12 @@
 
 ## shift smooth panel 
 [ ]: create a new panel in the properties editor for shift-smooth properties
-[ ]: shift-smooth properties should be stored in the scene and the active brush,
-     the scene props are used by default but there should be a per-prop option to use the 
-	 local brush props instead.
+[ ]: shift-smooth properties should use proper generic brush properties in unified mode 
+     by default.
 [ ]: add an option to enable dyntopo in shift-smooth 
 [ ]: add an option to control whether smooth uses normal smooth or feature align smooth
-  - make sure to add options in ui for feature align if it's enabled for shift smooth
-[ ]: add property to control shift-smooth strength
+     - make sure to add options in ui for feature align if it's enabled for shift smooth
+	 - note: when we implement vertex paint smear we'll also allow the user to control 
+	         blur shift smooth vs smear.
+[ ]: add property to control shift-smooth strength.  it should have a maximum of 4.
+
