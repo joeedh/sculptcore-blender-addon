@@ -59,10 +59,16 @@ def immutable(value):
 
 
 engine_ids = tuple(item.identifier for item in ENGINE_DEFINITIONS)
+# Execution availability follows the loaded engine's manifest (engine_props ->
+# authoring.refresh_manifest): every export present means the generic domain
+# executes; a stale DLL leaves it pending. The snapshot must report either
+# faithfully.
+executes = {identifier: authoring.diagnostic(identifier) == '' for identifier in engine_ids}
 initial = capture(registry, engine_ids, local, parent)
 check('unset defaults allocate no generic storage', ROOT not in brush and ROOT not in scene)
-check('engine defaults remain unset with frozen generic domain', all(
-    not item.present and item.value_domain == item.definition and not item.execution_available
+check('engine defaults remain unset and report the manifest readiness', all(
+    not item.present and item.value_domain == item.definition
+    and item.execution_available == executes[item.definition.identifier]
     and item.stack_available and item.stack == () for item in initial))
 check('exact engine float32 defaults', tuple(item.value for item in initial) == (
     False, scalar('FLOAT32', 1.5707964), scalar('FLOAT32', .43633232), False))
@@ -207,7 +213,7 @@ for definition in ENGINE_DEFINITIONS:
     result = snap(definition.identifier)
     check('new engine settings use Scene generic values ' + definition.identifier,
           result.value == (False if definition.scalar_type == 'BOOL' else .75) and result.source == 'GENERIC'
-          and not result.execution_available)
+          and result.execution_available == executes[definition.identifier])
     check('dormant generic local value ' + definition.identifier,
           local.read_value(definition).value == (True if definition.scalar_type == 'BOOL' else .25))
 check('catalogue and declarations', len(registry.definitions()) == 39 and len(authoring.curve_bank._entries) == 70)

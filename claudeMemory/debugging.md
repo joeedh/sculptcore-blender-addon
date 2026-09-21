@@ -1035,6 +1035,8 @@ equal. Count overlap builds at the shared cache, not a retired session memo.
 - `test_property_snapshots.py` (not in any suite) fails at "engine defaults
   remain unset with frozen generic domain" before and after this change —
   pre-existing, not a plane-frame regression.
+  (Resolved 2026-09-21: the check assumed the generic domain never executes;
+  it now expects `execution_available == (authoring.diagnostic(id) == '')`.)
 - **Never benchmark `engine/build/native/`.** Its toolchain
   (`build_files/native-clang.cmake`) sets `-ffp-contract=off` so geometric
   predicates stay arch-stable under ctest; the shipped DLL is the
