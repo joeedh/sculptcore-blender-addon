@@ -31,6 +31,9 @@ _DYNTOPO_RELATIVE_SCALE = 0.4       # RELATIVE_SCALE_FACTOR
 # Blender detail_refine_method -> engine DynTopoMode value.
 _DYNTOPO_REFINE_MODES = {'SUBDIVIDE': 0, 'COLLAPSE': 1, 'SUBDIVIDE_COLLAPSE': 2}
 
+# Scene region rule -> engine DynTopoRegion value (Sphere, GradedRecursive).
+_DYNTOPO_REGIONS = {'SPHERE': 0, 'GRADED': 1}
+
 
 def dyntopo_max_edge(sculpt, ob, world_radius, pixel_radius, pixel_size):
     """Object-space max edge length from Blender's dyntopo detail settings
@@ -54,6 +57,11 @@ def configure_dyntopo_params(params, scene, refine_method):
     onto a DynTopoParams. An unset refine method (older files carry DNA
     flags 0, which RNA reads as '') falls back to the default Both."""
     params.mode = _DYNTOPO_REFINE_MODES.get(refine_method, 2)
+    # The region rule postdates the shipped bindings, so a vendored lib built
+    # before it simply keeps its own default (the sphere rule) rather than
+    # breaking every stroke on an AttributeError.
+    if hasattr(params, "region"):
+        params.region = _DYNTOPO_REGIONS.get(scene.sculptcore_dyntopo_region, 0)
     params.do_flips = scene.sculptcore_dyntopo_flips
     params.do_smooth = scene.sculptcore_dyntopo_smooth
     params.smooth_lambda = scene.sculptcore_dyntopo_smooth_lambda

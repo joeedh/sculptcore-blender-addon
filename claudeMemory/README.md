@@ -54,3 +54,4 @@ is ignored apart from explicitly retained frozen compatibility inputs.
 - [research/tbb-vs-litestl-parallel-for.md](research/tbb-vs-litestl-parallel-for.md)
 - [Safe native test launching](codebase/generic-brush-testing.md#less-frequent-coverage)
 - [codebase/brush-input-delivery.md](codebase/brush-input-delivery.md)
+- [research/dyntopo-region-gating-vs-blender.md](research/dyntopo-region-gating-vs-blender.md)

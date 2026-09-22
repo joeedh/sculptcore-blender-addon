@@ -200,6 +200,7 @@ class SCULPTCORE_PT_dyntopo(bpy.types.Panel):
         # Engine remesher tuning (DynTopoParams).
         scene = context.scene
         col.separator()
+        col.prop(scene, "sculptcore_dyntopo_region")
         sub = col.column(heading="Remesher")
         sub.prop(scene, "sculptcore_dyntopo_flips")
         sub.prop(scene, "sculptcore_dyntopo_smooth")

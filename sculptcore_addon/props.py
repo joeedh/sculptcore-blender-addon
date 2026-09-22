@@ -64,6 +64,22 @@ def register():
         soft_max=2.0,
     )
     # Engine remesher tuning (DynTopoParams; defaults mirror the engine's).
+    bpy.types.Scene.sculptcore_dyntopo_region = bpy.props.EnumProperty(
+        name="Region Rule",
+        description="Which edges a remesh pass may touch",
+        items=[
+            ('SPHERE', "Brush Sphere",
+             "Refine only edges whose midpoint falls inside the brush, so "
+             "refinement stops at the brush rim"),
+            ('GRADED', "Graded (Blender)",
+             "Blender's rule: seed on faces reaching into the brush, then grade "
+             "outward across the surrounding mesh with a goal length that grows "
+             "each step. Refines coarse geometry the brush sits inside, and "
+             "avoids high-valence vertices at the rim, at the cost of touching "
+             "geometry outside the brush"),
+        ],
+        default='SPHERE',
+    )
     bpy.types.Scene.sculptcore_dyntopo_flips = bpy.props.BoolProperty(
         name="Edge Flips",
         description="Flip interior edges to the shorter diagonal each round, "
@@ -171,6 +187,7 @@ def unregister():
         delattr(bpy.types.Brush, name)
     del bpy.types.Scene.sculptcore_dyntopo
     del bpy.types.Scene.sculptcore_dyntopo_spacing
+    del bpy.types.Scene.sculptcore_dyntopo_region
     del bpy.types.Scene.sculptcore_dyntopo_flips
     del bpy.types.Scene.sculptcore_dyntopo_smooth
     del bpy.types.Scene.sculptcore_dyntopo_smooth_lambda
