@@ -10,6 +10,7 @@ from ..brush_properties import shift_smooth
 from ..brush_properties.adapters import STRENGTH
 from . import _draw
 from .dab import apply_dab, apply_dab_program, apply_grab_dab, set_snake_hook_state
+from .dial import Dial
 from .dyntopo import (DYNTOPO_EDGE_MIN_FACTOR, apply_dyntopo_dab, build_dyntopo_params,
                       dyntopo_due, smooth_iteration_strengths)
 from .raycast import (_coord_on_plane, _cursor_on_anchor_plane, _ray_from_event,
@@ -50,17 +51,33 @@ class _GenericApplyMixin:
                 # so both drag endpoints come from the same projection and the
                 # first dab's delta is exactly zero, not merely near it.
                 self._drag_origin = _cursor_on_anchor_plane(context, event, self._anchor)
+                if self._dial_angle:
+                    # Vanilla's 5 px input threshold (sculpt.cc, ROTATE).
+                    self._dial = Dial((event.mouse_region_x, event.mouse_region_y), 5.0)
+            # The twist angle for this event, in the primary image's sense; a
+            # mirror image reverses it once per reflected axis. The kernel
+            # scales it by the brush strength through its falloff, so the
+            # angle itself carries none.
+            angle = None
+            if self._dial is not None:
+                angle = self._dial.angle((event.mouse_region_x, event.mouse_region_y))
             # No re-raycast after anchoring: the drag must keep working when
             # the cursor leaves the surface (vanilla grab semantics), and the
             # region/radius stay pinned to the stroke start regardless.
             if not self._generic:
                 mapping.apply_dab_state(self.brush, unified, self.session.brush_obj,
                                         world_radius=self._anchor_radius, invert=invert,
-                                        strength_scale=self._overlap)
+                                        strength_scale=self._overlap,
+                                        allow_invert=angle is None)
+                if angle is not None:
+                    self.session.brush_obj.rotateAngle = angle
             active_radius = self._anchor_radius
+            payload = None
             if self._generic:
                 self._set_generic_view(context, self._anchor)
-                payload = self._prepare_generic(sample, self._anchor_radius)
+                payload = self._prepare_generic(sample, self._anchor_radius, allow_invert=angle is None)
+                if angle is not None:
+                    payload = self._with_extra(payload, 'rotateAngle', angle)
                 self._publish_generic(payload)
                 active_radius = payload[0][1]
             # Drag target = anchor + mouse motion on the view-facing plane
@@ -80,6 +97,12 @@ class _GenericApplyMixin:
             # Symmetry: reflect the anchor, cursor and normal directly (no
             # re-raycast for grab — the resolved plane point is used as-is).
             for sign in self._mirror_signs:
+                if angle is not None:
+                    flipped = angle * mapping.dial_angle_flip(sign)
+                    if self._generic:
+                        self._publish_generic(self._with_extra(payload, 'rotateAngle', flipped))
+                    else:
+                        self.session.brush_obj.rotateAngle = flipped
                 if self._generic:
                     self._generic.view_image(sign)
                 moved = apply_grab_dab(
@@ -270,15 +293,24 @@ class _GenericApplyMixin:
         self._generic.view_direction = view_direction(context, position)
         self._generic.view_image()
 
-    def _prepare_generic(self, sample, base_radius):
+    def _prepare_generic(self, sample, base_radius, allow_invert=True):
         row = self._generic.evaluate([sample], [base_radius])[0]
         payload = self._generic.prepare(
-            row, sample, family_scale=self._family_scale, allow_invert=not self._smooth_stroke,
+            row, sample, family_scale=self._family_scale,
+            allow_invert=allow_invert and not self._smooth_stroke,
             strength_identifier=shift_smooth.STRENGTH if self._shift_smooth else STRENGTH,
             extras=self._toggle_extras)
         if base_radius > 0:
             self._generic.cursor_scale = payload[0][1] / base_radius
         return payload
+
+    @staticmethod
+    def _with_extra(payload, name, value):
+        """The payload with one kernel scalar replaced or appended — a per-image
+        value (the twist angle) the per-stroke prepare cannot know."""
+        common, extras, factor = payload
+        extras = tuple(item for item in extras if item[0] != name) + ((name, float(value)),)
+        return common, extras, factor
 
     def _publish_generic(self, payload, strength_override=None):
         self._generic.publish(payload, program=self._program,
@@ -479,8 +511,7 @@ class _GenericApplyMixin:
             sample = points[i][1]
             samples.append(sample)
             inputs[row, :5] = sample.batch_row()
-            inputs[row, 5] = sample.invert ^ (self._generic.settings.subtract if self._generic
-                                                  else self.brush.direction == 'SUBTRACT')
+            inputs[row, 5] = sample.invert ^ mapping.direction_inverted(self.brush)
             row += 1
         payloads = None
         if self._generic:
@@ -491,6 +522,9 @@ class _GenericApplyMixin:
                 self._generic.cursor_scale = payloads[-1][0][1] / float(dabs[-1, 6])
             for index, payload in enumerate(payloads):
                 dabs[index, 6] = payload[0][1]
+                # The prepared invert, not the raw toggle: a PLANE dab in Swap
+                # mode runs the kernel forward with its reaches traded.
+                inputs[index, 5] = payload[0][5]
         if session.multires_ptr:
             # The regions this batch paints, for the per-dab cage collapse (see
             # undo.scatter_cage_columns). The mirror images are applied engine

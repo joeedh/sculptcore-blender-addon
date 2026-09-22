@@ -142,11 +142,13 @@ check('retained paint color keeps inventory local source', tuple(color.read()) =
 color.write((.125, .25, .5))
 check('retained paint color writes local native storage', tuple(b.color) == (.125, .25, .5)
       and tuple(s.tool_settings.sculpt.unified_paint_settings.color) == (.75, .5, .25))
+# Every BRUSH_DIR_IN item inverts, not only the draw family's SUBTRACT: Pinch
+# names its inverted item MAGNIFY and Inflate DEFLATE.
 for direction, invert, allowed in itertools.product(
-        ('ADD', 'SUBTRACT', 'DEFAULT', 'DEFLATE'), (False, True), (False, True)):
+        ('ADD', 'SUBTRACT', 'DEFAULT', 'DEFLATE', 'MAGNIFY', 'INFLATE', 'PINCH'), (False, True), (False, True)):
     check('legacy direction policy ' + str((direction, invert, allowed)),
           invert_for_dab(direction, invert, allow_invert=allowed)
-          == (bool(invert) ^ (direction == 'SUBTRACT') if allowed else False))
+          == (bool(invert) ^ (direction in ('SUBTRACT', 'DEFLATE', 'MAGNIFY')) if allowed else False))
 
 for identifier in (STRENGTH, SIZE):
     definition = registry.get(identifier)

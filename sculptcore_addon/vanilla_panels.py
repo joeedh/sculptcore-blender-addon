@@ -109,9 +109,13 @@ def _draw_brush_settings(self, context):
             self.layout.row().prop(brush, "direction", expand=True)
         # The plane-family normal mode (a retained native enum, next to its
         # generic rows above); the engine reads it through mapping.plane_frame.
-        from .brush_properties.placement import SCULPT_PLANE_TYPES
+        from .brush_properties.placement import PLANE_INVERSION_TYPES, SCULPT_PLANE_TYPES
         if brush.sculpt_brush_type in SCULPT_PLANE_TYPES:
             self.layout.prop(brush, "sculpt_plane")
+        # The plane brush's inversion mode, likewise retained; the stroke reads
+        # it through mapping.plane_swap_on_invert.
+        if brush.sculpt_brush_type in PLANE_INVERSION_TYPES:
+            self.layout.prop(brush, "plane_inversion_mode")
         _draw_color_settings(self.layout, context)
         return
     # Vanilla VIEW3D_PT_tools_brush_settings.draw, with the pen-pressure toggles

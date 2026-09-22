@@ -76,6 +76,12 @@ class StrokeSettings:
     falloff: PreparedResponse
     cavity: PreparedResponse | None
     overlaps: tuple = (1.0,) * 100
+    # PLANE only: an inverted dab trades height for depth instead of negating
+    # the displacement (mapping.plane_swap_on_invert).
+    plane_swap: bool = False
+    # The cube-tip extents of the tip-shape types (mapping.TIP_SHAPE_TYPES).
+    tip_scale_x: float = 1.0
+    tip_roundness: float = 1.0
 
     def __post_init__(self):
         evaluators = {item.definition.identifier: ScalarEvaluator(item) for item in self.properties}
@@ -124,9 +130,9 @@ class StrokeSettings:
         spacing = self.value(SPACING, channels)
         if (not self.value(PREFIX + 'spacing_attenuation') or spacing >= 100
                 or self.brush_type in mapping.TANGENT_DRAG
-                or mapping.KERNEL_BY_TYPE.get(self.brush_type) in ('GRAB', 'KELVINLET', 'SNAKEHOOK')):
+                or mapping.KERNEL_BY_TYPE.get(self.brush_type) in ('GRAB', 'KELVINLET', 'SNAKEHOOK', 'ROTATE')):
             return 1.0
-        return self.overlaps[spacing]
+        return mapping.plane_overlap(self.brush_type, self.overlaps[spacing])
 
 
 def capture_stroke(brush, scene, *, kernel_name=None):
@@ -153,5 +159,6 @@ def capture_stroke(brush, scene, *, kernel_name=None):
                 else 'tool_settings.sculpt.mesh_automasking_settings.cavity_curve')
         cavity = sampling.native_response(owner, path, SampleConfig(clamp_output=True))
     return StrokeSettings(properties, brush.sculpt_brush_type, kernel_name,
-                          brush.direction == 'SUBTRACT', float(brush.strength), falloff, cavity,
-                          sampling.overlap_table(brush))
+                          mapping.direction_inverted(brush), float(brush.strength), falloff, cavity,
+                          sampling.overlap_table(brush), mapping.plane_swap_on_invert(brush),
+                          float(brush.tip_scale_x), float(brush.tip_roundness))

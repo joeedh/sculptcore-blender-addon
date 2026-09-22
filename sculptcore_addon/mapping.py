@@ -34,6 +34,14 @@ _MAP = {
     # reset explicitly because the session Brush is shared across strokes and
     # a prior PINCH stroke would otherwise leak its value into SHARP.
     'DRAW_SHARP': ("SHARP", {"pinch": 0.0}),
+    # Crease and Blob share one kernel: a normal-offset draw whose verts are
+    # also gathered toward the brush axis (crease) or spread from it (blob).
+    # Vanilla's gather is `crease_pinch_factor^2 / alpha^2`, independent of the
+    # strength slider, so the kernel takes the signed square and divides the
+    # slider back out (crease.sbrush). Both assets default to Subtract, which
+    # is what gives Crease its trench (see direction_inverted).
+    'CREASE': ("CREASE", {"pinch": lambda b: b.crease_pinch_factor ** 2}),
+    'BLOB': ("BLOB", {"pinch": lambda b: -(b.crease_pinch_factor ** 2)}),
     'INFLATE': ("INFLATE", {}),
     # Layer rides the layerdraw kernel: the dab writes a sculpt-layer channel
     # (recomposited by weight) instead of base co, so a stroke can be
@@ -48,7 +56,14 @@ _MAP = {
     # per-mode side/offset semantics is a later refinement.
     'CLAY': ("CLAY", {"planeoff": lambda b: b.plane_offset}),
     'CLAY_STRIPS': ("CLAY", {"planeoff": lambda b: b.plane_offset}),
-    'PLANE': ("FILL", {"planeoff": lambda b: b.plane_offset}),
+    # The unified Flatten / Fill / Scrape brush (vanilla's do_plane_brush):
+    # each side of the offset plane reaches plane_height / plane_depth radii,
+    # 0 disabling it — Flatten is 1/1, Fill 0/1, Scrape 1/0. The per-dab
+    # inversion (Invert Displacement negates, Swap trades the two reaches)
+    # is written by plane_dab_state; these are the un-inverted values.
+    'PLANE': ("PLANE", {"planeoff": lambda b: b.plane_offset,
+                        "planeHeight": lambda b: b.plane_height,
+                        "planeDepth": lambda b: b.plane_depth}),
     'MULTIPLANE_SCRAPE': ("SCRAPE", {"planeoff": lambda b: b.plane_offset}),
     # BSMOOTH (boundary-aware smooth): identical to plain SMOOTH on meshes
     # with no marked feature edges. Seam/sharp edge flags transfer to the
@@ -66,6 +81,10 @@ _MAP = {
     # is the shared smooth-projection field bsmooth reads too.
     'TOPOLOGY': ("FEATURE_ALIGN", {}),
     'PINCH': ("PINCH", {"pinch": lambda b: b.strength}),
+    # Twist: grab-class, anchored at the stroke start; the stroke operator
+    # writes the cumulative dial angle (rotateAngle) per dab and image. Reset
+    # here so a stale angle cannot ride into the first dab.
+    'ROTATE': ("ROTATE", {"rotateAngle": 0.0}),
     # Nudge runs an addon-carried extra kernel (brushes/nudge.sbrush), compiled
     # into the DLL at build time; a stale vendored DLL without it makes
     # kernel_enum return None and the stroke cancel cleanly. Its tunable
@@ -101,6 +120,42 @@ _MAP = {
     'THUMB': ("GRAB", {}),
 }
 
+# The `direction` identifiers that carry BRUSH_DIR_IN. The enum's item list is
+# per brush type (rna_Brush_direction_itemf): SUBTRACT for the draw family and
+# the plane brushes, MAGNIFY for Pinch, DEFLATE for Inflate, ENHANCE_DETAILS
+# for Smooth. Testing SUBTRACT alone reads Magnify and Deflate as forward.
+DIRECTION_INVERTED = frozenset({'SUBTRACT', 'MAGNIFY', 'DEFLATE', 'ENHANCE_DETAILS'})
+
+
+def direction_inverted(bl_brush):
+    """Whether the brush's direction setting inverts its stroke (the
+    BRUSH_DIR_IN flag), whatever the type-specific item is called."""
+    return bl_brush.direction in DIRECTION_INVERTED
+
+
+def plane_swap_on_invert(bl_brush):
+    """Whether an inverted PLANE dab trades height for depth (vanilla's
+    Swap Depth and Height inversion mode) rather than negating the
+    displacement."""
+    return (bl_brush.sculpt_brush_type == 'PLANE'
+            and bl_brush.plane_inversion_mode == 'SWAP_DEPTH_AND_HEIGHT')
+
+
+def plane_dab_state(sc_brush, flipped, swap, plane_offset, height, depth):
+    """Write one PLANE dab's inversion onto the engine brush, the port of
+    plane.cc's flip handling: the plane offset changes sign with the flip in
+    either mode; Swap trades the two reaches and runs the kernel forward, Invert
+    Displacement keeps them and lets the engine's invert flag negate the
+    displacement. Returns the invert flag the dab should carry."""
+    sc_brush.planeoff = -plane_offset if flipped else plane_offset
+    if flipped and swap:
+        height, depth = depth, height
+        flipped = False
+    sc_brush.planeHeight = height
+    sc_brush.planeDepth = depth
+    return flipped
+
+
 # Brush types whose cursor drag is projected into the tangent plane of the
 # stroke's sculpt normal before the GRAB kernel sees it, and scaled by strength
 # — vanilla's do_thumb_brush (`cross(cross(n, delta), n) * bstrength`; Grab
@@ -109,6 +164,24 @@ _MAP = {
 # the vector the host hands it differs, so it belongs in a host table next to
 # _MAP rather than in a kernel annotation.
 TANGENT_DRAG = {'THUMB'}
+
+# Brush types whose grab-class stroke is driven by a screen-space dial angle
+# (stroke.dial.Dial) instead of the cursor's drag vector: the kernel spins
+# the anchored region by the cumulative angle the pointer has swept around
+# the stroke start. Like TANGENT_DRAG, a host choice of what to hand the
+# kernel, so it lives here next to _MAP. Vanilla's Twist ignores Ctrl and
+# the direction setting (brush_strength takes no flip for ROTATE).
+DIAL_ANGLE = {'ROTATE'}
+
+
+def dial_angle_flip(sign):
+    """The sense of a mirror image's rotation relative to the primary: one
+    reversal per reflected axis (rotate.cc's per-symmetry-pass flip table)."""
+    flip = 1.0
+    for component in sign:
+        if component < 0:
+            flip = -flip
+    return flip
 
 
 def drag_offset(bl_brush, delta, normal, strength):
@@ -276,6 +349,26 @@ def pressure_prop_names(bl_brush):
 # SculptCore FalloffKind / FalloffShape enum values (brush.h).
 _FALLOFF_KIND_CURVE = 3
 _FALLOFF_SHAPE_SPHERICAL = 0
+_FALLOFF_SHAPE_ROUNDED_BOX = 4
+
+# Brush types whose falloff is vanilla's cube tip (`supports_tip_roundness`,
+# calc_brush_cube_distances): a stroke-aligned rounded rectangle, tip_scale_x
+# along the stroke, radius across, corners rounded by tip_roundness. Everything
+# else keeps the spherical metric (PROJECTED still translates to it).
+TIP_SHAPE_TYPES = ('CLAY_STRIPS', 'PAINT')
+
+
+def apply_falloff_shape(sc_brush, brush_type, tip_scale_x=1.0, tip_roundness=1.0):
+    """Install the spatial falloff metric for a brush type: the rounded box
+    with its extents for the tip-shape types, spherical otherwise. The engine
+    orients the box from the stroke tangent per dab (updateStrokeFrame)."""
+    if brush_type in TIP_SHAPE_TYPES:
+        sc_brush.falloff_shape = _FALLOFF_SHAPE_ROUNDED_BOX
+        extent = sc_brush.falloff_extent.vec
+        extent[0], extent[1], extent[2] = max(float(tip_scale_x), 1e-4), 1.0, 1.0
+        sc_brush.falloff_roundness = min(max(float(tip_roundness), 0.0), 1.0)
+    else:
+        sc_brush.falloff_shape = _FALLOFF_SHAPE_SPHERICAL
 
 
 # Closed-form preset falloffs, keyed by `curve_distance_falloff_preset`. `t`
@@ -318,7 +411,7 @@ def _bake_falloff(bl_brush, sc_brush, cache=None):
     response = sampling.falloff_response(bl_brush, bl_brush.hardness)
     _upload_lut(cache, 'falloff', response.samples, sc_brush)
     sc_brush.falloff_kind = _FALLOFF_KIND_CURVE
-    sc_brush.falloff_shape = _FALLOFF_SHAPE_SPHERICAL
+    apply_falloff_shape(sc_brush, bl_brush.sculpt_brush_type, bl_brush.tip_scale_x, bl_brush.tip_roundness)
 
 
 # Cavity automasking. The engine mirrors Blender's estimator and remap
@@ -498,7 +591,14 @@ def overlap_attenuation(bl_brush):
     if is_grab_class(bl_brush) or is_snake_hook(bl_brush):
         return 1.0
     from .brush_properties import sampling
-    return sampling.overlap_table(bl_brush)[bl_brush.spacing]
+    return plane_overlap(bl_brush.sculpt_brush_type, sampling.overlap_table(bl_brush)[bl_brush.spacing])
+
+
+def plane_overlap(brush_type, overlap):
+    """Vanilla halves the plane brush's overlap compensation
+    (`brush_strength`: ``(1 + overlap) / 2`` for PLANE) — a projection onto a
+    plane converges rather than stacking, so the full attenuation left it weak."""
+    return (1.0 + overlap) / 2.0 if brush_type == 'PLANE' else overlap
 
 
 def pixel_radius(sculpt, bl_brush):
@@ -560,11 +660,27 @@ def apply_dab_state(bl_brush, unified, sc_brush, *, world_radius, invert,
     sc_brush.strength = strength
     sc_brush.radius = world_radius
     if allow_invert:
-        sc_brush.invert = bool(invert) ^ bool(bl_brush.direction == 'SUBTRACT')
+        flipped = bool(invert) ^ direction_inverted(bl_brush)
+        if bl_brush.sculpt_brush_type == 'PLANE':
+            # Vanilla's inverted Invert Displacement stroke runs at half
+            # strength (brush_strength, #136211: full-strength contrast was
+            # too harsh); a Swap stroke runs forward at full strength.
+            swap = plane_swap_on_invert(bl_brush)
+            if flipped and not swap:
+                sc_brush.strength = strength * 0.5
+            flipped = plane_dab_state(sc_brush, flipped, swap, bl_brush.plane_offset,
+                                      bl_brush.plane_height, bl_brush.plane_depth)
+        sc_brush.invert = flipped
     else:
         sc_brush.invert = False
 
-    sc_brush.writeDabProps()
+    if bl_brush.sculpt_brush_type == 'PLANE':
+        # planeoff is a common prop the per-dab loadProps reads back from the
+        # store, so the flip-signed value has to reach the store, not just
+        # the field; the dab writer does not cover it.
+        sc_brush.writeProps()
+    else:
+        sc_brush.writeDabProps()
 
 
 def apply_brush(bl_brush, unified, sc_brush, *, world_radius, invert, paint=None):

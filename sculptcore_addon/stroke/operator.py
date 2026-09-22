@@ -122,6 +122,12 @@ class SCULPTCORE_OT_brush_stroke(_GenericApplyMixin, _PreviewMixin, bpy.types.Op
             from .. import layers
             layers.ensure_stroke_target(context, ob, self.session)
         self._grab_class = not kernel_toggle and mapping.is_grab_class(self.brush)
+        # Twist: the grab path, but the kernel takes the pointer's dial angle
+        # about the stroke start (mapping.DIAL_ANGLE); the dial is created
+        # with the anchor, on the first surface hit.
+        self._dial = None
+        self._dial_angle = (not kernel_toggle and self._grab_class
+                            and self.brush.sculpt_brush_type in mapping.DIAL_ANGLE)
         # Snake hook's kernel reads the grab ctx vectors (see
         # mapping.is_snake_hook) and its influence region walks out with the
         # extruded tip rather than tracking the surface under the cursor — see
@@ -338,9 +344,14 @@ class SCULPTCORE_OT_brush_stroke(_GenericApplyMixin, _PreviewMixin, bpy.types.Op
         # tip, multi-pass smooth, dyntopo — stays on the per-dab path above.
         # Programs (autosmooth) batch on both domains via the *_dabBatchProgram
         # variants (S4 grids, S5 mesh).
+        # A legacy PLANE stroke in Swap mode trades its reaches per dab, which
+        # a batch's shared uniforms cannot express (the generic runtime folds
+        # the swap into each row's payload instead).
         self._batch = (not self._grab_class and not self._preview_method
                        and not self._snake_hook and not self._smooth_stroke
                        and self._dyntopo is None
+                       and not (self._generic is None and not kernel_toggle
+                                and mapping.plane_swap_on_invert(self.brush))
                        and getattr(scene, "sculptcore_cpp_dab_loop", False))
         # Set when a batch call returns the engine's stroke-dead sentinel
         # (stale grids domain); invoke/modal tear the stroke down through

@@ -194,6 +194,24 @@ def tick():
                 brush.sculpt_plane = 'AREA'
                 brush.normal_radius_factor = .5
                 brush.use_original_normal = True
+            elif requested_tool == 'CLAY_STRIPS':
+                # The cube tip: a stroke-aligned rounded box, not the sphere.
+                brush.tip_roundness = .15
+                brush.tip_scale_x = .7
+            elif requested_tool in ('CREASE', 'BLOB'):
+                # The essentials Crease Sharp defaults: the trench comes from
+                # the Subtract direction, the gather from the pinch factor.
+                brush.crease_pinch_factor = .8
+                brush.direction = 'SUBTRACT' if requested_tool == 'CREASE' else 'ADD'
+            elif requested_tool == 'PINCH':
+                # Magnify is the inverted item of Pinch's own direction enum.
+                brush.direction = 'MAGNIFY'
+            elif requested_tool == 'PLANE':
+                # Fill/Deepen: nothing above the plane moves, everything below
+                # comes up; an inverted stroke swaps the two reaches.
+                brush.plane_height, brush.plane_depth = 0, 1
+                brush.plane_inversion_mode = 'SWAP_DEPTH_AND_HEIGHT'
+                brush.sculpt_plane = 'AREA'
             brush.mesh_automasking_settings.use_automasking_cavity = False
             brush.mesh_automasking_settings.cavity_factor = 0
             for kind, value in (('MOUSEMOVE', 'NOTHING'), ('LEFTMOUSE', 'PRESS'), ('LEFTMOUSE', 'RELEASE')):

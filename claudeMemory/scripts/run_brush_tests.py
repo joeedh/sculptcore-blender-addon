@@ -49,9 +49,12 @@ RUNTIME = (
     ('readiness', 'test_property_execution_readiness.py', 'PLAN6_EXECUTION_READINESS_PASS', ()),
     ('cache', 'test_property_curves.py', 'PLAN5_CURVES_PASSED', ()),
     ('basic-baseline', 'test_brush_frozen_basic.py', 'PLAN6_GENERIC_FROZEN_BASIC_PASS', ()),
+    ('plane-frame', 'test_plane_frame.py', 'test_plane_frame: all checks passed', ()),
+    ('blender-brushes', 'test_blender_brushes.py', 'BLENDER_BRUSHES_OK', ()),
 )
 GESTURES = tuple((name.lower(), 'test_brush_strokes.py', 'PLAN6_GENERIC_MODAL_PASS', (name,))
-                 for name in ('DRAW', 'SMOOTH', 'GRAB', 'SNAKE_HOOK', 'MASK', 'PROGRAM', 'VIEW', 'CLAY')) + tuple(
+                 for name in ('DRAW', 'SMOOTH', 'GRAB', 'SNAKE_HOOK', 'MASK', 'PROGRAM', 'VIEW', 'CLAY',
+                              'CLAY_STRIPS', 'CREASE', 'BLOB', 'PINCH', 'PLANE', 'ROTATE')) + tuple(
     (name, 'test_brush_routes.py', 'PLAN6_' + name.upper() + '_MODAL_PASS', (name,))
     for name in ('preview', 'dyntopo', 'cage', 'layer', 'attributes')) + (
         ('cache', 'test_brush_curve_cache.py', 'PLAN5_MODAL_CACHE_PASS', ('generic',)),

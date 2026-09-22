@@ -119,6 +119,17 @@ is the `build/native` DLL, built with `-ffp-contract=off` for ctest — right fo
 correctness, never for timing; a benchmark points `SCULPTCORE_CAPI_PATH` at
 `engine/build/python/`, the shipped config. `profile_plane_frame.py` attributes
 the policy's in-process cost between configurations but drifts too much to gate.
+The Blender-brush gate is `--suite runtime --case blender-brushes`
+(`test_blender_brushes.py`, marker `BLENDER_BRUSHES_OK`): the per-type
+direction table (which enum items invert), Crease/Blob ring signs and the
+`crease_pinch_factor²` ratio, Pinch vs Magnify along and across the stroke,
+Plane fill / SWAP / half-strength deepen / flatten, Twist CCW with a CW X-mirror
+plus `stroke.dial.Dial` unit checks, and the Clay Strips rounded-box extents and
+corners. It reads `Brush.direction` through a scratch object held in the
+SculptCore mode — headless with no object in a paint mode the enum only accepts
+'DEFAULT'. The `clay_strips`, `crease`, `blob`, `pinch`, `plane` and `rotate`
+gestures cases drive the same brushes through the real modal path (Plane in
+SWAP mode with an AREA plane; Pinch as MAGNIFY).
 The runtime `automask` case covers 40 mesh/grid × single/program strokes with
 view-normal/backface and cavity/custom/inverted settings. Launch its same script
 headed with `--args ui` to author those settings through the actual property

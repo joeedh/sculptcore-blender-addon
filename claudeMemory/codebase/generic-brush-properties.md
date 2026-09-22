@@ -243,6 +243,83 @@ B 416 (+2.6 %; per-pair median +0.8 %; budget 5 %). The B side must be the
 `build/python` DLL — `build/native` is `-ffp-contract=off` and measured +21 %
 before that was noticed.
 
+### Blender brush batch (Crease, Blob, Pinch/Magnify, Plane, Twist, Clay Strips)
+
+The six brushes from todos.md (2026-09-21) each map to a kernel of their own
+or to an engine feature that did not exist before; the rows and rules they
+added are listed here so a later type does not rediscover them.
+
+| Type | Kernel | Per-stroke scalars (`mapping._MAP` / `stroke_runtime._brush_extras`) |
+| --- | --- | --- |
+| CREASE | `CREASE` (`crease.sbrush`) | `pinch = crease_pinch_factor²` — vanilla gathers `pinch²/alpha²`, independent of the strength slider |
+| BLOB | `BLOB` (same file, negated pinch) | `pinch = -(crease_pinch_factor²)` |
+| PINCH | `PINCH` (rewritten `pinch.sbrush`) | none; the kernel reads `ctx.strokeDir` and pinches toward the across-stroke line; inverted (Magnify) runs at 0.25× like vanilla |
+| PLANE | `PLANE` (`planebrush.sbrush`, `@planeFrame`) | `planeoff`, `planeHeight`, `planeDepth` |
+| ROTATE | `ROTATE` (`rotate.sbrush`, `@grabmode`) | `rotateAngle` — stroke state the operator writes per dab (a `Dial` in `stroke/dial.py`) |
+| CLAY_STRIPS | unchanged kernel | falloff shape `RoundedBox` (see below) |
+
+- **Direction is per type.** Vanilla's `direction` enum shows `ADD/SUBTRACT`,
+  `INFLATE/DEFLATE`, `PINCH/MAGNIFY`, `FILL/DEEPEN`... per type, and only the
+  second item of each pair inverts: `mapping.DIRECTION_INVERTED` =
+  `{SUBTRACT, MAGNIFY, DEFLATE, ENHANCE_DETAILS}`; `mapping.direction_inverted`
+  is the one reader (`adapters.direction_sign` / `invert_for_dab`,
+  `apply_dab_state`, `capture_stroke`, the batch path's `inputs[:, 5]`). ROTATE's
+  enum has a dummy DEFAULT item and never inverts.
+- **PLANE inversion** follows vanilla's `plane_inversion_mode` (retained native
+  enum, drawn after Sculpt Plane for `placement.PLANE_INVERSION_TYPES`):
+  - INVERT_DISPLACEMENT (default): a flipped dab negates `planeoff` and runs at
+    `0.5 × alpha` (vanilla's `brush_strength`); an unflipped dab gets
+    `(1 + overlap)/2` (`mapping.plane_overlap`, applied in `StrokeSettings.overlap`
+    and `overlap_attenuation`).
+  - SWAP: `mapping.plane_swap_on_invert` — height and depth trade places,
+    `planeoff` still negates, and the dab runs forward (`invert=False`), so the
+    generic path computes it in `StrokeRuntime.prepare` only when no toggle
+    extras are supplied and the legacy path in `mapping.plane_dab_state`. A
+    legacy SWAP stroke is excluded from batching (`operator._batch`), because
+    the batch payload carries one invert bit per row and no per-row reaches.
+  - The legacy path writes PLANE state with `writeProps()`, not
+    `writeDabProps()` — the latter only covers strength/radius/invert and would
+    drop the per-dab `planeoff`.
+  - Rows: `sculptcore.brush.plane_height`, `plane_depth` (native, PLANE only,
+    `placement.PLANE_FRAME_ROWS`), registry 39 -> 43 with the two tip rows.
+- **Twist (ROTATE)** is the grab path plus a screen-space dial: `stroke/dial.py`
+  ports `BLI_dial_2d` (5 px threshold, initial direction = first position past
+  it, full-turn tracking). `vertex_rotation = -dial_angle × alpha × pressure`
+  with no flip; the kernel scales the angle by strength through its falloff, so
+  the operator hands it the raw CCW angle (`rotateAngle` member on the legacy
+  path, a `('rotateAngle', angle)` extra on the generic path via
+  `_with_extra`). A mirror image gets `angle × mapping.dial_angle_flip(sign)`
+  (the product of the sign components — an odd reflection reverses the turn).
+  `allow_invert` is False for these dabs so Ctrl never flips them.
+- **Rounded-box falloff** (`FalloffShape::RoundedBox = 4`,
+  `Brush.falloff_roundness`): the cube tip vanilla's Clay Strips and Paint use
+  (`calc_brush_cube_distances`, xy only, matrix y-axis scaled by `tip_scale_x`).
+  `mapping.apply_falloff_shape(sc_brush, brush_type, tip_scale_x, tip_roundness)`
+  sets extents `(tip_scale_x, 1, 1)` in radii (along, across, normal) and
+  roundness for `mapping.TIP_SHAPE_TYPES`; the box is oriented by
+  `Brush.falloff_dir`, which the executors set to `strokeDir` for Box/RoundedBox.
+  Both paths install it: `_bake_falloff` (legacy) and
+  `StrokeRuntime._install_constants` (generic). Rows `tip_roundness`,
+  `tip_scale_x` (CLAY_STRIPS, PAINT).
+- **Stroke direction is engine-derived per image.** Both executors keep
+  `primaryStrokeDir_`/`primaryOrigin_` (reset in `beginStep`) and give a mirror
+  image the primary tangent multiplied component-wise by `imageSign_`, unless
+  the host set `strokeDirHostSet`. Anything reading `ctx.strokeDir` (pinch,
+  the box falloff) therefore behaves under symmetry without addon help.
+- `crease_pinch_factor` is one row (`sculptcore.brush.snake_pinch`) gated to
+  `placement.PINCH_FACTOR_TYPES = (SNAKE_HOOK, CREASE, BLOB)`.
+- `engine_props._walk_manifests` walks `KERNEL_BY_TYPE` values **and** the
+  kernels named by `legacy.ASSOCIATIONS`: PLANE moving off the FILL kernel
+  left the frozen `sculptcore.kernel.fill.planeSide` contract ungraded, and the
+  restage verify reported it as `kernel_unavailable`.
+- Gates: `run_brush_tests.py --suite runtime --case blender-brushes`
+  (`test_blender_brushes.py`: direction table, crease/blob ring signs and the
+  factor² ratio, pinch vs magnify along/across the stroke, plane
+  fill/swap/deepen/flatten, twist CCW + mirror CW + `Dial` unit checks, clay
+  strips box extents/corners) and the `clay_strips`, `crease`, `blob`, `pinch`,
+  `plane`, `rotate` gestures cases. Engine: `crease`, `blob`, `plane`, `rotate`,
+  `pinch`, `pinch_path` sbrush-verify goldens.
+
 ### Shift smooth
 
 A Shift-stroke (`sculptcore.brush_stroke` with `mode='SMOOTH'`) smooths with a

@@ -242,13 +242,16 @@ def accumulate_value(brush_type, authored, *, has_accumulate=True, operation_mod
 
 
 def direction_sign(direction, invert=False):
-    if direction not in ('ADD', 'SUBTRACT') or type(invert) is not bool:
+    from ..mapping import DIRECTION_INVERTED
+    if type(direction) is not str or type(invert) is not bool:
         raise PropertyError("Invalid brush direction")
-    return -1 if (direction == 'SUBTRACT') != invert else 1
+    return -1 if (direction in DIRECTION_INVERTED) != invert else 1
 
 
 def invert_for_dab(direction, invert, *, allow_invert=True):
-    """Preserve the existing bridge's SUBTRACT test and smoothing override."""
+    """The bridge's direction test (every BRUSH_DIR_IN item, see
+    mapping.DIRECTION_INVERTED) and the smoothing override."""
+    from ..mapping import DIRECTION_INVERTED
     if type(direction) is not str or type(invert) is not bool or type(allow_invert) is not bool:
         raise PropertyError("Invalid dab direction policy")
-    return (invert != (direction == 'SUBTRACT')) if allow_invert else False
+    return (invert != (direction in DIRECTION_INVERTED)) if allow_invert else False

@@ -29,7 +29,7 @@ def applicable(definition, brush):
     if association:
         return association[0] in (KERNEL_BY_TYPE.get(brush.sculpt_brush_type), 'BSMOOTH')
     if identifier == 'sculptcore.brush.snake_pinch':
-        return brush.sculpt_brush_type == 'SNAKE_HOOK'
+        return brush.sculpt_brush_type in PINCH_FACTOR_TYPES
     if identifier == shift_smooth.RAKE:
         return KERNEL_BY_TYPE.get(brush.sculpt_brush_type) == 'FEATURE_ALIGN'
     if identifier == 'sculptcore.brush.plane_offset':
@@ -54,8 +54,20 @@ PLANE_FRAME_ROWS = {
     'sculptcore.brush.area_radius_factor': ('PLANE',),
     'sculptcore.brush.stabilize_normal': ('PLANE',),
     'sculptcore.brush.stabilize_plane': ('PLANE',),
+    # Vanilla's `supports_plane_height` / `supports_plane_depth` (PLANE only)
+    # and `supports_tip_roundness` (the cube-tip types, mapping.TIP_SHAPE_TYPES).
+    'sculptcore.brush.plane_height': ('PLANE',),
+    'sculptcore.brush.plane_depth': ('PLANE',),
+    'sculptcore.brush.tip_roundness': ('CLAY_STRIPS', 'PAINT'),
+    'sculptcore.brush.tip_scale_x': ('CLAY_STRIPS', 'PAINT'),
 }
 SCULPT_PLANE_TYPES = ('CLAY', 'CLAY_STRIPS', 'PLANE')
+# Vanilla's `supports_pinch_factor` minus Blob's sibling Crease's own reading:
+# the one crease_pinch_factor row serves Snake Hook (remapped) and the crease
+# kernel's signed square (stroke_runtime._brush_extras).
+PINCH_FACTOR_TYPES = ('SNAKE_HOOK', 'CREASE', 'BLOB')
+# The plane brush's inversion mode (a retained native enum, mapping.plane_swap_on_invert).
+PLANE_INVERSION_TYPES = ('PLANE',)
 
 
 def positions(store, definition):

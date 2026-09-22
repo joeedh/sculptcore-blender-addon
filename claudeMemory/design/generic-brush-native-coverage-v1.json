@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "inventory_sha256": "2e3629cda30a90456140d047c8577c3f07def746336c1d7929dfae5b449ec087",
+  "inventory_sha256": "03de39acf17dde0177865ddbfd258259923751c19a98ff9f2f0939bfdd4bb202",
   "counts": {
-    "preserved_excluded": 468,
-    "supported": 414
+    "preserved_excluded": 463,
+    "supported": 419
   },
   "rows": [
     {
@@ -429,12 +429,14 @@
     {
       "owner": "Brush",
       "path": "Brush.plane_inversion_mode",
-      "stable_ids": [],
-      "status": "preserved_excluded",
-      "adapter": "none",
-      "gate": "inventory_exclusion_preserved",
+      "stable_ids": [
+        "sculptcore.brush.plane_inversion_mode"
+      ],
+      "status": "supported",
+      "adapter": "bindings.binding:retained_native",
+      "gate": "native_inventory_rna_coverage",
       "classification": "generic_brush",
-      "compatibility": "retain native data; omit unsupported SculptCore controls"
+      "compatibility": "native adapter; no second authoritative value"
     },
     {
       "owner": "Brush",
@@ -965,12 +967,14 @@
     {
       "owner": "Brush",
       "path": "Brush.tip_scale_x",
-      "stable_ids": [],
-      "status": "preserved_excluded",
-      "adapter": "none",
-      "gate": "inventory_exclusion_preserved",
+      "stable_ids": [
+        "sculptcore.brush.tip_scale_x"
+      ],
+      "status": "supported",
+      "adapter": "NativeOwner:scalar",
+      "gate": "native_adapters",
       "classification": "generic_brush",
-      "compatibility": "retain native data; omit unsupported SculptCore controls"
+      "compatibility": "native adapter; no second authoritative value"
     },
     {
       "owner": "Brush",
@@ -1127,22 +1131,26 @@
     {
       "owner": "Brush",
       "path": "Brush.plane_depth",
-      "stable_ids": [],
-      "status": "preserved_excluded",
-      "adapter": "none",
-      "gate": "inventory_exclusion_preserved",
+      "stable_ids": [
+        "sculptcore.brush.plane_depth"
+      ],
+      "status": "supported",
+      "adapter": "NativeOwner:scalar",
+      "gate": "native_adapters",
       "classification": "generic_brush",
-      "compatibility": "retain native data; omit unsupported SculptCore controls"
+      "compatibility": "native adapter; no second authoritative value"
     },
     {
       "owner": "Brush",
       "path": "Brush.plane_height",
-      "stable_ids": [],
-      "status": "preserved_excluded",
-      "adapter": "none",
-      "gate": "inventory_exclusion_preserved",
+      "stable_ids": [
+        "sculptcore.brush.plane_height"
+      ],
+      "status": "supported",
+      "adapter": "NativeOwner:scalar",
+      "gate": "native_adapters",
       "classification": "generic_brush",
-      "compatibility": "retain native data; omit unsupported SculptCore controls"
+      "compatibility": "native adapter; no second authoritative value"
     },
     {
       "owner": "Brush",
@@ -1323,12 +1331,14 @@
     {
       "owner": "Brush",
       "path": "Brush.tip_roundness",
-      "stable_ids": [],
-      "status": "preserved_excluded",
-      "adapter": "none",
-      "gate": "inventory_exclusion_preserved",
+      "stable_ids": [
+        "sculptcore.brush.tip_roundness"
+      ],
+      "status": "supported",
+      "adapter": "NativeOwner:scalar",
+      "gate": "native_adapters",
       "classification": "generic_brush",
-      "compatibility": "retain native data; omit unsupported SculptCore controls"
+      "compatibility": "native adapter; no second authoritative value"
     },
     {
       "owner": "Brush",

@@ -15,6 +15,7 @@ RETAINED = MappingProxyType({
     'sculptcore.brush.falloff_preset': 'curve_distance_falloff_preset',
     'sculptcore.brush.falloff_shape': 'falloff_shape',
     'sculptcore.brush.sculpt_plane': 'sculpt_plane',
+    'sculptcore.brush.plane_inversion_mode': 'plane_inversion_mode',
     'sculptcore.brush.falloff_custom': 'curve_distance_falloff',
     'sculptcore.brush.color': 'color',
     'sculptcore.brush.cursor_color': 'cursor_color_add',

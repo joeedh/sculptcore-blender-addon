@@ -40,7 +40,8 @@ for entry in inventory['rows']:
     elif path.rsplit('.', 1)[-1] in ('spacing', 'plane_offset', 'crease_pinch_factor', 'hardness',
                                     'auto_smooth_factor', 'use_accumulate', 'use_space_attenuation',
                                     'use_original_normal', 'use_original_plane', 'normal_radius_factor',
-                                    'area_radius_factor', 'stabilize_normal', 'stabilize_plane'):
+                                    'area_radius_factor', 'stabilize_normal', 'stabilize_plane',
+                                    'plane_height', 'plane_depth', 'tip_roundness', 'tip_scale_x'):
         adapter = 'NativeOwner:scalar'
         gate = 'native_adapters'
     else:

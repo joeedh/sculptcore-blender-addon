@@ -1609,7 +1609,7 @@
     },
     {
       "classification": "generic_brush",
-      "kernels": "not a kernel uniform",
+      "kernels": "PLANE",
       "metadata": {
         "default": "INVERT_DISPLACEMENT",
         "description": "Inversion Mode",
@@ -1622,17 +1622,19 @@
         "type": "ENUM",
         "unit": "NONE"
       },
-      "migration": "retain native data; omit unsupported SculptCore controls",
+      "migration": "native adapter; no second authoritative value",
       "owner": "Brush",
       "path": "Brush.plane_inversion_mode",
       "pressure": "none",
       "references": [
         "properties_paint_common.py:1100"
       ],
-      "stable_ids": [],
-      "supported": false,
+      "stable_ids": [
+        "sculptcore.brush.plane_inversion_mode"
+      ],
+      "supported": true,
       "unified": "none",
-      "units": "NONE"
+      "units": "native enum"
     },
     {
       "classification": "generic_brush",
@@ -3165,7 +3167,7 @@
     },
     {
       "classification": "generic_brush",
-      "kernels": "not a kernel uniform",
+      "kernels": "CLAY_STRIPS/PAINT",
       "metadata": {
         "default": 1.0,
         "description": "Scale of the brush tip in the X axis",
@@ -3178,17 +3180,19 @@
         "type": "FLOAT",
         "unit": "NONE"
       },
-      "migration": "retain native data; omit unsupported SculptCore controls",
+      "migration": "native adapter; no second authoritative value",
       "owner": "Brush",
       "path": "Brush.tip_scale_x",
       "pressure": "none",
       "references": [
         "properties_paint_common.py:809"
       ],
-      "stable_ids": [],
-      "supported": false,
+      "stable_ids": [
+        "sculptcore.brush.tip_scale_x"
+      ],
+      "supported": true,
       "unified": "none",
-      "units": "NONE"
+      "units": "fraction radius"
     },
     {
       "classification": "generic_brush",
@@ -3571,7 +3575,7 @@
     },
     {
       "classification": "generic_brush",
-      "kernels": "not a kernel uniform",
+      "kernels": "PLANE",
       "metadata": {
         "default": 0.0,
         "description": "The maximum distance below the plane for affected vertices. Increasing the depth affects vertices farther below the plane.",
@@ -3584,21 +3588,23 @@
         "type": "FLOAT",
         "unit": "NONE"
       },
-      "migration": "retain native data; omit unsupported SculptCore controls",
+      "migration": "native adapter; no second authoritative value",
       "owner": "Brush",
       "path": "Brush.plane_depth",
       "pressure": "none",
       "references": [
         "properties_paint_common.py:1020"
       ],
-      "stable_ids": [],
-      "supported": false,
+      "stable_ids": [
+        "sculptcore.brush.plane_depth"
+      ],
+      "supported": true,
       "unified": "none",
-      "units": "NONE"
+      "units": "fraction radius"
     },
     {
       "classification": "generic_brush",
-      "kernels": "not a kernel uniform",
+      "kernels": "PLANE",
       "metadata": {
         "default": 1.0,
         "description": "The maximum distance above the plane for affected vertices. Increasing the height affects vertices farther above the plane.",
@@ -3611,17 +3617,19 @@
         "type": "FLOAT",
         "unit": "NONE"
       },
-      "migration": "retain native data; omit unsupported SculptCore controls",
+      "migration": "native adapter; no second authoritative value",
       "owner": "Brush",
       "path": "Brush.plane_height",
       "pressure": "none",
       "references": [
         "properties_paint_common.py:1017"
       ],
-      "stable_ids": [],
-      "supported": false,
+      "stable_ids": [
+        "sculptcore.brush.plane_height"
+      ],
+      "supported": true,
       "unified": "none",
-      "units": "NONE"
+      "units": "fraction radius"
     },
     {
       "classification": "generic_brush",
@@ -3816,7 +3824,7 @@
     },
     {
       "classification": "generic_brush",
-      "kernels": "SNAKE_HOOK",
+      "kernels": "SNAKE_HOOK/CREASE/BLOB",
       "metadata": {
         "default": 0.5,
         "description": "How much the crease brush pinches",
@@ -3843,7 +3851,7 @@
       ],
       "supported": true,
       "unified": "none",
-      "units": "2*(.5-native)"
+      "units": "2*(.5-native) snake hook; +-native^2 crease/blob"
     },
     {
       "classification": "generic_brush",
@@ -4090,7 +4098,7 @@
     },
     {
       "classification": "generic_brush",
-      "kernels": "not a kernel uniform",
+      "kernels": "CLAY_STRIPS/PAINT",
       "metadata": {
         "default": 1.0,
         "description": "Roundness of the brush tip",
@@ -4103,17 +4111,19 @@
         "type": "FLOAT",
         "unit": "NONE"
       },
-      "migration": "retain native data; omit unsupported SculptCore controls",
+      "migration": "native adapter; no second authoritative value",
       "owner": "Brush",
       "path": "Brush.tip_roundness",
       "pressure": "none",
       "references": [
         "properties_paint_common.py:808"
       ],
-      "stable_ids": [],
-      "supported": false,
+      "stable_ids": [
+        "sculptcore.brush.tip_roundness"
+      ],
+      "supported": true,
       "unified": "none",
-      "units": "NONE"
+      "units": "fraction radius"
     },
     {
       "classification": "generic_brush",

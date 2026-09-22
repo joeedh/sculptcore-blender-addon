@@ -49,7 +49,8 @@ class StrokeRuntime:
         settings, brush = self.settings, self.brush
         cache = self.session.curve_cache
         mapping._upload_lut(cache, 'falloff', settings.falloff.samples, brush)
-        brush.falloff_kind, brush.falloff_shape = 3, 0
+        brush.falloff_kind = 3
+        mapping.apply_falloff_shape(brush, settings.brush_type, settings.tip_scale_x, settings.tip_roundness)
         brush.automask_cavity = (settings.value(CAVITY + '.use_automasking_cavity')
                                 or settings.value(CAVITY + '.use_automasking_cavity_inverted'))
         for native, identifier in (
@@ -92,11 +93,27 @@ class StrokeRuntime:
             self._overlaps[spacing] = self.settings.overlap(sample.channels)
         scale = self._overlaps[spacing] * family_scale
         strength = to_engine(STRENGTH, values[strength_identifier], strength_scale=scale)
+        invert = bool(sample.invert ^ self.settings.subtract) if allow_invert else False
+        plane_offset = values[PREFIX + 'plane_offset']
+        plane = None
+        if self.settings.brush_type == 'PLANE' and extras is None:
+            # The plane brush's inversion, as mapping.apply_dab_state applies
+            # it: the offset flips sign, Swap trades the reaches and runs the
+            # kernel forward, Invert Displacement halves the strength.
+            height, depth = values[PREFIX + 'plane_height'], values[PREFIX + 'plane_depth']
+            if invert:
+                plane_offset = -plane_offset
+                if self.settings.plane_swap:
+                    height, depth, invert = depth, height, False
+                else:
+                    strength *= 0.5
+            plane = (('planeHeight', float(height)), ('planeDepth', float(depth)))
         common = (strength, values[SIZE], values[PREFIX + 'autosmooth'],
-                  values[PREFIX + 'plane_offset'], to_engine(PREFIX + 'spacing', spacing),
-                  bool(sample.invert ^ self.settings.subtract) if allow_invert else False)
+                  plane_offset, to_engine(PREFIX + 'spacing', spacing), invert)
         if extras is None:
             extras = self._brush_extras(values)
+            if plane is not None:
+                extras = (*extras, *plane)
         # The chained command inherits the strength stack and overrides its base.
         factor = values[PREFIX + 'autosmooth']
         return common, tuple(extras), factor
@@ -120,6 +137,11 @@ class StrokeRuntime:
             extras.append(('pinch', self.settings.local_strength))
         elif self.settings.brush_type == 'SNAKE_HOOK':
             extras.append(('pinch', to_engine(PREFIX + 'snake_pinch', values[PREFIX + 'snake_pinch'])))
+        elif self.settings.brush_type in ('CREASE', 'BLOB'):
+            # The crease kernel's signed square (mapping._MAP CREASE/BLOB); the
+            # row is the same crease_pinch_factor Snake Hook remaps.
+            pinch = float(values[PREFIX + 'snake_pinch']) ** 2
+            extras.append(('pinch', pinch if self.settings.brush_type == 'CREASE' else -pinch))
         return extras
 
     def publish(self, payload, *, program=None, smooth_command=None, strength_override=None):
@@ -131,7 +153,7 @@ class StrokeRuntime:
         for name, value in extras:
             if name not in self.by_name:
                 # Toggle kernels do not consume the original brush's pinch field.
-                if name == 'pinch' and self.settings.kernel_name not in ('PINCH', 'SNAKEHOOK', 'SHARP'):
+                if name == 'pinch' and self.settings.kernel_name not in ('PINCH', 'SNAKEHOOK', 'SHARP', 'CREASE'):
                     continue
                 raise PropertyError("Kernel no longer declares " + name)
             uniform = self.by_name[name]

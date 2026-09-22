@@ -1069,6 +1069,53 @@ equal. Count overlap builds at the shared cache, not a retired session memo.
   mid-pair; kill the orphans and `stage_test_addon.py` before trusting any
   later Blender run.
 
+## Blender brush batch: crease/blob, pinch, plane, twist, clay strips (2026-09-21)
+
+- **Headless `Brush.direction` only accepts 'DEFAULT'.** The enum's items are
+  context-dependent (`rna_Brush_direction_itemf` looks at the active object's
+  paint mode); with no object in a paint mode a background script gets
+  `enum "ADD" not found in ('DEFAULT')`. Toggle a scratch object into the
+  SculptCore mode (`object.custom_mode_toggle(mode_id='sculptcore.sculpt')`) and
+  re-activate it before every read or write of the enum.
+- **Only the second item of each direction pair inverts** (SUBTRACT, MAGNIFY,
+  DEFLATE, ENHANCE_DETAILS); `mapping.DIRECTION_INVERTED` is the single source.
+  ROTATE's enum is a dummy DEFAULT — never invert a twist dab, or Ctrl-drag
+  spins the wrong way through the flipped strength sign.
+- **Restage verify: `sculptcore.kernel.fill.planeSide: kernel_unavailable`.**
+  `engine_props._walk_manifests` only walked `KERNEL_BY_TYPE` values; once
+  PLANE mapped to the plane kernel nothing reached FILL and the frozen row's
+  contract was ungraded. It now also walks the kernels `legacy.ASSOCIATIONS`
+  names. Any remap that orphans a kernel with a frozen row trips the same check.
+- **The legacy PLANE path must `writeProps()`, not `writeDabProps()`** — the
+  dab writer covers strength/radius/invert only, so a per-dab negated `planeoff`
+  never reached the engine.
+- **`sbrush-verify` cpp-vs-wgsl mismatch on `pinch_path`**: the debug GPU
+  session (`source/debug/gpu_stroke.cc`) never derived `strokeDir`, so the wgsl
+  run saw the stale value left by the cpp run. It now derives it per dab from
+  the ring buffer before `pushStrokeSample`. A kernel that reads
+  `ctx.strokeDir` needs a path golden (`stroke_path ... steps=N`), a single-dab
+  golden exercises none of it.
+- **Mirror images take the primary stroke direction reflected**, computed in
+  the executors (`primaryStrokeDir_`, `imageSign_`), not per image from the
+  image's own dab sequence — the addon publishes images in a loop within one
+  dab, so an image-local derivation would see a zero step every time.
+- **`sbrush-verify --regen` rewrites every golden with LF**; the eol-only
+  churn is invisible to `git diff --name-only` (attributes normalise it) but
+  `git status --short` lists it. Check out everything except the goldens that
+  actually changed.
+- **Bash heredocs turn `\"\"\"` into literal backslashes** — two docstrings
+  shipped `\"\"\"` and the restage failed with a SyntaxError. Write Python
+  edit scripts to the scratchpad and run them; keep heredocs for shell only.
+- **Generated files come out CRLF** from Python text-mode writes; the repo is
+  `eol=lf`. Normalise the inventory JSON *before* regenerating `native_v0.py`,
+  whose `SOURCE_SHA256` is computed over the file bytes, or the readiness check
+  reports a stale manifest.
+- `test_brush_falloff` compared `1 - 0.6f` against `0.4f` at a rectangle edge
+  and failed on the float tie; assert `> 1 - 1e-5` at a boundary sample.
+- Fixture counts: registry 39 -> 43 (plane_height, plane_depth, tip_roundness,
+  tip_scale_x); `test_sbrush_member_types` 35 -> 38 (planeHeight, planeDepth,
+  rotateAngle); `SculptBrushesBuiltinCount` 27.
+
 ## Shift smooth, right-click crash, redraw (2026-09-21)
 
 - **Right-clicking a brush-asset shelf icon in the custom mode crashed

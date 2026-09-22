@@ -24,7 +24,11 @@ import math
 from . import engine, mapping
 
 # Uniform names the Blender mapping already drives.
-_MAPPED = {"strength", "radius", "spacing", "planeoff", "autosmooth", "pinch", "invert"}
+_MAPPED = {"strength", "radius", "spacing", "planeoff", "autosmooth", "pinch", "invert",
+           # The plane brush's reaches ride Brush.plane_height / plane_depth
+           # (per dab, with the inversion mode); the twist angle is stroke
+           # state the operator writes per dab.
+           "planeHeight", "planeDepth", "rotateAngle"}
 
 _group_cls = None
 # Engine kernel name -> tuple of generated prop names in its manifest.
@@ -111,7 +115,13 @@ def _walk_manifests():
     contracts = []
     try:
         items = mgr.get("sculptcore::brush::SculptBrushes").items
-        for kernel_name in sorted(set(mapping.KERNEL_BY_TYPE.values())):
+        # Every kernel a Blender type maps to, plus every kernel the frozen
+        # legacy rows declare a contract for: a row outlives the mapping that
+        # first exposed it (FILL's planeSide, once the PLANE type moved to the
+        # plane kernel), and its readiness is still graded against the DLL.
+        kernel_names = set(mapping.KERNEL_BY_TYPE.values())
+        kernel_names.update(association[0] for association in ASSOCIATIONS.values())
+        for kernel_name in sorted(kernel_names):
             enum_value = items.get(kernel_name)
             if enum_value is None:
                 # A stale DLL without this kernel (e.g. an extra kernel not

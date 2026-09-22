@@ -38,7 +38,7 @@ with patch.object(addon.engine, 'capi', side_effect=RuntimeError('Engine deliber
     for index in range(2):
         addon.register()
         authoring.register()
-        assert len(authoring.registry.definitions()) == 39 and len(authoring.curve_bank._entries) == 70
+        assert len(authoring.registry.definitions()) == 43 and len(authoring.curve_bank._entries) == 70
         fresh = bpy.data.brushes.new('Plan6DllOff{}'.format(index), mode='SCULPT')
         result = capture(authoring.registry, ids, authoring.store(fresh))
         assert tuple(item.value for item in result) == tuple(item.default for item in DEFINITIONS)

@@ -285,7 +285,7 @@ with patch.object(addon.engine, 'capi', side_effect=RuntimeError('Engine deliber
         patch.object(addon.engine_props, '_walk_manifests', side_effect=RuntimeError('No manifest')):
     addon.register()
     authoring.register()
-    check('production registration without engine', len(authoring.registry.definitions()) == 39)
+    check('production registration without engine', len(authoring.registry.definitions()) == 43)
     value = authoring.store(brush).read_value(plane[1])
     check('missing engine retains migrated reads and public RNA', value.value == .5 and hasattr(brush, 'sculptcore'))
     missing_engine = brush.copy()
