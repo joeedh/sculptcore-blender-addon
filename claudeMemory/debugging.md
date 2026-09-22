@@ -1112,6 +1112,11 @@ equal. Count overlap builds at the shared cache, not a retired session memo.
   reports a stale manifest.
 - `test_brush_falloff` compared `1 - 0.6f` against `0.4f` at a rectangle edge
   and failed on the float tie; assert `> 1 - 1e-5` at a boundary sample.
+- **A box tip left a coarse rim under dyntopo**: the remesh pass took the host's
+  brush radius while the RoundedBox falloff reaches sqrt(2) of it at the
+  corners. `applyDynTopoDab` now widens by `Brush::falloffFootprintRadius`
+  (the tangent-plane corner; `falloffSupportRadius` is the 3D enclosing
+  sphere and over-covers). Any new falloff shape needs both helpers.
 - Fixture counts: registry 39 -> 43 (plane_height, plane_depth, tip_roundness,
   tip_scale_x); `test_sbrush_member_types` 35 -> 38 (planeHeight, planeDepth,
   rotateAngle); `SculptBrushesBuiltinCount` 27.
