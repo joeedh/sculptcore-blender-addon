@@ -178,7 +178,8 @@ two can be measured against each other instead of argued about.
 - **Gate**: `engine/tests/test_dyntopo_graded.cc` (`node make.mjs test
   test_dyntopo_graded`). Full native ctest stayed at 151/151.
 - **Reachable from**: the addon's Dyntopo panel (Scene.sculptcore_dyntopo_region,
-  'SPHERE' / 'GRADED'), and the debug app's `dyntopo graded=0|1` /
+  'SPHERE' / 'GRADED'; the addon defaults to 'GRADED' while the engine keeps
+  Sphere), and the debug app's `dyntopo graded=0|1` /
   `bench_dyntopo graded=0|1`.
 
 ### What it measures

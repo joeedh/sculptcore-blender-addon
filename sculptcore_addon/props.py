@@ -78,7 +78,8 @@ def register():
              "avoids high-valence vertices at the rim, at the cost of touching "
              "geometry outside the brush"),
         ],
-        default='SPHERE',
+        # The one tuning default that does not mirror the engine's (Sphere).
+        default='GRADED',
     )
     bpy.types.Scene.sculptcore_dyntopo_flips = bpy.props.BoolProperty(
         name="Edge Flips",
