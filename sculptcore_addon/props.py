@@ -88,6 +88,12 @@ def register():
                     "(disable for the pre-flip baseline behavior)",
         default=True,
     )
+    bpy.types.Scene.sculptcore_dyntopo_pinch = bpy.props.BoolProperty(
+        name="Remove Thin Strands",
+        description="Cut a tube where remeshing has thinned it to three edges around, "
+                    "and delete the small closed pieces that cutting leaves behind",
+        default=True,
+    )
     bpy.types.Scene.sculptcore_dyntopo_smooth = bpy.props.BoolProperty(
         name="Tangential Smooth",
         description="Slide remeshed vertices toward their neighborhood "
@@ -190,6 +196,7 @@ def unregister():
     del bpy.types.Scene.sculptcore_dyntopo_spacing
     del bpy.types.Scene.sculptcore_dyntopo_region
     del bpy.types.Scene.sculptcore_dyntopo_flips
+    del bpy.types.Scene.sculptcore_dyntopo_pinch
     del bpy.types.Scene.sculptcore_dyntopo_smooth
     del bpy.types.Scene.sculptcore_dyntopo_smooth_lambda
     del bpy.types.Scene.sculptcore_dyntopo_max_rounds

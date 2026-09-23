@@ -1172,3 +1172,14 @@ equal. Count overlap builds at the shared cache, not a retired session memo.
   keep `(1 - projection)` of the normal motion, so a border on a cliff drifts a
   little (0.04–0.07 here vs 0.095 unconstrained); assert against the
   unconstrained figure, not zero.
+
+- **Blender dies at startup with 0xC0000409 and no output after an engine
+  change.** Engine init aborts when a reflected method's `MARGS(...)` list no
+  longer matches its parameter count, and the abort message only reaches
+  stderr. Blender swallows it, and ctest never loads the bindings, so every
+  native test stays green. Reproduce outside Blender to see the message:
+  `SCULPTCORE_CAPI_PATH=engine/build/python/sculptcore_capi.dll`,
+  `PYTHONPATH=engine/python`, then `python -c "import sculptcore; sculptcore.init()"`.
+  Hit on 2026-09-22 when a `force` parameter was added to
+  `SpatialTree::add_face` (bound in source/spatial/bindings.cc). Fixed by
+  putting the new behaviour in a separate unbound method instead.

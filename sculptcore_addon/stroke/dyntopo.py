@@ -63,6 +63,8 @@ def configure_dyntopo_params(params, scene, refine_method):
     if hasattr(params, "region"):
         params.region = _DYNTOPO_REGIONS.get(scene.sculptcore_dyntopo_region, 0)
     params.do_flips = scene.sculptcore_dyntopo_flips
+    if hasattr(params, "pinch_thin"):
+        params.pinch_thin = scene.sculptcore_dyntopo_pinch
     params.do_smooth = scene.sculptcore_dyntopo_smooth
     params.smooth_lambda = scene.sculptcore_dyntopo_smooth_lambda
     params.reproject_uvs = scene.sculptcore_reproject_uvs

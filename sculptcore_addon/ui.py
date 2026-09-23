@@ -203,6 +203,7 @@ class SCULPTCORE_PT_dyntopo(bpy.types.Panel):
         col.prop(scene, "sculptcore_dyntopo_region")
         sub = col.column(heading="Remesher")
         sub.prop(scene, "sculptcore_dyntopo_flips")
+        sub.prop(scene, "sculptcore_dyntopo_pinch")
         sub.prop(scene, "sculptcore_dyntopo_smooth")
         row = sub.row()
         row.active = scene.sculptcore_dyntopo_smooth

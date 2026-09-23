@@ -55,3 +55,5 @@ is ignored apart from explicitly retained frozen compatibility inputs.
 - [Safe native test launching](codebase/generic-brush-testing.md#less-frequent-coverage)
 - [codebase/brush-input-delivery.md](codebase/brush-input-delivery.md)
 - [research/dyntopo-region-gating-vs-blender.md](research/dyntopo-region-gating-vs-blender.md)
+- [research/dyntopo-thin-tube-collapse.md](research/dyntopo-thin-tube-collapse.md)
+- [plans/dyntopo-thin-tube-pinch.md](plans/dyntopo-thin-tube-pinch.md)
